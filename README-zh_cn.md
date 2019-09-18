@@ -1,29 +1,9 @@
-hexo-theme-sakura主题 [English document](https://github.com/honjun/hexo-theme-sakura/blob/master/README.md)
+hexo-theme-sakura主题
 
-基于WordPress主题[Sakura](https://github.com/mashirozx/Sakura/)修改成Hexo的主题。
+基于WordPress主题[Sakura](https://github.com/mashirozx/Sakura/)修改的Hexo主题。
 
-[demo预览](https://sakura.hojun.cn)
-
-正在开发中......
-
-![](https://wx3.sinaimg.cn/large/006bYVyvly1g069tuf42oj312w0m8ndq.jpg)
-
-## 交流群
-若你是使用者，加群QQ: 801511924
-
-若你是创作者，加群QQ: 194472590
-
-
-## 主题特性
-
- - 首页大屏视频
- - 首页随机封面
- - 图片懒加载
- - valine评论
- - fancy-box相册
- - pjax支持，音乐不间断
- - aplayer音乐播放器
- - 多级导航菜单（按现在大部分hexo主题来说，这也算是个特性了）
+## 感谢开源
+[hexo-theme-sakura](https://github.com/honjun/hexo-theme-sakura)
 
 
 ## 赞赏作者
@@ -46,15 +26,9 @@ hexo-theme-sakura主题 [English document](https://github.com/honjun/hexo-theme-
 ### 博客根目录下的_config配置
 
 站点
+[佳境的小本本](www.shmily-qjj.github.io)
 ```yml
-# Site
-title: 你的站点名
-subtitle:
-description: 站点简介
-keywords:
-author: 作者名
-language: zh-cn
-timezone:
+code...
 ```
 
 部署
