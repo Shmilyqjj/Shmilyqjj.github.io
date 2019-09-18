@@ -1,0 +1,3 @@
+cd /d D:\PersonalBlog
+hexo init D:\PersonalBlog
+npm install
