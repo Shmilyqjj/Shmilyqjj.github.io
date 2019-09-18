@@ -11,7 +11,7 @@ pjax: 1
 # 1开启
 mathjax: 0
 
-notice: hexo-Sakura主题已经开源，目前正在开发中...
+notice: 佳境的个人博客正在开发中...
 lazyloadImg: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg
 
 menus:
@@ -57,7 +57,7 @@ bg:
   - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(8).jpg.webp
 
 # 背景图片样式 空 原图效果 filter-dim 阴影 filter-grid 横条 filter-dot 点点
-bgclass: filter-dot
+bgclass: filter-dim
 
 # startdash url, title, desc img
 startdash: 
