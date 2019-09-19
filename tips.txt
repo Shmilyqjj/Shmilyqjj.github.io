@@ -4,3 +4,10 @@ hexo init D:\PersonalBlog
 npm install
 hexo g
 hexo server -p 8888  打开本地预览
+
+Cannot GET /
+npm install hexo-generator-index
+
+
+写博客：
+source/_post
