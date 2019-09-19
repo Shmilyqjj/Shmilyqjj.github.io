@@ -1,6 +1,6 @@
 地址：www.shmily-qjj.github.io
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
-npm install
+npm install    (npm install hexo --save)
 hexo g
 hexo server -p 8888  打开本地预览
