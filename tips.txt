@@ -5,9 +5,16 @@ npm install    (npm install hexo --save)
 hexo g
 hexo server -p 8888  打开本地预览
 
-Cannot GET /
-npm install hexo-generator-index
 
 
 写博客：
 source/_post
+
+
+
+
+
+遇到的问题：
+Cannot GET /
+npm install hexo-generator-index
+WebStorm绑定Nodejs环境，配置环境完成后，hexo clean，hexo g
