@@ -26,9 +26,10 @@
 |-- source          网页资源（css,js,images,文章等）
    |-- _posts       博客文章（写文章的地方）
 |-- themes          主题目录
-|-- .gitignore
-|-- package.json
+|-- .gitignore      Git忽略文件或目录
+|-- package.json    框架参数（框架依赖拆件及其版本）
 ```
+
 
 
 
