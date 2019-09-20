@@ -6,9 +6,15 @@ hexo g
 hexo server -p 8888  打开本地预览
 
 
-
 写博客：
-source/_post
+source/_post -> 慢
+推荐方式：
+使用HEXO Admin：
+npm install --save hexo-admin   安装hexo-admin
+hexo server -d -p 8888
+http://localhost:8888/ -> 打开博客
+http://localhost:8888/admin -> 打开写博客工具
+settings里设置管理员的密码，复制参数到_config.yml
 
 
 
