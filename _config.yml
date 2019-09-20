@@ -75,6 +75,12 @@ pagination_dir: page
 ## Themes: https://hexo.io/themes/
 theme: Sakura
 
+# hexo-admin authentification
+admin:
+  username: Shmilyqjj
+  password_hash: $2a$10$nwmQlAjh5/y4PkacGbtWlex7yy83GNPDhHvRwL29PCHA8IboKPVe6
+  secret: Same as GitHub.
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
