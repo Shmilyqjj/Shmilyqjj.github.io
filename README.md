@@ -34,6 +34,7 @@
 #### 四级标题
 ##### 五级标题
 ###### 六级标题
+
 * 字体
 *斜体文本*
 _斜体文本_
@@ -42,8 +43,10 @@ __粗体文本__
 ***粗斜体文本***
 ___粗斜体文本___
 <u>带下划线文本</u>
+
 * 脚注
 [^要注明的文本]: xxxxxxxxx
+
 * 列表
 无序列表用* + -三种符号表示
     * 列表嵌套
@@ -67,7 +70,92 @@ ___粗斜体文本___
 > * list
 > + list
 
+* 代码块
+`public static void main(String[] args)`
+        System.out.println();
+        //tab或者四个空格
+```python
+l = []
+import copy
+copy.copy(l)
+```
+
+```java
+public static void main()
+```
+
+```scala
+var qjj = 0;
+//定义代码块并指定语言->显示高亮
+```
+* 链接
+这是我的云音乐主页[CloudMusic](http://music.163.com/artist?id=13610347)
+直接显示链接地址: <http://music.163.com/artist?id=13610347>
+我的网易云主页高级链接[cm-1]
+我的网易云主页高级链接[cm-2]
+
+[cm-1]:http://music.163.com/artist?id=13610347
+[cm-2]:http://music.163.com/artist?id=13610347
+
+* 添加图片
+![alt lalala](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4)
+![alt hahaha](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4 "图片注释呀!鼠标放那会弹出注释!")
+<img src="http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4" width=30% title="可以使用html的标签,控制图片大小,title悬停显示文字">
+
+* 添加表格
+`Markdown 制作表格使用 | 来分隔不同的单元格，使用 - 来分隔表头和其他行`
+| 表头 | 表头 |
+| ---- | ---- |
+| 表格 | 表格 |
+| 表格 | 表格 |
+| 表格 | 表格 |
+
+| 左对齐 | 右对齐 | 居中对齐 |
+| :-----| ----: | :----: |
+| 单元格 | 单元格 | 单元格 |
+| 单元格 | 单元格 | 单元格 |
+
+* 对HTML的支持
+`不在 Markdown 涵盖范围之内的标签，都可以直接在文档里面用 HTML 撰写`
+
+```html
+使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑
+```
+使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑
+
+**文本加粗**
+**\*正常显示\*号配合文本加粗体\**
+```yml
+以下支持反斜杠转义
+\   反斜线
+`   反引号
+*   星号
+_   下划线
+{}  花括号
+[]  方括号
+()  小括号
+#   井字号
++   加号
+-   减号
+.   英文句点
+!   感叹号
+```
+
+* 数学公式
+`当需要在编辑器中插入数学公式时，可以使用两个美元符 $$ 包裹 TeX 或 LaTeX 格式的数学公式来实现`
+  $$
+  \mathbf{V}_1 \times \mathbf{V}_2 =  \begin{vmatrix}
+  \mathbf{i} & \mathbf{j} & \mathbf{k} \\
+  \frac{\partial X}{\partial u} &  \frac{\partial Y}{\partial u} & 0 \\
+  \frac{\partial X}{\partial v} &  \frac{\partial Y}{\partial v} & 0 \\
+  \end{vmatrix}
+  $$tep1}{\style{visibility:hidden}{(x+1)(x+1)}}
+  $$
+
 - - -
+
+
+
 
 
 
