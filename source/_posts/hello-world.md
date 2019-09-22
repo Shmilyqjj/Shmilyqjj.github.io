@@ -1,9 +1,8 @@
----
 title: Hello World
+date: 2019-09-22 19:41:16
 ---
-Welcome to [Hexo](https://hexo.io/)! This is your very first post. Check [documentation](https://hexo.io/docs/) for more info. If you get any problems when using Hexo, you can find the answer in [troubleshooting](https://hexo.io/docs/troubleshooting.html) or you can ask me on [GitHub](https://github.com/hexojs/hexo/issues).
-
-## Quick Start
+# 我的第一篇博客
+## 技术吗？
 
 ### Create a new post
 
