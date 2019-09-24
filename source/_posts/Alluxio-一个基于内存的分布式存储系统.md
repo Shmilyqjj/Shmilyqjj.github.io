@@ -10,7 +10,6 @@ categories:
 comments: true  
 date: 2019-9-26 22:16:00
 tags:
-  - 调研
   - 大数据
   - Alluxio
 keywords: Alluxio
