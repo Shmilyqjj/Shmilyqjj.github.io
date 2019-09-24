@@ -16,7 +16,7 @@ hexo server -p 8888  打开本地预览
   http://localhost:8888/admin -> 打开写博客工具
   settings里设置管理员的密码，复制参数到_config.yml
 3.图片库
-  封面一般用POCO，也可以用QQ相册，博文内图一般用六间房（稳定外链）
+  封面一般用QQ相册，博文内图一般用六间房（稳定外链），要清晰可以试用POCO（不稳）
 **技术的封面:
         POCO  tu.poco.cn  qq     f12
         技术1    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373278190694_201174771_H1920.png
