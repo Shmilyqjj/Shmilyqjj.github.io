@@ -7,14 +7,26 @@ hexo server -p 8888  打开本地预览
 
 
 写博客：
-source/_post -> 慢
-推荐方式：
-使用HEXO Admin：
-npm install --save hexo-admin   安装hexo-admin
-hexo server -d -p 8888
-http://localhost:8888/ -> 打开博客
-http://localhost:8888/admin -> 打开写博客工具
-settings里设置管理员的密码，复制参数到_config.yml
+1.source/_post
+2.推荐工具:
+  使用HEXO Admin:
+  npm install --save hexo-admin   安装hexo-admin
+  hexo server -d -p 8888
+  http://localhost:8888/ -> 打开博客
+  http://localhost:8888/admin -> 打开写博客工具
+  settings里设置管理员的密码，复制参数到_config.yml
+3.图片库
+  技术的封面:
+        技术1    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/Se4pIIrf4FE*pC2Prds5XbsOlx4PNSS4C0ytCHWOdzs!/r/dMUAAAAAAAAA
+        技术2    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3ramDY4MDnk44dJkecO0!/r/dL4AAAAAAAAA
+        技术3    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/QhXpePDFY8iDSYSr45CAc0zYncORTAE9z7jDTGavlI8!/r/dAUBAAAAAAAA
+        技术4    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/lFUwj7*duL0IGspot6Q4WqqHI4Bx9T7XKeooltz0uH0!/r/dDUBAAAAAAAA
+        技术5    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/cAT46f0Etmqcl25.p9NhX*WMVHDkvgV.rFU.1Y62lMI!/r/dL4AAAAAAAAA
+        技术6    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/XJJK5BWOugFLWA2eNm7htx9KLwjtvPba0OPVqQpuUKI!/r/dAgBAAAAAAAA
+        技术7    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/vqSVzCNaXUgy5KfRy5OfIYkT.XT.iEvvExE2LTRu4A8!/r/dL8AAAAAAAAA
+        技术8    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/aywi*9fi1*PO*S50RvHzjY09XSQg2MjlXdAtX1fBlnc!/r/dLgAAAAAAAAA
+        技术9    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/3OgqjYMcKbIXLYSuVCUfi3oQJqr36UW1cPubPaW3sEE!/r/dLYAAAAAAAAA
+  生活的封面:
 
 
 
