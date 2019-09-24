@@ -3,8 +3,8 @@ title: Alluxio - 一个基于内存的分布式存储系统
 author: 佳境
 avatar: 'https://wx1.sinaimg.cn/large/006bYVyvgy1ftand2qurdj303c03cdfv.jpg'
 authorLink: www.shmily-qjj.github.io
-authorAbout: 要努力呀！
-authorDesc: 要努力呀！
+authorAbout: 努力到无能为力，拼搏到感动自己
+authorDesc: 努力到无能为力，拼搏到感动自己
 categories:
   - 技术
 comments: true  
