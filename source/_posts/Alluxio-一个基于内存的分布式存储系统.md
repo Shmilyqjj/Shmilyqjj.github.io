@@ -15,11 +15,11 @@ tags:
   - Alluxio
 keywords: Alluxio
 description: Alluxio调研-随手记
-photos: http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3ramDY4MDnk44dJkecO0!/r/dL4AAAAAAAAA
+photos: https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373275900626_201174771_H800.png
 ---
 ### Alluxio-一个基于内存的分布式存储系统  
-![alt](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/u.JiZjuKQwEG9GRqRmGXPBTimdxP5Vwjh*7kmdKxEA4!/b/dLYAAAAAAAAA&bo=RQ9QAwAAAAADFys!&rf=viewer_4)   
-### Alluxio简介
+![alt](https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg)   
+### 什么是Alluxio
 
 
 More info: [Writing](https://hexo.io/docs/writing.html)
