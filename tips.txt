@@ -16,9 +16,9 @@ hexo server -p 8888  打开本地预览
   http://localhost:8888/admin -> 打开写博客工具
   settings里设置管理员的密码，复制参数到_config.yml
 3.图片库
-  封面一般用POCO，也可以用QQ相册，博文内图一般用六间房
+  封面一般用POCO，也可以用QQ相册，博文内图一般用六间房（稳定外链）
 **技术的封面:
-        POCO tu.poco.cn qq
+        POCO  tu.poco.cn  qq     f12
         技术1    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373278190694_201174771_H1920.png
         技术2    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373275900626_201174771_H800.png
         技术3    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373271341509_201174771_H800.jpg
@@ -29,7 +29,7 @@ hexo server -p 8888  打开本地预览
         技术8    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373274404496_201174771_H800.jpg
         技术9    https://img1002-c.pocoimg.cn/image/poco/works/93/2019/0924/23/15693373278155576_201174771_H800.png
 
-        QQ相册
+        QQ相册  https://user.qzone.qq.com/  qq
         技术1    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/Se4pIIrf4FE*pC2Prds5XbsOlx4PNSS4C0ytCHWOdzs!/r/dMUAAAAAAAAA
         技术2    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3ramDY4MDnk44dJkecO0!/r/dL4AAAAAAAAA
         技术3    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/QhXpePDFY8iDSYSr45CAc0zYncORTAE9z7jDTGavlI8!/r/dAUBAAAAAAAA
@@ -41,7 +41,7 @@ hexo server -p 8888  打开本地预览
         技术9    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/3OgqjYMcKbIXLYSuVCUfi3oQJqr36UW1cPubPaW3sEE!/r/dLYAAAAAAAAA
         七牛云 710552907@qq.com
 
-        六间房(图片会压缩) qq
+        六间房(图片会压缩)  https://v.6.cn/profile/photo.php?act=list&rid=238467312#cate/-1  qq
         技术1    https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569335652074232916_b.jpg
         技术2    https://vi0.xiu123.cn/live/2019/09/24/22/1002v1569335677478840424_b.jpg
         技术3    https://vi3.xiu123.cn/live/2019/09/24/22/1002v1569335686050072396_b.jpg
@@ -54,6 +54,38 @@ hexo server -p 8888  打开本地预览
 
 
 **生活的封面:
+        POCO  tu.poco.cn  qq     f12
+        生活1    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426989711298_201174771_H800.jpg
+        生活2    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426988157266_201174771_H800.jpg
+        生活3    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426989213368_201174771_H800.jpg
+        生活4    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426988122181_201174771_H800.jpg
+        生活5    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426989891629_201174771_H800.jpg
+        生活6    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426981311243_201174771_H800.jpg
+        生活7    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426989454061_201174771_H800.jpg
+        生活8    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426987423511_201174771_H800.jpg
+        生活9    https://img1002-c.pocoimg.cn/image/poco/works/91/2019/0925/00/15693426981515168_201174771_H800.jpg
+
+        QQ相册  https://user.qzone.qq.com/  qq
+        生活1    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/akjJ2B5rTD407cDxL*Zp7YZIvV9o2gfQxefrh9fyEMA!/r/dLYAAAAAAAAA
+        生活2    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/wvQcXorA1NCsfkyNQWvTQ9pquwmIGcZCbveTgOm5AYg!/r/dLgAAAAAAAAA
+        生活3    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/hncXBWeyIRjij5N3NOwR1WRE0tbUg0iB8rJY4fiAtn4!/r/dFMBAAAAAAAA
+        生活4    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/f63KvU9K6BdqGwgBupMHGjO5f9HJ.b0kXLBTgz*DRTM!/r/dL4AAAAAAAAA
+        生活5    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/G.FC7O6HMX357pCwFzw1oaLmOZ4WtRYe3wsVfpUxiRU!/r/dFMBAAAAAAAA
+        生活6    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/TZIuMmc2LZcFR3VcWGzm9cHFjndc0JMkdYK9TT1jToc!/r/dFMBAAAAAAAA
+        生活7    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/Y6zUZ5.b5uat51DBLREUbNXZOKxTgLqsjEy5yU1lRJI!/r/dLYAAAAAAAAA
+        生活8    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/jr*wSGhyODSJgtAcSfic6mFZoPXn6lWUPNnkDELK9AU!/r/dFMBAAAAAAAA
+        生活9    http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/rNwtyUp8dhPdlsKxaeFM4ui*sWQiAFUQJe9skTXxDtE!/r/dMMAAAAAAAAA
+
+        六间房(图片会压缩)  https://v.6.cn/profile/photo.php?act=list&rid=238467312#cate/-1  qq
+        生活1    https://vi2.xiu123.cn/live/2019/09/25/00/1002v1569343216549317647_b.jpg
+        生活2    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343218167213992_b.jpg
+        生活3    https://vi1.xiu123.cn/live/2019/09/25/00/1002v1569343218958171908_b.jpg
+        生活4    https://vi2.xiu123.cn/live/2019/09/25/00/1002v1569343221030251393_b.jpg
+        生活5    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343227830494705_b.jpg
+        生活6    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343232939362177_b.jpg
+        生活7    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343237710464052_b.jpg
+        生活8    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343242192874575_b.jpg
+        生活9    https://vi1.xiu123.cn/live/2019/09/25/00/1002v1569343246573914165_b.jpg
 
 
 
