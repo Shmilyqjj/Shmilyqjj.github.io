@@ -25,6 +25,14 @@ More info: [Writing](https://hexo.io/docs/writing.html)
 
 ### Run server
 
+Alluxio调研
+
+Alluxio基于三个核心组件：
+	Master，负责管理文件和对象元数据
+	Worker，管理节点的本地空间，以及管理文件和对象块以及与下面的存储系统的接口
+	Client，允许分析和AI / ML应用程序与Alluxio连接
+
+
 ``` bash
 $ hexo server
 ```
