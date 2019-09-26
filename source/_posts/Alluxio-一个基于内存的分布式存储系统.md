@@ -18,12 +18,16 @@ photos: http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3
 ---
 ![alt Alluxio-1](https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg)   
 ### 什么是Alluxio  
-Alluxio是应用于云中数据分析和机器学习的开源数据编排框架,是一个基于内存的虚拟的分布式存储系统，介于计算框架和各种数据源之间的数据编排层,它统一了数据访问的方式，为上层计算框架和底层存储系统构建了桥梁,计算框架可以通过标准接口连接到Alluxio。
+Alluxio 是世界上第一个虚拟的分布式存储系统，以内存速度统一了数据访问。 它为计算框架和存储系统构建了桥梁，使应用程序能够通过一个公共接口连接到许多存储系统。 Alluxio 以内存为中心的架构使得数据的访问速度能比现有方案快几个数量级。  
 
-#### Alluxio的作用  
-* 在公共云中加速大数据框架(可以加速Spark/Presto等)
-* 在混合云环境中运行大数据工作负载(无论位于企业内部，云端还是HDFS中，数据可以通过不同方式访问)
-* 降低Spark，Presto和Tensorflow在任何云中任何对象存储的负载
+在大数据生态系统中，Alluxio 位于数据驱动框架或应用（如 Apache Spark、Presto、Tensorflow、Apache HBase、Apache Hive 或 Apache Flink）和各种持久化存储系统（如 Amazon S3、Google Cloud Storage、OpenStack Swift、GlusterFS、HDFS、IBM Cleversafe、EMC ECS、Ceph、NFS 和 Alibaba OSS）之间。 Alluxio 统一了存储在这些不同存储系统中的数据，为其上层数据驱动应用提供统一的客户端 API 和全局命名空间。
+
+
+#### Alluxio优势
+1. **内存速度 I/O**:Alluxio 能够用作分布式共享缓存服务，这样与 Alluxio 通信的计算应用程序可以透明地缓存频繁访问的数据（尤其是从远程位置），以提供内存级 I/O 吞吐率。
+2. **简化云存储和对象存储接入**:与传统文件系统相比，云存储系统和对象存储系统使用不同的语义，这些语义对性能的影响也不同于传统文件系统。常见的文件系统操作（如列出目录和重命名）通常会导致显著的性能开销。当访问云存储中的数据时，应用程序没有节点级数据本地性或跨应用程序缓存。将 Alluxio 与云存储或对象存储一起部署可以缓解这些问题，因为这样将从 Alluxio 中检索读取数据，而不是从底层云存储或对象存储中检索读取。
+3. **简化数据管理**:Alluxio 提供对多数据源的单点访问。除了连接不同类型的数据源之外，Alluxio 还允许用户同时连接到不同版本的同一存储系统，如多个版本的 HDFS，并且无需复杂的系统配置和管理。
+4. **应用程序部署简易**:Alluxio 管理应用程序和文件或对象存储之间的通信，将应用程序的数据访问请求转换为底层存储接口的请求。Alluxio 与 Hadoop 兼容，现有的数据分析应用程序，如 Spark 和 MapReduce 程序，无需更改任何代码就能在 Alluxio 上运行。
 
 #### Alluxio的一些特征:  
 [超大规模工作负载](https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/):支持超大规模工作负载并具有HA高可用性  
@@ -35,7 +39,6 @@ Alluxio是应用于云中数据分析和机器学习的开源数据编排框架,
 [安全性](https://docs.alluxio.io/os/user/stable/en/advanced/Security.html) : 通过内置审核、基于角色的访问控制、LDAP、活动目录和加密通信，提供数据保护  
 [监控和管理](https://docs.alluxio.io/os/user/stable/en/basic/Web-Interface.html) : 提供了用户友好的Web界面和命令行工具，允许用户监控和管理集群  
 [企业级高可用和跨区域性](https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html) : 跨区域和区域的自适应复制，以最大限度地提高性能和可用性  
-
 
 ### Alluxio原理  
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)  
@@ -67,6 +70,10 @@ cp conf/alluxio-site.properties.template conf/alluxio-site.properties
 # 设置必要参数
 vim conf/alluxio-site.properties
 alluxio.master.hostname=192.168.1.101 # NameNode所在机器
+# 具体配置参数https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html
+#这里列出Alluxio与Hadoop整合的参数:
+
+
 
 
 ```
