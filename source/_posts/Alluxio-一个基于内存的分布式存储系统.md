@@ -16,7 +16,7 @@ keywords: Alluxio
 description: Alluxio调研-随手记
 photos: http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3ramDY4MDnk44dJkecO0!/r/dL4AAAAAAAAA
 ---
-### Alluxio-一个基于内存的分布式存储系统  
+### Alluxio数据编排
 ![alt](https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg)   
 ### 什么是Alluxio
 
