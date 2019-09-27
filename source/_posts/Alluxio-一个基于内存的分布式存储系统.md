@@ -32,7 +32,7 @@ Alluxio与Hadoop兼容,现有的数据分析应用，如Spark和MapReduce程序�
 3. **简化数据管理**:Alluxio 提供对多数据源的单点访问。除了连接不同类型的数据源之外，Alluxio 还允许用户同时连接到不同版本的同一存储系统，如多个版本的 HDFS，并且无需复杂的系统配置和管理。
 4. **应用程序部署简易**:Alluxio 管理应用程序和文件或对象存储之间的通信，将应用程序的数据访问请求转换为底层存储接口的请求。Alluxio 与 Hadoop 兼容，现有的数据分析应用程序，如 Spark 和 MapReduce 程序，无需更改任何代码就能在 Alluxio 上运行。
 
-#### Alluxio的一些特征:  
+#### Alluxio的特征:  
 [超大规模工作负载](https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/):支持超大规模工作负载并具有HA高可用性  
 [灵活的API](https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/) :使用HDFS、S3、Java、RESTful或POSIX为基础的API，集成计算框架Spark、Presto、Tensorflow、HIVE和更多的计算框架  
 [智能数据缓存和分层](https://docs.alluxio.io/os/user/stable/en/advanced/Alluxio-Storage-Management.html) : 使用包括内存在内的本地存储，来充当分布式缓冲缓存区,这个在用户应用程序和各种底层存储之间的快速数据层可以很大程度上改善I/O性能。
@@ -67,24 +67,49 @@ Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起�
 
 
 ### 安装和部署Alluxio  
-[下载Alluxio压缩包](https://www.alluxio.io/download/)并上传到NN所在集群  
+1.[下载Alluxio压缩包](https://www.alluxio.io/download/)并上传到NN所在集群  
+2.解压并进入安装目录  
 ``` bash
-#解压并进入安装目录
 tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
 cd /opt/module/alluxio-2.0.1
 cp conf/alluxio-site.properties.template conf/alluxio-site.properties
+```
+3.设置必要参数
+alluxio-env.sh
+```bash
+ALLUXIO_HOME=/opt/programs/alluxio-1.4.0
+ALLUXIO_LOGS_DIR=/opt/programs/alluxio-1.4.0/logs
+ALLUXIO_MASTER_HOSTNAME=hadoop1
+ALLUXIO_RAM_FOLDER=/mnt/ramdisk
+ALLUXIO_UNDERFS_ADDRESS=hdfs://dev-dalu:8020/alluxio
+ALLUXIO_WORKER_MEMORY_SIZE=2048MB
+JAVA_HOME=/opt/programs/jdk1.7.0_67
+```
 
-# 设置必要参数
+
+非高可用
+```bash
 vim conf/alluxio-site.properties
-alluxio.master.hostname=192.168.1.101 # NameNode所在机器
-# 具体配置参数https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html
+
+```
+高可用
+```bash
+vim conf/alluxio-site.properties
+
+```
+其他可选参数:[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)
+
+4.分发
+```bash
+scp -r /opt/module/alluxio  root@10.2.5.64:/opt/module/alluxio
+scp -r /opt/module/alluxio  root@10.2.5.65:/opt/module/alluxio
+```
+
+alluxio.master.hostname=192.168.1.101 
+
 #这里列出Alluxio与Hadoop整合的参数:
 
 
-
-
-
-```
 
 More info: [Server](https://hexo.io/docs/server.html)
 
