@@ -20,7 +20,7 @@ photos: http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/gTdB5VZVD3n1G9mwn*nGk.F3
 ### 什么是Alluxio  
 Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架和存储系统构建了桥梁，使计算框架能够通过一个公共接口连接到多个独立的存储系统,使计算与存储隔离。 Alluxio 是内存为中心的架构，以内存速度统一了数据访问速度，使得数据的访问速度能比现有方案快几个数量级,为大数据软件栈带来了显著的性能提升  
 ![alt Alluxio-3](https://vi3.xiu123.cn/live/2019/09/27/23/1002v1569597084038268730_b.jpg)  
-在大数据生态系统中，Alluxio 位于数据驱动框架或应用（如 Apache Spark、Presto、Tensorflow、Apache HBase、Apache Hive 或 Apache Flink）和各种持久化存储系统（如 Amazon S3、Google Cloud Storage、OpenStack Swift、GlusterFS、HDFS、IBM Cleversafe、EMC ECS、Ceph、NFS 和 Alibaba OSS）之间,Alluxio 统一了存储在这些不同存储系统中的数据,为其上层数据框架提供统一的客户端 API和全局命名空间  
+在大数据生态系统中，Alluxio 位于数据驱动框架或应用（如 Apache Spark、Presto、Tensorflow、Apache HBase、Apache Hive 或 Apache Flink）和各种持久化存储系统（如 Amazon S3、Google Cloud Storage、OpenStack Swift、GlusterFS、HDFS、IBM Cleversafe、EMC ECS、Ceph、NFS 和 Alibaba OSS）之间,Alluxio 统一了存储在这些不同存储系统中的数据,为其上层数据框架提供统一的客户端API和全局命名空间  
 
 
 #### Alluxio优势  
@@ -40,7 +40,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 [全局命名空间管理](https://docs.alluxio.io/os/user/stable/en/advanced/Namespace-Management.html) : 多个存储系统安装到一个统一的名称空间中，不需要创建永久数据副本  
 [安全性](https://docs.alluxio.io/os/user/stable/en/advanced/Security.html) : 通过内置审核、基于角色的访问控制、LDAP、活动目录和加密通信，提供数据保护  
 [监控和管理](https://docs.alluxio.io/os/user/stable/en/basic/Web-Interface.html) : 提供了用户友好的Web界面和命令行工具，允许用户监控和管理集群  
-[分层次的本地性](https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html) : 将更多的读写安排在本地,实现成本和性能的优化
+[分层次的本地性](https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html) : 将更多的读写安排在本地,实现成本和性能的优化  
 
 #### Alluxio的应用场景  
 1.计算应用需要反复访问远程云端或机房的数据  
@@ -78,7 +78,7 @@ cd /opt/module/alluxio-2.0.1
 cp conf/alluxio-site.properties.template conf/alluxio-site.properties
 ```
 3.设置必要参数
-alluxio-env.sh
+**conf/alluxio-env.sh**
 ```bash
 ALLUXIO_HOME=/opt/programs/alluxio-1.4.0
 ALLUXIO_LOGS_DIR=/opt/programs/alluxio-1.4.0/logs
@@ -89,7 +89,7 @@ ALLUXIO_WORKER_MEMORY_SIZE=2048MB
 JAVA_HOME=/opt/programs/jdk1.7.0_67
 ```
 
-
+**conf/alluxio-site.properties**
 非高可用
 ```bash
 vim conf/alluxio-site.properties
@@ -110,24 +110,85 @@ scp -r /opt/module/alluxio  root@10.2.5.65:/opt/module/alluxio
 
 alluxio.master.hostname=192.168.1.101 
 
-#这里列出Alluxio与Hadoop整合的参数:
-
 
 
 More info: [Server](https://hexo.io/docs/server.html)
 
-### Generate static files
-
+### Alluxio常用命令  
+以下是常用的Alluxio Shell操作命令,就当是个速查表吧!  
 ``` bash
-$ hexo generate
-```
+#文件基本操作
+ alluxio fs cat <path/file>  # 打开文件
+ alluxio fs ls [-d|-f|-p|-R|-h|--sort=option|-r] <path>  #查看目录
+ alluxio fs copyFromLocal [--thread <num>] [--buffersize <bytes>] <src> <remoteDst> # 从本地上传文件到Alluxio
+ alluxio fs copyToLocal [--buffersize <bytes>]  <src> <localDst>   #从Alluxio载文件到本地
+ alluxio fs count <path>  # 统计Alluxio目录的文件数,文件夹数和总大小
+ alluxio fs du [-h|-s|--memory] <path>  # 文件大小
+ alluxio fs cp [-R] [--buffersize <bytes>] <src> <dst>   #复制文件
+ alluxio fs mv <src> <dst>   # 移动文件
+ alluxio fs rm [-R] [-U] [--alluxioOnly] <path>    # 删除文件
+ alluxio fs mkdir <path1> [path2] ... [pathn]  # 创建文件夹
+ alluxio fs touch <path>  #创建一个空文件
+ alluxio fs setTtl [--action delete|free] <path> <time to live>  # 设置一个文件的TTL时间
+ alluxio fs unsetTtl <path>  # 删除文件的TTL值
+ alluxio fs checksum <Alluxio path>  # 得到文件的MD5值
+ alluxio fs stat <path>  # 显示文件路径信息
+ alluxio fs tail <path>  # 显示文件最后1KB的内容
+ alluxio fs location <path>  # 输出包含某个文件数据的主机,使用location命令可以调试数据局部性
+ alluxio fs help <command> # 查看命令介绍和用法
+ alluxio fs distributedMv <src> <dst> # 并行移动文件或目录
+ alluxio fs distributedCp <src> <dst> # 并行复制文件或目录
+ alluxio fs distributedLoad [--replication <num>] <path>  # 在alluxio空间中加载文件或目录，使其驻留在内存中
 
-More info: [Generating](https://hexo.io/docs/generating.html)
+#与底层存储的交互操作
+ alluxio fs load [--local] <path>  # load命令可为数据分析编排数据,加快数据分析的效率,load命令将底层文件系统中的数据载入到Alluxio中,如果运行该命令的机器上正在运行一个Alluxio worker,那么数据将移动到该worker上,否则数据会被随机移动到一个worker上。 如果该文件已经存在在Alluxio中,设置了--local选项,并且有本地worker,则数据将移动到该worker上。否则该命令不进行任何操作。如果该命令的目标是一个文件夹,那么其子文件和子文件夹会被递归载入。
+ alluxio fs persist [-p|--parallelism <#>] [-t|--timeout <milliseconds>] [-w|--wait <milliseconds>] <path> [<path> ...]  # 持久化Alluxio中的数据到底层存储
+ alluxio fs checkConsistency [-r] [-t|--threads <threads>] <Alluxio path>  # 检查Alluxio与底层存储系统的元数据一致性(确定文件在底层存储还是在under storage system.)
+ alluxio fs free -f <>   # 已经持久化到底层存储,但内存中还保留着的文件可以通过free从内存中释放,未被持久化的文件不能被free
+ alluxio fs mount [--readonly] [--shared] [--option <key=val>] <alluxioPath> <ufsURI>]    # 将底层文件系统的"ufsURI"路径挂载到Alluxio命名空间中的"alluxioPath"路径下，"path"路径事先不能存在并由该命令生成。 没有任何数据或者元数据从底层文件系统加载。当挂载完成后，对该挂载路径下的操作会同时作用于底层文件系统的挂载点。
+ alluxio fs unmount <alluxioPath>  # 取消挂载
+ alluxio fs updateMount [--readonly] [--shared] [--option <key=val>] <alluxioPath>  # 保留元数据的同时更改挂载点设置
+ alluxio fs pin <path> media1 media2 media3 ... 如果管理员对作业运行流程十分清楚，那么可以使用pin命令手动提高性能。pin命令对Alluxio中的文件或文件夹进行标记。该命令只针对元数据进行操作，不会导致任何数据被加载到Alluxio中。如果一个文件在Alluxio中被标记了，该文件的任何数据块都不会从Alluxio worker中被剔除。如果存在过多的被锁定的文件，Alluxio worker将会剩余少量存储空间，从而导致无法对其他文件进行缓存。
+ alluxio fs unpin <path>   # 将Alluxio中的文件或文件夹解除标记。该命令仅作用于元数据，不会剔除或者删除任何数据块。一旦文件被解除锁定，Alluxio worker可以剔除该文件的数据块。
+ alluxio fs startSync <path>  # 启动指定路径的自动同步进程
+ alluxio fs stopSync <path>   # 关闭指定路径的自动同步进程
+ alluxio fs setReplication [-R] [--max <num> | --min <num>] <path>  # 设置给定路径或文件的最大/最小副本数 (-1表示不限制最大副本数) -R递归
 
-### Deploy to remote sites
+#权限相关操作及管理员命令
+ alluxio fs chgrp [-R] <group> <path>  # 换组
+ alluxio fs chmod [-R] <mode> <path>   # 更改读写执行等权限                        
+ alluxio fs chown [-R] <owner>[:<group>] <path>  # 所有者
+ alluxio fsdamin backup [directory] [--local]	# 备份Alluxio的元数据到备份目录
+ alluxio fsdamin doctor [category]	# 显示错误和警告
+ alluxio fsdamin report [category] [category args]	# 报告运行集群的信息
+ alluxio fsdamin ufs --mode <noAccess/readOnly/readWrite> "ufsPath"	# 更新挂载的底层存储系统的属性
+
+#集群相关信息
+alluxio fs masterInfo # 获得master节点的信息
+alluxio fs leader     # 打印当前Alluxio的leader master节点主机名。
+alluxio fs getCapacityBytes  # 获取Alluxio总容量
+alluxio fs getSyncPathList  # 获取同步路径列表
+alluxio fs getUsedBytes  # 获取已用空间大小
+alluxio fs getfacl <path> #  显示访问控制列表(ACLs)
+alluxio fs setfacl [-d] [-R] [--set | -m | -x <acl_entries> <path>] | [-b | -k <path>] # 设置访问控制列表(ACLs)
+```  
+**上面的命令不能帮到你? 那就戳这里**:  
+[Alluxio命令使用示例](https://docs.alluxio.io/os/user/stable/cn/basic/Command-Line-Interface.html)  
+[管理员命令使用示例](https://docs.alluxio.io/os/user/stable/cn/operation/Admin-CLI.html)
+
+
+### Alluxio WEB UI介绍及使用  
+[Alluxio-]()
+Alluxio master提供了Web界面以便用户管理,Alluxio master Web界面的默认端口是19999,访问 http://MASTER IP:19999即可查看。  
+每个Alluxio worker也提供Web界面显示worker信息,Alluxio worker Web界面的默认端口是30000,访问 http://WORKER IP:30000即可查看。
+**WEB UI官网介绍的很明确:**[Alluxio Web界面](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
+
+
+More info: [Deployment](https://hexo.io/docs/deployment.html)
 
 ``` bash
 $ hexo deploy
-```
+```  
 
-More info: [Deployment](https://hexo.io/docs/deployment.html)
+加速不明显?
+Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
