@@ -100,7 +100,7 @@ var qjj = 0;
 * 添加图片
 ![alt lalala](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4)
 ![alt hahaha](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4 "图片注释呀!鼠标放那会弹出注释!")
-<img src="http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4" width=30% title="可以使用html的标签,控制图片大小,title悬停显示文字">
+<img src="http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4" width=30% title="可以使用html的标签,控制图片大小,title悬停显示文字">  
 
 * 添加表格
 `Markdown 制作表格使用 | 来分隔不同的单元格，使用 - 来分隔表头和其他行`
