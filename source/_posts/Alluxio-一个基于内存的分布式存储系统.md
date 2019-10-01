@@ -5,8 +5,7 @@ avatar: 'https://wx1.sinaimg.cn/large/006bYVyvgy1ftand2qurdj303c03cdfv.jpg'
 authorLink: www.shmily-qjj.github.io
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
-categories:
-  - 技术
+categories: 技术
 comments: true  
 date: 2019-9-27 22:16:00
 tags:
@@ -58,7 +57,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 **Client:** 允许分析和AI/ML应用程序与Alluxio连接和交互  
 Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
 
-
+#### Alluxio工作机制
 
 
 
