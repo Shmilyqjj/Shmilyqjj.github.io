@@ -87,9 +87,9 @@ msocial:
   # wechat: {url: https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes, fa: fa-weichat, color: 25c6fe}
 
 donate:
-  alipay: /img/custom/donate/AliPayQR.jpg
-  wechat: /img/custom/donate/WeChatQR.jpg
-  wechatSQ: /img/custom/donate/WeChatSQ.png
+  alipay: /img/custom/donate/aliPayQR.jpg
+  wechat: /img/custom/donate/weChatQR.png
+  wechatSQ: /img/custom/donate/weChatSQ.png
 
 # 视频地址为https://cdn.jsdelivr.net/gh/honjun/hojun@1.2/Unbroken.mp4，配置如下
 movies:
@@ -98,7 +98,7 @@ movies:
   name: Unbroken.mp4
 
 aplayer: 
-  id: 2660651585
+  id: 2368663800
   server: netease
   type: playlist
   fixed: true
