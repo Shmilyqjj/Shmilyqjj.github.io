@@ -7,7 +7,7 @@ npm install    (npm install hexo --save)
 看板live2d可选 npm uninstall hexo-helper-live2d --save
 hexo clean # 非必要
 hexo g     # 生成文件
-hexo server -p 8888  # 打开本地预览
+hexo server -p 8888  # 打开本地预览   （hexo s -d -p 8888）
 hexo deploy # 部署到仓库
 部署完成后，到Github仓库的设置中,找到Github Pages,将source选到master branch来打开Pages服务
 
@@ -36,7 +36,11 @@ hexo deploy # 部署到仓库
   使用绝对路径：
   cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
   绝对路径 /img/cover/(0).jpg.webp
-  大图尽量采用webp的格式，兼顾清晰度和更少的网络传输
+  大图尽量采用webp的格式，兼顾清晰度和更少的网络传输（博文封面等不支持webp格式的，统一使用jpg）
+  博文内容图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/....        （jpg only）
+  博文分类封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/....    （jpg only）
+  博文标签封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Tags_Images/....        （jpg only）
+  主页横幅图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/....          （webp only）
 
 4.视频外链
 
