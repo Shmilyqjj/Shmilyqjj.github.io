@@ -1,9 +1,15 @@
+个人博客小本本备忘......
+---------------------------------------
 地址：www.shmily-qjj.github.io
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
 npm install    (npm install hexo --save)
-hexo g
-hexo server -p 8888  打开本地预览
+看板live2d可选 npm uninstall hexo-helper-live2d --save
+hexo clean # 非必要
+hexo g     # 生成文件
+hexo server -p 8888  # 打开本地预览
+hexo deploy # 部署到仓库
+部署完成后，到Github仓库的设置中,找到Github Pages,将source选到master branch来打开Pages服务
 
 
 写博客：
@@ -11,11 +17,27 @@ hexo server -p 8888  打开本地预览
 2.推荐工具:
   使用HEXO Admin:
   npm install --save hexo-admin   安装hexo-admin
-  hexo server -d -p 8888
+  hexo server -d -p 8888  （hexo s -d -p 8888）
   http://localhost:8888/ -> 打开博客
   http://localhost:8888/admin -> 打开写博客工具
   settings里设置管理员的密码，复制参数到_config.yml
-3.图片库
+
+3.好用的CDN:
+  首先图片所在的GitHub地址:https://github.com/Shmilyqjj/Shmily-Web
+  jsdelivr https://www.jsdelivr.com/
+  我是用 jsDelivr 来访问 github的资源，提高资源加载和访问速度
+  - 首先需要创建GitHub仓库的releases
+  - 版本号 v1.0.0             Name Shmilyqjj
+  - 使用CDN访问GitHub上的文件
+     Git原地址 https://github.com/Shmilyqjj/Shmily-Web/blob/master/cdn_sources/.....
+     CDN对应地址 https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/.....
+     例: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).jpg.webp
+  注意: 不可以使用jsdelivr直接引用github的文件  content-type 是 text/plain  页面无法解析
+  使用绝对路径：
+  cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
+  绝对路径 /img/cover/(0).jpg.webp
+
+4.图片库（已基本弃用，用cdn代替）
   封面一般用QQ相册，博文内图一般用六间房（稳定外链），要清晰可以试用POCO（不稳）
 **技术的封面:
         POCO  tu.poco.cn  qq     f12
@@ -86,9 +108,6 @@ hexo server -p 8888  打开本地预览
         生活7    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343237710464052_b.jpg
         生活8    https://vi0.xiu123.cn/live/2019/09/25/00/1002v1569343242192874575_b.jpg
         生活9    https://vi1.xiu123.cn/live/2019/09/25/00/1002v1569343246573914165_b.jpg
-
-
-
 
 
 遇到的问题：
