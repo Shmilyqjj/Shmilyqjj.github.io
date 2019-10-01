@@ -158,6 +158,13 @@ $$
 
 
 
+部署博客:
+$ hexo clean #不是必要的
+$ hexo generate 生成文件
+$ hexo deploy  部署到仓库
+
+
+
 
 
 
