@@ -99,18 +99,19 @@ backup:
     github: https://github.com/Shmilyqjj/shmily-qjj.github.io.git
     coding: https://e.coding.net/Shmilyqjj/shmily-qjj.coding.io.git
 
-##hexo-helper-live2d 看板娘
-#live2d:
-#  enable: true	#是否开启显示
-#  pluginModelPath: assets/
-#  model:
-#    use: live2d-widget-model-hijiki  #模板目录，在node_modules里
-#  display:
-#    position: right
-#    width: 150
-#    height: 300
-#  mobile:
-#    show: false  #是否在手机进行显示
+#hexo-helper-live2d 看板娘
+live2d:
+  enable: true	#是否开启显示
+  pluginModelPath: assets/
+  model:
+    use: live2d-widget-model-wanko  #模板目录，在node_modules里
+  display:
+    position: relative
+    left: 30px
+    width: 150
+    height: 256
+  mobile:
+    show: false  #是否在手机进行显示
 
 #RSS
 feed:
