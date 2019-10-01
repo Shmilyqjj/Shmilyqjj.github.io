@@ -6,13 +6,13 @@ favicon: /images/favicon.ico
 avatar: /img/custom/avatar.jpg
 url: www.shmily-qjj.github.io
 description: 我不知道将要去何方，但我已在路上
-cdn: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6
+cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
 pjax: 1
 # 1开启
 mathjax: 0
 
 notice: 佳境的个人博客正在开发中...
-lazyloadImg: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg
+lazyloadImg: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg
 
 menus:
   首页: { path: /, fa: fa-fort-awesome faa-shake }
@@ -47,17 +47,17 @@ homePageSortType: -1
 homeArticleShown: 10
 # 背景图片 更好的修改
 bg:
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(1).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(2).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(3).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(4).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(5).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(6).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(7).jpg.webp
-  - https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(8).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(1).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(2).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(3).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(4).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(5).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(6).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(7).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(8).jpg.webp
 
 # 背景图片样式 空 原图效果 filter-dim 阴影 filter-grid 横条 filter-dot 点点
-bgclass: filter-dim
+bgclass: filter-dot
 
 # startdash url, title, desc img
 startdash: 
@@ -73,10 +73,10 @@ siteBuildingTime: 07/17/2018
 #social  url, img PC端配置
 social:
   github: {url: https://github.com/Shmilyqjj, img: /img/social/github.png}
-  sina: {url: http://weibo.com/mashirozx?is_all=1, img: /img/social/sina.png}
-  CloudMusic: {url: http://music.163.com/artist?id=13610347, img: /img/social/wangyiyun.png}
-  zhihu: {url: http://weibo.com/mashirozx?is_all=1, img: /img/social/zhihu.png}
-  email: {url: http://weibo.com/mashirozx?is_all=1, img: /img/social/email.svg}
+  CloudMusic: {url: http://weibo.com/mashirozx?is_all=1, img: /img/social/wangyiyun.png}
+  bilibili: {url: http://weibo.com/mashirozx?is_all=1, img: /img/social/bilibili.png}
+  email: {url: mailto:710552907@qq.com?subject=test&cc=sample@hotmail.com&body=use mailto sample, img: /img/social/email.svg}
+  qq: {url: /#, qrcode: /img/custom/wechat.jpg, img: /img/social/qq.png}
   wechat: {url: /#, qrcode: /img/custom/wechat.jpg, img: /img/social/wechat.png}
 
 #social  url, img 移动端配置
