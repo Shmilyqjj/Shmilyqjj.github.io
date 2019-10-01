@@ -5,24 +5,6 @@ hexo-theme-sakura主题
 ## 感谢开源
 [hexo-theme-sakura](https://github.com/honjun/hexo-theme-sakura)
 
-
-## 赞赏作者
-如果喜欢hexo-theme-sakura主题，可以考虑资助一下哦~非常感激！
-
-[paypal](https://www.paypal.me/hojuncn) | [Alipay 支付宝](https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/AliPayQR.jpg) | [WeChat Pay 微信支付](https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/WeChanSQ.jpg)
-
-## 未完善的使用教程
-
-那啥？老实说我目前也不是很有条理233333333~
-
-## 1、主题下载安装
-
-[hexo-theme-sakura](https://github.com/honjun/hexo-theme-sakura)建议下载压缩包格式，因为除了主题内容还有些source的配置对新手来说比较太麻烦，直接下载解压就省去这些麻烦咯。
-
-下载好后解压到博客根目录（不是主题目录哦，重复的选择替换）。接着在命令行（cmd、bash）运行`npm i`安装依赖。
-
-## 2、主题配置
-
 ### 博客根目录下的_config配置
 
 站点
@@ -73,17 +55,8 @@ url: https://sakura.hojun.cn
 # 站点介绍（或者说是个人签名）【改】
 description: Live your life with passion! With some drive!
 
-# 站点cdn，没有就为空 【改】  若是cdn为空，一些图片地址就要填完整地址了，比如之前avatar就要填https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/avatar.jpg
-cdn: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6
-
 # 开启pjax 【选】
 pjax: 1
-
-# 站点首页的公告信息 【改】
-notice: hexo-Sakura主题已经开源，目前正在开发中...
-
-# 懒加载的加载中图片 【选】
-lazyloadImg: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg
 
 # 站点菜单配置 【选】
 menus:
@@ -334,10 +307,7 @@ hexo-tag-fancybox_img用来在文章或单页面中图片，使用语法如下�
 To be continued...
 
 
-## 2019.6.1追加
-一直没时间更新readme，六一更新如下
 
-### zoom放大图片
 
 关于zoom点击放大图片功能，一直就有，不过readme里头没说明。
 修改Sakura\node_modules\marked\lib\marked.js的Renderer.prototype.image方法为
@@ -374,5 +344,5 @@ aplayer:
   preload: auto
   volume: 0.7
   mutex: true
-```
+```  
 aplayer配置可以自己自定义参数，且都会渲染出来，不局限于以上内容。参考aplayer文档添加参数或拿来实现自己一些特殊功能
