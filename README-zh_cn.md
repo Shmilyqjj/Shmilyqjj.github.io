@@ -42,7 +42,7 @@ backup:
 # site name
 # 站点名 【改】
 prefixName: さくら荘その
-siteName: hojun
+siteName: Shmilyqjj.github.io
 
 # favicon and site master avatar
 # 站点的favicon和头像 输入图片路径（下面的配置是都是cdn的相对路径，没有cdn请填写完整路径，建议使用jsdeliver搭建一个cdn啦，先去下载我的cdn替换下图片就行了，简单方便~）【改】
