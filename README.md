@@ -2,7 +2,7 @@
 
 ##佳境的小本本(Jiajing's Note)
 
-##Welcome To [My Blog](www.shmily-qjj.github.io) !
+##Welcome To [My Blog](Shmilyqjj.github.io) !
 
 我的[GitHub](https://github.com/Shmilyqjj)地址
 

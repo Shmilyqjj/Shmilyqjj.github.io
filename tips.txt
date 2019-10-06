@@ -1,7 +1,7 @@
 个人博客小本本备忘......
 
 ---------------------------------------
-地址：www.shmily-qjj.github.io
+地址：Shmilyqjj.github.io
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
 npm install    (npm install hexo --save)

@@ -4,7 +4,7 @@ siteName: Shmily
 # favicon and site master avatar
 favicon: /images/favicon.ico
 avatar: /img/custom/avatar.jpg
-url: www.shmily-qjj.github.io
+url: Shmilyqjj.github.io
 description: 我不知道将要去何方，但我已在路上
 cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
 pjax: 1

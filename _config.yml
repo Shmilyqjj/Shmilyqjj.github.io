@@ -14,7 +14,7 @@ timezone:
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: /
-root:  /shmily-qjj.github.io/
+root:  /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
@@ -93,7 +93,7 @@ deploy:
 # backup
 backup:
   type: git
-  message: backup my blog of www.shmily-qjj.github.io
+  message: backup my blog of Shmilyqjj.github.io
   repository:
     github: https://github.com/Shmilyqjj/Shmilyqjj.github.io,backup
     coding: https://e.coding.net/Shmilyqjj/Shmilyqjj.github.io.git,backup

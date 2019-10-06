@@ -8,7 +8,7 @@ hexo-theme-sakura主题
 ### 博客根目录下的_config配置
 
 站点
-[佳境的小本本](www.shmily-qjj.github.io)
+[佳境的小本本](Shmilyqjj.github.io)
 ```yml
 code...
 ```
