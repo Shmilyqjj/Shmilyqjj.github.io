@@ -13,7 +13,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: www.shmily-qjj.github.io
+url: /
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -87,7 +87,6 @@ deploy:
   type: git
   repo: 
     github: https://github.com/Shmilyqjj/shmily-qjj.github.io.git
-    # github: https://github.com/honjun/honjun.github.io.git
     coding: https://e.coding.net/Shmilyqjj/shmily-qjj.coding.io.git
   branch: master
 
@@ -99,7 +98,7 @@ backup:
     github: https://github.com/Shmilyqjj/shmily-qjj.github.io.git
     coding: https://e.coding.net/Shmilyqjj/shmily-qjj.coding.io.git
 
-#hexo-helper-live2d 看板娘
+#hexo-helper-live2d  茶杯狗
 live2d:
   enable: true	#是否开启显示
   pluginModelPath: assets/
