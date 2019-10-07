@@ -102,3 +102,4 @@ git checkout -b hexo   创建hexo分支用于存放博客源文件  master分支
 Cannot GET /
 npm install hexo-generator-index
 WebStorm绑定Nodejs环境，配置环境完成后，hexo clean，hexo g
+如果该分类下没文章也会出现Cnnnot GET /xxxxxx
