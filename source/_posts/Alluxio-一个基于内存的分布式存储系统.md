@@ -52,12 +52,21 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 ### Alluxio原理  
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)  
 #### Alluxio的三个核心组件:
-**Master:** 负责管理文件和对象元数据
-**Worker:** 管理节点的本地空间，以及管理文件和对象块以及与下面的存储系统的接口
+![alt Alluxio-8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png)
+**Master:** 负责管理整个集群的全局元数据并响应Client对文件系统的请求。在Alluxio文件系统内部，每一个文件被划分为一个或多个数据块(block)，并以数据块为单位存储在Worker中。Master节点负责管理文件系统的元数据(如文件系统的inode树、文件到数据块的映射)、数据块的元数据(如block到Worker的位置映射)，以及Worker元数据(如集群当中每个Worker的状态)。所有Worker定期向Master发送心跳消息汇报自己状态，以维持参与服务的资格。Master通常不主动与其他组件通信，只通过RPC服务被动响应请求，同时Master还负责实时记录文件系统的日志(Journal)，以保证集群重启之后可以准确恢复文件系统的状态。高可用的Alluxio集群的Master会分为Primary Master和Secondary Master，正常情况下前者状态为Active后者状态为StandBy，Secondary Master需要将文件系统日志写入持久化存储，从而实现在多Master间共享日志，实现Master主从切换时可以恢复对外服务的Master的状态信息。Alluxio集群中可以有多个Secondary Master，每个Secondary Master定期压缩文件系统日志并生成Checkpoint以便快速恢复，并在切换成Primary Master时重播前Primary Master写入的日志。Secondary Master不处理来自任何Alluxio组件的任何请求。  
+- - -
+![alt Alluxio-9](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-9.png)
+**Worker:** Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。
+* * *
 **Client:** 允许分析和AI/ML应用程序与Alluxio连接和交互  
 Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
 
+
 #### Alluxio工作机制
+一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。一般Alluxio Client需要被放置于使用Alluxio服务的应用进程内部或classpath上。  
+![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
+
+
 
 
 
@@ -72,46 +81,117 @@ Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起�
 1.[下载Alluxio压缩包](https://www.alluxio.io/download/)并上传到NN所在集群  
 2.解压并进入安装目录  
 ``` bash
-tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
-cd /opt/module/alluxio-2.0.1
-cp conf/alluxio-site.properties.template conf/alluxio-site.properties
+ tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
+ cd /opt/module/alluxio-2.0.1
+ cp conf/alluxio-site.properties.template conf/alluxio-site.properties
+ cp conf/alluxio-env.sh.template conf/alluxio-env.sh
 ```
 3.设置必要参数
-**conf/alluxio-env.sh**
+**conf/alluxio-env.sh**  
 ```bash
-ALLUXIO_HOME=/opt/programs/alluxio-1.4.0
-ALLUXIO_LOGS_DIR=/opt/programs/alluxio-1.4.0/logs
-ALLUXIO_MASTER_HOSTNAME=hadoop1
-ALLUXIO_RAM_FOLDER=/mnt/ramdisk
-ALLUXIO_UNDERFS_ADDRESS=hdfs://dev-dalu:8020/alluxio
-ALLUXIO_WORKER_MEMORY_SIZE=2048MB
-JAVA_HOME=/opt/programs/jdk1.7.0_67
+ vim conf/alluxio-env.sh
+ ALLUXIO_HOME=/opt/module/alluxio-2.0.1
+ ALLUXIO_LOGS_DIR=/opt/module/alluxio-2.1.0/logs
+ ALLUXIO_MASTER_HOSTNAME=hadoop101 
+ ALLUXIO_RAM_FOLDER=/mnt/ramdisk
+ ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/alluxio # 底层存储系统的位置
+ ALLUXIO_WORKER_MEMORY_SIZE=2048MB
+ JAVA_HOME=/opt/module/jdk1.8.0_161
 ```
 
 **conf/alluxio-site.properties**
-非高可用
+**普通集群参数配置**
 ```bash
-vim conf/alluxio-site.properties
+ vim conf/alluxio-site.properties
+ # Common properties
+ alluxio.master.hostname=hadoop101
+ alluxio.master.mount.table.root.ufs=hdfs://192.168.1.101:9000/alluxio
+ alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+ # Worker properties
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
 
-```
-高可用
+ vim conf/masters 
+ hadoop101
+
+ vim conf/workers
+ hadoop102
+ hadoop103
+
+ #测试部署是否成功
+ bin/alluxio runTests  # 如果出现Passed the test则说明部署成功
+ bin/alluxio-stop.sh all  # 关闭集群
+
+ # 打开Alluxio服务
+ bin/alluxio-start.sh master  
+ alluxio-start.sh workers NoMount
+ 访问Master节点的WEB UI: hadoop101:19999
+ 访问Worker节点的WEB UI: hadoop102:30000
+```  
+出现类似以下界面即为部署成功
+![alt Alluxio-4](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-4.jpg)  
+此时可以通过命令**alluxio fsdamin report**来查看集群状态
+![alt Alluxio-6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-6.jpg)  
+
+**高可用集群参数配置**  
+高可用(HA)通过支持同时运行多个master来保证服务的高可用性，多个master中有一个master被选为primary master作为所有worker和client的通信首选，其余master为备选状态(StandBy)，它们通过和primary master共享日志来维护同样的文件系统元数据，并在primary master失效时迅速接替其工作(master主从切换过程中，客户端可能会出现短暂的延迟或瞬态错误)  
+搭建高可用集群前的准备:  
+①确保Zookeeper服务已经运行  
+②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
+首先在**Master**节点上设置:
 ```bash
-vim conf/alluxio-site.properties
+ vim conf/alluxio-site.properties
+ # Common properties
+ alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
+ alluxio.underfs.hdfs.configuration=/opt/module/cdh-hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/cdh-hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+ # Worker properties
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+ # HA properties
+ alluxio.zookeeper.enabled=true
+ alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
+ alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/master-logs  # 指定正确的共享日志存储
 
+ vim masters   # 务必在masters中列出所有master的地址
+ hadoop101
+ hadoop102
+```  
+在**Worker**节点上设置:
+```bash
+ # HA properties
+ alluxio.zookeeper.enabled=true
+ alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+
+ # Worker无需设置alluxio.master.hostname和alluxio.master.journal.folder
+ # Client节点只需设置alluxio.zookeeper.enabled和alluxio.zookeeper.address即可
+
+ # 测试部署是否成功
+ bin/alluxio-start.sh all  
+ alluxio fsadmin report   
+ alluxio runTests    # 如果出现Passed the test则说明部署成功
+
+ # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
+ ssh hadoop101
+ jps | grep AlluxioMaster
+ kill -9 <AlluxioMaster PID>
+ alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
 ```
-其他可选参数:[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)
 
 4.分发
 ```bash
-scp -r /opt/module/alluxio  root@10.2.5.64:/opt/module/alluxio
-scp -r /opt/module/alluxio  root@10.2.5.65:/opt/module/alluxio
-```
+scp -r /opt/module/alluxio/conf  root@hadoop102:/opt/module/alluxio
+scp -r /opt/module/alluxio/conf  root@hadoop103:/opt/module/alluxio
+```  
 
-alluxio.master.hostname=192.168.1.101 
-
-
-
-More info: [Server](https://hexo.io/docs/server.html)
+至此，Alluxio服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
 ### Alluxio常用命令  
 以下是常用的Alluxio Shell操作命令,就当是个速查表吧!  
@@ -157,19 +237,19 @@ More info: [Server](https://hexo.io/docs/server.html)
  alluxio fs chgrp [-R] <group> <path>  # 换组
  alluxio fs chmod [-R] <mode> <path>   # 更改读写执行等权限                        
  alluxio fs chown [-R] <owner>[:<group>] <path>  # 所有者
- alluxio fsdamin backup [directory] [--local]	# 备份Alluxio的元数据到备份目录
- alluxio fsdamin doctor [category]	# 显示错误和警告
- alluxio fsdamin report [category] [category args]	# 报告运行集群的信息
- alluxio fsdamin ufs --mode <noAccess/readOnly/readWrite> "ufsPath"	# 更新挂载的底层存储系统的属性
+ alluxio fsadmin backup [directory] [--local]	# 备份Alluxio的元数据到备份目录
+ alluxio fsadmin doctor [category]	# 显示错误和警告
+ alluxio fsadmin report [category] [category args]	# 报告运行集群的信息
+ alluxio fsadmin ufs --mode <noAccess/readOnly/readWrite> "ufsPath"	# 更新挂载的底层存储系统的属性
 
 #集群相关信息
-alluxio fs masterInfo # 获得master节点的信息
-alluxio fs leader     # 打印当前Alluxio的leader master节点主机名。
-alluxio fs getCapacityBytes  # 获取Alluxio总容量
-alluxio fs getSyncPathList  # 获取同步路径列表
-alluxio fs getUsedBytes  # 获取已用空间大小
-alluxio fs getfacl <path> #  显示访问控制列表(ACLs)
-alluxio fs setfacl [-d] [-R] [--set | -m | -x <acl_entries> <path>] | [-b | -k <path>] # 设置访问控制列表(ACLs)
+ alluxio fs masterInfo # 获得master节点的信息
+ alluxio fs leader     # 打印当前Alluxio的leader master节点主机名。
+ alluxio fs getCapacityBytes  # 获取Alluxio总容量
+ alluxio fs getSyncPathList  # 获取同步路径列表
+ alluxio fs getUsedBytes  # 获取已用空间大小
+ alluxio fs getfacl <path> #  显示访问控制列表(ACLs)
+ alluxio fs setfacl [-d] [-R] [--set | -m | -x <acl_entries> <path>] | [-b | -k <path>] # 设置访问控制列表(ACLs)
 ```  
 **上面的命令不能帮到你? 那就戳这里**:  
 [Alluxio命令使用示例](https://docs.alluxio.io/os/user/stable/cn/basic/Command-Line-Interface.html)  
@@ -177,13 +257,15 @@ alluxio fs setfacl [-d] [-R] [--set | -m | -x <acl_entries> <path>] | [-b | -k <
 
 
 ### Alluxio WEB UI介绍及使用  
-[Alluxio-]()
-Alluxio master提供了Web界面以便用户管理,Alluxio master Web界面的默认端口是19999,访问 http://MASTER IP:19999即可查看。  
-每个Alluxio worker也提供Web界面显示worker信息,Alluxio worker Web界面的默认端口是30000,访问 http://WORKER IP:30000即可查看。
+![alt Alluxio-5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-5.png)
+Alluxio master提供了Web界面以便用户管理  
+Alluxio master Web界面的默认端口是19999:访问 http://MASTER IP:19999 即可查看  
+Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 即可查看  
+
 **WEB UI官网介绍的很明确:**[Alluxio Web界面](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
 
 
-More info: [Deployment](https://hexo.io/docs/deployment.html)
+
 
 ``` bash
 $ hexo deploy
