@@ -51,7 +51,9 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 
 ### Alluxio原理  
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)  
-#### Alluxio的三个核心组件:
+#### Alluxio的三个核心组件:  
+Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
+- - -
 ![alt Alluxio-8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png)
 **Master:** 负责管理整个集群的全局元数据并响应Client对文件系统的请求。在Alluxio文件系统内部，每一个文件被划分为一个或多个数据块(block)，并以数据块为单位存储在Worker中。Master节点负责管理文件系统的元数据(如文件系统的inode树、文件到数据块的映射)、数据块的元数据(如block到Worker的位置映射)，以及Worker元数据(如集群当中每个Worker的状态)。所有Worker定期向Master发送心跳消息汇报自己状态，以维持参与服务的资格。Master通常不主动与其他组件通信，只通过RPC服务被动响应请求，同时Master还负责实时记录文件系统的日志(Journal)，以保证集群重启之后可以准确恢复文件系统的状态。高可用的Alluxio集群的Master会分为Primary Master和Secondary Master，正常情况下前者状态为Active后者状态为StandBy，Secondary Master需要将文件系统日志写入持久化存储，从而实现在多Master间共享日志，实现Master主从切换时可以恢复对外服务的Master的状态信息。Alluxio集群中可以有多个Secondary Master，每个Secondary Master定期压缩文件系统日志并生成Checkpoint以便快速恢复，并在切换成Primary Master时重播前Primary Master写入的日志。Secondary Master不处理来自任何Alluxio组件的任何请求。  
 - - -
@@ -59,7 +61,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 **Worker:** Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。
 * * *
 **Client:** 允许分析和AI/ML应用程序与Alluxio连接和交互  
-Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
+
 
 
 #### Alluxio工作机制
