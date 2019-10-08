@@ -58,15 +58,37 @@ Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起�
 **Master:** 负责管理整个集群的全局元数据并响应Client对文件系统的请求。在Alluxio文件系统内部，每一个文件被划分为一个或多个数据块(block)，并以数据块为单位存储在Worker中。Master节点负责管理文件系统的元数据(如文件系统的inode树、文件到数据块的映射)、数据块的元数据(如block到Worker的位置映射)，以及Worker元数据(如集群当中每个Worker的状态)。所有Worker定期向Master发送心跳消息汇报自己状态，以维持参与服务的资格。Master通常不主动与其他组件通信，只通过RPC服务被动响应请求，同时Master还负责实时记录文件系统的日志(Journal)，以保证集群重启之后可以准确恢复文件系统的状态。高可用的Alluxio集群的Master会分为Primary Master和Secondary Master，正常情况下前者状态为Active后者状态为StandBy，Secondary Master需要将文件系统日志写入持久化存储，从而实现在多Master间共享日志，实现Master主从切换时可以恢复对外服务的Master的状态信息。Alluxio集群中可以有多个Secondary Master，每个Secondary Master定期压缩文件系统日志并生成Checkpoint以便快速恢复，并在切换成Primary Master时重播前Primary Master写入的日志。Secondary Master不处理来自任何Alluxio组件的任何请求。  
 - - -
 ![alt Alluxio-9](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-9.png)
-**Worker:** Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。
+**Worker:** Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。Worker会把新的数据存储在本地存储，并响应未来的Client读请求，Client未命中本地资源时也可能从底层持久化存储系统中读数据并缓存至Worker本地。
+Worker代替Client在持久化存储上操作数据有两个好处:1.底层读取的数据可直接存储在Worker中，可立即供其他Client使用 2.Alluxio Worker的存在让Client不依赖底层存储的连接器，更加轻量化。
+Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数据块需要替换已有数据块，缓存策略来决定保留哪些数据块。  
 * * *
-**Client:** 允许分析和AI/ML应用程序与Alluxio连接和交互  
-
-
+**Client:** 允许分析和AI/ML应用程序与Alluxio连接和交互，它发起与Master的通信，执行元数据操作，并从Worker读取和写入存储在Alluxio中的数据。它提供了Java的本机文件系统API，支持多种客户端语言包括REST，Go，Python等，而且还兼容HDFS和Amazon S3的API。
+可以把Client理解为一个库，它实现了文件系统的接口，根据用户请求调用Alluxio服务，客户端被编译为alluxio-2.0.1-client.jar文件，它应当位于JVM类路径上，才能正常运行。
+当Client和Worker在同一节点时，客户端对本地缓存数据的读写请求可以绕过RPC接口，使本地文件系统可以直接访问Worker所管理的数据，这种情况被称为短路写，速度比较快，如果该节点没有Worker在运行，则Client的读写需要通过网络访问其他节点上的Worker，速度受网络宽带的限制。  
 
 #### Alluxio工作机制
-一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。一般Alluxio Client需要被放置于使用Alluxio服务的应用进程内部或classpath上。  
 ![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
+如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
+接下来我们对Alluxio读写场景进行分析:
+* Alluxio读场景分为:
+    + 命中本地Worker
+        
+        1. Client向Master检索存储该数据的Worker位置
+        2. 如果本地存有该数据，则"短路读",避免网络传输
+        3. 短路读提供内存级别访问速度，是Alluxio最高读性能的方式
+    + 命中远程Worker
+        
+        1. Client请求的数据不在本地Worker则Client将从远程Worker读取数据
+        2. 
+        3.
+    + 未命中Worker
+* Alluxio写场景分为
+    + 仅写缓存
+    + 同步写缓存和持久化存储
+    + 仅写持久化存储
+    + 异步写持久化存储
+
+    
 
 
 
