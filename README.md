@@ -102,6 +102,15 @@ var qjj = 0;
 ![alt hahaha](http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4 "图片注释呀!鼠标放那会弹出注释!")
 <img src="http://m.qpic.cn/psb?/V10aWFGB3ChSVt/4Onwe7wF*pBhD4*iWs0KetAXGTu6fMrAUJrxWkkB4fk!/b/dL8AAAAAAAAA&bo=hANYAgAAAAADB*8!&rf=viewer_4" width=30% title="可以使用html的标签,控制图片大小,title悬停显示文字">  
 
+* 图片链接
+[![Slack](https://slackin.alluxio.io/badge.svg)](https://www.alluxio.io/slack)
+[![Release](https://img.shields.io/github/release/alluxio/alluxio/all.svg)](https://www.alluxio.io/download)
+[![Docker Pulls](https://img.shields.io/docker/pulls/alluxio/alluxio.svg)](https://hub.docker.com/r/alluxio/alluxio)
+[![Documentation](https://img.shields.io/badge/docs-reference-blue.svg)](https://www.alluxio.io/docs)
+[![Twitter Follow](https://img.shields.io/twitter/follow/alluxio.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=alluxio)
+[![License](https://img.shields.io/github/license/alluxio/alluxio.svg)](https://github.com/Alluxio/alluxio/blob/master/LICENSE)
+
+
 * 添加表格
 `Markdown 制作表格使用 | 来分隔不同的单元格，使用 - 来分隔表头和其他行`
 | 表头 | 表头 |
