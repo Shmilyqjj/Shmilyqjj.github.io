@@ -230,7 +230,7 @@ scp -r /opt/module/alluxio/conf  root@hadoop103:/opt/module/alluxio
 至此，Alluxio服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
 ### Alluxio常用命令  
-以下是常用的Alluxio Shell操作命令,就当是个速查表吧!  
+Alluxio常用Shell命令速查表:  
 ``` bash
 #文件基本操作
  alluxio fs cat <path/file>  # 打开文件
@@ -309,3 +309,5 @@ $ hexo deploy
 
 加速不明显?
 Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
+
+### 总结
