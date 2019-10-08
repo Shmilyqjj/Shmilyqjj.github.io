@@ -69,24 +69,36 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 #### Alluxio工作机制
 ![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
 如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
-接下来我们对Alluxio读写场景进行分析:
-* Alluxio读场景分为:
-    + 命中本地Worker
-        
+接下来我们对Alluxio不同读写场景下的性能进行分析:
+* __Alluxio读场景分与性能分析:__
+    + __命中本地Worker__
         1. Client向Master检索存储该数据的Worker位置
         2. 如果本地存有该数据，则"短路读",避免网络传输
         3. 短路读提供内存级别访问速度，是Alluxio最高读性能的方式
-    + 命中远程Worker
-        
+    + __命中远程Worker__
         1. Client请求的数据不在本地Worker则Client将从远程Worker读取数据
-        2. 
-        3.
-    + 未命中Worker
-* Alluxio写场景分为
-    + 仅写缓存
-    + 同步写缓存和持久化存储
-    + 仅写持久化存储
-    + 异步写持久化存储
+        2. 远程Worker将数据返回本地Worker并写一个本地副本，请求频繁的数据会有更多副本，从而实现热度优化计算的本地性，也可选NO_CACHE读取方式禁用本地副本写入
+        3. 远程缓存命中，读取速度受网络速度限制
+    + __未命中Worker__
+        1. Alluxio任何一个Worker没有缓存所需数据，则Client把请求委托给本地Worker从底层存储系统(UFS)读取，缓存未命中的情况下延迟较高
+        2. Alluxio 1.7前Worker从底层读取完整数据块缓存下来并返回给Client，1.7版本后支持异步缓存，Client读取，Worker缓存，不需要等待缓存完成即可返回结果
+        3. 指定NO_CACHE读取方式则禁用本地缓存
+* __Alluxio写场景分与性能分析:__
+    + __仅写缓存__
+        1. 写入类型通过alluxio.user.file.writetype.default来设置，MUST_CACHE仅写本地缓存而不写入UFS
+        2. 如果"短路写"可用，则直接写本地Worker避免网络传输，性能最高
+        3.如果无本地Worker，即"短路写"不可用，数据写入远端Worker，写速度受限于网络IO
+        4. 数据没有持久化，机器崩溃或需要释放数据用于较新的写入时，数据可能丢失
+    + __同步写缓存和持久化存储__
+        1. alluxio.user.file.writetype.default=CACHE_THROUGH，同步写入Worker和UFS
+        2. 速度比仅写缓存的方式慢很多，需要数据持久化时使用
+    + __仅写持久化存储__
+        1. alluxio.user.file.writetype.default=THROUGH，只将数据写入UFS，不会创建Alluxio缓存中的副本
+        2. 输入数据重要但不立刻使用的情况下使用该方式
+    + __异步写持久化存储(目前2.0.1为实验性)__
+        1. alluxio.user.file.writetype.default=ASYNC_THROUGH
+        2. 可以以内存的速度写入Alluxio Worker，并异步完成持久化
+        3. 实验性功能-如果异步持久化到底层存储前机器崩溃，数据丢失，异步写机制要求文件所有块都在同一个Worker中
 
     
 
@@ -261,7 +273,7 @@ scp -r /opt/module/alluxio/conf  root@hadoop103:/opt/module/alluxio
  alluxio fs chgrp [-R] <group> <path>  # 换组
  alluxio fs chmod [-R] <mode> <path>   # 更改读写执行等权限                        
  alluxio fs chown [-R] <owner>[:<group>] <path>  # 所有者
- alluxio fsadmin backup [directory] [--local]	# 备份Alluxio的元数据到备份目录
+ alluxio fsadmin backup [directory] [--local]	# 备份Alluxio的元数据到备份目录(默认目录由alluxio.master.backup.directory决定)
  alluxio fsadmin doctor [category]	# 显示错误和警告
  alluxio fsadmin report [category] [category args]	# 报告运行集群的信息
  alluxio fsadmin ufs --mode <noAccess/readOnly/readWrite> "ufsPath"	# 更新挂载的底层存储系统的属性
