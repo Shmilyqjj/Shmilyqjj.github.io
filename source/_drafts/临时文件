@@ -1,0 +1,47 @@
+首先在**Master**节点上设置:
+```console
+ hadoop fs -mkdir /alluxio/journal
+ vim conf/alluxio-site.properties
+ # Common properties
+ alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
+ alluxio.underfs.hdfs.configuration=/opt/module/cdh-hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/cdh-hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+ # Worker properties
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+ # HA properties
+ alluxio.zookeeper.enabled=true
+ alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
+ alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
+
+ vim masters   # 务必在masters中列出所有master的地址
+ hadoop101
+ hadoop102
+```
+在**Worker**节点上设置:
+```console
+ # HA properties
+ alluxio.zookeeper.enabled=true
+ alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
+
+ # Worker properties
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+
+ # Worker无需设置alluxio.master.hostname和alluxio.master.journal.folder
+ # Client节点只需设置alluxio.zookeeper.enabled和alluxio.zookeeper.address即可
+
+ # 测试部署是否成功
+ bin/alluxio-start.sh all
+ alluxio fsadmin report
+ alluxio runTests    # 如果出现Passed the test则说明部署成功
+
+ # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
+ ssh hadoop101
+ jps | grep AlluxioMaster
+ kill -9 <AlluxioMaster PID>
+ alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
+```
