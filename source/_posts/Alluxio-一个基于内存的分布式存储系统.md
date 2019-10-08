@@ -116,7 +116,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 ### 安装和部署Alluxio  
 1.[下载Alluxio压缩包](https://www.alluxio.io/download/)并上传到NN所在集群  
 2.解压并进入安装目录  
-``` bash
+``` console
  tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
  cd /opt/module/alluxio-2.0.1
  cp conf/alluxio-site.properties.template conf/alluxio-site.properties
@@ -124,7 +124,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 ```
 3.设置必要参数
 **conf/alluxio-env.sh**  
-```bash
+```console
  vim conf/alluxio-env.sh
  ALLUXIO_HOME=/opt/module/alluxio-2.0.1
  ALLUXIO_LOGS_DIR=/opt/module/alluxio-2.1.0/logs
@@ -137,7 +137,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 
 **conf/alluxio-site.properties**
 **普通集群参数配置**
-```bash
+```console
  vim conf/alluxio-site.properties
  # Common properties
  alluxio.master.hostname=hadoop101
@@ -177,7 +177,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 ①确保Zookeeper服务已经运行  
 ②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
 首先在**Master**节点上设置:
-```bash
+```console
  vim conf/alluxio-site.properties
  # Common properties
  alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
@@ -197,7 +197,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
  hadoop102
 ```  
 在**Worker**节点上设置:
-```bash
+```console
  # HA properties
  alluxio.zookeeper.enabled=true
  alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
@@ -222,7 +222,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 ```
 
 4.分发
-```bash
+```console
 scp -r /opt/module/alluxio/conf  root@hadoop102:/opt/module/alluxio
 scp -r /opt/module/alluxio/conf  root@hadoop103:/opt/module/alluxio
 ```  
