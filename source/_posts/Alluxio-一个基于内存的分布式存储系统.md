@@ -115,16 +115,19 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 喜欢看源码的小伙伴可以戳这里哟->[Alluxio源码入口](https://github.com/Alluxio/alluxio)
 
 
-### 安装和部署Alluxio  
+### 安装和部署Alluxio 
+#### 准备工作 
 1.[下载Alluxio压缩包](https://www.alluxio.io/download/)并上传到NN所在集群  
 2.解压并进入安装目录  
 ``` console
  tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
- cd /opt/module/alluxio-2.0.1
+ mv /opt/module/alluxio-2.0.1 /opt/module/alluxio
+ cd /opt/module/alluxio
  cp conf/alluxio-site.properties.template conf/alluxio-site.properties
  cp conf/alluxio-env.sh.template conf/alluxio-env.sh
 ```
-3.设置必要参数
+
+#### 常规集群参数配置
 **conf/alluxio-env.sh**  
 ```console
  vim conf/alluxio-env.sh
@@ -132,13 +135,12 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
  ALLUXIO_LOGS_DIR=/opt/module/alluxio-2.1.0/logs
  ALLUXIO_MASTER_HOSTNAME=hadoop101 
  ALLUXIO_RAM_FOLDER=/mnt/ramdisk
- ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/alluxio # 底层存储系统的位置
- ALLUXIO_WORKER_MEMORY_SIZE=2048MB
+ ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/alluxio 
+ ALLUXIO_WORKER_MEMORY_SIZE=512MB
  JAVA_HOME=/opt/module/jdk1.8.0_161
 ```
 
 **conf/alluxio-site.properties**
-**普通集群参数配置**
 ```console
  vim conf/alluxio-site.properties
  # Common properties
@@ -158,78 +160,33 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
  hadoop102
  hadoop103
 
- #测试部署是否成功
- bin/alluxio runTests  # 如果出现Passed the test则说明部署成功
- bin/alluxio-stop.sh all  # 关闭集群
+ scp -r /opt/module/alluxio/ root@hadoop102:/opt/module/
+ scp -r /opt/module/alluxio/ root@hadoop103:/opt/module/
 
  # 打开Alluxio服务
  bin/alluxio-start.sh master  
  alluxio-start.sh workers NoMount
+ 或直接 alluxio-start.sh all
  访问Master节点的WEB UI: hadoop101:19999
  访问Worker节点的WEB UI: hadoop102:30000
+
+ #测试部署是否成功
+ bin/alluxio runTests  # 如果出现Passed the test则说明部署成功
+ bin/alluxio-stop.sh all  # 关闭集群
 ```  
 出现类似以下界面即为部署成功
 ![alt Alluxio-4](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-4.jpg)  
 此时可以通过命令**alluxio fsdamin report**来查看集群状态
 ![alt Alluxio-6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-6.jpg)  
 
-**高可用集群参数配置**  
+#### 高可用集群参数配置  
 高可用(HA)通过支持同时运行多个master来保证服务的高可用性，多个master中有一个master被选为primary master作为所有worker和client的通信首选，其余master为备选状态(StandBy)，它们通过和primary master共享日志来维护同样的文件系统元数据，并在primary master失效时迅速接替其工作(master主从切换过程中，客户端可能会出现短暂的延迟或瞬态错误)  
 搭建高可用集群前的准备:  
 ①确保Zookeeper服务已经运行  
 ②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
-首先在**Master**节点上设置:
+
 ```console
- hadoop fs -mkdir /alluxio/journal
- vim conf/alluxio-site.properties
- # Common properties
- alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
- alluxio.underfs.hdfs.configuration=/opt/module/cdh-hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/cdh-hadoop-2.7.2/etc/hadoop/hdfs-site.xml
- # Worker properties
- alluxio.worker.memory.size=512MB
- alluxio.worker.tieredstore.levels=1
- alluxio.worker.tieredstore.level0.alias=MEM
- alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
- # HA properties
- alluxio.zookeeper.enabled=true
- alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
- alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
-
- vim masters   # 务必在masters中列出所有master的地址
- hadoop101
- hadoop102
-```  
-在**Worker**节点上设置:
-```console
- # HA properties
- alluxio.zookeeper.enabled=true
- alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
-
- # Worker properties
- alluxio.worker.memory.size=512MB
- alluxio.worker.tieredstore.levels=1
- alluxio.worker.tieredstore.level0.alias=MEM
- alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
-
- # Worker无需设置alluxio.master.hostname和alluxio.master.journal.folder
- # Client节点只需设置alluxio.zookeeper.enabled和alluxio.zookeeper.address即可
-
- # 测试部署是否成功
- bin/alluxio-start.sh all  
- alluxio fsadmin report   
- alluxio runTests    # 如果出现Passed the test则说明部署成功
-
- # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
- ssh hadoop101
- jps | grep AlluxioMaster
- kill -9 <AlluxioMaster PID>
- alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
-```
-
-4.分发
-```console
-scp -r /opt/module/alluxio/conf  root@hadoop102:/opt/module/alluxio
-scp -r /opt/module/alluxio/conf  root@hadoop103:/opt/module/alluxio
+HA集群搭建方式 敬请期待
 ```  
 
 至此，Alluxio服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
@@ -302,30 +259,29 @@ Alluxio常用Shell命令速查表:
 Alluxio master提供了Web界面以便用户管理  
 Alluxio master Web界面的默认端口是19999:访问 http://MASTER IP:19999 即可查看  
 Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 即可查看  
+**WEB UI官网介绍的很明确:**[Alluxio Web UI](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
 
-**WEB UI官网介绍的很明确:**[Alluxio Web界面](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
-
+### Alluxio 客户端API  
+#### Java API  
+Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
 
 
 ### Alluxio与计算框架的整合
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)
 
-####Alluxio+Spark
+#### Alluxio+Hive
+
+
+#### Alluxio+Spark
 
 
 #### Alluxio+Hadoop
 
 
-#### Alluxio+Hive
-
-
 #### Alluxio+Presto
 
 
-
-
-
-### Alluxio相关问题解答
+### Q&A
 + 加速不明显?  
     Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
 
