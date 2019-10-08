@@ -49,9 +49,10 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 
 
 
-### Alluxio原理  
-![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)  
-#### Alluxio的三个核心组件:  
+### Alluxio原理    
+![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
+如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
+#### Alluxio核心组件:  
 Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
 - - -
 ![alt Alluxio-8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png)
@@ -66,10 +67,8 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 可以把Client理解为一个库，它实现了文件系统的接口，根据用户请求调用Alluxio服务，客户端被编译为alluxio-2.0.1-client.jar文件，它应当位于JVM类路径上，才能正常运行。
 当Client和Worker在同一节点时，客户端对本地缓存数据的读写请求可以绕过RPC接口，使本地文件系统可以直接访问Worker所管理的数据，这种情况被称为短路写，速度比较快，如果该节点没有Worker在运行，则Client的读写需要通过网络访问其他节点上的Worker，速度受网络宽带的限制。  
 
-#### Alluxio工作机制
-![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
-如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
-接下来我们对Alluxio不同读写场景下的性能进行分析:
+#### Alluxio读写场景:
+
 * __Alluxio读场景分与性能分析:__
     + __命中本地Worker__
         1. Client向Master检索存储该数据的Worker位置
@@ -99,6 +98,9 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. alluxio.user.file.writetype.default=ASYNC_THROUGH
         2. 可以以内存的速度写入Alluxio Worker，并异步完成持久化
         3. 实验性功能-如果异步持久化到底层存储前机器崩溃，数据丢失，异步写机制要求文件所有块都在同一个Worker中
+
+#### Alluxio异步缓存策略:
+
 
     
 
@@ -178,6 +180,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 ②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
 首先在**Master**节点上设置:
 ```console
+ hadoop fs -mkdir /alluxio/journal
  vim conf/alluxio-site.properties
  # Common properties
  alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
@@ -190,7 +193,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
  # HA properties
  alluxio.zookeeper.enabled=true
  alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
- alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/master-logs  # 指定正确的共享日志存储
+ alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
 
  vim masters   # 务必在masters中列出所有master的地址
  hadoop101
@@ -201,6 +204,8 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
  # HA properties
  alluxio.zookeeper.enabled=true
  alluxio.zookeeper.address=hadoop101:2181,hadoop102:2181,hadoop103:2181
+
+ # Worker properties
  alluxio.worker.memory.size=512MB
  alluxio.worker.tieredstore.levels=1
  alluxio.worker.tieredstore.level0.alias=MEM
@@ -302,12 +307,26 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
 
 
 
+### Alluxio与计算框架的整合
+![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)
 
-``` bash
-$ hexo deploy
-```  
+####Alluxio+Spark
 
-加速不明显?
-Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
+
+#### Alluxio+Hadoop
+
+
+#### Alluxio+Hive
+
+
+#### Alluxio+Presto
+
+
+
+
+
+### Alluxio相关问题解答
++ 加速不明显?  
+    Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
 
 ### 总结
