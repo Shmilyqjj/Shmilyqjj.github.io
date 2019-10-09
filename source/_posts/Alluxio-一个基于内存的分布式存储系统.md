@@ -265,13 +265,80 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
 #### Java API  
 Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
 
+#### Python API
+balabalabala
 
 ### Alluxio与计算框架的整合
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)
 
 #### Alluxio+Hive
-
-
+频繁使用的表存在Alluxio上，可通过内存读文件获得更高的吞吐量和更低的延迟  
+1. 准备工作:
+```bash
+ cd /opt/module/hive
+ vim conf/hive-env.sh
+ export HADOOP_HOME=/opt/module/hadoop-2.7.2
+ # 添加
+ export HIVE_AUX_JARS_PATH=$ALLUXIO_HOME/client
+```
+2. 四种情况:
+    * 创建一个Hive表并指定其存储在Alluxio  
+    ```shell
+     bin/hive
+     create table alluxio_test(
+      id int,
+      name string,
+      color string
+     ) 
+     row format delimited fields terminated by '\t'
+     LOCATION "alluxio://hadoop101:19998/user/hive/warehouse";
+   
+     # 查看表位置
+     describe extended alluxio_test;
+   ```  
+   
+   * 已存在HDFS的内部表
+   ```bash 
+     bin/hive
+     describe extended table_name;
+     alter table table_name set location "alluxio://hadoop101:19998/user/hive/warehouse/table_name"
+     describe extended table_name;
+   ```
+   第一次访问alluxio中的文件默认会被认为访问hdfs的文件，一旦数据被缓存在Alluxio中，之后的查询数据都会从Alluxio读取。  
+   
+   * 已存在HDFS的外部表
+   ```bash 
+     bin/hive
+     describe extended table_name;
+     # 将表数据改为Alluxio存储
+     alter table table_name set location "alluxio://hadoop101:19998/user/hive/warehouse/table_name"
+     describe extended table_name;
+     # 还原表数据到HDFS
+     alter table table_name set location "hdfs://hadoop101:9000/user/hive/warehouse/table_name"
+     describe extended table_name;
+   ```  
+   
+   * Hive使用Alluxio作为默认存储系统
+   ```bash 
+     vim conf/hive-site.xml
+     # 添加以下属性
+     <property>
+        <name>fs.defaultFS</name>
+        <value>alluxio://hadoop101:19998</value>
+        <description>Hive Use Alluxio As Default FileSystem</description>
+     </property> 
+     # 对Hive指定的Alluxio配置属性，将它们添加到每个结点的Hadoop配置目录下core-site.xml中。例如，将alluxio.user.file.writetype.default 属性由默认的MUST_CACHE修改成CACHE_THROUGH:
+     <property>
+        <name>alluxio.user.file.writetype.default</name>
+        <value>CACHE_THROUGH</value>
+     </property>
+  
+     # Alluxio中为Hive创建目录
+      $ ./bin/alluxio fs mkdir /tmp
+      $ ./bin/alluxio fs mkdir /user/hive/warehouse
+      $ ./bin/alluxio fs chmod 775 /tmp
+      $ ./bin/alluxio fs chmod 775 /user/hive/warehouse
+   ```
 #### Alluxio+Spark
 
 
