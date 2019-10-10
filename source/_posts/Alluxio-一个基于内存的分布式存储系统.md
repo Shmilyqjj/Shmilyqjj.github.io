@@ -98,7 +98,20 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. alluxio.user.file.writetype.default=ASYNC_THROUGH
         2. 可以以内存的速度写入Alluxio Worker，并异步完成持久化
         3. 实验性功能-如果异步持久化到底层存储前机器崩溃，数据丢失，异步写机制要求文件所有块都在同一个Worker中
-
+* __Alluxio读写参数设置__
+    + __写参数:__ alluxio.user.file.writetype.default
+        1. CACHE_THROUGH:数据被同步写入AlluxioWorker和底层存储
+        2. MUST_CACHE:数据被同步写入AlluxioWorker,不写底层存储
+        3. THROUGH:数据只写底层存储,不写入AlluxioWorker
+        4. ASYNC_THROUGH:实验阶段,数据同步写入AlluxioWorker并异步写底层存储
+    + __读参数:__ alluxio.user.file.readtype.default
+        1. CACHE_PROMOTE:数据在Worker上,则被移动到Worker的最高层,否则创建副本到本地Worker
+        2. CACHE:数据不在本地Worker中时直接创建副本到本地Worker
+        3. NO_CACHE:仅读数据,不写副本到Worker
+    + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block
+        1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
+        2. true读部分缓存全部,没有完全读取的数据块也会被全部存到 Alluxio 内
+    
 #### Alluxio异步缓存策略:
 
 
@@ -291,7 +304,7 @@ balabalabala
       color string
      ) 
      row format delimited fields terminated by '\t'
-     LOCATION "alluxio://hadoop101:19998/user/hive/warehouse";
+     LOCATION "alluxio://hadoop101:19998/user/hive/warehouse/alluxio_test";
    
      # 查看表位置
      describe extended alluxio_test;
@@ -334,11 +347,24 @@ balabalabala
      </property>
   
      # Alluxio中为Hive创建目录
-      $ ./bin/alluxio fs mkdir /tmp
-      $ ./bin/alluxio fs mkdir /user/hive/warehouse
-      $ ./bin/alluxio fs chmod 775 /tmp
-      $ ./bin/alluxio fs chmod 775 /user/hive/warehouse
+      alluxio fs mkdir /tmp
+      alluxio fs mkdir /user/hive/warehouse
+      alluxio fs chmod 775 /tmp
+      alluxio fs chmod 775 /user/hive/warehouse
    ```
+   注:CM集群设置Hive连接Alluxio Client的方式:
+   ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
+3. 排坑:
+安全认证问题:
+![alt Alluxio-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png)
+![alt Alluxio-12](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-12.png)
+alluxio-site.properties中添加要模拟的用户:
+```bash  
+  alluxio.master.security.impersonation.hive.users=*
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+```
 #### Alluxio+Spark
 
 
