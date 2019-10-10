@@ -274,14 +274,7 @@ Alluxio master Web界面的默认端口是19999:访问 http://MASTER IP:19999 �
 Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 即可查看  
 **WEB UI官网介绍的很明确:**[Alluxio Web UI](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
 
-### Alluxio 客户端API  
-#### Java API  
-Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
-
-#### Python API
-balabalabala
-
-### Alluxio与计算框架的整合
+### Alluxio与计算框架整合
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)
 
 #### Alluxio+Hive
@@ -313,9 +306,10 @@ balabalabala
    * 已存在HDFS的内部表
    ```bash 
      bin/hive
-     describe extended table_name;
+     describe extended table_name; # 查看Hive表存储位置
      alter table table_name set location "alluxio://hadoop101:19998/user/hive/warehouse/table_name"
      describe extended table_name;
+     msck repair table table_name; # 确定alluxio对应位置存在表数据后修复Hive表元数据
    ```
    第一次访问alluxio中的文件默认会被认为访问hdfs的文件，一旦数据被缓存在Alluxio中，之后的查询数据都会从Alluxio读取。  
    
@@ -354,17 +348,18 @@ balabalabala
    ```
    注:CM集群设置Hive连接Alluxio Client的方式:
    ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
-3. 排坑:
-安全认证问题:
-![alt Alluxio-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png)
-![alt Alluxio-12](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-12.png)
-alluxio-site.properties中添加要模拟的用户:
-```bash  
-  alluxio.master.security.impersonation.hive.users=*
-  alluxio.master.security.impersonation.hive.groups=*
-  alluxio.master.security.impersonation.yarn.users=*
-  alluxio.master.security.impersonation.yarn.groups=*
-```
+3. 排坑:  
+    安全认证问题:
+    ![alt Alluxio-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png)
+    ![alt Alluxio-12](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-12.png)
+    alluxio-site.properties中添加要模拟的用户:
+    ```bash  
+      alluxio.master.security.impersonation.hive.users=*
+      alluxio.master.security.impersonation.hive.groups=*
+      alluxio.master.security.impersonation.yarn.users=*
+      alluxio.master.security.impersonation.yarn.groups=*
+    ```  
+   
 #### Alluxio+Spark
 
 
@@ -373,6 +368,14 @@ alluxio-site.properties中添加要模拟的用户:
 
 #### Alluxio+Presto
 
+
+
+### Alluxio 客户端API  
+#### Java API  
+Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
+
+#### Python API
+balabalabala
 
 ### Q&A
 + 加速不明显?  
