@@ -31,6 +31,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 6. **方便迁移可插拔**:Alluxio提供多种易用的API方便将整个系统迁移到Alluxio
 
 #### Alluxio的特征:  
+**我对Alluxio的优势和特征进行了概括 点击可进入官网介绍** 
 [超大规模工作负载](https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/):支持超大规模工作负载并具有HA高可用性  
 [灵活的API](https://docs.alluxio.io/os/user/stable/en/compute/Spark.html) :计算框架可使用HDFS、S3、Java、RESTful或POSIX为基础的API来访问Alluxio  
 [智能数据缓存和分层](https://docs.alluxio.io/os/user/stable/en/advanced/Alluxio-Storage-Management.html) : 使用包括内存在内的本地存储，来充当分布式缓存,很大程度上改善I/O性能，且缓存对用户透明  
@@ -43,9 +44,9 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 
 #### Alluxio的应用场景  
 1.计算应用需要反复访问远程云端或机房的数据  
-2.计算应用需要同时从多个独立的独立存储系统读取数据  
+2.混合云,计算与存储分离,异构的数据存储带来的系统耦合  
 3.多个独立的大数据应用（比如不同的Spark Job）需要高速有效的共享数据  
-4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来缓解
+4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销
 
 
 
@@ -69,7 +70,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 
 #### Alluxio读写场景:
 
-* __Alluxio读场景分与性能分析:__
+* __Alluxio读场景与性能分析:__
     + __命中本地Worker__
         1. Client向Master检索存储该数据的Worker位置
         2. 如果本地存有该数据，则"短路读",避免网络传输
@@ -82,7 +83,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. Alluxio任何一个Worker没有缓存所需数据，则Client把请求委托给本地Worker从底层存储系统(UFS)读取，缓存未命中的情况下延迟较高
         2. Alluxio 1.7前Worker从底层读取完整数据块缓存下来并返回给Client，1.7版本后支持异步缓存，Client读取，Worker缓存，不需要等待缓存完成即可返回结果
         3. 指定NO_CACHE读取方式则禁用本地缓存
-* __Alluxio写场景分与性能分析:__
+* __Alluxio写场景与性能分析:__
     + __仅写缓存__
         1. 写入类型通过alluxio.user.file.writetype.default来设置，MUST_CACHE仅写本地缓存而不写入UFS
         2. 如果"短路写"可用，则直接写本地Worker避免网络传输，性能最高
@@ -98,7 +99,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. alluxio.user.file.writetype.default=ASYNC_THROUGH
         2. 可以以内存的速度写入Alluxio Worker，并异步完成持久化
         3. 实验性功能-如果异步持久化到底层存储前机器崩溃，数据丢失，异步写机制要求文件所有块都在同一个Worker中
-* __Alluxio读写参数设置__
+* __Alluxio读写参数总结__
     + __写参数:__ alluxio.user.file.writetype.default
         1. CACHE_THROUGH:数据被同步写入AlluxioWorker和底层存储
         2. MUST_CACHE:数据被同步写入AlluxioWorker,不写底层存储
@@ -108,18 +109,20 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. CACHE_PROMOTE:数据在Worker上,则被移动到Worker的最高层,否则创建副本到本地Worker
         2. CACHE:数据不在本地Worker中时直接创建副本到本地Worker
         3. NO_CACHE:仅读数据,不写副本到Worker
-    + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block
+    + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)
         1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
-        2. true读部分缓存全部,没有完全读取的数据块也会被全部存到 Alluxio 内
-    
-#### Alluxio异步缓存策略:
-
-
-    
-
-
-
-
+        2. true读部分缓存全部,没有完全读取的数据块也会被全部存到 Alluxio内  
+        
+#### Alluxio异步缓存策略:  
+* Alluxio v1.7以后支持异步缓存  
+    异步缓存是将Alluxio的缓存开销由客户端转移到Worker上,第一次读数据时,在不设置读属性为NO_CACHE的情况下Client只负责从底层存储读数据,然后缓存任务由Worker来执行,对Client读性能没有影响,也不需要像V1.7版本前那样设置<u>alluxio.user.file.cache.partially.read.block</u>来决定缓存部分或全部数据,而且Worker内部也在Client读取底层存储系统的数据方面做了优化,设置读属性为CACHE的情况下:  
+    Client顺序读完整数据块时Worker顺便缓存完整数据块  
+    Client只读部分数据或非顺序读数据时Worker不会读取时顺便缓存,等客户端读取完以后再向Worker系欸点发送异步缓存命令,Worker节点再从底层存储中获取完整的块  
+    异步缓存使得第一次从Alluxio读取和直接从底层存储读取花费相同时间,且数据异步缓存到Alluxio中,提高集群整体性能  
+* 异步缓存参数调整  
+    Worker在异步缓存的同时也响应Client读取请求,可通过设置Worker端的线程池大小来加快异步缓存的速度  
+    <u>alluxio.worker.network.netty.async.cache.manager.threads.max</u> 指定Worker线程池大小,该属性默认为8,表示最多同时用八核从其他Worker或底层存储读数据并缓存,提高此值可以加快后台异步缓存的速度,但会增加CPU使用率
+      
 
 
 
@@ -272,7 +275,7 @@ Alluxio常用Shell命令速查表:
 Alluxio master提供了Web界面以便用户管理  
 Alluxio master Web界面的默认端口是19999:访问 http://MASTER IP:19999 即可查看  
 Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 即可查看  
-**WEB UI官网介绍的很明确:**[Alluxio Web UI](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
+**WEB UI官方介绍很明确->戳这里:**[Alluxio Web UI](https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html)
 
 ### Alluxio与计算框架整合
 ![alt Alluxio-2](https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg)
