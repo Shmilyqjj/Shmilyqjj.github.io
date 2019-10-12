@@ -31,7 +31,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 6. **方便迁移可插拔**:Alluxio提供多种易用的API方便将整个系统迁移到Alluxio
 
 #### Alluxio的特征:  
-**我对Alluxio的优势和特征进行了概括 点击可进入官网介绍** 
+**对Alluxio的优势和特征进行了概括 点击可进入官网介绍** 
 [超大规模工作负载](https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/):支持超大规模工作负载并具有HA高可用性  
 [灵活的API](https://docs.alluxio.io/os/user/stable/en/compute/Spark.html) :计算框架可使用HDFS、S3、Java、RESTful或POSIX为基础的API来访问Alluxio  
 [智能数据缓存和分层](https://docs.alluxio.io/os/user/stable/en/advanced/Alluxio-Storage-Management.html) : 使用包括内存在内的本地存储，来充当分布式缓存,很大程度上改善I/O性能，且缓存对用户透明  
@@ -41,6 +41,8 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 [安全性](https://docs.alluxio.io/os/user/stable/en/advanced/Security.html) : 通过内置审核、基于角色的访问控制、LDAP、活动目录和加密通信，提供数据保护  
 [监控和管理](https://docs.alluxio.io/os/user/stable/en/basic/Web-Interface.html) : 提供了用户友好的Web界面和命令行工具，允许用户监控和管理集群  
 [分层次的本地性](https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html) : 将更多的读写安排在本地,实现成本和性能的优化  
+
+
 
 #### Alluxio的应用场景  
 1.计算应用需要反复访问远程云端或机房的数据  
@@ -112,8 +114,28 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
     + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)
         1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
         2. true读部分缓存全部,没有完全读取的数据块也会被全部存到 Alluxio内  
-        
-#### Alluxio异步缓存策略:  
+ 
+#### Alluxio的分层存储  
+
+
+#### Alluxio缓存回收策略
+__缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会为新数据腾出空间
+* 异步缓存回收与同步缓存回收
+    alluxio.worker.tieredstore.reserver.enabled=true (默认异步回收)  在读写缓存工作负载较高的情况下异步回收可以提升性能
+    alluxio.worker.tieredstore.reserver.enabled=false (同步回收)     请求所用空间比Worker上请求空间更多时,同步回收可以最大化Alluxio空间利用率,同步回收建议使用小数据块配置(64-128MB)来降低回收延迟  
+* 缓存回收中空间预留器的水位(阈值)
+    __Worker存储利用率达到高水位时,基于回收策略回收Worker缓存直到达到配置的低水位__
+    __高水位:__ alluxio.worker.tieredstore.level0.watermark.high.ratio=0.95 (默认95%)
+    __低水位:__ alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)
+    比如配置了32GB(MEM)+100GB(SSD)=132GB的Worker内存,当内存达到高水位<u>132*0.95=125.4GB</u>时开始回收缓存,直到到达低水位<u>132*0.7=92.4GB</u>时停止回收缓存  
+* 自定义回收策略
+    __贪心回收策略:__ 回收任意数据块直到释放出所需空间
+    __LRU回收策略:__ 回收最近最少使用数据块直到释放出所需空间
+    __部分LRU回收策略:__ 在最大剩余空间的目录回收最近最少使用数据块
+    __LRFU回收策略:__ 基于权重分配的最近最少使用和最不经常使用策略回收数据块,如果权重完全偏向最近最少使用,则LRFU变为LRU
+    
+
+#### Alluxio异步缓存策略  
 * Alluxio v1.7以后支持异步缓存  
     异步缓存是将Alluxio的缓存开销由客户端转移到Worker上,第一次读数据时,在不设置读属性为NO_CACHE的情况下Client只负责从底层存储读数据,然后缓存任务由Worker来执行,对Client读性能没有影响,也不需要像V1.7版本前那样设置<u>alluxio.user.file.cache.partially.read.block</u>来决定缓存部分或全部数据,而且Worker内部也在Client读取底层存储系统的数据方面做了优化,设置读属性为CACHE的情况下:  
     Client顺序读完整数据块时Worker顺便缓存完整数据块  
@@ -123,6 +145,17 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
     Worker在异步缓存的同时也响应Client读取请求,可通过设置Worker端的线程池大小来加快异步缓存的速度  
     <u>alluxio.worker.network.netty.async.cache.manager.threads.max</u> 指定Worker线程池大小,该属性默认为8,表示最多同时用八核从其他Worker或底层存储读数据并缓存,提高此值可以加快后台异步缓存的速度,但会增加CPU使用率
       
+#### Alluxio元数据一致性
+* Alluxio读取磁层存储系统的元数据,包括文件名,文件大小,创建者,组别,目录结构等
+* 如果绕过Alluxio修改底层存储系统的目录结构,Alluxio会同步更新
+    alluxio.user.file.metadata.sync.interval=-1 Alluxio不主动同步底层存储元数据
+    alluxio.user.file.metadata.sync.interval=正整数 正整数指定了时间窗口,该时间窗口内不触发元数据同步
+    alluxio.user.file.metadata.sync.interval=0 时间窗口为0,每次读取都触发元数据同步
+    __时间窗口越大,同步元数据频率越低,Alluxio Master性能受影响越小__
+* Alluxio不加载具体数据,只加载元数据,若要加载文件数据,可以通过load命令或FileStream API
+* 在Alluxio中创建文件或文件夹时可以指定是否持久化  
+    alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH mkdir /xxx
+    alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH touch /xxx/xx  
 
 
 
@@ -207,7 +240,8 @@ HA集群搭建方式 敬请期待
 
 至此，Alluxio服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
-### Alluxio常用命令  
+### Alluxio常用命令 
+Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
 Alluxio常用Shell命令速查表:  
 ``` bash
 #文件基本操作
@@ -350,7 +384,7 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
       alluxio fs chmod 775 /user/hive/warehouse
    ```
    注:CM集群设置Hive连接Alluxio Client的方式:
-   ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
+    ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
 3. 排坑:  
     安全认证问题:
     ![alt Alluxio-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png)
@@ -364,14 +398,38 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
     ```  
    
 #### Alluxio+Spark
-
+    
 
 #### Alluxio+Hadoop
-
+    
 
 #### Alluxio+Presto
+    
 
+### Alluxio FUSE  
+#### 什么是Alluxio FUSE
+Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Alluxio分布式文件系统。通过使用该特性，一些标准的命令行工具（例如ls、 cat以及echo）可以直接访问Alluxio分布式文件系统中的数据。此外更重要的是用不同语言实现的应用程序如C, C++, Python, Ruby, Perl, Java都可以通过标准的POSIX接口(例如open, write, read)来读写Alluxio，而不需要任何Alluxio的客户端整合与设置。  
 
+#### Alluxio FUSE局限性
+1. 文件只能顺序地一次写入,不能修改和覆盖,如果要修改就要删除原文件再创建
+2. 不支持soft-link和hard-link(即ln)
+3. alluxio.security.group.mapping.class选项设置为ShellBasedUnixGroupsMapping的值时,用户与分组信息才与Unix系统的用户分组对应
+4. 与直接使用Alluxio客户端相比，使用挂载文件系统的性能会相对较差
+
+#### Alluxio FUSE使用  
+1. 挂载
+    挂载alluxio_path到本地mount_point,mount_point必须是本地文件系统中的一个空文件夹，并且启动Alluxio-FUSE进程的用户拥有该挂载点及对其的读写权限。可以多次调用该命令来将Alluxio挂载到不同的本地目录下。所有的Alluxio-FUSE会共享$ALLUXIO_HOME\logs\fuse.log这个日志文件。
+    ```shell
+     integration/fuse/bin/alluxio-fuse mount mount_point [alluxio_path]  
+    ```
+2. 卸载
+    ```shell
+     integration/fuse/bin/alluxio-fuse umount mount_point
+    ```
+3. 检查挂载点运行信息
+    ```shell00
+     integration/fuse/bin/alluxio-fuse stat
+    ```
 
 ### Alluxio 客户端API  
 #### Java API  
@@ -383,5 +441,6 @@ balabalabala
 ### Q&A
 + 加速不明显?  
     Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
-
++ 速度反而更慢了?
+    测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上.确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。
 ### 总结
