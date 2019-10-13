@@ -93,9 +93,9 @@ donate:
 
 # 视频地址为https://cdn.jsdelivr.net/gh/honjun/hojun@1.2/Unbroken.mp4，配置如下
 movies:
-  url: https://cdn.jsdelivr.net/gh/honjun/hojun@1.2
+  url: http://lc-zuyveaho.cn-n1.lcfile.com/0e2f20b22125fc055689/
   # 多个视频用逗号隔开，随机获取。支持的格式目前已知MP4,Flv。其他的可以试下，不保证有用
-  name: Unbroken.mp4
+  name: blog_vid.mp4
 
 aplayer: 
   id: 2368663800
@@ -109,8 +109,17 @@ aplayer:
   volume: 0.7
   mutex: true
 
-# Valine
+# Valine (+LeanCloud)
+# You can get your appid and appkey from https://leancloud.cn
+# more info please open https://valine.js.org
+# 在Leancloud -> 设置 -> 安全中心 -> Web 安全域名 把你的域名加进去
 valine: true
-v_appId: GyC3NzMvd0hT9Yyd2hYIC0MN-gzGzoHsz
-v_appKey: mgOpfzbkHYqU92CV4IDlAUHQ
+v_appId: zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz
+v_appKey: xIEyTcrkTuJLz6ewPbpTj8mz
+notify: false  # mail notifier , https://github.com/xCss/Valine/wiki
+verify: false  # Verification code
+guest_info: nick,mail,link # custom comment header
+pageSize: 30
 
+#sitemap-搜索引擎爬取（待完善）
+baidu_push: true
