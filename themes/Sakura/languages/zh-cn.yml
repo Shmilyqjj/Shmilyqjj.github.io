@@ -11,7 +11,7 @@ video: 视频资源
 help: 关于本站
 links: 友情链接
 photo: 图集
-book: 悦读
+book: 书单
 music: 音乐
 cloud: 资源
 prev: <i class="iconfont icon-back"></i>
@@ -42,8 +42,8 @@ insight:
 
 #category
 技术:
-    zh: 野生技术协会
-    en: Geek – Only for Love
+    zh: 分享技术，记录学习
+    en: The palest ink is better than the best memory.
     img: https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/banner/coding.jpg
 生活:
     zh: 生活
