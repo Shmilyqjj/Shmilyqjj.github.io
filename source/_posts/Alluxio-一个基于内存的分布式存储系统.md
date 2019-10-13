@@ -322,7 +322,7 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
  vim conf/hive-env.sh
  export HADOOP_HOME=/opt/module/hadoop-2.7.2
  # 添加
- export HIVE_AUX_JARS_PATH=$ALLUXIO_HOME/client
+ export HIVE_AUX_JARS_PATH=$ALLUXIO_HOME/client:$HIVE_AUX_JARS_PATH
 ```
 2. 四种情况:
     * 创建一个Hive表并指定其存储在Alluxio  
@@ -382,6 +382,10 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
       alluxio fs mkdir /user/hive/warehouse
       alluxio fs chmod 775 /tmp
       alluxio fs chmod 775 /user/hive/warehouse
+   
+     # 检查Hive与Alluxio的集成情况
+      integration/checker/bin/alluxio-checker.sh -h # 查看该命令帮助
+      integration/checker/bin/alluxio-checker.sh hive -hiveurl [HIVE_URL]
    ```
    注:CM集群设置Hive连接Alluxio Client的方式:
     ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
@@ -400,7 +404,7 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
 #### Alluxio+Spark
     
 
-#### Alluxio+Hadoop
+#### Alluxio+HadoopMR
     
 
 #### Alluxio+Presto
