@@ -7,14 +7,14 @@ keywords:
 description:
 bangumis:
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/linglong.jpg
-    title: 灵笼
+    title: 《灵笼》
     status: 上半季完
     progress: 50
     jp: 废土风格的国产动漫巅峰之作
     time: 2019-07-13
     desc: 不久的未来，人类的世界早已拥挤不堪，迈向星河、寻找新家园的行动迫在眉捷。正当一切有条不紊的推进之时，月相异动，脚下的大地爆发了长达数十年、剧烈的地质变化，人类在这场浩劫中所剩无几。当天地逐渐恢复平静，人们从废墟和深渊中重新踏上了这片熟悉而又陌生的大地。习惯了主宰一切的我们是否还是这个世界的主人？
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/lundaonile.jpg
-    title: 轮到你了
+    title: 《轮到你了》
     status: 已追完
     progress: 100
     jp: 悬疑推理，交换杀人游戏
