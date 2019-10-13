@@ -5,7 +5,7 @@ siteName: Shmily
 favicon: /images/favicon.ico
 avatar: /img/custom/avatar.gif
 url: Shmilyqjj.github.io
-description: 记得每天早睡呀！
+description: 记得每天要早睡呀！
 cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
 pjax: 1
 # 1开启
@@ -24,8 +24,8 @@ menus:
     转载: {path: /categories/转载/, fa: fa-book }
   } }
   清单: { path: javascript:;, fa: fa-list-ul faa-vertical, submenus: { 
-    书单: {path: /tags/悦读/, fa: fa-th-list faa-bounce }, 
-    番组: {path: /bangumi/, fa: fa-film faa-vertical }, 
+    书单: {path: /tags/, fa: fa-th-list faa-bounce },
+    看剧: {path: /bangumi/, fa: fa-film faa-vertical },
     歌单: {path: /music/, fa: fa-headphones },
     图集: {path: /tags/图集/, fa: fa-photo }
   } }
@@ -76,7 +76,6 @@ startdash:
   - {url: /, title: 佳境的万事屋, desc: 技术服务, img: /img/startdash/wangshiwu.jpg}
 
 
-
 # your site build time or founded date
 siteBuildingTime: 09/21/2019
 
@@ -120,6 +119,7 @@ aplayer:
   volume: 0.7
   mutex: true
 
+
 # Valine (+LeanCloud)
 # You can get your appid and appkey from https://leancloud.cn
 # more info please open https://valine.js.org
@@ -131,6 +131,7 @@ notify: false  # mail notifier , https://github.com/xCss/Valine/wiki
 verify: false  # Verification code
 guest_info: nick,mail,link # custom comment header
 pageSize: 30
+
 
 #sitemap-搜索引擎爬取（待完善）
 baidu_push: true
