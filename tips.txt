@@ -43,11 +43,14 @@ hexo deploy # 部署到仓库
   博文标签封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Tags_Images/....        （jpg only）
   主页横幅图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/....          （webp only）
 
+
+
 4.视频外链
 
 
 5.图片库（已基本弃用，用cdn代替）
   六间房->稳定外链 只是图片会压缩  速度超快  适合博文  https://v.6.cn/profile/photo.php?act=list&rid=238467312#cate/-1
+  Leancloud -> 不压缩，速度快 https://leancloud.cn
 **技术的封面:
         六间房(图片会压缩)  https://v.6.cn/profile/photo.php?act=list&rid=238467312#cate/-1  qq
         技术1    https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569335652074232916_b.jpg
@@ -95,6 +98,10 @@ aplayer:
 
 8.git相关
 git checkout -b hexo   创建hexo分支用于存放博客源文件  master分支用于hexo d发布   博客文件提交到hexo分支  hexo d默认提交到master
+
+9.评论系统
+Valine+LeanCloud 在主题的_config.yml下配置 需要提前注册LeanCloud帐号
+LeanCloud中可查看评论信息并管理评论
 
 
 
