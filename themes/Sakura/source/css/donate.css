@@ -85,7 +85,7 @@
   display: block;
 }
 #donateBox #PayPal {
-  background-image: url(/images/donate/paypal.svg);
+  background-image: url(/images/donate/github.svg);
 }
 #donateBox>#BTC {
   background-image: url(/images/donate/bitcoin.svg);
