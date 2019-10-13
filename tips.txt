@@ -46,7 +46,8 @@ hexo deploy # 部署到仓库
 
 
 4.视频外链
-
+七牛云 免费10G空间 https://portal.qiniu.com/bucket/create
+可访问高速访问视频
 
 5.图片库（已基本弃用，用cdn代替）
   六间房->稳定外链 只是图片会压缩  速度超快  适合博文  https://v.6.cn/profile/photo.php?act=list&rid=238467312#cate/-1
