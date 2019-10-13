@@ -3,9 +3,9 @@ prefixName: 佳境
 siteName: Shmily
 # favicon and site master avatar
 favicon: /images/favicon.ico
-avatar: /img/custom/avatar.jpg
+avatar: /img/custom/avatar.gif
 url: Shmilyqjj.github.io
-description: 我不知道将要去何方，但我已在路上
+description: 记得每天早睡呀！
 cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
 pjax: 1
 # 1开启
@@ -45,16 +45,26 @@ menus:
 homePageSortType: -1
 # Home page article shown number)
 homeArticleShown: 10
-# 背景图片 更好的修改
+# 背景图片 更好的修改 1-8王者荣耀  9-26灵笼
 bg:
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(1).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(2).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(3).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(4).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(5).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(6).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(7).jpg.webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(8).jpg.webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(12).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(13).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(14).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(15).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(16).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(17).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(19).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(20).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(24).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(25).webp
+  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp
 
 # 背景图片样式 空 原图效果 filter-dim 阴影 filter-grid 横条 filter-dot 点点
 bgclass: filter-dot
@@ -93,9 +103,10 @@ donate:
 
 # 视频地址为https://cdn.jsdelivr.net/gh/honjun/hojun@1.2/Unbroken.mp4，配置如下
 movies:
-  url: http://lc-zuyveaho.cn-n1.lcfile.com/0e2f20b22125fc055689/
+  url: http://pyp1a3dme.bkt.clouddn.com/
   # 多个视频用逗号隔开，随机获取。支持的格式目前已知MP4,Flv。其他的可以试下，不保证有用
-  name: blog_vid.mp4
+  name: blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4
+
 
 aplayer: 
   id: 2368663800
