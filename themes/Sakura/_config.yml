@@ -19,7 +19,7 @@ menus:
   归档: { path: /archives, fa: fa-archive faa-shake, submenus: { 
     技术: {path: /categories/技术/, fa: fa-code }, 
     生活: {path: /categories/生活/, fa: fa-file-text-o }, 
-    资源: {path: /categories/资源/, fa: fa-cloud-download }, 
+    音乐: {path: /categories/音乐/, fa: fa-music },
     随想: {path: /categories/随想/, fa: fa-commenting-o },
     转载: {path: /categories/转载/, fa: fa-book }
   } }
@@ -27,14 +27,14 @@ menus:
     书单: {path: /tags/, fa: fa-th-list faa-bounce },
     看剧: {path: /bangumi/, fa: fa-film faa-vertical },
     歌单: {path: /music/, fa: fa-headphones },
-    图集: {path: /tags/图集/, fa: fa-photo }
+    图册: {path: /album/, fa: fa-photo }
   } }
   留言板: { path: /comment/, fa: fa-pencil-square-o faa-tada }
-  友人帐: { path: /links/, fa: fa-link faa-shake }
+  博友圈: { path: /links/, fa: fa-link faa-shake }
   赞赏: { path: /donate/, fa: fa-heart faa-pulse }
   关于: { path: /, fa: fa-leaf faa-wrench , submenus: { 
     我？: {path: /about/, fa: fa-meetup}, 
-    主题: {path: /theme-sakura/, fa: iconfont icon-sakura },
+    技术: {path: /tech/, fa: iconfont icon-sakura },
     Lab: {path: /lab/, fa: fa-cogs },
   } }
   客户端: { path: /client/, fa: fa-android faa-vertical }
@@ -71,7 +71,7 @@ bgclass: filter-dot
 
 # 三张图的位置 url, title, desc img
 startdash: 
-  - {url: /theme-sakura/, title: 技术分享, desc: 开发中，敬请期待, img: /img/startdash/sakura.md.png}
+  - {url: /tech/, title: 技术分享, desc: 开发中，敬请期待, img: /img/startdash/sakura.md.png}
   - {url: http://space.bilibili.com/271849279, title: Bilibili, desc: 开发中，敬请期待, img: /img/startdash/bilibili.jpg}
   - {url: /, title: 佳境的万事屋, desc: 开发中，敬请期待, img: /img/startdash/wangshiwu.jpg}
 
