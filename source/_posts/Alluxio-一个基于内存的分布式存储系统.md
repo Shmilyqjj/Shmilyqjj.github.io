@@ -113,20 +113,41 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         3. NO_CACHE:仅读数据,不写副本到Worker
     + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)
         1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
-        2. true读部分缓存全部,没有完全读取的数据块也会被全部存到 Alluxio内  
+        2. true读部分缓存全部,没有完全读取的数据块也会被全部存到Alluxio内  
  
 #### Alluxio的分层存储  
+__概念:__ Alluxio workers节点使用包括内存在内的本地存储来充当分布式缓冲缓存区,可以很大程度上改善I/O性能。每个Alluxio节点管理的存储数量和类型由用户配置,Alluxio还支持层次化存储,让数据存储获得类似于L1/L2 cpu缓存的优化。  
+__单层存储设置(推荐):__  
+   * 默认使用两个参数<u>alluxio.worker.memory.size=16GB</u> + <u>alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk</u>来设置Alluxio Worker的缓存大小
+   * 也可以单层多个存储介质并指定每个介质可用空间大小<u>alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk,/mnt/ssd</u> + <u>alluxio.worker.tieredstore.level0.dirs.quota=16GB,100GB</u>  
+   * alluxio.worker.memory.size和alluxio.worker.tieredstore.level0.dirs.quota的区别->ramdisk的大小默认由前者决定,后者可以决定除内存外的其他介质如ssd和hdd的大小  
+   
+__多层存储设置:__  
+* 多层存储的配置-使用两层存储MEM和HDD
+    ```bash
+    alluxio.worker.tieredstore.levels=2    # 最大存储级数 在Alluxio中配置了两级存储
+    alluxio.worker.tieredstore.level0.alias=MEM    # alluxio.worker.tieredstore.level0.alias=MEM 配置了首层(顶层)是内存存储层
+    alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk    # 设置了ramdisk的配额是100GB
+    alluxio.worker.tieredstore.level0.dirs.quota=100GB
+    alluxio.worker.tieredstore.level0.watermark.high.ratio=0.9  # 回收策略的高水位
+    alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 
+    alluxio.worker.tieredstore.level1.alias=HDD  # 配置了第二层是硬盘层
+    alluxio.worker.tieredstore.level1.dirs.path=/mnt/hdd1,/mnt/hdd2,/mnt/hdd3  # 定义了第二层3个文件路径各自的配额
+    alluxio.worker.tieredstore.level1.dirs.quota=2TB,5TB,500GB
+    alluxio.worker.tieredstore.level1.watermark.high.ratio=0.9
+    alluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
+    ```
+* 写数据默认写入顶层存储,也可以指定写数据的默认层级 <u>alluxio.user.file.write.tier.default</u> 默认0最顶层,1表示第二层,-1倒数第一层  
 
-
-#### Alluxio缓存回收策略
+#### Alluxio缓存回收策略  
 __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会为新数据腾出空间
 * 异步缓存回收与同步缓存回收
     alluxio.worker.tieredstore.reserver.enabled=true (默认异步回收)  在读写缓存工作负载较高的情况下异步回收可以提升性能
     alluxio.worker.tieredstore.reserver.enabled=false (同步回收)     请求所用空间比Worker上请求空间更多时,同步回收可以最大化Alluxio空间利用率,同步回收建议使用小数据块配置(64-128MB)来降低回收延迟  
 * 缓存回收中空间预留器的水位(阈值)
     __Worker存储利用率达到高水位时,基于回收策略回收Worker缓存直到达到配置的低水位__
-    __高水位:__ alluxio.worker.tieredstore.level0.watermark.high.ratio=0.95 (默认95%)
-    __低水位:__ alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)
+    __高水位:__ alluxio.worker.tieredstore.level0.watermark.high.ratio=0.95 (默认95%)  
+    __低水位:__ alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)  
     比如配置了32GB(MEM)+100GB(SSD)=132GB的Worker内存,当内存达到高水位<u>132*0.95=125.4GB</u>时开始回收缓存,直到到达低水位<u>132*0.7=92.4GB</u>时停止回收缓存  
 * 自定义回收策略
     __贪心回收策略:__ 回收任意数据块直到释放出所需空间
@@ -238,7 +259,7 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
 HA集群搭建方式 敬请期待
 ```  
 
-至此，Alluxio服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
+至此，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
 ### Alluxio常用命令 
 Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
@@ -431,7 +452,7 @@ Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Allu
      integration/fuse/bin/alluxio-fuse umount mount_point
     ```
 3. 检查挂载点运行信息
-    ```shell00
+    ```shell
      integration/fuse/bin/alluxio-fuse stat
     ```
 
