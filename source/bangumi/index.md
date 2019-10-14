@@ -1,10 +1,10 @@
 ---
 layout: bangumi
 title: 看剧
-comments: false
+comments: true
 date: 2019-09-21 21:32:48
-keywords:
-description:
+keywords: 好剧安利
+description: 给小伙伴们安利我看过的好剧啦！
 bangumis:
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/linglong.jpg
     title: 《灵笼》
