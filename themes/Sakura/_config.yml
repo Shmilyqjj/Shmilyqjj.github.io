@@ -72,7 +72,7 @@ bgclass: filter-dot
 # 三张图的位置 url, title, desc img
 startdash: 
   - {url: /tech/, title: 技术分享, desc: 开发中，敬请期待, img: /img/startdash/sakura.md.png}
-  - {url: http://space.bilibili.com/271849279, title: Bilibili, desc: 开发中，敬请期待, img: /img/startdash/bilibili.jpg}
+  - {url: http://space.bilibili.com/, title: Bilibili, desc: 开发中，敬请期待, img: /img/startdash/bilibili.jpg}
   - {url: /, title: 佳境的万事屋, desc: 开发中，敬请期待, img: /img/startdash/wangshiwu.jpg}
 
 
