@@ -22,20 +22,20 @@ function bot_ui_ini() {
     var botui = new BotUI("hello-mashiro")
     botui.message.add({
         delay: 800,
-        content: "Hi, there👋"
+        content: "你好呀，欢迎你来看我👋"
     }).then(function () {
         botui.message.add({
             delay: 1100,
-            content: "这里是 Mashiro"
+            content: "佳境在呢！"
         }).then(function () {
             botui.message.add({
                 delay: 1100,
-                content: "一个可爱的蓝孩子~"
+                content: "很高兴与你相遇！"
             }).then(function () {
                 botui.action.button({
                     delay: 1600,
                     action: [{
-                        text: "然后呢？ 😃",
+                        text: "你好呀！ 😃",
                         value: "sure"
                     }, {
                         text: "少废话！ 🙄",
@@ -65,32 +65,32 @@ function bot_ui_ini() {
         secondpart = function () {
             botui.message.add({
                 delay: 1500,
-                content: "目前就读于上海财经大学"
+                content: "我是练习时长三年半的大四实习生一枚..."
             }).then(function () {
                 botui.message.add({
                     delay: 1500,
-                    content: "向往技术却误入商科，但后来喜欢上了经济学…"
+                    content: "在上海工作，我要学好多好多技术哼！"
                 }).then(function () {
                     botui.message.add({
                         delay: 1200,
-                        content: "因为数据分析也需要Coder嘛"
+                        content: "我主要从事大数据方向，觉得原理好重要呀！"
                     }).then(function () {
                         botui.message.add({
-                            delay: 1500,
-                            content: "主攻 R 语言和 Python，略懂 STATA，偶尔也折腾 HTML/CSS/JavaScript/PHP"
+                            delay: 1000,
+                            content: "喜欢弹吉他，喜欢唱歌，也玩过编曲混音剪辑，喜欢打乒乓球..."
                         }).then(function () {
                             botui.message.add({
                                 delay: 1500,
-                                content: "研究的方向，是经济/金融方向的数据分析（data science）以及机器学习（machine learning）"
+                                content: "喜欢折腾新事物，没错，程序猿的通病了！"
                             }).then(function () {
                                 botui.message.add({
-                                    delay: 1800,
-                                    content: "喜欢画画，希望有一天能够被称为画师"
+                                    delay: 1000,
+                                    content: "好叭，我喜欢的东西太多了，爱好很广泛..."
                                 }).then(function () {
                                     botui.action.button({
-                                        delay: 1100,
+                                        delay: 800,
                                         action: [{
-                                            text: "为什么叫Mashiro呢？ 🤔",
+                                            text: "佳境，Shmily？Shmily是啥呀？ 🤔",
                                             value: "why-mashiro"
                                         }]
                                     }).then(function (a) {
@@ -106,12 +106,12 @@ function bot_ui_ini() {
         thirdpart = function () {
             botui.message.add({
                 delay: 1E3,
-                content: "Mashiro以及站名都来自一部动画，因为和主角有一样的爱好~ 如果有兴趣可以找找首页上的视频~"
+                content: "Shmily -> See How Much I Love You的缩写，叫习惯了哈哈"
             }).then(function () {
                 botui.action.button({
-                    delay: 1500,
+                    delay: 1300,
                     action: [{
-                        text: "为什么是白猫呢？ 🤔",
+                        text: "你几岁了？ 🤔",
                         value: "why-cat"
                     }]
                 }).then(function (a) {
@@ -122,16 +122,16 @@ function bot_ui_ini() {
         fourthpart = function () {
             botui.message.add({
                 delay: 1E3,
-                content: "因为对GitHub有种执念… "
+                content: "emmm.再问打你奥！ "
             }).then(function () {
                 botui.message.add({
                     delay: 1100,
-                    content: "而且我真的是猫控！"
+                    content: "我还年轻啦！四舍五入一下怎么也算个00后..."
                 }).then(function () {
                     botui.action.button({
                         delay: 1500,
                         action: [{
-                            text: "域名有什么含意吗？(ง •_•)ง",
+                            text: "小哥哥我可以撩你嘛？",
                             value: "why-domain"
                         }]
                     }).then(function (a) {
@@ -143,11 +143,11 @@ function bot_ui_ini() {
         fifthpart = function () {
             botui.message.add({
                 delay: 1E3,
-                content: "emmmm，看备案信息你就知道了=.= 本来想要zheng.xin的，但50万真买不起。。"
+                content: "我猜你肯定呕呕呕了 哈哈哈！"
             }).then(function () {
                 botui.message.add({
                     delay: 1600,
-                    content: "那么，仔细看看我的博客吧？ ^_^"
+                    content: "不闹了，逛逛我的博客吧！ ^_^"
                 })
             })
         } 
