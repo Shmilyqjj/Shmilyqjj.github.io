@@ -48,56 +48,6 @@
 
 
 
-
-package AlluxioAPI; /**
- *
- */
-import alluxio.AlluxioURI;
-import alluxio.client.file.FileInStream;
-import alluxio.client.file.FileOutStream;
-import alluxio.client.file.FileSystem;
-import alluxio.exception.AlluxioException;
-
-import java.io.IOException;
-
-public class AlluxioReadFile {
-    public static void main(String[] args) throws IOException, AlluxioException {
-        String AlluxioPath = args[0];
-        AlluxioIO ai = new AlluxioIO();
-        long startTime=System.currentTimeMillis();
-        ai.readFile(AlluxioPath);
-        long endTime=System.currentTimeMillis();
-        System.out.println("Alluxio读取运行时间:"+(endTime-startTime)+" ms");
-    }
-}
-
-class AlluxioIO{
-    public  AlluxioIO(){}
-    public FileInStream readFile(String AlluxioPath) throws IOException, AlluxioException {
-        FileSystem fs = FileSystem.Factory.get();
-        AlluxioURI path = new AlluxioURI(AlluxioPath);
-        FileInStream in = fs.openFile(path);
-        // Read data
-        in.read(null);
-        // Close file relinquishing the lock
-        in.close();
-        return  in;
-    }
-
-    public FileOutStream writeFile(String AlluxioPath) throws IOException, AlluxioException {
-        FileSystem fs = FileSystem.Factory.get();
-        AlluxioURI path = new AlluxioURI(AlluxioPath);
-        // Create a file and get its output stream
-        FileOutStream out = fs.createFile(path);
-        // Write data
-        out.write(null);
-        // Close and complete file
-        out.close();
-        return out;
-    }
-
-}
-
 https://blog.csdn.net/qq_32447301/article/details/90321610
 -------------------------------------------------------------------
 
