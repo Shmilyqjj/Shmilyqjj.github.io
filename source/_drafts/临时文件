@@ -45,3 +45,96 @@
  kill -9 <AlluxioMaster PID>
  alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
 ```
+
+
+
+
+package AlluxioAPI; /**
+ *
+ */
+import alluxio.AlluxioURI;
+import alluxio.client.file.FileInStream;
+import alluxio.client.file.FileOutStream;
+import alluxio.client.file.FileSystem;
+import alluxio.exception.AlluxioException;
+
+import java.io.IOException;
+
+public class AlluxioReadFile {
+    public static void main(String[] args) throws IOException, AlluxioException {
+        String AlluxioPath = args[0];
+        AlluxioIO ai = new AlluxioIO();
+        long startTime=System.currentTimeMillis();
+        ai.readFile(AlluxioPath);
+        long endTime=System.currentTimeMillis();
+        System.out.println("Alluxio读取运行时间:"+(endTime-startTime)+" ms");
+    }
+}
+
+class AlluxioIO{
+    public  AlluxioIO(){}
+    public FileInStream readFile(String AlluxioPath) throws IOException, AlluxioException {
+        FileSystem fs = FileSystem.Factory.get();
+        AlluxioURI path = new AlluxioURI(AlluxioPath);
+        FileInStream in = fs.openFile(path);
+        // Read data
+        in.read(null);
+        // Close file relinquishing the lock
+        in.close();
+        return  in;
+    }
+
+    public FileOutStream writeFile(String AlluxioPath) throws IOException, AlluxioException {
+        FileSystem fs = FileSystem.Factory.get();
+        AlluxioURI path = new AlluxioURI(AlluxioPath);
+        // Create a file and get its output stream
+        FileOutStream out = fs.createFile(path);
+        // Write data
+        out.write(null);
+        // Close and complete file
+        out.close();
+        return out;
+    }
+
+}
+
+https://blog.csdn.net/qq_32447301/article/details/90321610
+-------------------------------------------------------------------
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileSystem;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class readTest {
+    public static void main(String[] args) throws IOException {
+        String url = args[0];
+        HDFSIO hi = new HDFSIO(url);
+        long hdfsStartTime=System.currentTimeMillis();
+        hi.readFile("/user/hive/warehouse/test.db/");
+        long hdfsEndTime=System.currentTimeMillis();
+        System.out.println("读取运行时间:"+(hdfsEndTime-hdfsStartTime)+" ms");
+    }
+}
+
+class HDFSIO{
+    private Configuration conf = new Configuration();
+    public HDFSIO(String HDFSURL){
+        conf.set("fs.defaultFS",HDFSURL);
+        System.setProperty("HADOOP_USER_NAME","hdfs");
+    }
+    public void readFile(String path) throws IOException {
+        FileSystem fs = FileSystem.get(conf);
+        FSDataInputStream in = fs.open(new Path(path));
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(in));
+        } finally {
+            br.close();
+        }
+    }
+}

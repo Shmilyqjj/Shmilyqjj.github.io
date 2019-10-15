@@ -423,10 +423,56 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
     ```  
    
 #### Alluxio+Spark
-    
+1. 配置
+参数配置
+<u>spark.driver.extraClassPath /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar</u>
+<u>spark.executor.extraClassPath /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar</u>
+或者Jar包拷贝
+<u>cp client/alluxio-2.0.1-client.jar $SPARK_HOME/jars/</u>  
+如果高可用的Alluxio,还需在spark-default中指定:  
+```bash
+ spark.driver.extraJavaOptions   -Dalluxio.zookeeper.address=zkHost1:2181,zkHost2:2181,zkHost3:2181 -Dalluxio.zookeeper.enabled=true
+ spark.executor.extraJavaOptions -Dalluxio.zookeeper.address=zkHost1:2181,zkHost2:2181,zkHost3:2181 -Dalluxio.zookeeper.enabled=true  
+ 或者配置Hadoop文件core-site.xml如下
+ <configuration>
+   <property>
+     <name>alluxio.zookeeper.enabled</name>
+     <value>true</value>
+   </property>
+   <property>
+     <name>alluxio.zookeeper.address</name>
+     <value>zkHost1:2181,zkHost2:2181,zkHost3:2181</value>
+   </property>
+ </configuration>
+```  
+自定义Spark作业中Alluxio的属性
+spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CACHE_THROUGH" 而不是--conf
+
+2. 检查配置是否正确
+在$ALLUXIO_HOME运行 integration/checker/bin/alluxio-checker.sh spark spark://sparkMaster:7077
+
+3. 使用
+```bash
+存储 RDD 到 Alluxio 内存中就是将 RDD 作为文件保存到 Alluxio 中:
+  saveAsTextFile：将 RDD 作为文本文件写入，其中每个元素都是文件中的一行
+  saveAsObjectFile：通过对每个元素使用 Java 序列化，将 RDD 写到一个文件中
+  // as text file
+  rdd.saveAsTextFile("alluxio://localhost:19998/rdd1")
+  rdd = sc.textFile("alluxio://localhost:19998/rdd1")
+  
+  // as object file
+  rdd.saveAsObjectFile("alluxio://localhost:19998/rdd2")
+  rdd = sc.objectFile("alluxio://localhost:19998/rdd2")
+缓存 Dataframe 到 Alluxio 中(将 DataFrame 作为文件保存到 Alluxio 中):
+  df.write.parquet("alluxio://localhost:19998/data.parquet")
+  df = sqlContext.read.parquet("alluxio://localhost:19998/data.parquet")
+
+  
+
+```
 
 #### Alluxio+HadoopMR
-    
+
 
 #### Alluxio+Presto
     
@@ -459,6 +505,9 @@ Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Allu
 ### Alluxio 客户端API  
 #### Java API  
 Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
+```java
+
+```
 
 #### Python API
 balabalabala
