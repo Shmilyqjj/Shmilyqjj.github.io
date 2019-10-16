@@ -55,7 +55,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 ### Alluxio原理    
 ![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
 如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
-#### Alluxio核心组件:  
+#### Alluxio核心组件  
 Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
 - - -
 ![alt Alluxio-8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png)
@@ -70,7 +70,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
 可以把Client理解为一个库，它实现了文件系统的接口，根据用户请求调用Alluxio服务，客户端被编译为alluxio-2.0.1-client.jar文件，它应当位于JVM类路径上，才能正常运行。
 当Client和Worker在同一节点时，客户端对本地缓存数据的读写请求可以绕过RPC接口，使本地文件系统可以直接访问Worker所管理的数据，这种情况被称为短路写，速度比较快，如果该节点没有Worker在运行，则Client的读写需要通过网络访问其他节点上的Worker，速度受网络宽带的限制。  
 
-#### Alluxio读写场景:
+#### Alluxio读写场景与参数
 
 * __Alluxio读场景与性能分析:__
     + __命中本地Worker__
@@ -266,6 +266,7 @@ Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重�
 Alluxio常用Shell命令速查表:  
 ``` bash
 #文件基本操作
+ 可以在执行命令时指定参数 方法: alluxio fs -D...指定参数 copyFromLocal ....
  alluxio fs cat <path/file>  # 打开文件
  alluxio fs ls [-d|-f|-p|-R|-h|--sort=option|-r] <path>  #查看目录
  alluxio fs copyFromLocal [--thread <num>] [--buffersize <bytes>] <src> <remoteDst> # 从本地上传文件到Alluxio
