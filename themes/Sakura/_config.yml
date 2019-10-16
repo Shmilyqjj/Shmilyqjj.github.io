@@ -132,6 +132,12 @@ verify: false  # Verification code
 guest_info: nick,mail,link # custom comment header
 pageSize: 30
 
+leancloud_visitors:
+  enable: true
+  v_appId: zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz
+  v_appKey: xIEyTcrkTuJLz6ewPbpTj8mz
+
+
 
 #sitemap-搜索引擎爬取（待完善）
 baidu_push: true
