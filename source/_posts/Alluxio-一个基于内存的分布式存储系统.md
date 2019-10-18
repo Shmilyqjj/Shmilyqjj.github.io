@@ -138,6 +138,7 @@ __多层存储设置:__
     alluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
     ```
 * 写数据默认写入顶层存储,也可以指定写数据的默认层级 <u>alluxio.user.file.write.tier.default</u> 默认0最顶层,1表示第二层,-1倒数第一层  
+* Alluxio收到写请求,直接把数据写入有足够缓存的层,如果缓存全满,则置换掉底层的一个Block.
 
 #### Alluxio缓存回收策略  
 __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会为新数据腾出空间
@@ -178,6 +179,9 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
     alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH mkdir /xxx
     alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH touch /xxx/xx  
 
+#### Alluxio的Metrics  
+__度量指标信息可以让用户深入了解集群上运行的任务,是监控和调试的宝贵资源。__  
+Alluxio的度量指标信息被分配到<u>各种相关Alluxio组件的实例</u>中。每个实例中，用户可以配置一组度量指标槽，来决定报告哪些度量指标信息。现支持Master进程,Worker进程和Client进程的度量指标 。  
 
 
 
