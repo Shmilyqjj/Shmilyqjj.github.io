@@ -96,6 +96,5 @@ QCon让我学到了很多东西,扩展了思路,鼓励我在学习新技术的�
 <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-11.jpg" width=49% title="大宁郁金香公园" align=left>
 <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-12.jpg" width=49% title="大宁郁金香公园" align=right>
 <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-13.jpg" width=49% title="大宁郁金香公园" align=left>
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=49% title="大宁郁金香公园" align=right>
+<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=49% title="大宁郁金香公园" align=right>  
 
-欢迎下方留言与我交流！
