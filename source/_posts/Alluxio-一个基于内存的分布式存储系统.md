@@ -257,46 +257,45 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 
 3. 配置示例
 ```bash  
-vim metrics.properties
+  vim metrics.properties
+  # List of available sinks and their properties.
+  alluxio.metrics.sink.ConsoleSink
+  alluxio.metrics.sink.CsvSink
+  alluxio.metrics.sink.JmxSink
+  alluxio.metrics.sink.MetricsServlet
+  alluxio.metrics.sink.PrometheusMetricsServlet
+  alluxio.metrics.sink.GraphiteSink
 
-# List of available sinks and their properties.
-alluxio.metrics.sink.ConsoleSink
-alluxio.metrics.sink.CsvSink
-alluxio.metrics.sink.JmxSink
-alluxio.metrics.sink.MetricsServlet
-alluxio.metrics.sink.PrometheusMetricsServlet
-alluxio.metrics.sink.GraphiteSink
+  master.GetFileBlockInfoOps
+  master.GetNewBlockOps
+  master.FreeFileOps
 
-master.GetFileBlockInfoOps
-master.GetNewBlockOps
-master.FreeFileOps
+  192_168_1_101.BytesReadAlluxio
+  192_168_1_101.BytesWrittenAlluxio
+  192_168_1_101.BlocksAccessed
+  192_168_1_101.BlocksCached
+  192_168_1_101.BlocksCanceled
+  192_168_1_101.BlocksDeleted
+  192_168_1_101.BlocksEvicted
+  192_168_1_101.BlocksPromoted
 
-192_168_1_101.BytesReadAlluxio
-192_168_1_101.BytesWrittenAlluxio
-192_168_1_101.BlocksAccessed
-192_168_1_101.BlocksCached
-192_168_1_101.BlocksCanceled
-192_168_1_101.BlocksDeleted
-192_168_1_101.BlocksEvicted
-192_168_1_101.BlocksPromoted
+  192_168_1_102.BytesReadAlluxio
+  192_168_1_102.BytesWrittenAlluxio
+  192_168_1_102.BlocksAccessed
+  192_168_1_102.BlocksCached
+  192_168_1_102.BlocksCanceled
+  192_168_1_102.BlocksDeleted
+  192_168_1_102.BlocksEvicted
+  192_168_1_102.BlocksPromoted
 
-192_168_1_102.BytesReadAlluxio
-192_168_1_102.BytesWrittenAlluxio
-192_168_1_102.BlocksAccessed
-192_168_1_102.BlocksCached
-192_168_1_102.BlocksCanceled
-192_168_1_102.BlocksDeleted
-192_168_1_102.BlocksEvicted
-192_168_1_102.BlocksPromoted
-
-192_168_1_103.BytesReadAlluxio
-192_168_1_103.BytesWrittenAlluxio
-192_168_1_103.BlocksAccessed
-192_168_1_103.BlocksCached
-192_168_1_103.BlocksCanceled
-192_168_1_103.BlocksDeleted
-192_168_1_103.BlocksEvicted
-192_168_1_103.BlocksPromoted
+  192_168_1_103.BytesReadAlluxio
+  192_168_1_103.BytesWrittenAlluxio
+  192_168_1_103.BlocksAccessed
+  192_168_1_103.BlocksCached
+  192_168_1_103.BlocksCanceled
+  192_168_1_103.BlocksDeleted
+  192_168_1_103.BlocksEvicted
+  192_168_1_103.BlocksPromoted
 ```
 
 
