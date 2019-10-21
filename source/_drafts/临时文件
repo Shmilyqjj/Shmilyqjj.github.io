@@ -88,3 +88,10 @@ class HDFSIO{
         }
     }
 }
+
+
+shuffle write：分区数由上一阶段的RDD分区数控制
+类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
+shuffle read：分区数由Spark提供的参数控制
+如果这个参数值设置的很小，同时shuffle read量很大，那么单个task处理的数据量也会很大，这可能导致JVM crash，从而获取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。
+有时候即使不会导致JVM crash也会造成长时间的gc。
