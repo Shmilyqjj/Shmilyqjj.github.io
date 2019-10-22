@@ -1,5 +1,5 @@
 ---
-title: 技术类模板
+title: CentOS8安装CDH6全程记录
 author: 佳境
 avatar: 'https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg'
 authorLink: Shmilyqjj.github.io
@@ -7,15 +7,14 @@ authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
 categories:
   - 技术
-  - 生活
 comments: true  
-date: 2019-10-18 23:59:59
+date: 2019-9-21 22:16:00
 tags:
-  - QCon全球软件开发大会
-  - 技术分享会
-keywords: xx技术
-description: xxxx介绍
-photos: http://r.photo.store.qq.com/psb?/V10aWFGB3ChSVt/aywi*9fi1*PO*S50RvHzjY09XSQg2MjlXdAtX1fBlnc!/r/dLgAAAAAAAAA
+  - 大数据
+  - CDH6+CentOs8
+keywords: CDH6+CentOs8
+description: CDH6+CentOs8安装过程与排坑
+photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
 ---
 # 大标题  
 内容........
