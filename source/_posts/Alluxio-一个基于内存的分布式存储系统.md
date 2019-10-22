@@ -568,6 +568,8 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
 自定义Spark作业中Alluxio的属性
 spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CACHE_THROUGH" 而不是--conf
 
+[官方Alluxio+Spark配置设置](https://docs.alluxio.io/os/user/stable/cn/compute/Spark.html)
+
 2. 检查配置是否正确
 在$ALLUXIO_HOME运行 integration/checker/bin/alluxio-checker.sh spark spark://sparkMaster:7077
 
@@ -586,10 +588,13 @@ spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CA
 缓存 Dataframe 到 Alluxio 中(将 DataFrame 作为文件保存到 Alluxio 中):
   df.write.parquet("alluxio://localhost:19998/data.parquet")
   df = sqlContext.read.parquet("alluxio://localhost:19998/data.parquet")
-
-  
-
 ```
+
+4. Alluxio对Shuffle的提升
+目前三种方案:  
+一是基于Alluxio-Fuse客户端,无需修改源码,直接挂载Shuffle目录,但Alluxio-Fuse目前的性能不是很好  
+二是重写Spark Shuffle Service底层源码实现基于Alluxio Client的Shuffle 
+三是可以Splash Shuffle Manager插件,我的另一篇文章有讲到 -> [QCon总结-Splash Shuffle Manager](http://c38kw0.coding-pages.com/2019/09/27/Alluxio-%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8E%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/)  
 
 #### Alluxio+HadoopMR
 
@@ -629,8 +634,8 @@ Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容�
 
 ```
 
-#### Python API
-balabalabala
+#### Python API  
+由于pip install alluxio一直不成功,这块我后续再更
 
 ### Q&A
 + 加速不明显?  
