@@ -98,3 +98,16 @@ shuffle read：分区数由Spark提供的参数控制
 
 
 yum install nload
+
+
+mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
+select * from table_name;
+回滚事务步骤:
+start transaction;   开始事务
+savepoint a;   创建保存点a
+delete from table_name where id = 1;  删除一条记录
+select * from table_name;
+rollback to a;  回滚到a保存点
+select * from table_name;  没问题的话  执行commit;
+
+
