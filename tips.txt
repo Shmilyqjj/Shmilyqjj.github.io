@@ -102,6 +102,8 @@ aplayer:
 
 8.git相关
 git checkout -b hexo   创建hexo分支用于存放博客源文件  master分支用于hexo d发布   博客文件提交到hexo分支  hexo d默认提交到master
+git push遇到unable to access 则 git config --system http.sslverify false
+
 
 9.评论系统
 Valine+LeanCloud 在主题的_config.yml下配置 需要提前注册LeanCloud帐号
