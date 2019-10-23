@@ -353,7 +353,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
  scp -r /opt/module/alluxio/ root@hadoop103:/opt/module/
 
  # 打开Alluxio服务
- bin/alluxio-start.sh master  
+ alluxio format
+ alluxio-start.sh master  
  alluxio-start.sh workers NoMount
  或直接 alluxio-start.sh all
  访问Master节点的WEB UI: hadoop101:19999
