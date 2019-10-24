@@ -151,6 +151,8 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
     __低水位:__ alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)  
     比如配置了32GB(MEM)+100GB(SSD)=132GB的Worker内存,当内存达到高水位<u>132x0.95=125.4GB</u>时开始回收缓存,直到到达低水位<u>132x0.7=92.4GB</u>时停止回收缓存  
 * 自定义回收策略
+    alluxio.worker.allocator.class，缺省值alluxio.worker.block.allocator.MaxFreeAllocator  (Alluxio中新数据块分配策略的类名)
+    alluxio.worker.evictor.class，缺省值alluxio.worker.block.evictor.LRUEvictor  (当存储层空间用尽时块回收策略的类名)
     __贪心回收策略:__ 回收任意数据块直到释放出所需空间
     __LRU回收策略:__ 回收最近最少使用数据块直到释放出所需空间
     __部分LRU回收策略:__ 在最大剩余空间的目录回收最近最少使用数据块
