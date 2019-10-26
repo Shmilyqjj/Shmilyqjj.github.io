@@ -13,7 +13,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: /
+url: https://shmily-qjj.top
 root:  /
 
 # 链接优化
@@ -89,11 +89,13 @@ admin:
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: git
-  repo: 
-    github: https://github.com/Shmilyqjj/Shmilyqjj.github.io
-    coding: https://e.coding.net/Shmilyqjj/Shmilyqjj.github.io.git
-  branch: master
+  - type: git
+    repo:
+      github: https://github.com/Shmilyqjj/Shmilyqjj.github.io
+      coding: https://e.coding.net/Shmilyqjj/Shmilyqjj.github.io.git
+    branch: master
+  - type: baidu_url_submitter
+
 
 # backup
 backup:
@@ -119,10 +121,18 @@ live2d:
   mobile:
     show: false  #是否在手机进行显示
 
+baidu_url_submit:
+  count: 10 # 提交最新的链接数
+  host: shmily-qjj.top    # 在百度站长平台中注册的域名,虽然官方推荐要带有 www, 但可以不带.
+  token: APNp7hfJ0Q7FXTP8  # 你的秘钥,每个人都不一样,获取方法在下面
+  path: baidu_urls.txt # 文本文档的地址,新链接会保存在此文本文档里
 
 #Sitemap Sitemap用于通知搜索引擎网站上有哪些可供抓取的网页，以便搜索引擎可以更加智能地抓取网站。 npm install hexo-generator-sitemap --save 添加以下字段后 hexo g 然后在主题的config.yml下添加 baidu_push: true
+# 自动生成sitemap
 sitemap:
-path: sitemap.xml
+ - path: sitemap.xml
+baidusitemap:
+ - path: baidusitemap.xml
 
 #RSS
 feed:
