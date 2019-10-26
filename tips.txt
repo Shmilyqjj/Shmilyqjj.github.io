@@ -4,7 +4,7 @@
 ########如果觉得有帮助，记得给个Star呦！########
 
 ---------------------------------------
-地址：Shmilyqjj.github.io
+地址：shmily-qjj.top
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
 npm install    (npm install hexo --save)
