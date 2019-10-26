@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "hexo": "^3.7.0",
+    "hexo-abbrlink": "^2.0.5",
     "hexo-admin": "^2.3.0",
     "hexo-deployer-git": "^0.2.0",
     "hexo-generator-archive": "^0.1.5",
@@ -23,6 +24,7 @@
     "hexo-renderer-stylus": "^0.3.3",
     "hexo-server": "^0.3.1",
     "hexo-tag-bili": "^1.0.0",
-    "hexo-tag-fancybox_img": "^1.0.1"
+    "hexo-tag-fancybox_img": "^1.0.1",
+    "live2d-widget-model-wanko": "^1.0.5"
   }
 }
