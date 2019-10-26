@@ -15,7 +15,12 @@ timezone:
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: /
 root:  /
-permalink: :year/:month/:day/:title/
+
+# 链接优化
+permalink: :abbrlink/
+abbrlink:
+  alg: crc32  # 算法：crc16(default) and crc32
+  rep: hex    # 进制：dec(default) and hex
 permalink_defaults:
 
 # Directory
@@ -101,6 +106,8 @@ backup:
 #hexo-helper-live2d  茶杯狗
 live2d:
   enable: true	#是否开启显示
+  pluginRootPath: live2dw/
+  pluginJsPath: lib/
   pluginModelPath: assets/
   model:
     use: live2d-widget-model-wanko  #模板目录，在node_modules里
@@ -111,6 +118,7 @@ live2d:
     height: 256
   mobile:
     show: false  #是否在手机进行显示
+
 
 #Sitemap Sitemap用于通知搜索引擎网站上有哪些可供抓取的网页，以便搜索引擎可以更加智能地抓取网站。 npm install hexo-generator-sitemap --save 添加以下字段后 hexo g 然后在主题的config.yml下添加 baidu_push: true
 sitemap:
