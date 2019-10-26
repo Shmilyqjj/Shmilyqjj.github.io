@@ -13,7 +13,9 @@ hexo clean # 非必要
 hexo g     # 生成文件
 hexo server -p 8888  # 打开本地预览   （hexo s -d -p 8888）
 hexo deploy # 部署到仓库
+****************************************************  HEXO三连： hexo clean & hexo g & hexo d  ******************************************************
 部署完成后，到Github仓库的设置中,找到Github Pages,将source选到master branch来打开Pages服务
+
 
 
 写博客：
@@ -108,7 +110,37 @@ git checkout -b hexo   创建hexo分支用于存放博客源文件  master分支
 Valine+LeanCloud 在主题的_config.yml下配置 需要提前注册LeanCloud帐号
 LeanCloud中可查看评论信息并管理评论
 
-10.其他优化
+10.百度等搜索引擎收录
+参考https://www.jianshu.com/p/efaf72aab32e 的SEO优化部分
+npm i hexo-generator-sitemap hexo-generator-baidu-sitemap -S
+根目录config修改 url: https://shmily-qjj.top
+主动推送：
+npm i hexo-baidu-url-submit -S
+根目录config添加
+baidu_url_submit:
+  count: 10 # 提交最新的链接数
+  host: shmily-qjj.top # 在百度站长平台中注册的域名,虽然官方推荐要带有 www, 但可以不带.
+  token:  XXXXX # 你的秘钥,每个人都不一样,获取方法在下面
+  path: baidu_urls.txt # 文本文档的地址,新链接会保存在此文本文档里
+添加deploy变这样
+deploy:
+  - type: git
+  .......
+  - type: baidu_url_submitter
+站长工具链接提交 -> 接口调用地址 token部分数值 -> token
+生成site map
+npm install hexo-generator-sitemap --save
+npm install hexo-generator-baidu-sitemap --save
+根目录config添加
+# 自动生成sitemap
+sitemap:
+path: sitemap.xml
+baidusitemap:
+path: baidusitemap.xml
+
+
+
+11.其他优化
 (1)链接优化
 npm install hexo-abbrlink --save
 在站点根目录配置文件_config.yml中修改permalink为如下
