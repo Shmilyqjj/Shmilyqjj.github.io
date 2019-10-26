@@ -89,25 +89,30 @@ Intel Optane DC Persistent Memory,专为数据中心使用而设计的新的内�
 
 ## 写在最后
 QCon让我学到了很多东西,扩展了思路,鼓励我在学习新技术的道路上奋勇向前!感觉对新技术更加感兴趣了,如果下次还有机会参加那该多好呀!话说是不是我下次再去就能听懂那些大佬说的东西了吧...  
+做个简单的总结吧
+* 对新技术要仔细调研，琢磨存在的问题
+* 对于陌生的技术要先明白它是做什么的，对扩宽思路有很大帮助
+* 编程不仅是写代码，更要考虑性能，安全性和稳定性
+* 一个新架构的出现必然有其优势，仔细思考它带来的影响
 
 **我顺便在会场周边玩了一圈,贴几张自认为不是直男拍的照片:**  
 <div>
 <table>  
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-8.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>  
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-9.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>  
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-8.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left alt="大宁郁金香公园"></td>  
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-9.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right alt="大宁郁金香公园"></td>  
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-10.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-7.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-10.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left alt="大宁郁金香公园"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-7.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right alt="大宁郁金香公园"></td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-11.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-12.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-11.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left alt="大宁郁金香公园"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-12.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right alt="大宁郁金香公园"></td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-13.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-13.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left alt="大宁郁金香公园"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right alt="大宁郁金香公园"></td>
 </tr>
 </table>
 </div>
