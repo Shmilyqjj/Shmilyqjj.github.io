@@ -8,7 +8,7 @@
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
 npm install    (npm install hexo --save)
-看板live2d可选 npm uninstall hexo-helper-live2d --save
+看板live2d可选 npm uninstall hexo-helper-live2d --save   选模型 然后npm install 模型名
 hexo clean # 非必要
 hexo g     # 生成文件
 hexo server -p 8888  # 打开本地预览   （hexo s -d -p 8888）
@@ -107,6 +107,16 @@ git checkout -b hexo   创建hexo分支用于存放博客源文件  master分支
 9.评论系统
 Valine+LeanCloud 在主题的_config.yml下配置 需要提前注册LeanCloud帐号
 LeanCloud中可查看评论信息并管理评论
+
+10.其他优化
+(1)链接优化
+npm install hexo-abbrlink --save
+在站点根目录配置文件_config.yml中修改permalink为如下
+permalink: :abbrlink/
+abbrlink:
+  alg: crc32  # 算法：crc16(default) and crc32
+  rep: hex    # 进制：dec(default) and hex
+permalink_defaults:
 
 
 
