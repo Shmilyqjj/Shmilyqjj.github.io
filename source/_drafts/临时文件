@@ -97,7 +97,7 @@ shuffle read：分区数由Spark提供的参数控制
 有时候即使不会导致JVM crash也会造成长时间的gc。
 
 
-yum install nload
+
 
 
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
