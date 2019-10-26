@@ -1,19 +1,22 @@
 ---
 title: 记一次参加QCon全球软件开发大会
 author: 佳境
-avatar: 'https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg'
+avatar: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
 authorLink: /
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
 categories:
   - 技术
-comments: true  
-date: 2019-10-21 19:59:50
+comments: true
 tags:
   - QCon全球软件开发大会
 keywords: QCon全球软件开发大会
 description: QCon全球软件开发大会10th 2019上海站
-photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-1.jpg
+photos: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-1.jpg
+abbrlink: 39595
+date: 2019-10-21 19:59:50
 ---
 # QCon全球软件开发大会  
 ![alt QCon-2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-1.jpg)  
@@ -88,12 +91,23 @@ Intel Optane DC Persistent Memory,专为数据中心使用而设计的新的内�
 QCon让我学到了很多东西,扩展了思路,鼓励我在学习新技术的道路上奋勇向前!感觉对新技术更加感兴趣了,如果下次还有机会参加那该多好呀!话说是不是我下次再去就能听懂那些大佬说的东西了吧...  
 
 **我顺便在会场周边玩了一圈,贴几张自认为不是直男拍的照片:**  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-8.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-9.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-10.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-7.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-11.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-12.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-13.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left>  
-<img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=50% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right>  
-
+<div>
+<table>  
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-8.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>  
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-9.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>  
+</tr>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-10.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-7.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+</tr>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-11.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-12.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+</tr>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-13.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=left></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/QCon/QCon-14.jpg" width=100% style="border:solid 3px #CCFFFF" title="大宁郁金香公园" align=right></td>
+</tr>
+</table>
+</div>

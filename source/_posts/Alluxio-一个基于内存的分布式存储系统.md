@@ -1,19 +1,22 @@
 ---
 title: Alluxio - 一个基于内存的分布式存储系统
 author: 佳境
-avatar: 'https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg'
+avatar: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
 authorLink: shmily-qjj.top
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
 categories: 技术
-comments: true  
-date: 2019-9-27 22:16:00
+comments: true
 tags:
   - 大数据
   - Alluxio
 keywords: Alluxio
 description: Alluxio干货分享
-photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg
+photos: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg
+abbrlink: 44511
+date: 2019-09-27 22:16:00
 ---
 ![alt Alluxio-1](https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg)   
 ### 什么是Alluxio  

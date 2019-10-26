@@ -1,20 +1,23 @@
 ---
 title: CentOS8安装CDH6全程记录-待更新
 author: 佳境
-avatar: 'https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg'
+avatar: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
 authorLink: /
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
 categories:
   - 技术
-comments: true  
-date: 2019-10-23 22:50:00
+comments: true
 tags:
   - 大数据
   - CDH6+CentOs8
 keywords: CDH6+CentOs8
 description: CDH6+CentOs8安装过程与排坑
-photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+photos: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+abbrlink: 38328
+date: 2019-10-23 22:50:00
 ---
 # 前言  
 大学时弄Hadoop Spark这些，都是装apache原生的，一个一个装，一个一个配，通过命令或REST监控还很不直观，直到我遇到了Cloudera Manager，这东西简直就是神器。  
