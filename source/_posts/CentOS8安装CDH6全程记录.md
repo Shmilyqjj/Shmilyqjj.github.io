@@ -1,5 +1,5 @@
 ---
-title: CentOS8安装CDH6全程记录-待更新
+title: CentOS8安装CDH6安装与排坑
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -20,11 +20,12 @@ abbrlink: 38328
 date: 2019-10-23 22:50:00
 ---
 # 前言  
-大学时弄Hadoop Spark这些，都是装apache原生的，一个一个装，一个一个配，通过命令或REST监控还很不直观，直到我遇到了Cloudera Manager，这东西简直就是神器。  
+一开始搭集群时，都是装Apache原生的Hadoop，Spark包，一个一个装，一个一个配，好麻烦，而且通过命令或REST监控还很不直观，直到我遇到了Cloudera Manager，这东西简直就是神器。  
 [Cloudera Manager](https://www.cloudera.com/products/product-components/cloudera-manager.html)（简称CM），是Cloudera开发的一款大数据集群部署神器，而且它具有集群自动化安装、中心化管理、集群监控、报警等功能，通过它，可以轻松一键部署，大大方便了运维，也极大的提高集群管理的效率。  
 
 
-## 什么是xxxx（中标题）    
+## 什么是xxxx（中标题）  
+
 ## 小标题1  
 
 ## 小标题2  
