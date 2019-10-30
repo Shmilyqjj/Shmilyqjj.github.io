@@ -3,7 +3,7 @@
  hadoop fs -mkdir /alluxio/journal
  vim conf/alluxio-site.properties
  # Common properties
- alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等)
+ alluxio.master.hostname=hadoop101  # 另一台master hadoop102    # 该项为本机外部可见地址(对Alluxio集群中其他节点可见的接口地址而非localhost等) 每个主节点上的第一个属性都必须是其自己的外部可见主机名
  alluxio.underfs.hdfs.configuration=/opt/module/cdh-hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/cdh-hadoop-2.7.2/etc/hadoop/hdfs-site.xml
  # Worker properties
  alluxio.worker.memory.size=512MB
