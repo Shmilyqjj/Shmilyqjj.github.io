@@ -8,11 +8,11 @@ JAVA_HOME=/usr/java/jdk1.8.0_152/
 
 
 alluxio-site.properties
-10.2.5.63    Master Worker
+192.168.1.101    Master Worker
 # Common properties
-alluxio.master.hostname=10.2.5.63
+alluxio.master.hostname=192.168.1.101
 alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
-alluxio.master.embedded.journal.addresses=10.2.5.63:19200,10.2.5.64:19200
+alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
 # Worker properties
 alluxio.worker.memory.size=50GB
 alluxio.worker.tieredstore.levels=1
@@ -20,7 +20,7 @@ alluxio.worker.tieredstore.level0.alias=MEM
 alluxio.worker.tieredstore.level0.dirs.path=/data/ramdisk
 # HA properties
 alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=10.2.5.63:2181,10.2.5.64:2181,10.2.5.65:2181
+alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
 alluxio.master.journal.type=UFS
 alluxio.master.journal.folder=hdfs://intsig-bigdata-test-nameservice/alluxio/journal
 # User properties
@@ -37,11 +37,11 @@ alluxio.master.security.impersonation.hdfs.users=*
 alluxio.master.security.impersonation.hdfs.groups=*
 
 
-10.2.5.64      Master Worker
+192.168.1.102      Master Worker
 # Common properties
-alluxio.master.hostname=10.2.5.64
+alluxio.master.hostname=192.168.1.102
 alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
-alluxio.master.embedded.journal.addresses=10.2.5.63:19200,10.2.5.64:19200
+alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
 # Worker properties
 alluxio.worker.memory.size=50GB
 alluxio.worker.tieredstore.levels=1
@@ -49,7 +49,7 @@ alluxio.worker.tieredstore.level0.alias=MEM
 alluxio.worker.tieredstore.level0.dirs.path=/data/ramdisk
 # HA properties
 alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=10.2.5.63:2181,10.2.5.64:2181,10.2.5.65:2181
+alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
 alluxio.master.journal.type=UFS
 alluxio.master.journal.folder=hdfs://intsig-bigdata-test-nameservice/alluxio/journal
 # User properties
@@ -66,10 +66,10 @@ alluxio.master.security.impersonation.hdfs.users=*
 alluxio.master.security.impersonation.hdfs.groups=*
 
 
-10.2.5.65      Worker
+192.168.1.103      Worker
 # Common properties
 alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
-alluxio.master.embedded.journal.addresses=10.2.5.63:19200,10.2.5.64:19200
+alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
 # Worker properties
 alluxio.worker.memory.size=50GB
 alluxio.worker.tieredstore.levels=1
@@ -77,7 +77,7 @@ alluxio.worker.tieredstore.level0.alias=MEM
 alluxio.worker.tieredstore.level0.dirs.path=/data/ramdisk
 # HA properties
 alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=10.2.5.63:2181,10.2.5.64:2181,10.2.5.65:2181
+alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
 # User properties
 alluxio.user.file.readtype.default=CACHE_PROMOTE
 alluxio.user.file.writetype.default=MUST_CACHE
