@@ -31,7 +31,6 @@
  alluxio.worker.tieredstore.level0.alias=MEM
  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
 
- # Worker无需设置alluxio.master.hostname和alluxio.master.journal.folder
  # Client节点只需设置alluxio.zookeeper.enabled和alluxio.zookeeper.address即可
 
  # 测试部署是否成功
