@@ -28,7 +28,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 #### Alluxio优势  
 1. **内存速度 I/O**:Alluxio 能够用作分布式共享缓存服务，这样与 Alluxio 通信的计算应用程序可以透明地缓存频繁访问的数据（尤其是从远程位置）,以提供内存级 I/O 吞吐率。
 2. **简化云存储和对象存储接入**:与传统文件系统相比,云存储系统和对象存储系统使用不同的语义,这些语义对性能的影响也不同于传统文件系统。常见的文件系统操作（如列出目录和重命名）通常会导致显著的性能开销。当访问云存储中的数据时，应用程序没有节点级数据本地性或跨应用程序缓存。将 Alluxio 与云存储或对象存储一起部署可以缓解这些问题,因为这样将从Alluxio中检索读取数据,而不是从底层云存储或对象存储中检索读取。
-3. **简化数据管理**:Alluxio 提供对多数据源的单点访问,便捷地管理远程的存储系统,并向上层提供统一的命名空间。除了连接不同类型的数据源之外,Alluxio 还允许用户同时连接到不同版本的同一存储系统,如多个版本的 HDFS,并且无需复杂的系统配置和管理。
+3. **简化数据管理**:Alluxio 提供对多数据源的单点访问,便捷地管理远程的存储系统,并向上层提供统一的命名空间。除了连接不同类型的数据源之外,Alluxio 还允许用户同时连接到不同版本的同一存储系统,如多个版本的HDFS,并且无需复杂的系统配置和管理。
 4. **应用程序部署简易**:Alluxio 管理应用程序和文件或对象存储之间的通信，将应用程序的数据访问请求转换为底层存储接口的请求。Alluxio 与 Hadoop 兼容,现有的数据分析应用程序,如Spark和MapReduce程序,无需更改任何代码就能在Alluxio上运行。
 5. **分层存储特性**:综合使用了内存、SSD和磁盘多种存储资源。通过Alluxio提供的LRU、LFU等缓存策略可以保证热数据一直保留在内存中，冷数据则被持久化到level 2甚至level 3的存储设备上
 6. **方便迁移可插拔**:Alluxio提供多种易用的API方便将整个系统迁移到Alluxio
@@ -51,9 +51,11 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 1.计算应用需要反复访问远程云端或机房的数据  
 2.混合云,计算与存储分离,异构的数据存储带来的系统耦合  
 3.多个独立的大数据应用（比如不同的Spark Job）需要高速有效的共享数据  
-4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销
+4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销  
 
-
+我也做了很多Allxuio的性能测试工作,效果都不是很理想,有幸与Alluxio PMC范斌和李浩源交流了测试结果不如人意的原因,大佬是这么说的:"__如果HDFS本身已经和Spark和Hive共置了，那么这个场景并不算Alluxio的目标场景。计算和存储分离的情况下才会有明显效果，否则通常是HDFS已经成为瓶颈时才会有帮助。__"  
+所以:应用场景很关键,新技术产生时,一定要__了解其应用场景和原理并经过考虑之后再做一些性能测试之类的后续工作__!  
+<u>**[官方介绍的Alluxio应用场景](https://www.alluxio.io/use-cases/)**</u>  
 
 ### Alluxio原理    
 ![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
@@ -117,7 +119,12 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
     + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)
         1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
         2. true读部分缓存全部,没有完全读取的数据块也会被全部存到Alluxio内  
- 
+    + __Worker写文件数据块策略:__ alluxio.user.block.write.location.policy.class
+        1. LocalFirstPolicy (alluxio.client.block.policy.LocalFirstPolicy) 默认值,首先返回本地主机，如果本地worker没有足够的块容量，它从活动worker列表中随机选择一名worker。
+        2. MostAvailableFirstPolicy (alluxio.client.block.policy.MostAvailableFirstPolicy) 返回具有最多可用字节的worker。
+        3. RoundRobinPolicy (alluxio.client.block.policy.RoundRobinPolicy) 以循环方式选择下一个worker，跳过没有足够容量的worker。
+        4. SpecificHostPolicy (alluxio.client.block.policy.SpecificHostPolicy) 返回具有指定主机名的worker。此策略不能设置为默认策略。
+        5. 目前有六种策略,详见[配置项列表](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)
 #### Alluxio的分层存储  
 __概念:__ Alluxio workers节点使用包括内存在内的本地存储来充当分布式缓冲缓存区,可以很大程度上改善I/O性能。每个Alluxio节点管理的存储数量和类型由用户配置,Alluxio还支持层次化存储,让数据存储获得类似于L1/L2 cpu缓存的优化。  
 __单层存储设置(推荐):__  
@@ -154,8 +161,8 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
     __低水位:__ alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)  
     比如配置了32GB(MEM)+100GB(SSD)=132GB的Worker内存,当内存达到高水位<u>132x0.95=125.4GB</u>时开始回收缓存,直到到达低水位<u>132x0.7=92.4GB</u>时停止回收缓存  
 * 自定义回收策略
-    alluxio.worker.allocator.class，缺省值alluxio.worker.block.allocator.MaxFreeAllocator  (Alluxio中新数据块分配策略的类名)
-    alluxio.worker.evictor.class，缺省值alluxio.worker.block.evictor.LRUEvictor  (当存储层空间用尽时块回收策略的类名)
+    alluxio.worker.allocator.class=alluxio.worker.block.allocator.MaxFreeAllocator  (Alluxio中新数据块分配策略的类名)
+    alluxio.worker.evictor.class=alluxio.worker.block.evictor.LRUEvictor  (当存储层空间用尽时块回收策略的类名)
     __贪心回收策略:__ 回收任意数据块直到释放出所需空间
     __LRU回收策略:__ 回收最近最少使用数据块直到释放出所需空间
     __部分LRU回收策略:__ 在最大剩余空间的目录回收最近最少使用数据块
@@ -601,12 +608,13 @@ spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CA
 一是基于Alluxio-Fuse客户端,无需修改源码,直接挂载Shuffle目录,但Alluxio-Fuse目前的性能不是很好  
 二是重写Spark Shuffle Service底层源码实现基于Alluxio Client的Shuffle 
 三是可以Splash Shuffle Manager插件,我的另一篇文章有讲到 -> [QCon总结-Splash Shuffle Manager](http://c38kw0.coding-pages.com/2019/09/27/Alluxio-%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8E%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/)  
+**当然也可以选择等Spark3.0的Remote Shuffle Service**
 
 #### Alluxio+HadoopMR
-
+后续更新...  
 
 #### Alluxio+Presto
-    
+后续更新...  
 
 ### Alluxio FUSE  
 #### 什么是Alluxio FUSE
@@ -635,17 +643,187 @@ Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Allu
 
 ### Alluxio 客户端API  
 #### Java API  
-Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.
-```java
+Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.  
+Maven项目依赖设置 pom.xml  
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.my.alluxio</groupId>
+    <artifactId>AlluxioTest</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <dependencies>
+            <!-- alluxio-fs -->
+            <dependency>
+                <groupId>org.alluxio</groupId>
+                <artifactId>alluxio-core-client-fs</artifactId>
+                <version>2.0.1</version>
+            </dependency>
 
+            <!-- hdfs -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>2.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>2.6.0</version>
+            </dependency>
+    </dependencies>
+        <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>7</source>
+                    <target>7</target>
+                </configuration>
+            </plugin>
+            <!-- 打jar插件 -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <!--Jar包运行时的主类-->
+                            <mainClass>IOTestUtil</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            </plugins>
+        </build>
+</project>
+```
+Java读写文件API
+```java
+import alluxio.AlluxioURI;
+import alluxio.client.file.FileInStream;
+import alluxio.client.file.FileOutStream;
+import alluxio.exception.AlluxioException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import java.io.IOException;
+
+/**
+ * HDFS & Allxuio IO读取文件测试工具  IO接口 文件API
+ */
+
+public class IOTestUtil {
+    public static void main(String[] args) throws IOException, AlluxioException {
+        String filePath = args[0];
+        HDFSUtil h = new HDFSUtil("hdfs://10.2.5.63:8020");
+        h.readFile(filePath);
+        AlluxioUtil a = new AlluxioUtil();
+        a.readFile(filePath);
+        System.out.println("读文件测试 Finished");
+        System.out.println("------------------------");
+        if (args.length != 1){
+            String fileToWritePath = args[1];
+            a.writeFile(fileToWritePath);
+            System.out.println("写文件测试 Finished");
+        }
+    }
+}
+
+class HDFSUtil{
+    private Configuration conf = new Configuration();
+    public HDFSUtil(String HDFSURL){
+        conf.set("fs.defaultFS",HDFSURL);
+        System.setProperty("HADOOP_USER_NAME","hdfs");
+    }
+    public void readFile(String path) throws IOException {
+        FileSystem fs = FileSystem.get(conf);
+        fs.getFileStatus(new Path(path));
+        FSDataInputStream in = fs.open(new Path(path));
+        try{
+            long hdfsStartTime=System.currentTimeMillis();
+            in = fs.open(new Path(path));
+            byte[] buffer = new byte[1024];
+            int byteRead = 0;
+            while ((byteRead = in.read(buffer)) != -1) {
+                System.out.write(buffer, 0, byteRead);    //输出字符流
+            }
+            long hdfsEndTime=System.currentTimeMillis();
+            System.out.println("HDFS读取运行时间:"+(hdfsEndTime-hdfsStartTime)+" ms");
+        }catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            in.close();
+        }
+    }
+}
+
+class AlluxioUtil{
+    private static final alluxio.client.file.FileSystem fs = alluxio.client.file.FileSystem.Factory.get();
+    public AlluxioUtil(){}
+    public FileInStream readFile(String AlluxioPath) throws IOException, AlluxioException {
+        AlluxioURI path = new AlluxioURI(AlluxioPath);  //封装Alluxio 文件路径的path
+        FileInStream in = fs.openFile(path);
+        try{
+            long startTime=System.currentTimeMillis();
+            in = fs.openFile(path);
+            // 调用文件输入流FileInStream实例的read()方法读数据
+            byte[] buffer = new byte[1024];
+            int byteRead = 0;
+            // 读入多个字节到字节数组中，byteRead为一次读入的字节数
+            while ((byteRead = in.read(buffer)) != -1) {
+                System.out.write(buffer, 0, byteRead);    //输出字符流
+            }
+            long endTime=System.currentTimeMillis();
+            System.out.println("Alluxio读取运行时间:"+(endTime-startTime)+" ms");
+        }catch (IOException | AlluxioException e){
+            e.printStackTrace();
+        }finally {
+            in.close();
+        }
+        in.close();  //关闭文件并释放锁
+        return in;
+    }
+    public void writeFile(String AlluxioPath) throws IOException, AlluxioException {
+        AlluxioURI path = new AlluxioURI(AlluxioPath);   // 文件夹路径
+        FileOutStream out = null;
+        try {
+            out = fs.createFile(path);   //创建文件并得到文件输入流
+            out.write("qjj1234567".getBytes());   // 调用文件输出流FileOutStream实例的write()方法写入数据
+        }catch (IOException | AlluxioException e){
+            e.printStackTrace();
+        }finally {
+            out.close();  // 关闭和释放文件
+        }
+    }
+}
 ```
 
 #### Python API  
-由于pip install alluxio一直不成功,这块我后续再更
+由于pip install alluxio一直不成功,这块我后续再更新  
 
 ### Q&A
 + 加速不明显?  
     Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。
 + 速度反而更慢了?
-    测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上.确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。
+    测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上。  
+    确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。  
+    一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。
+
 ### 总结

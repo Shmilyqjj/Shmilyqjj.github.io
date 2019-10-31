@@ -57,6 +57,8 @@ alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
 # User properties
 alluxio.user.file.readtype.default=CACHE_PROMOTE
 alluxio.user.file.writetype.default=CACHE_THROUGH
+alluxio.user.metrics.collection.enable=true
+alluxio.master.metrics.time.series.interval=1
 # Security properties
 alluxio.security.authorization.permission.enabled=true
 alluxio.security.authentication.type=SIMPLE
