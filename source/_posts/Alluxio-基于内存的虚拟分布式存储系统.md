@@ -1,5 +1,5 @@
 ---
-title: Alluxio - 一个基于内存的分布式存储系统
+title: Alluxio-基于内存的虚拟分布式存储系统
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -616,6 +616,24 @@ spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CA
 #### Alluxio+Presto
 后续更新...  
 
+### 性能测试  
+#### 使用官方提供的沙箱
+申请官方测试沙箱Sandbox：**[ALLUXIO SANDBOX](https://www.alluxio.io/sandbox-request/)**  
+申请成功后，按照邮件的指引操作，注意，<u>bin/sandbox setup &</u>的过程中千万不要Ctrl+C中止,部署完成状态如下图：  
+![alt Alluxio-13](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-13.png)  
+
+运行基准测试（TPC-DS），耐心等待后的测试结果：  
+已安装TPC-DS基准套件，用于运行性能测试。Spark已安装为TPC-DS用来将其作业发送到的计算框架。TPC-DS的比例因子为100，这与26GB的数据集大小相关。由索引单独标识的基准按不同的使用方案分组，并且将结果报告为每个方案的汇总。  
+![alt Alluxio-14](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-14.jpg)  
+![alt Alluxio-15](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-15.jpg)  
+![alt Alluxio-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-16.jpg)  
+![alt Alluxio-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-17.jpg)  
+其中 w/o是without，即只是用S3为直接底层存储的情况；w/是with，即使用了Alluxio作为中间件下的性能  
+从图中测试结果可以看出Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
+
+#### 自测
+
+
 ### Alluxio FUSE  
 #### 什么是Alluxio FUSE
 Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Alluxio分布式文件系统。通过使用该特性，一些标准的命令行工具（例如ls、 cat以及echo）可以直接访问Alluxio分布式文件系统中的数据。此外更重要的是用不同语言实现的应用程序如C, C++, Python, Ruby, Perl, Java都可以通过标准的POSIX接口(例如open, write, read)来读写Alluxio，而不需要任何Alluxio的客户端整合与设置。  
@@ -825,5 +843,6 @@ class AlluxioUtil{
     测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上。  
     确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。  
     一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。
-
++ 一些官方的Q&A
+    [Alluxio官方问题与答案](https://www.alluxio.io/answers/)
 ### 总结

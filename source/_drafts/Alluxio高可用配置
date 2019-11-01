@@ -1,3 +1,5 @@
+去掉中文注释
+
 alluxio-env.sh
 ALLUXIO_HOME=/opt/alluxio
 ALLUXIO_LOGS_DIR=/opt/alluxio/logs
@@ -8,7 +10,7 @@ JAVA_HOME=/opt/module/jdk1.8.0_161
 
 
 alluxio-site.properties
-192.168.1.101    Master Worker
+# 192.168.1.101    Master Worker
 # Common properties
 alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
 alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
@@ -39,7 +41,7 @@ alluxio.master.security.impersonation.hdfs.users=*
 alluxio.master.security.impersonation.hdfs.groups=*
 
 
-192.168.1.102      Master Worker
+# 192.168.1.102      Master Worker
 # Common properties
 alluxio.master.hostname=192.168.1.102    # 要写其他机器能识别的地址而非localhost等
 alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
@@ -70,7 +72,7 @@ alluxio.master.security.impersonation.hdfs.users=*
 alluxio.master.security.impersonation.hdfs.groups=*
 
 
-192.168.1.103      Worker
+# 192.168.1.103      Worker
 # Common properties
 # Worker不需要写alluxio.master.hostname参数和alluxio.master.journal.folder参数
 alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
@@ -95,3 +97,13 @@ alluxio.master.security.impersonation.yarn.users=*
 alluxio.master.security.impersonation.yarn.groups=*
 alluxio.master.security.impersonation.hdfs.users=*
 alluxio.master.security.impersonation.hdfs.groups=*
+
+
+vim masters
+192.168.1.101
+192.168.1.102
+
+vim workers
+192.168.1.101
+192.168.1.102
+192.168.1.103
