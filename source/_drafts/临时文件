@@ -97,8 +97,6 @@ shuffle read：分区数由Spark提供的参数控制
 
 
 
-
-
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
 select * from table_name;
 回滚事务步骤:
@@ -108,5 +106,8 @@ delete from table_name where id = 1;  删除一条记录
 select * from table_name;
 rollback to a;  回滚到a保存点
 select * from table_name;  没问题的话  执行commit;
+
+
+https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
 
 
