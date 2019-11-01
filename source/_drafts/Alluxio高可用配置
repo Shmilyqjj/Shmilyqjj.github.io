@@ -107,3 +107,16 @@ vim workers
 192.168.1.101
 192.168.1.102
 192.168.1.103
+
+
+
+ # 测试部署是否成功
+ bin/alluxio-start.sh all
+ alluxio fsadmin report
+ alluxio runTests    # 如果出现Passed the test则说明部署成功a
+
+ # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
+ ssh hadoop101
+ jps | grep AlluxioMaster
+ kill -9 <AlluxioMaster PID>
+ alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)

@@ -54,6 +54,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销  
 
 我也做了很多Allxuio的性能测试工作,效果都不是很理想,有幸与Alluxio PMC范斌和李浩源交流了测试结果不如人意的原因,大佬是这么说的:"__如果HDFS本身已经和Spark和Hive共置了，那么这个场景并不算Alluxio的目标场景。计算和存储分离的情况下才会有明显效果，否则通常是HDFS已经成为瓶颈时才会有帮助。__"  
+还有,如果HDFS部署在计算框架本地,作业的输入数据可能会存在于系统的高速缓存区,则Alluxio对数据加速也并不明显。   
 所以:应用场景很关键,新技术产生时,一定要__了解其应用场景和原理并经过考虑之后再做一些性能测试之类的后续工作__!  
 <u>**[官方介绍的Alluxio应用场景](https://www.alluxio.io/use-cases/)**</u>  
 
@@ -629,10 +630,10 @@ spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CA
 ![alt Alluxio-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-16.jpg)  
 ![alt Alluxio-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-17.jpg)  
 其中 w/o是without，即只是用S3为直接底层存储的情况；w/是with，即使用了Alluxio作为中间件下的性能  
-从图中测试结果可以看出Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
+从图中测试结果可以看出,当计算数据存储在公有云虚拟机实例中时，Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
 
 #### 自测
-
+Spark Sql做测试时候多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢
 
 ### Alluxio FUSE  
 #### 什么是Alluxio FUSE
@@ -842,7 +843,8 @@ class AlluxioUtil{
 + 速度反而更慢了?
     测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上。  
     确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。  
-    一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。
+    一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。  
+    多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢。 
 + 一些官方的Q&A
     [Alluxio官方问题与答案](https://www.alluxio.io/answers/)
 ### 总结
