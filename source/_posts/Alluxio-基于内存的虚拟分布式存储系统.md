@@ -386,131 +386,131 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 ②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
 
 ```properties
-注意去掉中文注释 否则会报错
-
-在所有机器上配置env.sh
-vim alluxio-env.sh
-ALLUXIO_HOME=/opt/alluxio
-ALLUXIO_LOGS_DIR=/opt/alluxio/logs
-ALLUXIO_RAM_FOLDER=/data/ramdisk
-ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/   # 指定高可用或非高可用的HDFS地址
-JAVA_HOME=/opt/module/jdk1.8.0_161
-
-在101机器上配置Master和Worker
-vim alluxio-site.properties   
-# 192.168.1.101    Master Worker
-# Common properties
-alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
-alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
-alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200     # 这个写Alluxio两个主节点的19200端口
-# Worker properties
-alluxio.worker.memory.size=512MB
-alluxio.worker.tieredstore.levels=1
-alluxio.worker.tieredstore.level0.alias=MEM
-alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
-# HA properties
-alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181   # Zookeeper地址中间逗号隔开
-alluxio.master.journal.type=UFS
-alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal   # 回滚日志的地址，写入可靠的分布式HDFS
-# User properties
-alluxio.user.file.readtype.default=CACHE_PROMOTE
-alluxio.user.file.writetype.default=CACHE_THROUGH
-alluxio.user.metrics.collection.enable=true
-alluxio.master.metrics.time.series.interval=1
-# Security properties
-alluxio.security.authorization.permission.enabled=true
-alluxio.security.authentication.type=SIMPLE
-alluxio.master.security.impersonation.hive.users=*    # 可以模拟很多用户来实现权限控制
-alluxio.master.security.impersonation.hive.groups=*
-alluxio.master.security.impersonation.yarn.users=*
-alluxio.master.security.impersonation.yarn.groups=*
-alluxio.master.security.impersonation.hdfs.users=*
-alluxio.master.security.impersonation.hdfs.groups=*
-
-
-在102机器上配置Master和Worker
-vim alluxio-site.properties 
-# 192.168.1.102      Master Worker
-# Common properties
-alluxio.master.hostname=192.168.1.102    # 要写其他机器能识别的地址而非localhost等
-alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
-alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
-# Worker properties
-alluxio.worker.memory.size=512MB
-alluxio.worker.tieredstore.levels=1
-alluxio.worker.tieredstore.level0.alias=MEM
-alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
-# HA properties
-alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
-alluxio.master.journal.type=UFS
-alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
-# User properties
-alluxio.user.file.readtype.default=CACHE_PROMOTE
-alluxio.user.file.writetype.default=CACHE_THROUGH
-alluxio.user.metrics.collection.enable=true
-alluxio.master.metrics.time.series.interval=1
-# Security properties
-alluxio.security.authorization.permission.enabled=true
-alluxio.security.authentication.type=SIMPLE
-alluxio.master.security.impersonation.hive.users=*
-alluxio.master.security.impersonation.hive.groups=*
-alluxio.master.security.impersonation.yarn.users=*
-alluxio.master.security.impersonation.yarn.groups=*
-alluxio.master.security.impersonation.hdfs.users=*
-alluxio.master.security.impersonation.hdfs.groups=*
-
-在103机器上配置Worker
-vim alluxio-site.properties 
-# 192.168.1.103      Worker
-# Common properties
-# Worker不需要写alluxio.master.hostname参数和alluxio.master.journal.folder参数
-alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
-alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
-# Worker properties
-alluxio.worker.memory.size=512MB
-alluxio.worker.tieredstore.levels=1
-alluxio.worker.tieredstore.level0.alias=MEM
-alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
-# HA properties
-alluxio.zookeeper.enabled=true
-alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
-# User properties
-alluxio.user.file.readtype.default=CACHE_PROMOTE
-alluxio.user.file.writetype.default=CACHE_THROUGH
-# Security properties
-alluxio.security.authorization.permission.enabled=true
-alluxio.security.authentication.type=SIMPLE
-alluxio.master.security.impersonation.hive.users=*
-alluxio.master.security.impersonation.hive.groups=*
-alluxio.master.security.impersonation.yarn.users=*
-alluxio.master.security.impersonation.yarn.groups=*
-alluxio.master.security.impersonation.hdfs.users=*
-alluxio.master.security.impersonation.hdfs.groups=*
-
-在所有机器上指定Master和Worker节点
-vim masters
-192.168.1.101
-192.168.1.102
-
-vim workers
-192.168.1.101
-192.168.1.102
-192.168.1.103
-
-# 测试部署是否成功
-bin/alluxio-start.sh all
-ssh 192.168.1.102
-bin/alluxio-start.sh master  这里需要手动启动另一台Master节点
-alluxio fsadmin report
-alluxio fsadmin report
-alluxio runTests    # 如果出现Passed the test则说明部署成功
-# 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
-ssh hadoop101
-jps | grep AlluxioMaster
-kill -9 <AlluxioMaster PID>
-alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
+  注意去掉中文注释 否则会报错
+  
+  在所有机器上配置env.sh
+  vim alluxio-env.sh
+  ALLUXIO_HOME=/opt/alluxio
+  ALLUXIO_LOGS_DIR=/opt/alluxio/logs
+  ALLUXIO_RAM_FOLDER=/data/ramdisk
+  ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/   # 指定高可用或非高可用的HDFS地址
+  JAVA_HOME=/opt/module/jdk1.8.0_161
+  
+  在101机器上配置Master和Worker
+  vim alluxio-site.properties   
+  # 192.168.1.101    Master Worker
+  # Common properties
+  alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
+  alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200     # 这个写Alluxio两个主节点的19200端口
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181   # Zookeeper地址中间逗号隔开
+  alluxio.master.journal.type=UFS
+  alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal   # 回滚日志的地址，写入可靠的分布式HDFS
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=CACHE_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*    # 可以模拟很多用户来实现权限控制
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+  
+  
+  在102机器上配置Master和Worker
+  vim alluxio-site.properties 
+  # 192.168.1.102      Master Worker
+  # Common properties
+  alluxio.master.hostname=192.168.1.102    # 要写其他机器能识别的地址而非localhost等
+  alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
+  alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
+  alluxio.master.journal.type=UFS
+  alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=CACHE_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+  
+  在103机器上配置Worker
+  vim alluxio-site.properties 
+  # 192.168.1.103      Worker
+  # Common properties
+  # Worker不需要写alluxio.master.hostname参数和alluxio.master.journal.folder参数
+  alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
+  alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=CACHE_THROUGH
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+  
+  在所有机器上指定Master和Worker节点
+  vim masters
+  192.168.1.101
+  192.168.1.102
+  
+  vim workers
+  192.168.1.101
+  192.168.1.102
+  192.168.1.103
+  
+  # 测试部署是否成功
+  bin/alluxio-start.sh all
+  ssh 192.168.1.102
+  bin/alluxio-start.sh master  这里需要手动启动另一台Master节点
+  alluxio fsadmin report
+  alluxio fsadmin report
+  alluxio runTests    # 如果出现Passed the test则说明部署成功
+  # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
+  ssh hadoop101
+  jps | grep AlluxioMaster
+  kill -9 <AlluxioMaster PID>
+  alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
 ```  
 
 至此，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
