@@ -677,9 +677,11 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
       alluxio.master.security.impersonation.yarn.groups=*
     ```  
    
-#### Alluxio+Spark
+#### Alluxio+Spark  
+Spark可以在进行简单配置后直接使用Alluxio作为数据访问层，Spark应用程序可以通过Alluxio透明地访问许多不同类型的持久化存储服务（例如，AWS S3 bucket、Azure Object Store buckets、远程部署的 HDFS 等）的数据，也可以透明地访问同一类型持久化存储服务不同实例中的数据。为了加快I/O性能，用户可以主动获取数据到Alluxio中或将数据透明地缓存到Alluxio中，尤其是在Spark部署位置与数据相距较远时特别有效。此外，通过将计算和物理存储解耦，Alluxio 能够有助于简化系统架构。当底层持久化存储中真实数据的路径对 Spark 隐藏时，对底层存储的更改可以独立于应用程序逻辑；同时Alluxio作为邻近计算的缓存，仍然可以给计算框架提供类似 Spark 数据本地性的特性。  
+
 1. 配置
-参数配置
+参数配置（spark-defaults.conf中添加）
 <u>spark.driver.extraClassPath /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar</u>
 <u>spark.executor.extraClassPath /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar</u>
 或者Jar包拷贝
@@ -700,8 +702,17 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
    </property>
  </configuration>
 ```  
-自定义Spark作业中Alluxio的属性
-spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CACHE_THROUGH" 而不是--conf
+自定义Spark作业中Alluxio的属性：  
+spark-submit.... --driver-java-options "-Dalluxio.user.file.writetype.default=CACHE_THROUGH" 而不是--conf  
+
+```bash
+val s = sc.textFile("alluxio://192.168.1.101:19998/LICENSE")
+val double = s.map(line => line + line)
+double.saveAsTextFile("alluxio://192.168.1.101:19998/out")
+
+df = spark.table("select ...")
+df.format.parquet("alluxio://xxxxx")
+```
 
 [官方Alluxio+Spark配置设置](https://docs.alluxio.io/os/user/stable/cn/compute/Spark.html)
 
