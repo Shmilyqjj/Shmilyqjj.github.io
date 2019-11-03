@@ -12,12 +12,12 @@ links:
     items:
     - url: https://shino.cc/fgvf
       img: https://cloud.moezx.cc/Picture/svg/landscape/fields.svg
-      name: Google
-      desc: Google 镜像
+      name: 项目1
+      desc: 暂无
     - url: https://shino.cc/fgvf
       img: https://cloud.moezx.cc/Picture/svg/landscape/fields.svg
-      name: Google
-      desc: Google 镜像
+      name: 项目2
+      desc: 暂无
   - group: 小伙伴们
     desc: 小伙伴们的主页，同样精彩！
     items:
