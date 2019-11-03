@@ -30,6 +30,8 @@ CM的主要功能：
 4. 集成：对hadoop生态的多种组件和框架进行整合，减少部署时间和工作量
 5. 兼容：与各个生态圈的兼容性强
 
+注意：如果按我的步骤操作，一定没有错，如果更换了版本或自定义了一些东西，可能会出问题！
+
 ## CDH架构
 ![alt CDH-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-01.jpg) 
 CDH的组件：
