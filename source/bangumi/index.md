@@ -18,7 +18,7 @@ bangumis:
     status: 已追完
     progress: 100
     jp: 悬疑推理，交换杀人游戏
-    time: 2019-4-14
+    time: 2019-04-14
     desc: 温柔的妻子菜奈和天真浪漫的丈夫翔太，是一对有15岁年差的相恋夫妇，他们刚搬到东京都内的高级公寓，就意外地被卷入了连续杀人事件，原本抱着有趣的心态，公寓内的住户正在玩交换杀人的游戏，结果弄假成真，真的出现了杀人事件，公寓里所有的居民都开始陷入噩梦之中，精彩的推理谜题也随之展开。
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/zhimingnvren.jpg
     title: 《致命女人》
