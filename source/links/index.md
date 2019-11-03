@@ -29,4 +29,8 @@ links:
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/jielongping.jpg
       name: 介龙平博客
       desc: 介龙平的个人博客，IT技术分享
+    - url: https://space.bilibili.com/3255405/
+      img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/chuochuo.jpg
+      name: 戳不戳不戳
+      desc: 戳戳的哔哩哔哩首页
 ---
