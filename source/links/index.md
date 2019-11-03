@@ -8,7 +8,7 @@ comments: true
 photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/banner/links.jpg
 links:
   - group: 个人项目
-    desc: 充分说明这家伙是条咸鱼 < (￣︶￣)>
+    desc: 目前没啥项目，充分说明这家伙是条咸鱼
     items:
     - url: https://shino.cc/fgvf
       img: https://cloud.moezx.cc/Picture/svg/landscape/fields.svg
@@ -19,14 +19,14 @@ links:
       name: Google
       desc: Google 镜像
   - group: 小伙伴们
-    desc: 欢迎交换友链 ꉂ(ˊᗜˋ)
+    desc: 小伙伴们的主页，同样精彩！
     items:
-    - url: https://shino.cc/fgvf
-      img: https://cloud.moezx.cc/Picture/svg/landscape/fields.svg
-      name: Google
-      desc: Google 镜像
-    - url: https://shino.cc/fgvf
-      img: https://cloud.moezx.cc/Picture/svg/landscape/fields.svg
-      name: Google
-      desc: Google 镜像
+    - url: http://jskblog.xyz/
+      img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/jiangshikai.jpg
+      name: 精进马大使
+      desc: 江仕锴的个人主页，技术分享
+    - url: https://www.jlpyyf.com/
+      img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/jielongping.jpg
+      name: 介龙平博客
+      desc: 介龙平的个人博客，IT技术分享
 ---
