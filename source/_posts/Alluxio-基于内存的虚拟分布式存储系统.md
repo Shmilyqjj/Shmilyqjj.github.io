@@ -310,7 +310,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   192_168_1_103.BlocksEvicted
   192_168_1_103.BlocksPromoted
 ```
-
+然后访问 http://192.168.1.101:19999/metrics/json/ 可得到监控信息
 喜欢看源码的小伙伴可以戳这里哟->[Alluxio源码入口](https://github.com/Alluxio/alluxio)
 
 
@@ -777,12 +777,16 @@ Alluxio读参数CACHE_PROMOTE,写参数CACHE_THROUGH
 | SparkSQL | select count(1) from table; | 4s | 6s | 13.5GB 17字段 |
 | SparkSQL | select count(1) from table; | 5s | 6s | 13.5GB 17字段 |
 | SparkSQL | select count(1) from table; | 6s | 8s | 13.5GB 17字段 |
+| SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 80s | 80s | 13.5GB 17字段 |
+| SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 77s | 52s | 13.5GB 17字段 |
+| SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 60s | 73s | 13.5GB 17字段 |
 | SparkSQL | select count(1) from test.wrk_cdb_inc_product_on_alluxio group by language; | 11.5s | 11.5s | 13.5GB 17字段 |
 | Spark Persist | df.write.parquet(Path) | 3.0min | 4.0min | 13.5GB 17字段 |
 | Spark Persist | spark.read.parquet(Path).count() | 4s | 5s | 13.5GB 17字段 |
 | Spark Persist | spark.read.parquet(Path).count() | 6s | 6s | 13.5GB 17字段 |
 
 后来又做了Spark Dataframe的Persist到MEMORY_ONLY和Persist到Alluxio,效果也不是很好,究其原因,我认为是我的HDFS DataNode已经和计算框架Spark部署在一起了,而且磁盘IO没有瓶颈,所以这不符合Alluxio的应用场景,从而没有令人满意的效果.  
+至于HDFS更快的原因,我想是Spark要读取的数据很可能已经存在OS的高速缓冲区  
 Alluxio还是要用对场景才行.  
 
 ### Alluxio FUSE  
