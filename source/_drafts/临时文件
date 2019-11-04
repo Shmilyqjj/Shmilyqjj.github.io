@@ -111,3 +111,4 @@ select * from table_name;  没问题的话  执行commit;
 https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
 
 
+PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
