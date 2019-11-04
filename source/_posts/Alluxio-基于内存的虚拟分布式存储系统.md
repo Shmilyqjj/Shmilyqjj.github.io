@@ -768,7 +768,22 @@ df.format.parquet("alluxio://xxxxx")
 从图中测试结果可以看出,当计算数据存储在公有云虚拟机实例中时，Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
 
 #### 自测
-Spark Sql做测试时候多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢
+Spark Sql做测试时候多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢  
+我的测试环境是三台机器,每台101GB内存,16核,同台机器部署CM Hadoop,Spark,Hive,AlluxioWorker,AlluxioClient  
+Alluxio读参数CACHE_PROMOTE,写参数CACHE_THROUGH  
+
+| 测试方法 | 测试操作 | 运行时间(HDFS) | 运行时间(Alluxio) | 表结构 |
+| :----: | :----: | :----: | :----: | :----: |
+| SparkSQL | select count(1) from table; | 4s | 6s | 13.5GB 17字段 |
+| SparkSQL | select count(1) from table; | 5s | 6s | 13.5GB 17字段 |
+| SparkSQL | select count(1) from table; | 6s | 8s | 13.5GB 17字段 |
+| SparkSQL | select count(1) from test.wrk_cdb_inc_product_on_alluxio group by language; | 11.5s | 11.5s | 13.5GB 17字段 |
+| Spark Persist | df.write.parquet(Path) | 3.0min | 4.0min | 13.5GB 17字段 |
+| Spark Persist | spark.read.parquet(Path).count() | 4s | 5s | 13.5GB 17字段 |
+| Spark Persist | spark.read.parquet(Path).count() | 6s | 6s | 13.5GB 17字段 |
+
+后来又做了Spark Dataframe的Persist到MEMORY_ONLY和Persist到Alluxio,效果也不是很好,究其原因,我认为是我的HDFS DataNode已经和计算框架Spark部署在一起了,而且磁盘IO没有瓶颈,所以这不符合Alluxio的应用场景,从而没有令人满意的效果.  
+Alluxio还是要用对场景才行.  
 
 ### Alluxio FUSE  
 #### 什么是Alluxio FUSE
