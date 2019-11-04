@@ -192,7 +192,10 @@ $$
 
 
 ###Thanks:
+[All Hexo Themes](https://hexo.io/themes/)
+
 [Sakura](https://github.com/mashirozx/Sakura/) Hexo theme.
 
 [hojun](https://sakura.hojun.cn) Modified into the theme.
+
 
