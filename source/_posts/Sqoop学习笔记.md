@@ -239,19 +239,6 @@ sqoop_test
 sqoop --options-file hdfs_to_mysql_job
 ```
 
-## Sqoop API操作
-通过Sqoop API进行数据导入导出  
-### Java API
-``` Java
-public class HelloWorld {
-    public static void main(String[] args){
-        System.out.print("Shmily-qjj");
-    }
-}
-```
-
-### Python API
-
 ## Sqoop参数中文参考文档  
 Sqoop参数中文文档，里面还包括了参数的实现类类名，供参考和深入学习，点击链接下载:  
 [Sqoop参数-PDF版](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Sqoop/Sqoop参数-PDF版.pdf)
