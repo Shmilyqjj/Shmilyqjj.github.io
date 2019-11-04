@@ -26,7 +26,7 @@ Sqoop2与Sqoop1完全不兼容，一般生产环境使用Sqoop1，这里主要�
 ## Sqoop原理  
 Sqoop原理很简单，就是将导入导出的命令翻译成MapReduce程序，Sqoop的操作主要目的（工作）是对MR程序的inputformat和outputformat进行定制.
 下图是Sqoop原理架构图  
-![alt Sqoop-2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Sqoop/Sqoop-1.png)  
+![alt Sqoop-2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Sqoop/Sqoop-2.png)  
 图上意思很明确，这里不多赘述。  
 戳**[官方文档](http://sqoop.apache.org/)**了解更多
 
