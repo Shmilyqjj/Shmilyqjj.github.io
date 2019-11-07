@@ -402,7 +402,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   # Common properties
   alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
   alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
-  alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200     # 这个写Alluxio两个主节点的19200端口
+  alluxio.master.embedded.journal.addresses=192.168.1.101:19200,192.168.1.102:19200     # 这个写Alluxio两个主节点的19200端口 Embedded Journal Configuration
   # Worker properties
   alluxio.worker.memory.size=512MB
   alluxio.worker.tieredstore.levels=1
