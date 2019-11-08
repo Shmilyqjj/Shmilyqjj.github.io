@@ -780,7 +780,7 @@ Alluxio读参数CACHE_PROMOTE,写参数CACHE_THROUGH
 | SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 80s | 80s | 13.5GB 17字段 |
 | SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 77s | 52s | 13.5GB 17字段 |
 | SparkSQL | select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name; | 60s | 73s | 13.5GB 17字段 |
-| SparkSQL | select count(1) from test.wrk_cdb_inc_product_on_alluxio group by language; | 11.5s | 11.5s | 13.5GB 17字段 |
+| SparkSQL | select count(1) from test.table group by language; | 11.5s | 11.5s | 13.5GB 17字段 |
 | Spark Persist | df.write.parquet(Path) | 3.0min | 4.0min | 13.5GB 17字段 |
 | Spark Persist | spark.read.parquet(Path).count() | 4s | 5s | 13.5GB 17字段 |
 | Spark Persist | spark.read.parquet(Path).count() | 6s | 6s | 13.5GB 17字段 |
