@@ -392,8 +392,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   vim alluxio-env.sh
   ALLUXIO_HOME=/opt/alluxio
   ALLUXIO_LOGS_DIR=/opt/alluxio/logs
-  ALLUXIO_RAM_FOLDER=/data/ramdisk
-  ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/   # 指定高可用或非高可用的HDFS地址
+  ALLUXIO_RAM_FOLDER=/mnt/ramdisk
   JAVA_HOME=/opt/module/jdk1.8.0_161
   
   在101机器上配置Master和Worker
@@ -402,6 +401,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   # Common properties
   alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
   alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/    # 指向高可用或非高可用的HDFS地址（可以是根目录，也可以是某个文件夹）
   # Worker properties
   alluxio.worker.memory.size=512MB
   alluxio.worker.tieredstore.levels=1
@@ -434,7 +434,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   # 192.168.1.102      Master Worker
   # Common properties
   alluxio.master.hostname=192.168.1.102    # 要写其他机器能识别的地址而非localhost等
-  alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/
   # Worker properties
   alluxio.worker.memory.size=512MB
   alluxio.worker.tieredstore.levels=1
@@ -466,7 +467,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   # 192.168.1.103      Worker
   # Common properties
   # Worker不需要写alluxio.master.hostname参数和alluxio.master.journal.folder参数
-  alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/
   # Worker properties
   alluxio.worker.memory.size=512MB
   alluxio.worker.tieredstore.levels=1
@@ -500,10 +502,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   192.168.1.103
   
   # 测试部署是否成功
-  bin/alluxio-start.sh all
-  ssh 192.168.1.102
-  bin/alluxio-start.sh master  这里需要手动启动另一台Master节点
-  alluxio fsadmin report
+  alluxio format
+  alluxio-start.sh all SudoMount
   alluxio fsadmin report
   alluxio runTests    # 如果出现Passed the test则说明部署成功
   # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
