@@ -189,7 +189,7 @@ ping 8.8.8.8
 ![alt CDH-08](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.jpg)  
 
 安装python:  
-CentOS7 Minimal默认带Python2.7.5版本，已经满足需求，所以，安装个ipython吧  
+CentOS7 Minimal默认带Python2.7.5版本，已经满足需求，为了开发方便，还是安装个ipython吧  
 ```shell
  yum -y install epel-release
  yum install python-pip
@@ -207,7 +207,7 @@ yum install wget
 yum install iotop  
 yum install lsof  
 yum install -y git  
-yum install dstat(全面的系统监控工具-推荐)  
+yum install dstat   (全面的系统监控工具-推荐)  
 yum install nload  
 
 安装一些CDH的必要依赖[必要] 
