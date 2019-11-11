@@ -326,7 +326,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
  cp conf/alluxio-env.sh.template conf/alluxio-env.sh
 ```
 
-#### 常规集群参数配置
+#### 常规集群参数配置  
+常规非高可用集群配置，针对1.x和2.x版本通用  
 **conf/alluxio-env.sh**  
 ```console
  vim conf/alluxio-env.sh
@@ -383,7 +384,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 高可用(HA)通过支持同时运行多个master来保证服务的高可用性，多个master中有一个master被选为primary master作为所有worker和client的通信首选，其余master为备选状态(StandBy)，它们通过和primary master共享日志来维护同样的文件系统元数据，并在primary master失效时迅速接替其工作(master主从切换过程中，客户端可能会出现短暂的延迟或瞬态错误)  
 搭建高可用集群前的准备:  
 ①确保Zookeeper服务已经运行  
-②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)
+②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)  
+③这个配置针对Alluxio 2.x版本，不适用于1.x版本
 
 ```properties
   注意去掉中文注释 否则会报错
@@ -415,7 +417,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.worker.block.heartbeat.timeout.ms=300000
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
-  alluxio.user.file.writetype.default=CACHE_THROUGH
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
   alluxio.user.metrics.collection.enable=true
   alluxio.master.metrics.time.series.interval=1
   # Security properties
@@ -449,7 +451,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.worker.block.heartbeat.timeout.ms=300000
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
-  alluxio.user.file.writetype.default=CACHE_THROUGH
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
   alluxio.user.metrics.collection.enable=true
   alluxio.master.metrics.time.series.interval=1
   # Security properties
@@ -480,7 +482,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.worker.block.heartbeat.timeout.ms=300000
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
-  alluxio.user.file.writetype.default=CACHE_THROUGH
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
   # Security properties
   alluxio.security.authorization.permission.enabled=true
   alluxio.security.authentication.type=SIMPLE
