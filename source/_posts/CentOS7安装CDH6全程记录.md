@@ -228,29 +228,38 @@ yum install nload
  systemctl enable ntpd.service  # 设置开机自启
  ntpdc -c loopinfo  # 查看时间偏差
  ntpstat
+ 
+ vim /etc/rc.local  添加
+ echo never > /sys/kernel/mm/transparent_hugepage/defrag
+ echo never > /sys/kernel/mm/transparent_hugepage/enabled
+ 
+ chmod +x /etc/rc.d/rc.local
 ```  
 
+安装JDK1.8  
+去Oracle官网下载1.8版本最新的安装包[JDK 1.8下载](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  
 ```shell
+ mkdir /opt/software
+ # 通过FileZilla上传到CDH066节点的 <u>/opt/software</u>目录下  
+ cd /opt/software
+ tar -zxvf jdk-8u221-linux-x64.tar.gz -C /opt/
+ cd ..
+ vim /etc/profile 添加
+#JAVA_HOME      
+export JAVA_HOME=/opt/jdk1.8.0_221
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 
- 
-```
+ source /etc/profile
+ java -version
+```  
+
+
 
 
 还有一些其他的监控命令[Linux监控命令汇总](https://blog.csdn.net/qq_15766181/article/details/89928275)  
 
-JDK安装  
-下载JDK包并通过FileZilla上传到/opt/software  
-```shell
- tar -zxvf /opt/software/jdk-8u221-linux-x64.tar.gz -C /opt/module/
- 
- vim /etc/profile
- #JAVA_HOME      
- export JAVA_HOME=/opt/module/jdk1.8.0_221
- export PATH=$JAVA_HOME/bin:$PATH
- export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
- 
- source /etc/profile
-```
+
 
 安装mariadb  代替mysql5.7  
 ```shell
