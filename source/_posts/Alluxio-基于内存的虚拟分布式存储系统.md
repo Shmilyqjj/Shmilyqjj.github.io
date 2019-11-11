@@ -516,7 +516,8 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 ```  
 
 至此，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
-
+Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据丢失](https://github.com/Alluxio/alluxio/commit/b69e73de1e)，所以我这里设置了ASYNC_THROUGH异步写磁盘，既能保证写入速度，又能将文件持久化  
+之前配置Alluxio高可用，一直不稳定，心跳中断，Master和Worker掉线问题频发，Alluxio2.1版本官方说[修复了各种心跳中断问题](https://github.com/Alluxio/alluxio/commit/8d2a6ec179)
 ### Alluxio常用命令 
 Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
 Alluxio常用Shell命令速查表:  
