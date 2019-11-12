@@ -254,64 +254,80 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
  java -version
 ```  
 
-
-
-
 还有一些其他的监控命令[Linux监控命令汇总](https://blog.csdn.net/qq_15766181/article/details/89928275)  
 
-
-
-安装mariadb  代替mysql5.7  
+Mysql安装(CDH必备)  
+首先查看Cloudera Manager官网要求的Mysql版本：[Database Requirements](https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_database_requirements.html#cdh_cm_supported_db)  
+参考CDH6.x兼容的版本，我们选择Mysql5.7版本  
+注意:
+mysql-server依赖mysql-client  
+mysql-client依赖mysql-community-libs  
+mysql-community-libs依赖mysql-community-common  
+所以安装Server会默认安装其全部依赖  
 ```shell
- yum install mariadb-server
- systemctl start mariadb  # 开启服务
- 
- grep 'temporary password' /var/log/mysqld.log  # 找到root初始密码，我的是UlKbg8TGOD_=
- mysql -uroot -pUlKbg8TGOD_=  # 登陆mysql
+ rpm -qa|grep mariadb
+ rpm -e --nodeps mariadb-libs-5.5.64-1.el7.x86_64  # 卸载MariaDB 虽然CDH6支持了MariaDB，但还是推荐Mysql
+ wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm  
+ yum -y install mysql57-community-release-el7-10.noarch.rpm
+ yum -y install mysql-community-server
+```  
+![alt CDH-08.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.5.jpg)  
+如图安装完成，接着我们对其进行一些配置  
+```shell
+ systemctl start mysqld.service
+ systemctl enable mysqld.service  # 设置开机启动
+ systemctl status mysqld.service # 查看mysql运行状态
+ grep 'temporary password' /var/log/mysqld.log  # 找到root初始密码，我的是(k3I=zPdt+?7
+ mysql -uroot -p           # 登陆mysql
+ # 提示Enter Password
+  (k3I=zPdt+?7    
+ set global validate_password_policy=LOW;    # 没有这项会提示Your password does not satisfy the current policy requirements  如果不是生产环境需要修改密码安全策略等级为LOW
+ set global validate_password_length=6;   # 最低密码长度，因为测试所以设为了6 生产环境则不需要修改
  ALTER USER 'root'@'localhost' IDENTIFIED BY '123456'; # 修改数据库密码为123456
- systemctl enable mariadb  # 设置开机启动
- systemctl status mariadb # 重启后查看mariadb状态
-  - mysql_secure_installation  # 安全配置
- 	- Enter current password for root (enter for none): 输入密码回车
- 	- Change the root password? [Y/n]    n回车
- 	- Remove anonymous users? [Y/n] y回车  # 移除匿名用户
- 	- Disallow root login remotely? [Y/n] y回车  # 禁止root远程登陆
- 	- Remove test database and access to it? [Y/n]   y回车
- 	- Reload privilege tables now? [Y/n] y火车  # 刷新配置立即生效
- 
- mysql -hlocalhost -P3306 -uroot  -p123456 # 注意现在远程是不能访问root的
- # 如果想远程登录使用其他用户，则需要增加远程登陆权限：
+
  CREATE USER 'mysql'@'%' IDENTIFIED BY '123456';  # root登陆然后创建用户及其密码（用户名mysql为例）
  GRANT ALL ON my_db.* TO 'mysql'@'%';  # 赋予mysql用户所有权限
  flush privileges; # 刷新配置 
- Query OK, 0 rows affected (0.001 sec)
- mysql -umysql -p123456  # 用新用户登陆
- show databases;  # 查看新用户的数据库
- mysql -h192.168.1.66 -P3306 -umysql  -p123456  # 此时另一个局域网内机器可以访问除root用户外其他用户的数据库
- 
- # 配置utf-8字符集
- vim /etc/my.cnf 添加
- [mysqld]
- init_connect='SET collation_connection = utf8_unicode_ci' 
- init_connect='SET NAMES utf8' 
- character-set-server=utf8 
- collation-server=utf8_unicode_ci 
- skip-character-set-client-handshake
- 
- vim /etc/my.cnf.d/mysql-clients.cnf 
- 在[mysql]下添加
- default-character-set=utf8
- 
- vim /etc/my.cnf.d/client.cnf
- 在[client]下添加
- default-character-set=utf8
- 
- systemctl restart mariadb # 重启服务
- show variables like "%character%";  # 查看是否修改成功
- show variables like "%collation%";
+ status;  # 通过这个命令发现Mysql目前不是UTF-8字符集
+```  
+
+配置utf-8字符集
+vim /etc/my.cnf  添加如下配置
+```conf
+[client]
+default-character-set=utf8
+[mysqld]
+init_connect='SET collation_connection = utf8_unicode_ci' 
+init_connect='SET NAMES utf8' 
+character-set-server=utf8 
+collation-server=utf8_unicode_ci 
+skip-character-set-client-handshake
 ```
-查看字符集是否修改成功-如图则修改成功:  
+重启Mysql服务  
+systemctl restart mysqld.service
+
+登录Mysql并查看是否修改成功
+mysql -hlocalhost -P3306 -uroot  -p123456 
+show variables like "%character%";  
+show variables like "%collation%";
+如图即为配置成功  
 ![alt CDH-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.jpg)  
+
+增加远程登陆权限：
+
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+
+
 
 设置用户最大能打开文件数目、进程数和内存  
 ```shell
