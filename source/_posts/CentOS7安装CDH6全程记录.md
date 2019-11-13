@@ -271,7 +271,7 @@ mysql-community-libs依赖mysql-community-common
  yum -y install mysql57-community-release-el7-10.noarch.rpm
  yum -y install mysql-community-server
 ```  
-![alt CDH-08.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.5.jpg)  
+![alt CDH-08.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.6.jpg)  
 如图安装完成，接着我们对其进行一些配置  
 ```shell
  systemctl start mysqld.service
@@ -303,6 +303,45 @@ character-set-server=utf8
 collation-server=utf8_unicode_ci 
 skip-character-set-client-handshake
 ```
+
+根据[CDH官方推荐的Mysql参数配置](https://docs.cloudera.com/documentation/enterprise/6/latest/topics/cm_ig_mysql.html#cmig_topic_5_5),继续添加如下参数:  
+如果生产环境，需要根据集群配置的实际情况来设定  
+```shell
+[mysqld]
+transaction-isolation = READ-COMMITTED
+symbolic-links = 0
+
+key_buffer_size = 32M
+max_allowed_packet = 32M
+thread_stack = 256K
+thread_cache_size = 64
+query_cache_limit = 8M
+query_cache_size = 64M
+query_cache_type = 1
+
+max_connections = 550
+expire_logs_days = 10
+max_binlog_size = 100M
+log_bin=/var/lib/mysql/mysql_binary_log
+server_id=1
+binlog_format = mixed
+
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+sort_buffer_size = 8M
+join_buffer_size = 8M
+
+# InnoDB settings
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit  = 2
+innodb_log_buffer_size = 64M
+innodb_buffer_pool_size = 128M   
+innodb_thread_concurrency = 8
+innodb_flush_method = O_DIRECT
+innodb_log_file_size = 512M
+sql_mode=STRICT_ALL_TABLES
+```
+
 重启Mysql服务  
 systemctl restart mysqld.service
 
@@ -313,21 +352,25 @@ show variables like "%collation%";
 如图即为配置成功  
 ![alt CDH-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.jpg)  
 
-增加远程登陆权限：
+创建CM的数据库并增加远程登陆权限：  
+```shell
+CREATE DATABASE cmserver DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON cmserver.* TO 'cmserver'@'%' IDENTIFIED BY '123456';
+CREATE DATABASE hive DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON hive.* TO 'hive'@'%' IDENTIFIED BY '123456';
+CREATE DATABASE hdfs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON hdfs.* TO 'hdfs'@'%' IDENTIFIED BY '123456';
+```  
+关于如何查看和修改用户的远程登录权限：  
+select user,host from mysql.user;
+![alt CDH-09.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.5.jpg)  
+host字段为%的则是允许远程登录的用户，是localhost的只能本地登录  
+所以想给远程某台机器开通远程访问某个用户的权限： update mysql.user set host='CDH066' where user='root';  
+或者想给某个用户所有局域网内机器的访问权限： update mysql.user set host='%' where user='root';  
+然后重启服务或者刷新配置就可以通过mysql -hCDH066 -uroot -p123456来登录了  
 
-
- 
-
- 
-
-
- 
- 
-
-
- 
-
-
+Mysql JDBC库配置：  
+**[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
 设置用户最大能打开文件数目、进程数和内存  
 ```shell
@@ -350,7 +393,8 @@ show variables like "%collation%";
 ```
 ![alt CDH-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-11.jpg)  
 
-我的配置暂时这样，更多安全与防火墙配置参考[安全与防火墙配置](https://blog.csdn.net/thinktik/article/details/81046318)  
+我的配置暂时这样，如果后续有什么需要改进我再更新。  
+更多安全与防火墙配置参考[安全与防火墙配置](https://blog.csdn.net/thinktik/article/details/81046318)  
 有关linux用户和组的详细文章:[Linux用户和组](https://www.cnblogs.com/pengyunjing/p/8543026.html)  
 
 ### 二.克隆虚拟机  

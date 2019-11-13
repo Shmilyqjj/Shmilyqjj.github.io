@@ -26,3 +26,15 @@ https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
 
 
 PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
+
+
+--------------------------------------
+写博客   distinct去重和group by去重
+
+https://blog.csdn.net/hd243608836/article/details/80088173
+
+
+https://www.2cto.com/database/201707/662371.html
+
+
+https://blog.csdn.net/jerrytomcat/article/details/82351605
