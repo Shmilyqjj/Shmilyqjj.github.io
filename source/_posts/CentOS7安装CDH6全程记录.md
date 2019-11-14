@@ -368,6 +368,8 @@ host字段为%的则是允许远程登录的用户，是localhost的只能本地
 所以想给远程某台机器开通远程访问某个用户的权限： update mysql.user set host='CDH066' where user='root';  
 或者想给某个用户所有局域网内机器的访问权限： update mysql.user set host='%' where user='root';  
 然后重启服务或者刷新配置就可以通过mysql -hCDH066 -uroot -p123456来登录了  
+远程其他节点可以通过制定-h来访问非root用户的mysql  
+![alt CDH-09.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.6.jpg) 
 
 Mysql JDBC库配置：  
 **[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
