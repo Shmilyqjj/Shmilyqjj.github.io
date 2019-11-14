@@ -1,0 +1,59 @@
+HBase Shell
+
+建表必须有table name和column family name
+create 'test', 'cf'
+建表并设置属性
+create 'test_qjj', { NAME => 'baseInfo', VERSIONS => 3 }, { NAME => 'extraInfo', VERSIONS => 2}
+
+查看所有表
+list
+list 'test'
+
+查看表结构
+describe 'test'
+desc 'test_qjj'
+
+向表中插入
+put 'table_name','row_name','cf:column_name','value'
+put 'test', 'row1', 'cf:a', 'value1'
+put 'test', 'row2', 'cf:a', 'value2'
+
+查询数据
+scan 'test'
+scan 'test', {LIMIT=>5}
+get 'test','row1'
+get 'test','row1','cf:qjj'
+
+
+is_disable 'test' /is_enable 'test' 是否失效
+disable 'test' 后可修改设置或删除表
+enable 'test' 后不可修改设置或删除表
+
+删除表
+disable 'test' -> drop 'test'
+
+清空表数据truncate 'user_info'
+
+增加/删除列族
+增加
+alter 'test_qjj','newInfo'
+alter 'test_qjj',{NAME=>'otherInfo',VERSIONS=>3}
+删除
+alter 'test_qjj','delete'=>'extraInfo'
+alter 'test_qjj',{NAME=>'otherInfo',METHOD=>'delete'}
+
+删除数据
+delete 'test','row4','cf:qjj'
+delete 'test','row6','cf:qjj',1569294709008  加时间戳
+deleteall 'test','row6' 删除行的所有元素
+
+表存在
+exists 'test'
+
+返回hbase集群的状态信息
+status
+
+关闭HBase集群
+shutdown
+
+

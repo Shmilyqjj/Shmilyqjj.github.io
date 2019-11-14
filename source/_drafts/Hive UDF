@@ -1,0 +1,64 @@
+Hive UDF/UDAF/UDTF
+UDF：一进一出
+实现方法：
+1. 继承UDF类
+2. 重写evaluate方法
+3. 将该java文件编译成jar
+4. 在终端输入如下命令：
+hive> add jar test.jar;
+ 
+hive> create temporary function function_name as 'com.hrj.hive.udf.UDFClass';
+ 
+hive> select function_name(t.col1) from table t;
+ 
+hive> drop temporary function function_name;
+
+UDAF：多进一出
+实现方法: 
+1，用户的UDAF必须继承了org.apache.hadoop.hive.ql.exec.UDAF；
+2，用户的UDAF必须包含至少一个实现了org.apache.hadoop.hive.ql.exec的静态类，诸如实现了 UDAFEvaluator
+3，一个计算函数必须实现的5个方法的具体含义如下：
+init()：主要是负责初始化计算函数并且重设其内部状态，一般就是重设其内部字段。一般在静态类中定义一个内部字段来存放最终的结果。
+
+iterate()：每一次对一个新值进行聚集计算时候都会调用该方法，计算函数会根据聚集计算结果更新内部状态。当输 入值合法或者正确计算了，则       就返回true。
+
+terminatePartial()：Hive需要部分聚集结果的时候会调用该方法，必须要返回一个封装了聚集计算当前状态的对象。
+
+merge()：Hive进行合并一个部分聚集和另一个部分聚集的时候会调用该方法。
+
+terminate()：Hive最终聚集结果的时候就会调用该方法。计算函数需要把状态作为一个值返回给用户。
+
+
+
+4.部分聚集结果的数据类型和最终结果的数据类型可以不同。
+UDTF：一进多出
+实现方法：
+1. 继承org.apache.hadoop.hive.ql.udf.generic.GenericUDTF
+
+2.initialize()：UDTF首先会调用initialize方法，此方法返回UDTF的返回行的信息（返回个数，类型）
+
+3.process：初始化完成后，会调用process方法,真正的处理过程在process函数中，在process中，每一次forward() 调用产生一行；如果产生多列      可以将多个列的值放在一个数组中，然后将该数组传入到forward()函数
+4.最后close()方法调用，对需要清理的方法进行清理
+
+load data local inpath '/opt/apache-hive-1.2.1-bin/UDF_JARS/strtable' into table strtable;
+
+UDF操作
+add jar /opt/apache-hive-1.2.1-bin/UDF_JARS/Hive-UDFTest.jar;
+create temporary function qjj as 'UDFTest';
+select qjj(t1.id1,t1.id2)  from strtable t1;
+select qjj(t2.id1,t2.id2)  from inttable t2;
+
+UDAF操作
+add jar /opt/apache-hive-1.2.1-bin/UDF_JARS/Hive-UDF-UDAF.jar;
+create temporary function qjjavg as 'qjjAVG';
+select qjjavg(t.id1) from inttable t;
+
+UDTF操作
+add jar /opt/apache-hive-1.2.1-bin/UDF_JARS/Hive-UDF-UDAF-UDTF.jar;
+create table udtftable(id int,name1 string,name2 string) ;
+  insert into udtftable values (1,'a,b,c','1,2');
+  insert into udtftable values (2,'j,k',null);
+  insert into udtftable values (3,null,null) ;
+create temporary function qjjarrtomap as 'qjjArrToMap';
+select qjjarrtomap(name1,name2) from udtftable;
+
