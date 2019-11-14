@@ -9,6 +9,10 @@ shuffle read：分区数由Spark提供的参数控制
 如果这个参数值设置的很小，同时shuffle read量很大，那么单个task处理的数据量也会很大，这可能导致JVM crash，从而获取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。
 有时候即使不会导致JVM crash也会造成长时间的gc。
 
+修改Hive/SQL表注释:
+ALTER TABLE table_name SET TBLPROPERTIES('comment' = '这是表注释!');
+修改Hive/SQL字段注释:
+ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列注释!'; 
 
 
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
