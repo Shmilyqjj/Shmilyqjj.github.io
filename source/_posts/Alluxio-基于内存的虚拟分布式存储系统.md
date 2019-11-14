@@ -415,6 +415,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.master.journal.type=UFS
   alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal   # 回滚日志的地址，写入可靠的分布式HDFS
   alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
@@ -449,6 +450,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.master.journal.type=UFS
   alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
   alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
@@ -480,9 +482,12 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
   alluxio.zookeeper.enabled=true
   alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
   alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
   # User properties
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1
   # Security properties
   alluxio.security.authorization.permission.enabled=true
   alluxio.security.authentication.type=SIMPLE
