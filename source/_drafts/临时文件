@@ -46,3 +46,32 @@ https://blog.csdn.net/jerrytomcat/article/details/82351605
 
 -------------------------------------------
 
+使用event_scheduler实现，这是个事件的自动调度机制，会定期执行事件中定义的语句；
+1 配置开启event scheduler
+配置my.ini文件 中加上 event_scheduler = 1
+重启mysql服务
+验证event_scheduler是否已经开启： show variables like '%event%'; #值为 ON 表明已开启
+2 创建event
+CREATE EVENT truncate
+ON SCHEDULE EVERY 1 day STARTS date_add(concat(current_date(), ' 00:00:00'), interval 0 second)
+ON COMPLETION PRESERVE ENABLE
+DO
+delete from dbname.`user` where (`name`, `time` ) =
+(
+select `name`, max_time from
+(select `name`, max(`time`) max_time from dbname.`user` group by 1) t
+where max_time < date_add(current_timestamp, interval -2 month)
+);
+#说明：
+ON SCHEDULE EVERY 1 day 指定循环间隔为每天执行
+STARTS date_add(concat(current_date(), ' 23:59:00'), interval 0 second) 指定运行时间为23:59:00
+ON COMPLETION PRESERVE ENABLE 指定创建完成后即启用，否则需手动启动
+替换DO后边的语句中的相关部分（如数据库dbname, 表名，字段名等），DO 中也可以执行一个自定义的存储过程（该存储过程自已实现业务逻辑）
+3 察看是否开始工作
+SHOW PROCESSLIST; --看是否有event_scheduler的user的进程；
+4 手动关闭事件
+ALTER EVENT event_test_a DISABLE;
+5 手动该事件为可用
+ALTER EVENT event_test_a ENABLE;
+
+-----------------------------------------------
