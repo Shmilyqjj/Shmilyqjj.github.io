@@ -1,8 +1,3 @@
-
-https://blog.csdn.net/qq_32447301/article/details/90321610
------------------------------------------------------------------
-
-
 shuffle write：分区数由上一阶段的RDD分区数控制
 类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
 shuffle read：分区数由Spark提供的参数控制
@@ -15,6 +10,23 @@ ALTER TABLE table_name SET TBLPROPERTIES('comment' = '这是表注释!');
 ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列注释!'; 
 
 
+PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*************************************待写博客****************************************
+--------------------------------Mysql Binlog---------------------------------
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
 select * from table_name;
 回滚事务步骤:
@@ -24,54 +36,9 @@ delete from table_name where id = 1;  删除一条记录
 select * from table_name;
 rollback to a;  回滚到a保存点
 select * from table_name;  没问题的话  执行commit;
+-----------------------------------------------------------------------------
 
 
+--------------------------------JVM GC分析--------------------------------
 https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
-
-
-PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
-
-
---------------------------------------
-写博客   distinct去重和group by去重
-
-https://blog.csdn.net/hd243608836/article/details/80088173
-
-
-https://www.2cto.com/database/201707/662371.html
-
-
-https://blog.csdn.net/jerrytomcat/article/details/82351605
-
-
--------------------------------------------
-
-使用event_scheduler实现，这是个事件的自动调度机制，会定期执行事件中定义的语句；
-1 配置开启event scheduler
-配置my.ini文件 中加上 event_scheduler = 1
-重启mysql服务
-验证event_scheduler是否已经开启： show variables like '%event%'; #值为 ON 表明已开启
-2 创建event
-CREATE EVENT truncate
-ON SCHEDULE EVERY 1 day STARTS date_add(concat(current_date(), ' 00:00:00'), interval 0 second)
-ON COMPLETION PRESERVE ENABLE
-DO
-delete from dbname.`user` where (`name`, `time` ) =
-(
-select `name`, max_time from
-(select `name`, max(`time`) max_time from dbname.`user` group by 1) t
-where max_time < date_add(current_timestamp, interval -2 month)
-);
-#说明：
-ON SCHEDULE EVERY 1 day 指定循环间隔为每天执行
-STARTS date_add(concat(current_date(), ' 23:59:00'), interval 0 second) 指定运行时间为23:59:00
-ON COMPLETION PRESERVE ENABLE 指定创建完成后即启用，否则需手动启动
-替换DO后边的语句中的相关部分（如数据库dbname, 表名，字段名等），DO 中也可以执行一个自定义的存储过程（该存储过程自已实现业务逻辑）
-3 察看是否开始工作
-SHOW PROCESSLIST; --看是否有event_scheduler的user的进程；
-4 手动关闭事件
-ALTER EVENT event_test_a DISABLE;
-5 手动该事件为可用
-ALTER EVENT event_test_a ENABLE;
-
------------------------------------------------
+-------------------------------------------------------------------------
