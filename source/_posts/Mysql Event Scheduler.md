@@ -187,6 +187,7 @@ TRUNCATE test;
 ```sql
 show events;  # 查看事件及其状态
 ALTER EVENT daily_truncate_test DISABLE;  # 禁用指定事件
+ALTER EVENT daily_truncate_test ENABLE;   # 启用指定事件
 ALTER EVENT daily_truncate_test RENAME TO daily_truncate;   # 重命名事件
 ALTER EVENT test.daily_truncate_test RENAME TO qjj_test.daily_truncate_test;    # 事件是数据库层面的，可以把事件从一个数据库移动到另一个数据库(另一个数据库要有对应的表)  
 DROP EVENT daily_truncate;   # 删除事件
