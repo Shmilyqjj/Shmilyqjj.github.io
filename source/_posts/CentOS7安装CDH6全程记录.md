@@ -238,21 +238,23 @@ yum install nload
 
 安装JDK1.8  
 去Oracle官网下载1.8版本最新的安装包[JDK 1.8下载](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  
+这里注意，JDK目录一定是/usr/java/jdk_1.8.x_xx，这样CM服务才能检测到JDK，否则服务无法启动  
 ```shell
  mkdir /opt/software
  # 通过FileZilla上传到CDH066节点的 <u>/opt/software</u>目录下  
  cd /opt/software
- tar -zxvf jdk-8u221-linux-x64.tar.gz -C /opt/
+ tar -zxvf jdk-8u221-linux-x64.tar.gz -C /usr/java/
  cd ..
  vim /etc/profile 添加
 #JAVA_HOME      
-export JAVA_HOME=/opt/jdk1.8.0_221
+export JAVA_HOME=/usr/java/jdk1.8.0_221
 export PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 
  source /etc/profile
  java -version
 ```  
+
 
 还有一些其他的监控命令[Linux监控命令汇总](https://blog.csdn.net/qq_15766181/article/details/89928275)  
 
@@ -287,6 +289,8 @@ mysql-community-libs依赖mysql-community-common
 
  CREATE USER 'mysql'@'%' IDENTIFIED BY '123456';  # root登陆然后创建用户及其密码（用户名mysql为例）
  GRANT ALL ON my_db.* TO 'mysql'@'%';  # 赋予mysql用户所有权限
+ set global validate_password_policy=LOW; 
+ set global validate_password_length=6;
  flush privileges; # 刷新配置 
  status;  # 通过这个命令发现Mysql目前不是UTF-8字符集
 ```  
@@ -340,6 +344,9 @@ innodb_thread_concurrency = 8
 innodb_flush_method = O_DIRECT
 innodb_log_file_size = 512M
 sql_mode=STRICT_ALL_TABLES
+
+# disable_ssl
+skip_ssl
 ```
 
 重启Mysql服务  
@@ -354,12 +361,27 @@ show variables like "%collation%";
 
 创建CM的数据库并增加远程登陆权限：  
 ```shell
-CREATE DATABASE cmserver DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-GRANT ALL ON cmserver.* TO 'cmserver'@'%' IDENTIFIED BY '123456';
-CREATE DATABASE hive DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-GRANT ALL ON hive.* TO 'hive'@'%' IDENTIFIED BY '123456';
-CREATE DATABASE hdfs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-GRANT ALL ON hdfs.* TO 'hdfs'@'%' IDENTIFIED BY '123456';
+CREATE DATABASE scm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE amon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE rman DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE hue DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE metastore DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE sentry DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE nav DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE navms DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE oozie DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+GRANT ALL ON scm.* TO 'scm'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON amon.* TO 'amon'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON rman.* TO 'rman'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON hue.* TO 'hue'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON metastore.* TO 'hive'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON sentry.* TO 'sentry'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON nav.* TO 'nav'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY '123456';
+FLUSH PRIVILEGES;
+
 ```  
 关于如何查看和修改用户的远程登录权限：  
 select user,host from mysql.user;
@@ -485,7 +507,7 @@ scp -r /opt/software/cloudera-repos  root@CDH067:/opt/software/
 scp -r /opt/software/cloudera-repos  root@CDH068:/opt/software/
 scp -r /opt/software/cloudera-repos  root@CDH069:/opt/software/
 
-各个节点执行如下命令
+各个节点执行如下命令  目的是建立本地存储库 搭建本地源
 ```shell
  cd /opt/software/cloudera-repos  
  createrepo .
@@ -499,7 +521,7 @@ scp -r /opt/software/cloudera-repos  root@CDH069:/opt/software/
  vim cloudera-manager.repo  添加如下:  
 [cloudera-manager]
 name=Cloudera Manager 6.3.1
-baseurl=http://cdh066/cloudera-repos/    
+baseurl=http://cdh066/cloudera-repos/   
 gpgcheck=0
 enabled=1
 autorefresh=0
@@ -509,13 +531,69 @@ type=rpm-md
  yum makecache
 ```  
 制作本地源后http://cdh066/cloudera-repos/这个链接可以访问到源的文件  
+我们搭建的本地源，后面会用到  
 ![alt CDH-14](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-14.jpg)  
 
 安装Cloudera Manager组件:  
 ```shell
 # 在CDH066节点运行
  yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server --skip-broken --nogpgcheck
+```  
+下载parcel包，：[Index of cdh6/6.3.1/parcels/](https://archive.cloudera.com/cdh6/6.3.1/parcels/)
+下载其中的CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel和manifest.json这两个文件，将这两个文件上传到**/opt/cloudera/parcel-repo**目录  
+```shell
+cd /opt/cloudera/parcel-repo
+sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk '{ print $1 }' >CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
+chown -R cm:cm /opt/cloudera/parcel-repo/*
+chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm root 123456   # 初始化数据库
+```  
+systemctl start cloudera-scm-server.service    # 启动CM服务  
+systemctl status cloudera-scm-server.service   # 查看启动状态
+![alt CDH-15](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg)  
+
+等待几分钟后访问**http://CDH066:7180**，默认帐号密码都是**admin**  
+![alt CDH-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg)  
+
+这里选择免费版本
+![alt CDH-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-17.jpg)  
+
+下面就是群集安装的步骤：  
+我的规划是：  
+
+| 主机名称 | 服务 |
+| ---- | ---- |
+| CDH066 | ---- |
+| CDH067 | ---- |
+| CDH068 | ---- |
+| CDH069 | ---- |
+
+
+
+主机名称填写CDH067,CDH068,CDH069，或者可以搜索
+![alt CDH-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.jpg)  
+
+使用我们搭建的本地源 **http://cdh066/cloudera-repos/**  如下设置  
+![alt CDH-19](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.jpg)  
+
+这步**不要勾选**
+![alt CDH-20](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.jpg)  
+
+填入root用户的密码  
+![alt CDH-21](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.jpg)  
+
+
+
+
+在CDH067,CDH068,CDH069上执行
+```shell
+ yum install -y cloudera-manager-agent cloudera-manager-daemons
 ```
+
+
+
+
+
 
 
 
