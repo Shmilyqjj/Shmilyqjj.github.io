@@ -12,7 +12,7 @@ ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列�
 
 PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
 
-
+内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
 
 
 
