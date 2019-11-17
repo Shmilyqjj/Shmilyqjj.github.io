@@ -521,6 +521,7 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 ```  
 
 配置这块踩了好多坑，终于，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
+关于**用户模拟**的一些理解和使用很重要参考这篇文章：[User Impersonation相关配置问题分析与解决](https://blog.csdn.net/alluxio/article/details/88269060)
 Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据丢失](https://github.com/Alluxio/alluxio/commit/b69e73de1e)，所以我这里设置了ASYNC_THROUGH异步写磁盘，既能保证写入速度，又能将文件持久化  
 之前配置Alluxio高可用，一直不稳定，心跳中断，Master和Worker掉线问题频发，Alluxio2.1版本官方说[修复了各种心跳中断问题](https://github.com/Alluxio/alluxio/commit/8d2a6ec179)
 ### Alluxio常用命令 
@@ -997,7 +998,12 @@ class AlluxioUtil{
 ```
 
 #### Python API  
-由于pip install alluxio一直不成功,这块我后续再更新  
+Alluxio的Python库基于REST API实现的  
+CentOS6和Windows的环境下安装alluxio的python库失败，最终在CentOS7 Python2.7.5的环境下成功执行了***pip install alluxio***
+```Python
+
+
+```  
 
 ### Q&A
 + 加速不明显?  
