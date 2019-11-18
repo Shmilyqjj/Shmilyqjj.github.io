@@ -571,27 +571,19 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 
 
 主机名称填写CDH067,CDH068,CDH069，或者可以搜索
-![alt CDH-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.jpg)  
+![alt CDH-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG)  
 
 使用我们搭建的本地源 **http://cdh066/cloudera-repos/**  如下设置  
-![alt CDH-19](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.jpg)  
+![alt CDH-19](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG)  
 
 这步**不要勾选**
-![alt CDH-20](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.jpg)  
+![alt CDH-20](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.JPG)  
 
 填入root用户的密码  
-![alt CDH-21](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.jpg)  
+![alt CDH-21](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.JPG)  
 
-
-
-
-在CDH067,CDH068,CDH069上执行
-```shell
- yum install -y cloudera-manager-agent cloudera-manager-daemons
-```
-
-
-
+这步耐心等待，**不要手动刷新**  
+![alt CDH-22](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.JPG)  
 
 
 
