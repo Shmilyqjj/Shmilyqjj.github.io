@@ -585,8 +585,37 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 这步耐心等待，**不要手动刷新**  
 ![alt CDH-22](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.JPG)  
 
+进入这个页面证明之前的步骤成功了，接着添加角色  
+![alt CDH-22.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG)  
+
+添加Zookeeper服务  
+![alt CDH-23](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-23.JPG)  
+![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
+
+安装角色时遇到错误  
+错误信息是Cannot Add Hdfs and Reported Cannot Find CDH's bigtop-detect-javahome  
+![alt CDH-25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-25.JPG)  
+原因是目前CDH版本支持的最高JDK是8u181版本，我安装的是8u221，所以换了一下  
 
 
+
+
+
+
+
+
+
+
+
+接着做一些Linux系统层面的优化  
+```shell
+echo "vm.swappiness=10" >> /etc/sysctl.conf      # vm.swappiness默认60，表示物理内存到40%以后开始与虚拟内存交换，降低性能 建议设为10
+
+```
+
+
+
+jdk版本支持最高8u181 所以又换的jdk版本
 
 
 
