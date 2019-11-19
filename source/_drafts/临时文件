@@ -77,8 +77,9 @@ FROM alarm_member_info
 WHERE name IN ('qjj','jjq','build-tools')) a
 GROUP BY name;
 
+df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
 
-
+Spark：任务中如何确定spark分区数、task数目、core个数、worker节点个数、excutor数量 https://blog.csdn.net/weixin_38750084/article/details/82725176
 
 
 
