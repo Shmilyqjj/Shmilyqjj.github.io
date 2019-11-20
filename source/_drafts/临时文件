@@ -51,6 +51,10 @@ df = spark.sql("""desc %s""" % table_name).toPandas()   # 转换成pandas的df
 info_dicts = df.to_dict()
 col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
 (info_dicts['col_name'].values(), info_dicts['comment'].values(), info_dicts['data_type'].values())))
+
+
+df.dtypes
+http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
 ##################################################
 
 
@@ -78,6 +82,9 @@ WHERE name IN ('qjj','jjq','build-tools')) a
 GROUP BY name;
 
 df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
+
+
+
 
 Spark：任务中如何确定spark分区数、task数目、core个数、worker节点个数、excutor数量 https://blog.csdn.net/weixin_38750084/article/details/82725176
 
