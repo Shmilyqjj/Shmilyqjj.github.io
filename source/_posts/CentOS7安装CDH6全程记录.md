@@ -236,8 +236,12 @@ yum install nload
  chmod +x /etc/rc.d/rc.local
 ```  
 
-安装JDK1.8  
-去Oracle官网下载1.8版本最新的安装包[JDK 1.8下载](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  
+安装JDK1.8[千万不要自行更换版本]  
+去Oracle官网下载1.8版本8u181的安装包[JDK 1.8历史版本下载](https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase8-2177648.html)  
+如果安装最新版本，后续CDH安装服务会无法启动，遇到各种问题。  
+要明确CDH6.3支持的JDK版本：  
+![alt CDH-25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-25.JPG)  
+
 这里注意，JDK目录一定是/usr/java/jdk_1.8.x_xx，这样CM服务才能检测到JDK，否则服务无法启动  
 ```shell
  mkdir /opt/software
@@ -365,7 +369,7 @@ CREATE DATABASE scm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE amon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE rman DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE hue DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-CREATE DATABASE metastore DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE hive DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE sentry DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE nav DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE navms DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
@@ -375,7 +379,7 @@ GRANT ALL ON scm.* TO 'scm'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON amon.* TO 'amon'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON rman.* TO 'rman'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON hue.* TO 'hue'@'%' IDENTIFIED BY '123456';
-GRANT ALL ON metastore.* TO 'hive'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON hive.* TO 'hive'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON sentry.* TO 'sentry'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON nav.* TO 'nav'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY '123456';
@@ -594,7 +598,7 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 
 安装角色时遇到错误  
 错误信息是Cannot Add Hdfs and Reported Cannot Find CDH's bigtop-detect-javahome  
-![alt CDH-25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-25.JPG)  
+
 原因是目前CDH版本支持的最高JDK是8u181版本，我安装的是8u221，所以换了一下  
 
 
@@ -612,11 +616,6 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 echo "vm.swappiness=10" >> /etc/sysctl.conf      # vm.swappiness默认60，表示物理内存到40%以后开始与虚拟内存交换，降低性能 建议设为10
 
 ```
-
-
-
-jdk版本支持最高8u181 所以又换的jdk版本
-
 
 
 
