@@ -88,7 +88,22 @@ df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn
 
 Spark：任务中如何确定spark分区数、task数目、core个数、worker节点个数、excutor数量 https://blog.csdn.net/weixin_38750084/article/details/82725176
 
-
+MD5 BASE64:
+img_path = '/home/jiajing_qu/img.jpg'
+import md5
+m = md5.new()
+m.update(img_path)
+res = m.hexdigest()
+import hashlib
+import base64
+with open(img_path, 'rb') as fp:
+	data = fp.read()
+	base64_data = base64.b64encode(data)
+	file_md5= hashlib.md5(data).hexdigest()
+content = {"base64": base64_data, "md5": file_md5}
+{"base64": base64_data, "md5": file_md5}
+with open(img_path, 'rb') as fp:
+    content = fp.read()
 
 
 *************************************待写博客****************************************
