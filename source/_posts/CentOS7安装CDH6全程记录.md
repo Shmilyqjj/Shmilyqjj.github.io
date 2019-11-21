@@ -104,7 +104,7 @@ CentOS 7
 关闭->完成->开启此虚拟机 
 开始安装  
 ![alt CDH-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-04.jpg)  
-安装Minimal版的CentOS，感觉很清爽！但是后续需要自己手动装一些依赖包，不过这样也好，可以避免安装过多无用的依赖。  
+安装Minimal版的CentOS，感觉很清爽！但是后续需要自己手动装一些依赖包，不过这样也好，可以避免安装过多无用的依赖。时区选择ShangHai。  
 
 在这步安装时指定root密码123456  
 安装时指定一个管理员用户shmily 密码123456  
@@ -117,7 +117,7 @@ CentOS 7
 
  vi /etc/sysconfig/network   
  NETWORKING=yes
- HOSTNAME=CDH066
+ HOSTNAME=cdh066
  
  vi /etc/sysconfig/network-scripts/ifcfg-ens33  修改以下几项的值
  BOOTPROTO=static
@@ -128,14 +128,12 @@ CentOS 7
  DNS1=192.168.1.2
  
  vi /etc/sudoers  添加以下，必要的话可以加其他用户权限控制策略，这里我对root和shmily两个用户赋权
- root ALL=(ALL)  ALL
+ root ALL=(ALL)  ALL 下面添加：
  shmily ALL=(ALL)  ALL
  
- service NetworkManager start
  systemctl start NetworkManger
  systemctl enable NetworkManger
- service NetworkManager start
- chkconfig NetworkManager on
+ service NetworkManager status
  
  systemctl status firewalld.service    # 查看防火墙状态
  systemctl stop firewalld.service   # 关闭防火墙
@@ -151,13 +149,13 @@ CentOS 7
 
  # 修改Hostname
  vi /etc/hostname
- localhost.localdomain改为CDH066
+ localhost.localdomain改为cdh066
  
  vi /etc/hosts  # 添加如下记录
- 192.168.1.66 CDH066
- 192.168.1.67 CDH067
- 192.168.1.68 CDH068
- 192.168.1.69 CDH069
+ 192.168.1.66 cdh066
+ 192.168.1.67 cdh067
+ 192.168.1.68 cdh068
+ 192.168.1.69 cdh069
  
  reboot   # 重启机器CDH066
 
@@ -171,10 +169,10 @@ SecureCRT创建New Session -> SSH2 -> Hostname是CDH066 username是root
 发现还是会提示Hostname lookup failed: host not found
 需要修改Windows的C:\Windows\System32\drivers\etc\hosts
 添加如下并保存
-192.168.1.66 CDH066
-192.168.1.67 CDH067
-192.168.1.68 CDH068
-192.168.1.69 CDH069
+192.168.1.66 cdh066
+192.168.1.67 cdh067
+192.168.1.68 cdh068
+192.168.1.69 cdh069
 
 重新用SecureCRT连接出现如下图:
 ![alt CDH-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-06.jpg)  
@@ -193,7 +191,7 @@ CentOS7 Minimal默认带Python2.7.5版本，已经满足需求，为了开发方
 ```shell
  yum -y install epel-release
  yum install python-pip
- pip install --upgrade pip
+ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple requests  # 安装必要的库可以指定源 以安装requests库为例
  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple ipython   # 安装ipython
 ```
@@ -202,32 +200,29 @@ CentOS7 Minimal默认带Python2.7.5版本，已经满足需求，为了开发方
 安装一些必要的常用命令[必要]
 yum install bind-utils  
 yum -q install /usr/bin/iostat  
-yum install vim  
-yum install wget  
-yum install iotop  
-yum install lsof  
+yum install vim wget iotop lsof 
 yum install -y git  
 yum install dstat   (全面的系统监控工具-推荐)  
 yum install nload  
 
-安装一些CDH的必要依赖[必要] 
+安装一些CDH所需的必要依赖[必要] 
 ```shell
  yum -y install chkconfig bind-utils psmisc libxslt zlib sqlite cyrus-sasl-plain cyrus-sasl-gssapi fuse portmap fuse-libs redhat-lsb httpd httpd-tools unzip ntp
  systemctl start httpd.service  # 启动httpd服务
  systemctl enable httpd.service # 设置httpd开机启动
  yum -y install httpd createrepo  # createrepo是安装CDH6集群必备
- # 配置ntp时间同步服务
- ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
- ntpdate ntp1.aliyun.com  # 立即同步时间
- # 设置同步时间池
- sed -i 's/server 0.centos.pool.ntp.org iburst/server ntp1.aliyun.com/g' /etc/ntp.conf
- sed -i 's/server 1.centos.pool.ntp.org iburst/server ntp2.aliyun.com/g' /etc/ntp.conf
- sed -i 's/server 2.centos.pool.ntp.org iburst/server ntp3.aliyun.com/g' /etc/ntp.conf
- sed -i 's/server 3.centos.pool.ntp.org iburst/server ntp4.aliyun.com/g' /etc/ntp.conf
- service ntpd restart  # 重新启动 ntp 服务
- systemctl enable ntpd.service  # 设置开机自启
- ntpdc -c loopinfo  # 查看时间偏差
- ntpstat
+                                            # 配置ntp时间同步服务
+                                            ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+                                            ntpdate ntp1.aliyun.com  # 立即同步时间
+                                            # 设置同步时间池
+                                            sed -i 's/server 0.centos.pool.ntp.org iburst/server ntp1.aliyun.com/g' /etc/ntp.conf
+                                            sed -i 's/server 1.centos.pool.ntp.org iburst/server ntp2.aliyun.com/g' /etc/ntp.conf
+                                            sed -i 's/server 2.centos.pool.ntp.org iburst/server ntp3.aliyun.com/g' /etc/ntp.conf
+                                            sed -i 's/server 3.centos.pool.ntp.org iburst/server ntp4.aliyun.com/g' /etc/ntp.conf
+                                            service ntpd restart  # 重新启动 ntp 服务
+                                            systemctl enable ntpd.service  # 设置开机自启
+                                            ntpdc -c loopinfo  # 查看时间偏差
+                                            ntpstat
  
  vim /etc/rc.local  添加
  echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -247,11 +242,12 @@ yum install nload
  mkdir /opt/software
  # 通过FileZilla上传到CDH066节点的 <u>/opt/software</u>目录下  
  cd /opt/software
- tar -zxvf jdk-8u221-linux-x64.tar.gz -C /usr/java/
+ mkdir /usr/java/
+ tar -zxvf jdk-8u181-linux-x64.tar.gz -C /usr/java/
  cd ..
  vim /etc/profile 添加
 #JAVA_HOME      
-export JAVA_HOME=/usr/java/jdk1.8.0_221
+export JAVA_HOME=/usr/java/jdk1.8.0_181
 export PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 
@@ -283,24 +279,23 @@ mysql-community-libs依赖mysql-community-common
  systemctl start mysqld.service
  systemctl enable mysqld.service  # 设置开机启动
  systemctl status mysqld.service # 查看mysql运行状态
- grep 'temporary password' /var/log/mysqld.log  # 找到root初始密码，我的是(k3I=zPdt+?7
+ grep 'temporary password' /var/log/mysqld.log  # 找到root初始密码，我的是cWgrI9:14%=_
  mysql -uroot -p           # 登陆mysql
  # 提示Enter Password
-  (k3I=zPdt+?7    
+  cWgrI9:14%=_    
  set global validate_password_policy=LOW;    # 没有这项会提示Your password does not satisfy the current policy requirements  如果不是生产环境需要修改密码安全策略等级为LOW
  set global validate_password_length=6;   # 最低密码长度，因为测试所以设为了6 生产环境则不需要修改
  ALTER USER 'root'@'localhost' IDENTIFIED BY '123456'; # 修改数据库密码为123456
 
  CREATE USER 'mysql'@'%' IDENTIFIED BY '123456';  # root登陆然后创建用户及其密码（用户名mysql为例）
- GRANT ALL ON my_db.* TO 'mysql'@'%';  # 赋予mysql用户所有权限
- set global validate_password_policy=LOW; 
- set global validate_password_length=6;
+ GRANT ALL ON mysql.* TO 'mysql'@'%';  # 赋予mysql用户所有权限
  flush privileges; # 刷新配置 
  status;  # 通过这个命令发现Mysql目前不是UTF-8字符集
 ```  
 
 配置utf-8字符集
-vim /etc/my.cnf  添加如下配置
+vim /etc/my.cnf  添加如下配置  
+注意顺序，client一定在mysqld属性的上方  
 ```conf
 [client]
 default-character-set=utf8
@@ -363,7 +358,7 @@ show variables like "%collation%";
 如图即为配置成功  
 ![alt CDH-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.jpg)  
 
-创建CM的数据库并增加远程登陆权限：  
+创建CM的数据库并增加数据库所属用户的远程登陆权限：  
 ```shell
 CREATE DATABASE scm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 CREATE DATABASE amon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
@@ -384,6 +379,10 @@ GRANT ALL ON sentry.* TO 'sentry'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON nav.* TO 'nav'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY '123456';
+
+set global validate_password_policy=LOW; 
+set global validate_password_length=6; 
+GRANT ALL ON root.* TO 'root'@'%' IDENTIFIED BY '123456';  # 让root用户可以在cdh066节点上登录
 FLUSH PRIVILEGES;
 
 ```  
@@ -398,6 +397,7 @@ host字段为%的则是允许远程登录的用户，是localhost的只能本地
 ![alt CDH-09.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.6.jpg) 
 
 Mysql JDBC库配置：  
+右键 链接另存为 进行下载  
 **[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
 设置用户最大能打开文件数目、进程数和内存  
