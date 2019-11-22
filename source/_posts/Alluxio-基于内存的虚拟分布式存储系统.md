@@ -313,6 +313,22 @@ MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标�
 然后访问 http://192.168.1.101:19999/metrics/json/ 可得到监控信息
 喜欢看源码的小伙伴可以戳这里哟->[Alluxio源码入口](https://github.com/Alluxio/alluxio)
 
+#### Alluixo审计日志  
+Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访问操作。  
+开启审计日志： 讲JVM参数**alluxio.master.audit.logging.enabled**设为**true**  
+审计日志包含如下条目： 
+
+| key | desc |
+| :----: | :----:|
+| succeeded	|如果命令成功运行，值为true。在命令成功运行前，该命令必须是被允许的。|
+| allowed | 如果命令是被允许的，值为true。即使一条命令是被允许的它也可能运行失败。|
+| ugi | 用户组信息，包括用户名，主要组，认证类型。|
+| ip | 客户端IP地址。|
+| cmd | 用户运行的命令。|
+| src | 源文件或目录地址。|
+| dst | 目标文件或目录的地址。如果不适用，值为空。|
+| perm | user:group:mask，如果不适用值为空。|
+
 
 ### Alluxio安装和部署  
 #### 准备工作 
