@@ -573,7 +573,7 @@ Alluxio常用Shell命令速查表:
  alluxio fs persist [-p|--parallelism <#>] [-t|--timeout <milliseconds>] [-w|--wait <milliseconds>] <path> [<path> ...]  # 持久化Alluxio中的数据到底层存储
  alluxio fs checkConsistency [-r] [-t|--threads <threads>] <Alluxio path>  # 检查Alluxio与底层存储系统的元数据一致性(确定文件在底层存储还是在under storage system.)
  alluxio fs free -f <>   # 已经持久化到底层存储,但内存中还保留着的文件可以通过free从内存中释放,未被持久化的文件不能被free
- alluxio fs mount [--readonly] [--shared] [--option <key=val>] <alluxioPath> <ufsURI>]    # 将底层文件系统的"ufsURI"路径挂载到Alluxio命名空间中的"alluxioPath"路径下，"path"路径事先不能存在并由该命令生成。 没有任何数据或者元数据从底层文件系统加载。当挂载完成后，对该挂载路径下的操作会同时作用于底层文件系统的挂载点。
+ alluxio fs mount [--readonly] [--shared] [--option <key=val>] <alluxioPath> <ufsURI>]    # 将底层文件系统的"ufsURI"路径挂载到Alluxio命名空间中的"alluxioPath"路径下，"path"路径事先不能存在并由该命令生成。 没有任何数据或者元数据从底层文件系统加载。当挂载完成后，对该挂载路径下的操作会同时作用于底层文件系统的挂载点。monut命令可以挂载linux服务器上的某个文件夹alluxio fs mount /demo file:///tmp/alluxio-demo
  alluxio fs unmount <alluxioPath>  # 取消挂载
  alluxio fs updateMount [--readonly] [--shared] [--option <key=val>] <alluxioPath>  # 保留元数据的同时更改挂载点设置
  alluxio fs pin <path> media1 media2 media3 ... 如果管理员对作业运行流程十分清楚，那么可以使用pin命令手动提高性能。pin命令对Alluxio中的文件或文件夹进行标记。该命令只针对元数据进行操作，不会导致任何数据被加载到Alluxio中。如果一个文件在Alluxio中被标记了，该文件的任何数据块都不会从Alluxio worker中被剔除。如果存在过多的被锁定的文件，Alluxio worker将会剩余少量存储空间，从而导致无法对其他文件进行缓存。
