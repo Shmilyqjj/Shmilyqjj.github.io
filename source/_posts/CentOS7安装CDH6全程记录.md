@@ -211,18 +211,6 @@ yum install nload
  systemctl start httpd.service  # 启动httpd服务
  systemctl enable httpd.service # 设置httpd开机启动
  yum -y install httpd createrepo  # createrepo是安装CDH6集群必备
-                                            # 配置ntp时间同步服务
-                                            ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-                                            ntpdate ntp1.aliyun.com  # 立即同步时间
-                                            # 设置同步时间池
-                                            sed -i 's/server 0.centos.pool.ntp.org iburst/server ntp1.aliyun.com/g' /etc/ntp.conf
-                                            sed -i 's/server 1.centos.pool.ntp.org iburst/server ntp2.aliyun.com/g' /etc/ntp.conf
-                                            sed -i 's/server 2.centos.pool.ntp.org iburst/server ntp3.aliyun.com/g' /etc/ntp.conf
-                                            sed -i 's/server 3.centos.pool.ntp.org iburst/server ntp4.aliyun.com/g' /etc/ntp.conf
-                                            service ntpd restart  # 重新启动 ntp 服务
-                                            systemctl enable ntpd.service  # 设置开机自启
-                                            ntpdc -c loopinfo  # 查看时间偏差
-                                            ntpstat
  
  vim /etc/rc.local  添加
  echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -254,7 +242,6 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
  source /etc/profile
  java -version
 ```  
-
 
 还有一些其他的监控命令[Linux监控命令汇总](https://blog.csdn.net/qq_15766181/article/details/89928275)  
 
@@ -400,16 +387,6 @@ Mysql JDBC库配置：
 右键 链接另存为 进行下载  
 **[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
-                                                设置用户最大能打开文件数目、进程数和内存  
-                                                ```shell
-                                                 vim /etc/security/limits.conf 插入以下:
-                                                 * soft nofile 32728
-                                                 * hard nofile 1029345
-                                                 * soft nproc 65536
-                                                 * hard nproc unlimited
-                                                 * soft memlock unlimited
-                                                 * hard memlock unlimited
-                                                ```  
 ![alt CDH-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-10.jpg)  
 
 好玩的screenfetch(可选，用来娱乐...)  
@@ -614,27 +591,3 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
 3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
-
-
-
-
-
-
-
-
-
-
-
-
-* 字体
-*斜体文本*
-_斜体文本_
-**粗体文本**
-__粗体文本__
-***粗斜体文本***
-___粗斜体文本___
-<u>带下划线文本</u>
-
-* 脚注
-[^要注明的文本]: xxxxxxxxx
-
