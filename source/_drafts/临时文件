@@ -58,31 +58,7 @@ http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.Data
 ##################################################
 
 
-SELECT name,tel,wxid,max(groupname) FROM
-(SELECT t2.name,t2.tel,t2.wxid,t1.groupname
-FROM alarm_member_info t2
-RIGHT JOIN alarm_group_info t1 ON t2.name = t1.name
-WHERE groupname IN ('qjj','jjq','build-tools')
-UNION ALL
-SELECT IFNULL(name,0),tel,wxid,'groupname'
-FROM alarm_member_info
-WHERE name IN ('qjj','jjq','build-tools')) a
-GROUP BY name;
-
-
-SELECT name,tel,wxid,max(groupname) as groupname FROM
-(SELECT t2.name,t2.tel,t2.wxid,t1.groupname
-FROM alarm_member_info t2
-RIGHT JOIN alarm_group_info t1 ON t2.name = t1.name
-WHERE groupname IN ('qjj','jjq','build-tools')
-UNION ALL
-SELECT IFNULL(name,0),tel,wxid,'groupname'
-FROM alarm_member_info
-WHERE name IN ('qjj','jjq','build-tools')) a
-GROUP BY name;
-
 df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
-
 
 
 
