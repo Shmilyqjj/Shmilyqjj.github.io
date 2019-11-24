@@ -400,16 +400,16 @@ Mysql JDBC库配置：
 右键 链接另存为 进行下载  
 **[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
-设置用户最大能打开文件数目、进程数和内存  
-```shell
- vim /etc/security/limits.conf 插入以下:
- * soft nofile 32728
- * hard nofile 1029345
- * soft nproc 65536
- * hard nproc unlimited
- * soft memlock unlimited
- * hard memlock unlimited
-```  
+                                                设置用户最大能打开文件数目、进程数和内存  
+                                                ```shell
+                                                 vim /etc/security/limits.conf 插入以下:
+                                                 * soft nofile 32728
+                                                 * hard nofile 1029345
+                                                 * soft nproc 65536
+                                                 * hard nproc unlimited
+                                                 * soft memlock unlimited
+                                                 * hard memlock unlimited
+                                                ```  
 ![alt CDH-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-10.jpg)  
 
 好玩的screenfetch(可选，用来娱乐...)  
@@ -466,28 +466,28 @@ CDH066改为CDH067
 ssh-keygen  并连续敲三下回车
 
 在66机器上  
-ssh-copy-id CDH066   建立 CDH066自身免密  
-ssh-copy-id CDH067   建立 CDH066 -> CDH067单向免密  
-ssh-copy-id CDH068   建立 CDH066 -> CDH068单向免密  
-ssh-copy-id CDH069   建立 CDH066 -> CDH069单向免密  
+ssh-copy-id cdh066   建立 cdh066自身免密  
+ssh-copy-id cdh067   建立 cdh066 -> cdh067单向免密  
+ssh-copy-id cdh068   建立 cdh066 -> cdh068单向免密  
+ssh-copy-id cdh069   建立 cdh066 -> cdh069单向免密  
 
 在67机器上  
-ssh-copy-id CDH066   建立 CDH067 -> CDH066单向免密  
-ssh-copy-id CDH067   建立 CDH066自身免密  
-ssh-copy-id CDH068   建立 CDH067 -> CDH068单向免密  
-ssh-copy-id CDH069   建立 CDH067 -> CDH069单向免密  
+ssh-copy-id cdh066   建立 cdh067 -> cdh066单向免密  
+ssh-copy-id cdh067   建立 cdh066自身免密  
+ssh-copy-id cdh068   建立 cdh067 -> cdh068单向免密  
+ssh-copy-id cdh069   建立 cdh067 -> cdh069单向免密  
 
 在68机器上  
-ssh-copy-id CDH066   建立 CDH068 -> CDH066单向免密  
-ssh-copy-id CDH067   建立 CDH068 -> CDH067单向免密  
-ssh-copy-id CDH068   建立 CDH068自身免密  
-ssh-copy-id CDH069   建立 CDH068 -> CDH069单向免密  
+ssh-copy-id cdh066   建立 cdh068 -> cdh066单向免密  
+ssh-copy-id cdh067   建立 cdh068 -> cdh067单向免密  
+ssh-copy-id cdh068   建立 cdh068自身免密  
+ssh-copy-id cdh069   建立 cdh068 -> cdh069单向免密  
 
 在69机器上  
-ssh-copy-id CDH066   建立 CDH069 -> CDH066单向免密  
-ssh-copy-id CDH067   建立 CDH069 -> CDH067单向免密  
-ssh-copy-id CDH068   建立 CDH069 -> CDH068单向免密  
-ssh-copy-id CDH069   建立 CDH069自身免密  
+ssh-copy-id cdh066   建立 cdh069 -> cdh066单向免密  
+ssh-copy-id cdh067   建立 cdh069 -> cdh067单向免密  
+ssh-copy-id cdh068   建立 cdh069 -> cdh068单向免密  
+ssh-copy-id cdh069   建立 cdh069自身免密  
 
 测试都能免密登录:  
 ![alt CDH-13](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-13.jpg)  
@@ -497,7 +497,7 @@ ssh-copy-id CDH069   建立 CDH069自身免密
 下面的是下载地址，因为我之前手动安装了JDK1.8，所以可以不下载<u>oracle-j2sdk1.8-1.8.0+update181-1.x86_64.rpm</u>这个包，其余的包全部下载下来  
 [CDH6.3.1下载地址](https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/)  
 还需要一个asc文件，下载地址：[allkeys.asc](https://archive.cloudera.com/cm6/6.3.1/allkeys.asc),右键另存为即可  
-**在CDH066节点上进行操作**  
+**在cdh066节点上进行操作**  
 mkdir /opt/software/cloudera-repos  
 将下载的所有文件通过FileZilla上传到/opt/software/cloudera-repos目录，目录结构如下:  
 ├── allkeys.asc
@@ -507,22 +507,22 @@ mkdir /opt/software/cloudera-repos
 ├── enterprise-debuginfo-6.3.1-1466458.el7.x86_64.rpm
 └── cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm
 
-scp -r /opt/software/cloudera-repos  root@CDH067:/opt/software/
-scp -r /opt/software/cloudera-repos  root@CDH068:/opt/software/
-scp -r /opt/software/cloudera-repos  root@CDH069:/opt/software/
+scp -r /opt/software/cloudera-repos  root@cdh067:/opt/software/
+scp -r /opt/software/cloudera-repos  root@cdh068:/opt/software/
+scp -r /opt/software/cloudera-repos  root@cdh069:/opt/software/
 
-各个节点执行如下命令  目的是建立本地存储库 搭建本地源
+各个节点执行如下命令  目的是建立本地存储库 搭建本地源  为了节省空间，也可以只在一台机器上搭建源
 ```shell
  cd /opt/software/cloudera-repos  
  createrepo .
 
  # 将cloudera-repos目录移动到httpd的html目录下 制作本地源
- cd..
+ cd ..
  mv cloudera-repos /var/www/html/
  
  cd /etc/yum.repos.d
  touch cloudera-manager.repo  
- vim cloudera-manager.repo  添加如下:  
+ vim cloudera-manager.repo  添加如下 baseurl地址对应自己的主机host 如 cdh067节点:http://cdh067/cloudera-repos/  
 [cloudera-manager]
 name=Cloudera Manager 6.3.1
 baseurl=http://cdh066/cloudera-repos/   
@@ -548,15 +548,16 @@ type=rpm-md
 ```shell
 cd /opt/cloudera/parcel-repo
 sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk '{ print $1 }' >CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
-chown -R cm:cm /opt/cloudera/parcel-repo/*
 chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
-/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm root 123456   # 初始化数据库
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456   # 初始化数据库
 ```  
+
+
 systemctl start cloudera-scm-server.service    # 启动CM服务  
 systemctl status cloudera-scm-server.service   # 查看启动状态
 ![alt CDH-15](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg)  
 
-等待几分钟后访问**http://CDH066:7180**，默认帐号密码都是**admin**  
+等待几分钟后访问**http://cdh066:7180**，默认帐号密码都是**admin**  
 ![alt CDH-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg)  
 
 这里选择免费版本
@@ -574,10 +575,11 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 
 
 
-主机名称填写CDH067,CDH068,CDH069，或者可以搜索
+主机名称填写cdh066,cdh067,cdh068,cdh069，然后点击搜索搜索
 ![alt CDH-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG)  
+这里搜到了67，68，69节点，但是66节点是灰色的，安装时，66节点不会被安装Agent，意味着后续安装的组件只能部署在67，68，69节点上运行，不过没有关系，可以在添加组件的步骤之前新开个页面将cdh066也加进去。  
 
-使用我们搭建的本地源 **http://cdh066/cloudera-repos/**  如下设置  
+这步使用我们搭建的本地源 **http://cdh066/cloudera-repos/**  如下设置  
 ![alt CDH-19](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG)  
 
 这步**不要勾选**
@@ -589,33 +591,35 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 这步耐心等待，**不要手动刷新**  
 ![alt CDH-22](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.JPG)  
 
-进入这个页面证明之前的步骤成功了，接着添加角色  
-![alt CDH-22.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG)  
+![alt CDH-22.2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.2.JPG)  
+![alt CDH-22.25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.25.JPG)  
 
-添加Zookeeper服务  
-![alt CDH-23](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-23.JPG)  
+这步勾选最后一项  
+![alt CDH-22.3](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.3.JPG)  
+
+
+开始安装服务 如图，选**自定义服务**  
+根据集群环境和需求选择合适的服务和搭配。  
+![alt CDH-22.4](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.4.JPG)  
+![alt CDH-22.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG)   
+
+填上前建的数据库，选的服务不同要求也不同  
+![alt CDH-22.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG)  
+
+最后部署成功，启动服务：  
+因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。  
 ![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
 
-安装角色时遇到错误  
-错误信息是Cannot Add Hdfs and Reported Cannot Find CDH's bigtop-detect-javahome  
-
-原因是目前CDH版本支持的最高JDK是8u181版本，我安装的是8u221，所以换了一下  
-
-
+总结坑点：  
+1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
+2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
+3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
 
 
 
 
 
 
-
-
-
-接着做一些Linux系统层面的优化  
-```shell
-echo "vm.swappiness=10" >> /etc/sysctl.conf      # vm.swappiness默认60，表示物理内存到40%以后开始与虚拟内存交换，降低性能 建议设为10
-
-```
 
 
 
