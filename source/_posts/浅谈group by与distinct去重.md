@@ -14,7 +14,7 @@ tags:
 keywords: group by与distinct
 description: group by与distinct去重
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Mysql/MYSQL-groupby-distinct-intro.jpg
 abbrlink: '96009187'
 date: 2019-11-13 20:45:37
 ---
@@ -212,15 +212,50 @@ mysql> select * from group_info;
 ```  
 报警接口传进来的参数可能是多个人名或者组名的组合列表，我想通过一次查询获取到所有报警人信息，于是我先写了内部子查询:
 ```sql
+SELECT t2.name,t2.tel,t2.wxid,t1.groupname
+FROM person_info t2
+RIGHT JOIN group_info t1 ON t2.name = t1.name
+WHERE groupname IN ('qjj','jjq','person')
+UNION ALL
+SELECT IFNULL(name,0),tel,wxid,'groupname'
+FROM person_info
+WHERE name IN ('qjj','jjq','person');
 
-
+# 结果:
++------+------+------+-----------+
+| name | tel  | wxid | groupname |
++------+------+------+-----------+
+| jjq  | 120  | JJQ  | person    |
+| qjj  | 110  | QJJ  | person    |
+| jjq  | 120  | JJQ  | groupname |
+| qjj  | 110  | QJJ  | groupname |
++------+------+------+-----------+
+4 rows in set (0.00 sec)
 ```  
-因为有重复的人名和重复的联系方式会重复报警，所以我又加了外面的一层:
+
+因为有重复的人名和重复的联系方式会重复报警，所以为了避免重复报警，我又加了外面的一层:
 ```sql
+SELECT name,tel,wxid,max(groupname) FROM
+(SELECT t2.name,t2.tel,t2.wxid,t1.groupname
+FROM person_info t2
+RIGHT JOIN group_info t1 ON t2.name = t1.name
+WHERE groupname IN ('qjj','jjq','person')
+UNION ALL
+SELECT IFNULL(name,0),tel,wxid,'groupname'
+FROM person_info
+WHERE name IN ('qjj','jjq','person')) a
+GROUP BY name;
 
-
+# 结果:
++------+------+------+----------------+
+| name | tel  | wxid | max(groupname) |
++------+------+------+----------------+
+| jjq  | 120  | JJQ  | person         |
+| qjj  | 110  | QJJ  | person         |
++------+------+------+----------------+
+2 rows in set (0.01 sec)
 ```  
-准确地拿到了name,tel,wxid，但是groupname字段呢，到底是哪个被舍弃了？不同情况下不一定。如果我们只要name,tel,wxid这三个字段，在groupname字段上加个max()好了，这样逻辑也说得通，也比较规范，如果需要groupname字段的值准确，就不能使用group by去重。  
+准确地拿到了name,tel,wxid，但是groupname字段呢，到底是哪个被舍弃了？不同情况下不一定。如果我们只要name,tel,wxid这三个字段，在groupname字段上加个max()好了，这样逻辑也说得通，也比较规范，如果要求精确拿到groupname字段的值，就不能使用group by去重。  
 
 
 
