@@ -82,6 +82,22 @@ with open(img_path, 'rb') as fp:
     content = fp.read()
 
 
+spark_ddl = df._jdf.schema().treeString()
+df_schema = df.schema().json()
+
+
+r = [u'varchar(255)', u'varchar(255)', u'varchar(255)', u'datetime', u'datetime']
+r[0].__contains__('varchar')
+r[0].__contains__('varchar(255)')
+r[0].__contains__('varchar(254)')
+
+判断类型  isinstance(comment_info, dict)    isinstance(comment_info, basestring)
+
+enumerate(list[])
+
+
+
+
 *************************************待写博客****************************************
 --------------------------------Mysql Binlog---------------------------------
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
