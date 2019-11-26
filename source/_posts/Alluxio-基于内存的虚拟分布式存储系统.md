@@ -436,7 +436,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
   alluxio.user.metrics.collection.enable=true
-  alluxio.master.metrics.time.series.interval=1
+  alluxio.master.metrics.time.series.interval=1000
   # Security properties
   alluxio.security.authorization.permission.enabled=true
   alluxio.security.authentication.type=SIMPLE
@@ -471,7 +471,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
   alluxio.user.metrics.collection.enable=true
-  alluxio.master.metrics.time.series.interval=1
+  alluxio.master.metrics.time.series.interval=1000
   # Security properties
   alluxio.security.authorization.permission.enabled=true
   alluxio.security.authentication.type=SIMPLE
@@ -503,7 +503,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
   alluxio.user.file.readtype.default=CACHE_PROMOTE
   alluxio.user.file.writetype.default=ASYNC_THROUGH
   alluxio.user.metrics.collection.enable=true
-  alluxio.master.metrics.time.series.interval=1
+  alluxio.master.metrics.time.series.interval=1000
   # Security properties
   alluxio.security.authorization.permission.enabled=true
   alluxio.security.authentication.type=SIMPLE
