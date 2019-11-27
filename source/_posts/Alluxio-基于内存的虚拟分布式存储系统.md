@@ -545,7 +545,8 @@ Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据
 Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：[Alluxio On HDFS](https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html)  
 无法启动Alluxio的情况下，通过task.log查看日志，里面有很精简的报错信息，多数情况是因为Worker没有Mount，所以需要手动Mount Workers(**alluxio-mount.sh Mount workers**):  
 也可以在启动时通过alluxio-start.sh all SudoMount直接将RamFS挂载到每个Worker。SudoMount表示以sudo特权挂载RamFS到每个Workers。Mount参数一般只在Worker节点使用。  
-Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。
+Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。  
+Alluxio的"/"目录权限由启动Mater和Worker的用户决定，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
 
 ### Alluxio常用命令 
 Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
