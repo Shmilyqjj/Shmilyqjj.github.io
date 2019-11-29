@@ -60,7 +60,7 @@ http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.Data
 
 df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
 
-
+cat /etc/group
 
 Spark：任务中如何确定spark分区数、task数目、core个数、worker节点个数、excutor数量 https://blog.csdn.net/weixin_38750084/article/details/82725176
 

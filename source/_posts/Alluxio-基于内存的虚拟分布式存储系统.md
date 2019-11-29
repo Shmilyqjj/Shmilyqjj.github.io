@@ -402,7 +402,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 ①确保Zookeeper服务已经运行  
 ②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)  
 ③这个配置针对Alluxio 2.x版本，不适用于1.x版本  
-④需要事先创建好HDFS中的Journal日志目录，和ramdisk挂载目录  
+④需要事先创建好ramdisk挂载目录  
 
 ```properties
   注意去掉中文注释 否则会报错
@@ -537,6 +537,13 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
   alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
 ```  
 
+#### 部署说明  
+1. Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作，作用等同于start-all.sh脚本，不会对Alluxio的使用造成影响。  
+2. Mount和SudoMount需要在root权限下执行，因为只有root用户有权限创建和访问RamFS，然后启动Alluxio的用户要有这个RamFS的读写权限，AlluxioAlluxio的RAM FLODER（ramdisk）可以理解为是在普通HDD磁盘目录上挂载的一个RamFS文件系统，RamFS是把系统的RAM作为存储，且RamFS不会使用swap交换内存分区，Linux会把RamFS视为一个磁盘文件目录。  mount | grep -E "(tmpfs|ramfs)"
+
+
+
+
 配置这块踩了好多坑，终于，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 关于**用户模拟**的一些理解和使用很重要参考这篇文章：[User Impersonation相关配置问题分析与解决](https://blog.csdn.net/alluxio/article/details/88269060)
 Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据丢失](https://github.com/Alluxio/alluxio/commit/b69e73de1e)，所以我这里设置了ASYNC_THROUGH异步写磁盘，既能保证写入速度，又能将文件持久化  
@@ -545,8 +552,8 @@ Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据
 Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：[Alluxio On HDFS](https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html)  
 无法启动Alluxio的情况下，通过task.log查看日志，里面有很精简的报错信息，多数情况是因为Worker没有Mount，所以需要手动Mount Workers(**alluxio-mount.sh Mount workers**):  
 也可以在启动时通过alluxio-start.sh all SudoMount直接将RamFS挂载到每个Worker。SudoMount表示以sudo特权挂载RamFS到每个Workers。Mount参数一般只在Worker节点使用。  
-Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。  
-Alluxio的"/"目录权限由启动Mater和Worker的用户决定，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
+Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。Mount和SudoMount会格式化已存在的RamFS。  
+Alluxio的"/"目录权限由启动Mater和Worker的用户决定，并与UFS中对应的文件夹权限一致，可以修改Alluxio根目录权限，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
 
 ### Alluxio常用命令 
 Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
