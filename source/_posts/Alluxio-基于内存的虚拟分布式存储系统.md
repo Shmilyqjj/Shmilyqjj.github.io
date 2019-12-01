@@ -54,7 +54,7 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销  
 
 我也做了很多Allxuio的性能测试工作,效果都不是很理想,有幸与Alluxio PMC范斌和李浩源交流了测试结果不如人意的原因,大佬是这么说的:"__如果HDFS本身已经和Spark和Hive共置了，那么这个场景并不算Alluxio的目标场景。计算和存储分离的情况下才会有明显效果，否则通常是HDFS已经成为瓶颈时才会有帮助。__"  
-还有,如果HDFS部署在计算框架本地,作业的输入数据可能会存在于系统的高速缓存区,则Alluxio对数据加速也并不明显。   
+还有,如果HDFS部署在计算框架本地,作业的输入数据可能会存在于系统的高速缓存区,则Alluxio对数据加速也并不明显。  
 所以:应用场景很关键,新技术产生时,一定要__了解其应用场景和原理并经过考虑之后再做一些性能测试之类的后续工作__!  
 <u>**[官方介绍的Alluxio应用场景](https://www.alluxio.io/use-cases/)**</u>  
 
@@ -550,7 +550,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 
 Alluxio2.1.0版本官方介绍说[使用ASYNC_THROUGH进行写入时防止数据丢失](https://github.com/Alluxio/alluxio/commit/b69e73de1e)，所以我这里设置了ASYNC_THROUGH异步写磁盘，既能保证写入速度，又能将文件持久化  
 之前配置Alluxio高可用，一直不稳定，心跳中断，Master和Worker掉线问题频发，Alluxio2.1版本官方说[修复了各种心跳中断问题](https://github.com/Alluxio/alluxio/commit/8d2a6ec179),当然Alluxio的高可用要求底层的Journal日志存储系统的稳定性很高，如果底层Journal存储系统不稳定（比如HDFS No More Good DataNode的情况），就会导致Master崩溃。  
-
+ 
 ### Alluxio常用命令 
 Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令 
 Alluxio常用Shell命令速查表:  
@@ -601,6 +601,14 @@ Alluxio常用Shell命令速查表:
  alluxio fsadmin doctor [category]	# 显示错误和警告
  alluxio fsadmin report [category] [category args]	# 报告运行集群的信息
  alluxio fsadmin ufs --mode <noAccess/readOnly/readWrite> "ufsPath"	# 更新挂载的底层存储系统的属性
+ alluxio formatMaster 初始化Master元数据
+ alluxio formatWorker 初始化Worker数据，Worker数据会被清空
+ alluxio getConf [key]  查看各个组件的参数和配置 key:[--master / --source]
+ alluxio runJournalCrashTest  测试Alluxio 高可用日志系统（会停止服务一段时间）
+ alluxio runUfsTests --path <ufs path>
+ alluxio validateConf   使修改的配置生效
+ alluxio validateEnv  <args>  使运行环境生效
+ alluxio copyDir <PATH>  类似于xsync脚本，可以向各个节点分发文件
 
 #集群相关信息
  alluxio fs masterInfo # 获得master节点的信息
