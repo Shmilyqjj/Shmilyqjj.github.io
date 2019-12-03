@@ -45,6 +45,19 @@ if paras:
         # hive_cursor.execute("""ALTER TABLE %s CHANGE COLUMN %s %s %s COMMENT '%s' """ % para)
         print("修改字段注释", para)
 
+查看hive表的注释 SHOW TBLPROPERTIES table_name ('comment');
+    hive_cursor.execute("SHOW TBLPROPERTIES %s ('comment')" % source_table_name )
+    table_comment = hive_cursor.fetchone()
+
+hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
+                                                                                                                 spark.sql.sources.schema.numPartCols    1
+                                                                                                                 spark.sql.sources.schema.numParts       1
+                                                                                                                 spark.sql.sources.schema.part.0）
+查看sparksql的元数据：
+元数据分区数hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.numParts')" % table_name )    part_num = hive_cursor.fetchone()[0]   part_num=int(part_num.strip())  得到0，1，2...
+单独一个分区的元数据hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.part.%s')" % (table_name,num_partition))  # num_partition  0,1,2...
+元数据修改：ALTER TABLE %s SET TBLPROPERTIES ('spark.sql.sources.schema.part.%s' ='%s');  。。。。 '{\"fields\": [{\"metadata\": {\"comment\": \"eid\"}, \"type\": \"string\", \"name\": \"eid\", \"nullable\": true},。。。}
+
 ##################################################
 col_comm_in_mysql = reduce(lambda x, y: dict(x, **y), map(lambda x: {x.get('col'): x.get('comment')}, fetch))   # 得到字段-注释 的dict
 df = spark.sql("""desc %s""" % table_name).toPandas()   # 转换成pandas的df
