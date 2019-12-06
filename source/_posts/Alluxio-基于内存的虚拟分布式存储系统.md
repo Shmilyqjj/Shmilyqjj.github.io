@@ -48,10 +48,12 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 
 
 #### Alluxio的应用场景  
-1.计算应用需要反复访问远程云端或机房的数据  
-2.混合云,计算与存储分离,异构的数据存储带来的系统耦合  
-3.多个独立的大数据应用（比如不同的Spark Job）需要高速有效的共享数据  
+Alluxio 的落地非常依赖场景，否则优化效果并不明显（无法发挥内存读取的优势）
+1.计算应用需要反复访问远程云端或机房的数据（存储计算分离）  
+2.混合云,计算与存储分离,异构的数据存储带来的系统耦合（多数据中心）  
+3.多个独立的大数据应用（比如不同的Spark Job）需要高速有效的共享数据（数据并发访问）  
 4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销  
+5.有明显热表/热数据，相同数据被单应用多次访问  
 
 我也做了很多Allxuio的性能测试工作,效果都不是很理想,有幸与Alluxio PMC范斌和李浩源交流了测试结果不如人意的原因,大佬是这么说的:"__如果HDFS本身已经和Spark和Hive共置了，那么这个场景并不算Alluxio的目标场景。计算和存储分离的情况下才会有明显效果，否则通常是HDFS已经成为瓶颈时才会有帮助。__"  
 还有,如果HDFS部署在计算框架本地,作业的输入数据可能会存在于系统的高速缓存区,则Alluxio对数据加速也并不明显。  
@@ -542,7 +544,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 2. Mount和SudoMount需要在root权限下执行，因为只有root用户有权限创建和访问RamFS，启动Alluxio的用户要有这个RamFS的读写执行权限，Alluxio的RAM FLODER（ramdisk）可以理解为是在普通HDD磁盘目录上挂载的一个RamFS文件系统，RamFS是把系统的RAM作为存储，且RamFS不会使用swap交换内存分区，Linux会把RamFS视为一个磁盘文件目录。 查看RamFS的方法： mount | grep -E "(tmpfs|ramfs)" 这里的tmpFS也是基于内存的存储系统，但它会使用到Swap分区，使读写效率降低，Alluxio也可以使用tmpFS作为缓存。 了解更多:[ramfs和tmpfs的区别](https://www.cnblogs.com/dosrun/p/4057112.html)  
 3. Alluxio的"/"目录权限由启动Mater和Worker的用户决定，并与UFS中对应的文件夹权限一致，可以修改Alluxio根目录权限，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
 4. Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。Mount和SudoMount会格式化已存在的RamFS。
-5.关于**用户模拟**的一些理解和使用很重要参考这篇文章：[User Impersonation相关配置问题分析与解决](https://blog.csdn.net/alluxio/article/details/88269060)  
+5.关于**用户模拟**的一些理解和使用很重要参考这篇文章：[User Impersonation相关配置问题分析与解决](https://zhuanlan.zhihu.com/p/57968685)  
 6. Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：[Alluxio On HDFS](https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html) 
 7. Mount参数一般只在Worker节点使用  
 
