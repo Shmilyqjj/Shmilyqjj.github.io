@@ -16,6 +16,8 @@ PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
 
 spark 操作 https://www.cnblogs.com/Frank99/p/8295949.html
 
+查看mysql注释的简便方法 SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_NAME = 'tb' AND TABLE_SCHEMA ='db';
+
 info_dicts = spark.sql("""desc %s""" % table_name).toPandas().to_dict()   # 转换成pandas的df
 col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
     (info_dicts['col_name'].values(), info_dicts['comment'].values(), info_dicts['data_type'].values())))
@@ -44,14 +46,14 @@ if paras:
     for para in paras:
         # hive_cursor.execute("""ALTER TABLE %s CHANGE COLUMN %s %s %s COMMENT '%s' """ % para)
         print("修改字段注释", para)
-
+# 无论什么的cursor（mysql、 hive），多次execute后，fetch只能fetch到最后一次的execute数据
 查看hive表的注释 SHOW TBLPROPERTIES table_name ('comment');
     hive_cursor.execute("SHOW TBLPROPERTIES %s ('comment')" % source_table_name )
     table_comment = hive_cursor.fetchone()
 
 hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
-                                                                                                                 spark.sql.sources.schema.numPartCols    1
-                                                                                                                 spark.sql.sources.schema.numParts       1
+
+                                                                                                      spark.sql.sources.schema.numParts       1
                                                                                                                  spark.sql.sources.schema.part.0）
 查看sparksql的元数据：
 元数据分区数hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.numParts')" % table_name )    part_num = hive_cursor.fetchone()[0]   part_num=int(part_num.strip())  得到0，1，2...
