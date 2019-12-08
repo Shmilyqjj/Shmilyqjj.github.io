@@ -547,6 +547,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 5.关于**用户模拟**的一些理解和使用很重要参考这篇文章：[User Impersonation相关配置问题分析与解决](https://zhuanlan.zhihu.com/p/57968685)  
 6. Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：[Alluxio On HDFS](https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html) 
 7. Mount参数一般只在Worker节点使用  
+8. 可以在HDFS建立一个777权限的文件路径作为Alluxio的底层存储  
 
 配置这块踩了好多坑，终于，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
