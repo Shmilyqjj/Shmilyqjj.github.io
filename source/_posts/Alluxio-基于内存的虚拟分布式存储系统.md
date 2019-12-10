@@ -540,7 +540,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 ```  
 
 #### 部署说明  
-1. Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作(在每个Master上使用部署Alluxio的用户分别执行alluxio-start.sh master,然后在每个worker的root用户执行alluxio-mount.sh Mount local ,然后用部署Alluxio的用户执行alluxio-start.sh worker即可)，作用等同于start-all.sh脚本，不会对Alluxio服务的运行造成影响。  
+1. Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作(在每个Master上使用部署Alluxio的用户分别执行alluxio-start.sh master,然后在每个worker的root用户执行alluxio-mount.sh Mount local ,然后用部署Alluxio的用户执行alluxio-start.sh worker,并在所有节点alluxio-start.sh job_master,alluxio-start.sh job_worker即可)，作用等同于start-all.sh脚本，不会对Alluxio服务的运行造成影响。  
 2. Mount和SudoMount需要在root权限下执行，因为只有root用户有权限创建和访问RamFS，启动Alluxio的用户要有这个RamFS的读写执行权限，Alluxio的RAM FLODER（ramdisk）可以理解为是在普通HDD磁盘目录上挂载的一个RamFS文件系统，RamFS是把系统的RAM作为存储，且RamFS不会使用swap交换内存分区，Linux会把RamFS视为一个磁盘文件目录。 查看RamFS的方法： mount | grep -E "(tmpfs|ramfs)" 这里的tmpFS也是基于内存的存储系统，但它会使用到Swap分区，使读写效率降低，Alluxio也可以使用tmpFS作为缓存。 了解更多:[ramfs和tmpfs的区别](https://www.cnblogs.com/dosrun/p/4057112.html)  
 3. Alluxio的"/"目录权限由启动Mater和Worker的用户决定，并与UFS中对应的文件夹权限一致，可以修改Alluxio根目录权限，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
 4. Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。Mount和SudoMount会格式化已存在的RamFS。
@@ -548,6 +548,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 6. Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：[Alluxio On HDFS](https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html) 
 7. Mount参数一般只在Worker节点使用  
 8. 可以在HDFS建立一个777权限的文件路径作为Alluxio的底层存储  
+9. job_master和job_worker官网没做介绍，但在当前版本这两个组件必须启动，否则会影响persist功能以及一些其他功能(我目前只知道persist会Time Out)
 
 配置这块踩了好多坑，终于，Alluxio基本服务部署完毕,一些关于优化和细节的参数在**Alluxio原理**部分中涉及到,也可查阅[Alluxio配置参数大全](https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html)  
 
