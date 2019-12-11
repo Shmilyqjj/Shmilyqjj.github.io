@@ -1051,7 +1051,9 @@ CentOS6和Windows的环境下安装alluxio的python库失败，最终在CentOS7 
     测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上。  
     确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。  
     一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。  
-    多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢。 
+    多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢。  
++ 内存爆炸，副本过多内存占用过大？
+     两种方案：关闭被动缓存alluxio.user.file.passive.cache.enabled=false关闭被动缓存对于不需要数据本地性但希望更大的Alluxio存储容量的工作负载是有益的，或者通过命令alluxio fs setReplication -R --max 5 <path>限制某个目录的文件最大副本数  
 + 一些官方的Q&A
     [Alluxio官方问题与答案](https://www.alluxio.io/answers/)  
     
