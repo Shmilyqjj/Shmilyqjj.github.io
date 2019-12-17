@@ -144,7 +144,7 @@ mysql> show variables like 'binlog_format';
     1 row in set (0.00 sec)
 
 mysql表占用空间大小
-SELECT (`DATA_LENGTH`+ `INDEX_LENGTH`)/1024/1024  as `table_data_size`  from information_schema.TABLES WHERE TABLE_NAME ='t_new_jobs_0' and TABLE_SCHEMA='db_enterprise_other';
+SELECT (`DATA_LENGTH`+ `INDEX_LENGTH`)/1024/1024  as `table_data_size`  from information_schema.TABLES WHERE TABLE_NAME ='tb' and TABLE_SCHEMA='db';
 
 获取字段和类型 列表：
                 select
