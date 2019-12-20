@@ -120,6 +120,15 @@ enumerate(list[])
 python -m SimpleHTTPServer 8000
 wget 192.168.1.101:8000/xxx
 
+hive查看分区:
+show partitions table_name;
+
+可能Driver内存不足
+Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.
+Dump of the process-tree for container_e23_1574819880505_43157_01_000001
+
+查看库的信息/机器IP
+show slave status\G;
 
 *************************************待写博客****************************************
 --------------------------------Mysql Binlog---------------------------------
@@ -153,6 +162,9 @@ SELECT (`DATA_LENGTH`+ `INDEX_LENGTH`)/1024/1024  as `table_data_size`  from inf
                     information_schema.columns
                 where
                     table_name='tb' and table_schema='db'
+
+
+
 -----------------------------------------------------------------------------
 
 
