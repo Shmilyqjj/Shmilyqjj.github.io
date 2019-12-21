@@ -1,21 +1,22 @@
 ---
-title: 音乐类博客-待更新
+title: 技术类模板
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
-authorLink: /
-authorAbout: 我拨动的不是琴弦，是你的心弦
-authorDesc: 我拨动的不是琴弦，是你的心弦
+authorLink: shmily-qjj.top
+authorAbout: 你自以为的极限，只是别人的起点
+authorDesc: 你自以为的极限，只是别人的起点
 categories:
-  - 音乐
+  - 技术
 comments: true
 tags:
-  - 歌单分享
-keywords: 音乐
-description: 博主正在疯狂完善
+  - 大数据
+  - xx技术/xx框架
+keywords: xx技术
+description: xxxx介绍
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/music/music1.jpg
-abbrlink: 60545
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+abbrlink: 26078
 date: 2019-09-21 22:16:00
 ---
 # 大标题  
@@ -28,8 +29,13 @@ date: 2019-09-21 22:16:00
 
 更多内容: [Writing](https://hexo.io/docs/writing.html)
 
-## 分享（中标题） 
+## 原理（中标题） 
 
+``` python
+import re
+lists = []
+s = re.match(r".*\((.*)\).*",lists).group(1)
+```
 * 字体
 *斜体文本*
 _斜体文本_
@@ -56,3 +62,24 @@ ___粗斜体文本___
             - 最多第三层嵌套
 
 
+更多内容: [Server](https://hexo.io/docs/server.html)
+
+## 部署（中标题） 
+### 首先
+``` shell
+    sudo rm -rf /
+```
+
+更多内容: [Generating](https://hexo.io/docs/generating.html)
+
+## 操作（中标题） 
+
+``` Java
+public class HelloWorld {
+    public static void main(String[] args){
+        System.out.print("Shmily-qjj");
+    }
+}
+```
+
+更多内容: [Deployment](https://hexo.io/docs/deployment.html)
