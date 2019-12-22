@@ -788,7 +788,7 @@ df.format.parquet("alluxio://xxxxx")
 目前三种方案:  
 一是基于Alluxio-Fuse客户端,无需修改源码,直接挂载Shuffle目录,但Alluxio-Fuse目前的性能不是很好  
 二是重写Spark Shuffle Service底层源码实现基于Alluxio Client的Shuffle 
-三是可以Splash Shuffle Manager插件,我的另一篇文章有讲到 -> [QCon总结-Splash Shuffle Manager](http://c38kw0.coding-pages.com/2019/09/27/Alluxio-%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8E%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/)  
+三是可以Splash Shuffle Manager插件,我的另一篇文章有讲到 -> [QCon总结-Splash Shuffle Manager](https://shmily-qjj.top/39595/#Splash-Shuffle-Manager)  
 **当然也可以选择等Spark3.0的Remote Shuffle Service**
 
 #### Alluxio+HadoopMR
