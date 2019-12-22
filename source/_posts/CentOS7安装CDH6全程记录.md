@@ -415,6 +415,7 @@ CDH068  2GB内存
 CDH069  2GB内存  
 
 开启CDH067机器  
+确保 /ect/hosts里已经添加了其他机器的ip和host
 vim /etc/sysconfig/network-scripts/ifcfg-ens33  
 删除UUID和HWADDR  
 IPADDR重新分配为192.168.1.67  
