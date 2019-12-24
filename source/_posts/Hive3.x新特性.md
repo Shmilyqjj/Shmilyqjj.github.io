@@ -20,22 +20,30 @@ abbrlink: 7fbbfd34
 date: 2019-12-22 15:18:25
 ---
 # Hive3.x新特性  
-内容........
-## 什么是xxxx（中标题）    
-## 小标题1  
+## 新特性简述  
+1. 执行引擎变更为**[TEZ](https://tez.apache.org/)**,不使用MR  
+2. ACID大数据事务支持  
+3. [LLAP](https://cwiki.apache.org/confluence/display/Hive/LLAP)用于妙极，毫秒级查询访问  
+4. 基于[Apache Ranger](http://ranger.apache.org/)的统一权限管理  
+5. 默认开启HDFS ACLs  
+6. Beeline代替Hive Cli  
+7. 不再支持内嵌Metastore  
+8. Spark Catalog不与Hive Catalog集成，但可以互相访问  
+9.批处理使用TEZ，实时查询使用LLAP  
 
-## 小标题2  
+## 应用  
+
+## 架构原理
+1. TEZ执行引擎  
+
+## 优缺点  
 
 
 更多内容: [Writing](https://hexo.io/docs/writing.html)
+Hadoop统一授权管理框架[Apache Ranger](http://ranger.apache.org/)
 
-## 原理（中标题） 
+ 
 
-``` python
-import re
-lists = []
-s = re.match(r".*\((.*)\).*",lists).group(1)
-```
 * 字体
 *斜体文本*
 _斜体文本_
@@ -72,7 +80,14 @@ ___粗斜体文本___
 
 更多内容: [Generating](https://hexo.io/docs/generating.html)
 
-## 操作（中标题） 
+## 参考资料  
+
+[Hive3新特性](https://www.jianshu.com/p/a1324fb4eb80)
+[]()
+[]()
+[]()
+[]()
+[]()
 
 ``` Java
 public class HelloWorld {
