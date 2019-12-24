@@ -21,6 +21,7 @@ date: 2019-12-22 15:18:25
 ---
 # Hive3.x新特性  
 ## 新特性简述  
+![alt Hive3.x-0](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-0.JPG)  
 1. 执行引擎变更为**[TEZ](https://tez.apache.org/)**,不使用MR  
 2. ACID大数据事务支持  
 3. [LLAP](https://cwiki.apache.org/confluence/display/Hive/LLAP)用于妙极，毫秒级查询访问  
