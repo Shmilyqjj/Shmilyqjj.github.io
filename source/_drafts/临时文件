@@ -130,6 +130,25 @@ Dump of the process-tree for container_e23_1574819880505_43157_01_000001
 查看库的信息/机器IP
 show slave status\G;
 
+spark catalog=sparksql查看表元数据的API
+```python
+catalog = spark.catalog
+catalog.listDatabases()  # 查看数据库  scala版返回df
+catalog.listColumns(table_name)  # 查看表的列  scala版返回df
+catalog.listTables(db_name=None)  # 查看数据库的表  scala版返回df
+catalog.listFunctions()  # 查询已注册的udf  scala版返回df
+catalog.setCurrentDatabase(db_name) # 设置当前catalog对象的db
+catalog.currentDatabase()  # 查看当前使用的数据库
+catalog.registerFunction(name, f, returnType=StringType())  #调用_jsparkSession和_judf注册UDF name->UDFname f->PythonFunction returnType->返回类型pyspark.sql.types.DataType
+catalog.isCached(db_table_name) # 查看表是否被缓存
+catalog.dropTempView(view_name) # 如果是Spark SQL视图，会删除事先注册好的，如果hive视图，删除元数据中hive视图
+catalog.uncacheTable(table_name） # 取消缓存
+catalog.cacheTable(table_name) # 缓存一张表
+scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
+```
+
+
+
 *************************************待写博客****************************************
 --------------------------------Mysql Binlog---------------------------------
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
