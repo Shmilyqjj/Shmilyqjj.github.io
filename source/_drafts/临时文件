@@ -1,3 +1,7 @@
+JVM OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
+
+
+
 shuffle write：分区数由上一阶段的RDD分区数控制
 类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
 shuffle read：分区数由Spark提供的参数控制
