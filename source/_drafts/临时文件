@@ -1,5 +1,5 @@
 JVM OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
-
+Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
 
 shuffle write：分区数由上一阶段的RDD分区数控制
@@ -151,6 +151,15 @@ catalog.cacheTable(table_name) # 缓存一张表
 scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 ```
 
+```bash
+# https://majing.io/posts/10000006301174
+# http://c.biancheng.net/view/1114.html
+# https://blog.csdn.net/zhan570556752/article/details/80399154
+# https://www.cnblogs.com/jacktian-it/p/11550292.html
+# https://my.oschina.net/u/3222944/blog/3066822
+# https://www.runoob.com/linux/linux-shell-process-control.html
+
+```
 
 
 *************************************待写博客****************************************
