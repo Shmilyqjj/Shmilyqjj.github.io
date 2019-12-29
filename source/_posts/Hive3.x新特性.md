@@ -69,18 +69,20 @@ Hive3支持两种查询模式**Container**和**LLAP**
 Hive的UPDATE一直是大数据仓库的一个问题，虽然在Hive3.x之前也支持UPDATE操作，但是性能很差，还需要进行分桶。
 Hive3.x支持全新的更成熟的[ACID](https://shmily-qjj.top/1f7eb1b3/)。  
 Hive3默认对内部表支持事务和[ACID特性](https://shmily-qjj.top/1f7eb1b3/)。  
-默认情况下启用ACID不会导致性能或操作过载。  
+默认情况下启用ACID不会导致性能或操作过载。
 
 4. 物化视图重写和自动查询缓存  
 多个查询可能需要用到相同的中间表，可以通过预先计算和将中间表缓存到视图中来避免重复计算。查询优化器会自动利用预先计算的缓存来提高性能。例如加速仪表盘中的join数据查询速度。  
 
-5. Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有Metastore表都映射到表空间，并在sys中可用。information_schema数据显示系统的状态。  
+5. 元数据映射表  
+Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有Metastore表都映射到表空间，并在sys中可用。information_schema数据显示系统的状态。  
 
 6. Hive 3.0其他特性  
-1、连接Kafka Topic，简化了对Kafka数据的查询
-2、
-3、工作负载管理(会话资源限制)：用户会话数，服务器会话数，每个服务器每个用户会话数等限制，防止资源争用导致资源不足
-
+1、连接Kafka Topic，简化了对Kafka数据的查询  
+2、执行查询所需的少量守护进程简化了监视和调试  
+3、工作负载管理(会话资源限制)：用户会话数，服务器会话数，每个服务器每个用户会话数等限制，防止资源争用导致资源不足  
+4、会话状态，内部数据结构，密码等驻留在客户端而不是服务器上  
+5、黑名单可以限制内存配置以防止HiveServer不稳定，可以使用不同的白名单和黑名单配置多个HiveServer实例，以建立不同级别的稳定性  
 
 ## 优缺点  
 
@@ -89,9 +91,9 @@ Hive3默认对内部表支持事务和[ACID特性](https://shmily-qjj.top/1f7eb1
 https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/
 https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap
 https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html
-Hadoop统一授权管理框架[Apache Ranger](http://ranger.apache.org/)
 
 
+## 实践
 
 * 字体
 *斜体文本*
