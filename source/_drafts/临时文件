@@ -1,37 +1,27 @@
-JVM
+JVM相关
 OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
 
 ##################################################
-Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
+
 
 ##################################################
-数据倾斜
-https://mp.weixin.qq.com/s/piW10KGJVgaSB_i72OVntA
-
-##################################################
-shuffle write：分区数由上一阶段的RDD分区数控制
-类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
-shuffle read：分区数由Spark提供的参数控制
-如果这个参数值设置的很小，同时shuffle read量很大，那么单个task处理的数据量也会很大，这可能导致JVM crash，从而获取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。
-有时候即使不会导致JVM crash也会造成长时间的gc。
-
-##################################################
-mkdir test
-chmod 1777 test
-drwxrwxrwt 权限文件夹 任何人都可以在此目录拥有写权限，但是不能删除别人拥有的文件
+大数据热点话题
+八种排查处理数据倾斜 https://mp.weixin.qq.com/s/piW10KGJVgaSB_i72OVntA
 
 ##################################################
 
-HDFS NFS挂载hdfs到本地目录
-开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
-
-修改Hive/SQL表注释:
-ALTER TABLE table_name SET TBLPROPERTIES('comment' = '这是表注释!');
-修改Hive/SQL字段注释:
-ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列注释!'; 
 
 ##################################################
-Python
+
+
+##################################################
+Hadoop相关
+NFS挂载hdfs到本地目录 开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
+
+
+
+##################################################
+Python相关
 打印调用栈
 import traceback
 def BBQ():
@@ -39,14 +29,63 @@ def BBQ():
     a = traceback.extract_stack()
     b = traceback.format_stack()
 
+MD5 BASE64:
+img_path = '/home/jiajing_qu/img.jpg'
+import md5
+m = md5.new()
+m.update(img_path)
+res = m.hexdigest()
+import hashlib
+import base64
+with open(img_path, 'rb') as fp:
+	data = fp.read()
+	base64_data = base64.b64encode(data)
+	file_md5= hashlib.md5(data).hexdigest()
+content = {"base64": base64_data, "md5": file_md5}
+{"base64": base64_data, "md5": file_md5}
+with open(img_path, 'rb') as fp:
+    content = fp.read()
 
-PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
+r = [u'varchar(255)', u'varchar(255)', u'varchar(255)', u'datetime', u'datetime']
+r[0].__contains__('varchar')
+r[0].__contains__('varchar(255)')
+r[0].__contains__('varchar(254)')
+判断类型  isinstance(comment_info, dict)    isinstance(comment_info, basestring)
+enumerate(list[])
 
-内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
 
+
+
+###################################################
+Spark相关
+Spark Broadcast https://blog.csdn.net/zx8167107/article/details/79186477
 spark 操作 https://www.cnblogs.com/Frank99/p/8295949.html
+PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
+Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
-查看mysql注释的简便方法 SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_NAME = 'tb' AND TABLE_SCHEMA ='db';
+df.dtypes
+http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
+
+df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
+
+shuffle write：分区数由上一阶段的RDD分区数控制
+类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
+shuffle read：分区数由Spark提供的参数控制
+如果这个参数值设置的很小，同时shuffle read量很大，那么单个task处理的数据量也会很大，这可能导致JVM crash，从而获取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。
+有时候即使不会导致JVM crash也会造成长时间的gc。
+
+UDF
+judge_date_udf = udf(judge_date,TimestampType())
+df = df.withColumn("enddate", judge_date_udf("enddate"))
+-=-=-=-=-=-
+from pyspark.sql.types import *
+def length(ip):
+    if ip:
+        return len(ip)
+    else:
+        return 0
+spark.udf.register("length", length, IntegerType())
+spark.sql("select sum(length(ip)),sum(length(language)) from table").show(1, False)
 
 info_dicts = spark.sql("""desc %s""" % table_name).toPandas().to_dict()   # 转换成pandas的df
 col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
@@ -76,95 +115,13 @@ if paras:
     for para in paras:
         # hive_cursor.execute("""ALTER TABLE %s CHANGE COLUMN %s %s %s COMMENT '%s' """ % para)
         print("修改字段注释", para)
-# 无论什么的cursor（mysql、 hive），多次execute后，fetch只能fetch到最后一次的execute数据
-查看hive表的注释 SHOW TBLPROPERTIES table_name ('comment');
-    hive_cursor.execute("SHOW TBLPROPERTIES %s ('comment')" % source_table_name )
-    table_comment = hive_cursor.fetchone()
 
-hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
-
-UDF
-judge_date_udf = udf(judge_date,TimestampType())
-df = df.withColumn("enddate", judge_date_udf("enddate"))
--=-=-=-=-=-
-from pyspark.sql.types import *
-def length(ip):
-    if ip:
-        return len(ip)
-    else:
-        return 0
-spark.udf.register("length", length, IntegerType())
-spark.sql("select sum(length(ip)),sum(length(language)) from table").show(1, False)
-
-                                                                                                            spark.sql.sources.schema.part.0）
-查看sparksql的元数据：
-元数据分区数hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.numParts')" % table_name )    part_num = hive_cursor.fetchone()[0]   part_num=int(part_num.strip())  得到0，1，2...
-单独一个分区的元数据hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.part.%s')" % (table_name,num_partition))  # num_partition  0,1,2...
-元数据修改：ALTER TABLE %s SET TBLPROPERTIES ('spark.sql.sources.schema.part.%s' ='%s');  。。。。 '{\"fields\": [{\"metadata\": {\"comment\": \"eid\"}, \"type\": \"string\", \"name\": \"eid\", \"nullable\": true},。。。}
-
-##################################################
-col_comm_in_mysql = reduce(lambda x, y: dict(x, **y), map(lambda x: {x.get('col'): x.get('comment')}, fetch))   # 得到字段-注释 的dict
-df = spark.sql("""desc %s""" % table_name).toPandas()   # 转换成pandas的df
-info_dicts = df.to_dict()
-col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
-(info_dicts['col_name'].values(), info_dicts['comment'].values(), info_dicts['data_type'].values())))
-
-
-df.dtypes
-http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
-##################################################
-
-
-df = df.withColumn("enddate", judge_date_udf("enddate")).withColumn().withColumn()......
-
-cat /etc/group
-
-Spark：任务中如何确定spark分区数、task数目、core个数、worker节点个数、excutor数量 https://blog.csdn.net/weixin_38750084/article/details/82725176
-
-MD5 BASE64:
-img_path = '/home/jiajing_qu/img.jpg'
-import md5
-m = md5.new()
-m.update(img_path)
-res = m.hexdigest()
-import hashlib
-import base64
-with open(img_path, 'rb') as fp:
-	data = fp.read()
-	base64_data = base64.b64encode(data)
-	file_md5= hashlib.md5(data).hexdigest()
-content = {"base64": base64_data, "md5": file_md5}
-{"base64": base64_data, "md5": file_md5}
-with open(img_path, 'rb') as fp:
-    content = fp.read()
-
-
-spark_ddl = df._jdf.schema().treeString()
-df_schema = df.schema().json()
-
-
-r = [u'varchar(255)', u'varchar(255)', u'varchar(255)', u'datetime', u'datetime']
-r[0].__contains__('varchar')
-r[0].__contains__('varchar(255)')
-r[0].__contains__('varchar(254)')
-
-判断类型  isinstance(comment_info, dict)    isinstance(comment_info, basestring)
-
-enumerate(list[])
-
-集局域网传文件
-python -m SimpleHTTPServer 8000
-wget 192.168.1.101:8000/xxx
-
-hive查看分区:
-show partitions table_name;
-
-可能Driver内存不足
+可能Driver内存不足：
 Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.
 Dump of the process-tree for container_e23_1574819880505_43157_01_000001
 
-查看库的信息/机器IP
-show slave status\G;
+spark_ddl = df._jdf.schema().treeString()
+df_schema = df.schema().json()
 
 spark catalog=sparksql查看表元数据的API
 ```python
@@ -183,6 +140,58 @@ catalog.cacheTable(table_name) # 缓存一张表
 scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 ```
 
+###################################################
+Hive相关
+hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
+Hive map join：https://www.jianshu.com/p/b52466e93226
+                                                                                                            spark.sql.sources.schema.part.0）
+查看sparksql的元数据：
+元数据分区数hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.numParts')" % table_name )    part_num = hive_cursor.fetchone()[0]   part_num=int(part_num.strip())  得到0，1，2...
+单独一个分区的元数据hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.part.%s')" % (table_name,num_partition))  # num_partition  0,1,2...
+元数据修改：ALTER TABLE %s SET TBLPROPERTIES ('spark.sql.sources.schema.part.%s' ='%s');  。。。。 '{\"fields\": [{\"metadata\": {\"comment\": \"eid\"}, \"type\": \"string\", \"name\": \"eid\", \"nullable\": true},。。。}
+
+修改Hive/SQL表注释: ALTER TABLE table_name SET TBLPROPERTIES('comment' = '这是表注释!');
+
+修改Hive/SQL字段注释: ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列注释!'; 
+
+hive查看分区:show partitions table_name;
+
+##################################################
+Mysql相关
+
+# 无论什么的cursor（mysql、 hive），多次execute后，fetch只能fetch到最后一次的execute数据
+查看hive表的注释 SHOW TBLPROPERTIES table_name ('comment');
+    hive_cursor.execute("SHOW TBLPROPERTIES %s ('comment')" % source_table_name )
+    table_comment = hive_cursor.fetchone()
+
+查看mysql注释的简便方法 SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_NAME = 'tb' AND TABLE_SCHEMA ='db';
+
+col_comm_in_mysql = reduce(lambda x, y: dict(x, **y), map(lambda x: {x.get('col'): x.get('comment')}, fetch))   # 得到字段-注释 的dict
+df = spark.sql("""desc %s""" % table_name).toPandas()   # 转换成pandas的df
+info_dicts = df.to_dict()
+col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
+(info_dicts['col_name'].values(), info_dicts['comment'].values(), info_dicts['data_type'].values())))
+
+查看库的信息/机器IP
+show slave status\G;
+
+##################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################################
 Linux相关
 ```bash
 # https://majing.io/posts/10000006301174
@@ -195,8 +204,17 @@ Linux相关
 netstat -tunlp | grep 2181  查看端口
 查看目录树 yum -y install tree   tree /data/test
 
+mkdir test
+chmod 1777 test
+drwxrwxrwt 权限文件夹 任何人都可以在此目录拥有写权限，但是不能删除别人拥有的文件
 
+cat /etc/group查看组信息
 
+内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
+
+局域网传文件
+python -m SimpleHTTPServer 8000
+wget 192.168.1.101:8000/xxx
 
 
 *************************************待写博客****************************************
