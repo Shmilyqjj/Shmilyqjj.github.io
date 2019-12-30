@@ -39,6 +39,7 @@ date: 2019-12-22 15:18:25
 **[Apache TEZ](https://tez.apache.org/)**是一个针对Hadoop数据处理应用程序的分布式计算框架，基于Yarn且支持DAG作业的开源计算框架。Tez产生的主要原因是绕开MapReduce所施加的限制，逐步取代MR，提供更高的性能和灵活性。  
 Apache TEZ的核心思想是将Map和Reduce拆分成若干子过程，即Map被拆分成Input、Processor、Sort、Merge和Output， Reduce被拆分成Input、Shuffle、Sort、Merge、Processor和Output等，分解后可以灵活组合成一个大的DAG作业。  
 Apache TEZ兼容MR任务，不需要代码层面的改动。  
+Apache TEZ提供了较低级别的抽象，为了增强Hive/Pig的底层实现，而不是最终面向用户的。  
 Hive3的**TEZ+内存查询结合**的性能据说是Hive2的50倍。  
 ![alt Hive3.x-1](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-1.png)  ![alt Hive3.x-2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-2.png)   
 上图是Hive On MR和Hive On Tez执行任务流程对比图，解释：
