@@ -1,23 +1,43 @@
-JVM OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
+JVM
+OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
+
+##################################################
 Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
+##################################################
+数据倾斜
+https://mp.weixin.qq.com/s/piW10KGJVgaSB_i72OVntA
 
+##################################################
 shuffle write：分区数由上一阶段的RDD分区数控制
 类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则，临时存放到各个executor所在的本地磁盘上。
 shuffle read：分区数由Spark提供的参数控制
 如果这个参数值设置的很小，同时shuffle read量很大，那么单个task处理的数据量也会很大，这可能导致JVM crash，从而获取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。
 有时候即使不会导致JVM crash也会造成长时间的gc。
 
+##################################################
 mkdir test
 chmod 1777 test
 drwxrwxrwt 权限文件夹 任何人都可以在此目录拥有写权限，但是不能删除别人拥有的文件
 
+##################################################
 
+HDFS NFS挂载hdfs到本地目录
+开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
 
 修改Hive/SQL表注释:
 ALTER TABLE table_name SET TBLPROPERTIES('comment' = '这是表注释!');
 修改Hive/SQL字段注释:
 ALTER TABLE table_name CHANGE COLUMN muid muid_new STRING COMMENT '这里是列注释!'; 
+
+##################################################
+Python
+打印调用栈
+import traceback
+def BBQ():
+    traceback.print_stack()
+    a = traceback.extract_stack()
+    b = traceback.format_stack()
 
 
 PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
@@ -63,8 +83,20 @@ if paras:
 
 hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
 
-                                                                                                      spark.sql.sources.schema.numParts       1
-                                                                                                                 spark.sql.sources.schema.part.0）
+UDF
+judge_date_udf = udf(judge_date,TimestampType())
+df = df.withColumn("enddate", judge_date_udf("enddate"))
+-=-=-=-=-=-
+from pyspark.sql.types import *
+def length(ip):
+    if ip:
+        return len(ip)
+    else:
+        return 0
+spark.udf.register("length", length, IntegerType())
+spark.sql("select sum(length(ip)),sum(length(language)) from table").show(1, False)
+
+                                                                                                            spark.sql.sources.schema.part.0）
 查看sparksql的元数据：
 元数据分区数hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.numParts')" % table_name )    part_num = hive_cursor.fetchone()[0]   part_num=int(part_num.strip())  得到0，1，2...
 单独一个分区的元数据hive_cursor.execute("SHOW TBLPROPERTIES %s ('spark.sql.sources.schema.part.%s')" % (table_name,num_partition))  # num_partition  0,1,2...
@@ -151,6 +183,7 @@ catalog.cacheTable(table_name) # 缓存一张表
 scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 ```
 
+Linux相关
 ```bash
 # https://majing.io/posts/10000006301174
 # http://c.biancheng.net/view/1114.html
@@ -158,8 +191,12 @@ scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 # https://www.cnblogs.com/jacktian-it/p/11550292.html
 # https://my.oschina.net/u/3222944/blog/3066822
 # https://www.runoob.com/linux/linux-shell-process-control.html
-
 ```
+netstat -tunlp | grep 2181  查看端口
+查看目录树 yum -y install tree   tree /data/test
+
+
+
 
 
 *************************************待写博客****************************************
