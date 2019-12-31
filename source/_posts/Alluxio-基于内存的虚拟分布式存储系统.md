@@ -422,6 +422,13 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
   ALLUXIO_LOGS_DIR=/opt/alluxio/logs
   ALLUXIO_RAM_FOLDER=/mnt/ramdisk
   JAVA_HOME=/opt/module/jdk1.8.0_161
+ # 设置ALLUXIO_MASTER_JAVA_OPTS作用于master JVM
+ # 设置ALLUXIO_WORKER_JAVA_OPTS作用于worker JVM
+ # 以及ALLUXIO_JAVA_OPTS同时作用于master以及worker JVM
+ # 增加worker JVM GC事件的logging, 输出写至worker节点的logs/worker.out文件中
+ ALLUXIO_WORKER_JAVA_OPTS=" -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -XX:+PrintGCTimestamps"
+ # 设置master JVM的的heap size
+ ALLUXIO_MASTER_JAVA_OPTS=" -Xms2048M -Xmx4096M"
   
   在101机器上配置Master和Worker
   vim alluxio-site.properties   
@@ -868,6 +875,11 @@ Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Allu
     ```shell
      integration/fuse/bin/alluxio-fuse stat
     ```
+4. 注意事项  
+要使用启动master和worker的用户来挂载fuse，比如使用hdfs用户启动的Alluxio，则要用hdfs来挂载，可以正常使用，如果使用root用户挂载，目录信息会乱码且无法正常使用。hdfs用户下成功mount后，切换到root用户也会看到挂载点信息乱码。  
+Alluxio默认只能写本地worker，如果明确知道要写入的文件大小的范围，可以使用ASYNC_THROUGH并加大worker的缓存大小，或者配置多级缓存使worker的缓存空间大于写入文件的大小，才能防止被置换，从而提高效率  
+如果不确定写的文件大小的范围，就不要使用ASYNC_THROUGH这个参数，因为如果本地Worker缓存空间不够就会写入失败，这时，为了保险起见可以使用**写参数CACHE_THROUGH边缓存边写**或**写参数THROUGH只写底层存储**，来防止写入文件失败。  
+当然，配合更大的Worker缓存能提高效率，如果只写一次，可以及时free掉无用的缓存，减少后面写数据时发生的缓存置换。
 
 ### Alluxio 客户端API  
 #### Java API  
@@ -1066,7 +1078,7 @@ CentOS6和Windows的环境下安装alluxio的python库失败，最终在CentOS7 
     
 ### 总结
 1. 对新技术的调研，最重要的是了解它的应用场景，只有场景对了，效果才会很明显  
-2. 一定要多看官方文档，那里面都写的很详细  
+2. 一定要多看官方文档，虽然Alluxio文档不是很详细，但也有帮助，要自己找细节
 3. 对自己遇到的难以解决的问题要积极与社区沟通和讨论  
 4. 自己遇到的问题可能别人也遇到了，有可能是版本的BUG，或许已经有人提交Issue了，一定多留意  
 5. 新的稳定版发行，一定要了解它的新特性以及修复了哪些漏洞  
