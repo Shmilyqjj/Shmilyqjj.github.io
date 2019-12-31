@@ -356,6 +356,13 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
  ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/alluxio 
  ALLUXIO_WORKER_MEMORY_SIZE=512MB
  JAVA_HOME=/opt/module/jdk1.8.0_161
+ # 设置ALLUXIO_MASTER_JAVA_OPTS作用于master JVM
+ # 设置ALLUXIO_WORKER_JAVA_OPTS作用于worker JVM
+ # 以及ALLUXIO_JAVA_OPTS同时作用于master以及worker JVM
+ # 增加worker JVM GC事件的logging, 输出写至worker节点的logs/worker.out文件中
+ ALLUXIO_WORKER_JAVA_OPTS=" -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -XX:+PrintGCTimestamps"
+ # 设置master JVM的的heap size
+ ALLUXIO_MASTER_JAVA_OPTS=" -Xms2048M -Xmx4096M"
 ```
 
 **conf/alluxio-site.properties**
