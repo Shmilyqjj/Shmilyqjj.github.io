@@ -1,3 +1,8 @@
+##################################################
+好的学习网站
+https://www.iteblog.com/
+
+##################################################
 JVM相关
 OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
 
@@ -53,7 +58,11 @@ r[0].__contains__('varchar(254)')
 判断类型  isinstance(comment_info, dict)    isinstance(comment_info, basestring)
 enumerate(list[])
 
-
+logging模块
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.info()
 
 
 ###################################################
@@ -215,6 +224,8 @@ cat /etc/group查看组信息
 局域网传文件
 python -m SimpleHTTPServer 8000
 wget 192.168.1.101:8000/xxx
+
+Linux最大线程数限制，超过就创建失败（查看可生成的最大线程数cat /proc/sys/kernel/pid_max）（查看当前使用的线程数pstree -p | wc -l）
 
 
 *************************************待写博客****************************************
