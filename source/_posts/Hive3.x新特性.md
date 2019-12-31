@@ -32,8 +32,6 @@ date: 2019-12-22 15:18:25
 8. Spark Catalog不与Hive Catalog集成，但可以互相访问  
 9.批处理使用TEZ，实时查询使用LLAP  
 
-## 应用  
-
 ## 架构原理
 1. TEZ执行引擎  
 **[Apache TEZ](https://tez.apache.org/)**是一个针对Hadoop数据处理应用程序的分布式计算框架，基于Yarn且支持DAG作业的开源计算框架。Tez产生的主要原因是绕开MapReduce所施加的限制，逐步取代MR，提供更高的性能和灵活性。  
