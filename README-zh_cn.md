@@ -66,7 +66,7 @@ menus:
     生活: {path: /categories/生活/, fa: fa-file-text-o }, 
     资源: {path: /categories/资源/, fa: fa-cloud-download }, 
     随想: {path: /categories/随想/, fa: fa-commenting-o },
-    转载: {path: /categories/转载/, fa: fa-book }
+    其他: {path: /categories/其他/, fa: fa-book }
   } }
   清单: { path: javascript:;, fa: fa-list-ul faa-vertical, submenus: { 
     书单: {path: /tags/悦读/, fa: fa-th-list faa-bounce }, 
