@@ -27,7 +27,7 @@ menus:
     书单: {path: /tags/, fa: fa-th-list faa-bounce },
     看剧: {path: /bangumi/, fa: fa-film faa-vertical },
     歌单: {path: /music/, fa: fa-headphones },
-    图册: {path: /album/, fa: fa-photo }
+    相册: {path: /album/, fa: fa-photo }
   } }
   留言板: { path: /comment/, fa: fa-pencil-square-o faa-tada }
   博友圈: { path: /links/, fa: fa-link faa-shake }
