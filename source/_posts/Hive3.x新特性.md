@@ -86,6 +86,7 @@ Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有
 ## 优缺点  
 
 1.优点：  
+
  
 https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/
 https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap
