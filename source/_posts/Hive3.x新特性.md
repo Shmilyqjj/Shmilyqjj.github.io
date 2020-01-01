@@ -38,7 +38,7 @@ date: 2019-12-22 15:18:25
 Apache TEZ的核心思想是将Map和Reduce拆分成若干子过程，即Map被拆分成Input、Processor、Sort、Merge和Output， Reduce被拆分成Input、Shuffle、Sort、Merge、Processor和Output等，分解后可以灵活组合成一个大的DAG作业。  
 Apache TEZ兼容MR任务，不需要代码层面的改动。  
 Apache TEZ提供了较低级别的抽象，为了增强Hive/Pig的底层实现，而不是最终面向用户的。  
-Hive3的**TEZ+内存查询结合**的性能据说是Hive2的50倍。  
+Hive3的**TEZ+内存查询结合**的性能据说是Hive2的50倍(也有文章说是100倍，这个数字是不是很熟悉，它到底能不能与Spark内存计算速度媲美呢)。  
 ![alt Hive3.x-1](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-1.png)  ![alt Hive3.x-2](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-2.png)   
 上图是Hive On MR和Hive On Tez执行任务流程对比图，解释：
 
@@ -84,17 +84,17 @@ Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有
 5、黑名单可以限制内存配置以防止HiveServer不稳定，可以使用不同的白名单和黑名单配置多个HiveServer实例，以建立不同级别的稳定性  
 
 ## 优缺点  
+1. 优点：  
+性能，安全性，对ACID事物的支持，对任务资源调度的优化。
 
-1.优点：  
-
- 
-https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/
-https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap
-https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html
-
+2. 缺点：
+目前最新的CDH6.3还不兼容Hive3，自己安装坑点多；目前相关文献较少，排错难。
 
 ## 实践
 
+https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/
+https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap
+https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html
 
 ## 参考资料  
 
