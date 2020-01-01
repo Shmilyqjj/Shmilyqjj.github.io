@@ -94,41 +94,6 @@ https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/1494
 
 ## 实践
 
-* 字体
-*斜体文本*
-_斜体文本_
-**粗体文本**
-__粗体文本__
-***粗斜体文本***
-___粗斜体文本___
-<u>带下划线文本</u>
-
-* 脚注
-[^要注明的文本]: xxxxxxxxx
-
-* 列表
-无序列表用* + -三种符号表示
-    * 列表嵌套
-    1. 有序列表第一项：
-        - 第一项嵌套的第一个元素
-        - 第一项嵌套的第二个元素
-    2. 有序列表第二项：
-        - 第二项嵌套的第一个元素
-        - 第二项嵌套的第二个元素
-            * 最多第三层嵌套
-            + 最多第三层嵌套
-            - 最多第三层嵌套
-
-
-更多内容: [Server](https://hexo.io/docs/server.html)
-
-## 部署（中标题） 
-### 首先
-``` shell
-    sudo rm -rf /
-```
-
-更多内容: [Generating](https://hexo.io/docs/generating.html)
 
 ## 参考资料  
 
@@ -139,12 +104,3 @@ ___粗斜体文本___
 []()
 []()
 
-``` Java
-public class HelloWorld {
-    public static void main(String[] args){
-        System.out.print("Shmily-qjj");
-    }
-}
-```
-
-更多内容: [Deployment](https://hexo.io/docs/deployment.html)
