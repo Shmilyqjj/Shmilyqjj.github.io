@@ -45,8 +45,6 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 [监控和管理](https://docs.alluxio.io/os/user/stable/en/basic/Web-Interface.html) : 提供了用户友好的Web界面和命令行工具，允许用户监控和管理集群  
 [分层次的本地性](https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html) : 将更多的读写安排在本地,实现成本和性能的优化  
 
-
-
 #### Alluxio的应用场景  
 Alluxio 的落地非常依赖场景，否则优化效果并不明显（无法发挥内存读取的优势）
 1.计算应用需要反复访问远程云端或机房的数据（存储计算分离）  
@@ -122,7 +120,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
     + __是否缓存全部数据块:__ alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)
         1. false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存
         2. true读部分缓存全部,没有完全读取的数据块也会被全部存到Alluxio内  
-    + __Worker写文件数据块策略:__ alluxio.user.block.write.location.policy.class
+    + __Worker写文件数据块的数据分布策略:__ alluxio.user.block.write.location.policy.class
         1. LocalFirstPolicy (alluxio.client.block.policy.LocalFirstPolicy) 默认值,首先返回本地主机，如果本地worker没有足够的块容量，它从活动worker列表中随机选择一名worker。
         2. MostAvailableFirstPolicy (alluxio.client.block.policy.MostAvailableFirstPolicy) 返回具有最多可用字节的worker。
         3. RoundRobinPolicy (alluxio.client.block.policy.RoundRobinPolicy) 以循环方式选择下一个worker，跳过没有足够容量的worker。
