@@ -114,7 +114,7 @@ Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数�
         1. CACHE_THROUGH:数据被同步写入AlluxioWorker和底层存储
         2. MUST_CACHE:数据被同步写入AlluxioWorker,不写底层存储
         3. THROUGH:数据只写底层存储,不写入AlluxioWorker
-        4. ASYNC_THROUGH:实验阶段,数据同步写入AlluxioWorker并异步写底层存储
+        4. ASYNC_THROUGH:数据同步写入AlluxioWorker并异步写底层存储(速度快)
     + __读参数:__ alluxio.user.file.readtype.default
         1. CACHE_PROMOTE:数据在Worker上,则被移动到Worker的最高层,否则创建副本到本地Worker
         2. CACHE:数据不在本地Worker中时直接创建副本到本地Worker
@@ -554,7 +554,7 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
 ```  
 
 #### 部署说明  
-1. Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作(在每个Master上使用部署Alluxio的用户分别执行alluxio-start.sh master,然后在每个worker的root用户执行alluxio-mount.sh Mount local ,然后用部署Alluxio的用户执行alluxio-start.sh worker,并在所有节点alluxio-start.sh job_master,alluxio-start.sh job_worker即可)，作用等同于start-all.sh脚本，不会对Alluxio服务的运行造成影响。  
+1. Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作(在每个Master上使用部署Alluxio的用户分别执行alluxio-start.sh master,然后如果使用非root用户启动Alluxio服务，则要在每个worker的root用户执行alluxio-mount.sh Mount local ,然后用部署Alluxio的用户执行alluxio-start.sh worker,并在所有节点alluxio-start.sh job_master,alluxio-start.sh job_worker即可)，作用等同于start-all.sh脚本，不会对Alluxio服务的运行造成影响。  
 2. Mount和SudoMount需要在root权限下执行，因为只有root用户有权限创建和访问RamFS，启动Alluxio的用户要有这个RamFS的读写执行权限，Alluxio的RAM FLODER（ramdisk）可以理解为是在普通HDD磁盘目录上挂载的一个RamFS文件系统，RamFS是把系统的RAM作为存储，且RamFS不会使用swap交换内存分区，Linux会把RamFS视为一个磁盘文件目录。 查看RamFS的方法： mount | grep -E "(tmpfs|ramfs)" 这里的tmpFS也是基于内存的存储系统，但它会使用到Swap分区，使读写效率降低，Alluxio也可以使用tmpFS作为缓存。 了解更多:[ramfs和tmpfs的区别](https://www.cnblogs.com/dosrun/p/4057112.html)  
 3. Alluxio的"/"目录权限由启动Mater和Worker的用户决定，并与UFS中对应的文件夹权限一致，可以修改Alluxio根目录权限，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  
 4. Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。Mount和SudoMount会格式化已存在的RamFS。
@@ -876,10 +876,10 @@ Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Allu
      integration/fuse/bin/alluxio-fuse stat
     ```
 4. 注意事项  
-要使用启动master和worker的用户来挂载fuse，比如使用hdfs用户启动的Alluxio，则要用hdfs来挂载，可以正常使用，如果使用root用户挂载，目录信息会乱码且无法正常使用。hdfs用户下成功mount后，切换到root用户也会看到挂载点信息乱码。  
+要使用启动master和worker的用户来挂载fuse，比如使用hdfs用户启动的Alluxio，则要用hdfs来挂载，可以正常使用，如果使用root用户挂载，目录信息会乱码且无法正常使用。hdfs用户下成功mount后，切换到root用户也会看到挂载点信息乱码。Alluxio相关服务未启动，挂载点信息也会乱码。  
 Alluxio默认只能写本地worker，如果明确知道要写入的文件大小的范围，可以使用ASYNC_THROUGH并加大worker的缓存大小，或者配置多级缓存使worker的缓存空间大于写入文件的大小，才能防止被置换，从而提高效率  
 如果不确定写的文件大小的范围，就不要使用ASYNC_THROUGH这个参数，因为如果本地Worker缓存空间不够就会写入失败，这时，为了保险起见可以使用**写参数CACHE_THROUGH边缓存边写**或**写参数THROUGH只写底层存储**，来防止写入文件失败。  
-当然，配合更大的Worker缓存能提高效率，如果只写一次，可以及时free掉无用的缓存，减少后面写数据时发生的缓存置换。
+当然，还有一种比较好的方案，写参数设为ASYNC_THROUGH配合更大的Worker缓存来提高效率，同时设置<u>alluxio.user.file.write.location.policy.class=alluxio.client.file.policy.RoundRobinPolicy</u>参数来保证写入不会失败。如果只写一次，可以及时free掉无用的缓存，减少后面写数据时发生的缓存置换。  
 
 ### Alluxio 客户端API  
 #### Java API  
