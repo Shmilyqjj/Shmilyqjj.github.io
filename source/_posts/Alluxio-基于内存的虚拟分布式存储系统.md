@@ -24,6 +24,10 @@ Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架
 ![alt Alluxio-3](https://vi3.xiu123.cn/live/2019/09/27/23/1002v1569597084038268730_b.jpg)  
 在大数据生态系统中，Alluxio 位于数据驱动框架或应用（如 Apache Spark、Presto、Tensorflow、Apache HBase、Apache Hive 或 Apache Flink）和各种持久化存储系统（如 Amazon S3、Google Cloud Storage、OpenStack Swift、GlusterFS、HDFS、IBM Cleversafe、EMC ECS、Ceph、NFS 和 Alibaba OSS）之间,Alluxio 统一了存储在这些不同存储系统中的数据,为其上层数据框架提供统一的客户端API和全局命名空间  
 
+### Alluxio最新动态:
+为了方便大家可以持续跟进Alluxio发展动态，这里给出两条跟进Alluxio最新发展和动态的途径:
+**[Alluxio官方文档](https://docs.alluxio.io/os/user/stable/cn/Overview.html)**
+**[Alluxio知乎专栏](https://zhuanlan.zhihu.com/alluxio)**
 
 #### Alluxio优势  
 1. **内存速度 I/O**:Alluxio 能够用作分布式共享缓存服务，这样与 Alluxio 通信的计算应用程序可以透明地缓存频繁访问的数据（尤其是从远程位置）,以提供内存级 I/O 吞吐率。
