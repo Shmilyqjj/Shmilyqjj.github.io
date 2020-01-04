@@ -1,4 +1,5 @@
 ---
+layout: album
 title: album
 comments: true
 date: 2019-09-21 21:47:59
