@@ -4,7 +4,7 @@ date: 2018-12-20 23:14:28
 keywords: 佳境音乐小窝
 description: 欢迎光顾佳境的音乐小窝！这里有我的原创及翻唱作品，欢迎收听呦！
 comments: false
-photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/banner/music.jpg
+photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/banner/music.JPG
 ---
 # 欢迎光顾佳境的音乐小窝！  
 # 这里有我的原创及翻唱作品，欢迎收听呦！
