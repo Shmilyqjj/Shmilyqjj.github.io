@@ -20,6 +20,13 @@ bangumis:
     jp: 悬疑推理，交换杀人游戏
     time: 2019-04-14
     desc: 温柔的妻子菜奈和天真浪漫的丈夫翔太，是一对有15岁年差的相恋夫妇，他们刚搬到东京都内的高级公寓，就意外地被卷入了连续杀人事件，原本抱着有趣的心态，公寓内的住户正在玩交换杀人的游戏，结果弄假成真，真的出现了杀人事件，公寓里所有的居民都开始陷入噩梦之中，精彩的推理谜题也随之展开。
+  - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/1900.jpg
+    title: 《海上钢琴师》
+    status: 已追完
+    progress: 100
+    jp: 讲述一个钢琴天才传奇的一生
+    time: 1998-10-28
+    desc: 1900年，Virginian号豪华邮轮上，一个孤儿被遗弃在头等舱，由船上的水手抚养长大，取名1900（蒂姆•罗斯 饰）。1900慢慢长大，显示出了无师自通的非凡钢琴天赋，在船上的乐队表演钢琴，每个听过他演奏的人，都被深深打动。爵士乐鼻祖杰尼听说了1900的高超技艺，专门上船和他比赛，最后自叹弗如，黯然离去。可惜，这一切的事情都发生在海上，1900从来不愿踏上陆地，直到有一天，他爱上了一个女孩，情愫在琴键上流淌。他会不会为了爱情，踏上陆地开始新的生活，用他的琴声惊艳世界？
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/zhimingnvren.jpg
     title: 《致命女人》
     status: 已追完
