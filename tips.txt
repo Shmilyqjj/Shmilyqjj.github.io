@@ -150,7 +150,15 @@ abbrlink:
   rep: hex    # 进制：dec(default) and hex
 permalink_defaults:
 
-
+12.博客个性化定制
+（1）创建新模块
+    在主题的menus添加要加的分类，fa可以指定图标 指定什么图标 参照http://www.fontawesome.com.cn/faicons/
+    source目录下新建那个分类的文件夹里面仿照创建index.md
+    在themes/Sakura/layout仿照donate模块创建ejs文件
+    将第二步的index.md开头的layout:xxx修改为刚才创建的ejs文件名(不带扩展名)
+    这时访问流程打通了，可以通过修改ejs和md来个性化定制了
+（2）js代码、css代码、html代码 如何安放
+    待研究
 
 遇到的问题：
 Cannot GET /
