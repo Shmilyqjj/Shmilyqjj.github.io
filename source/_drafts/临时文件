@@ -83,6 +83,8 @@ spark 操作 https://www.cnblogs.com/Frank99/p/8295949.html
 PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
 Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
+df.repartition(10).rdd.getNumPartitions()  重分区并查看分区数
+
 df.dtypes
 http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
 
@@ -116,27 +118,80 @@ df.registerTempTable('temp_table')
 info_df = spark.sql("desc formatted temp_table")
 col_comment_in_df = reduce(lambda x, y: dict(x, **y), map(lambda x: {x.asDict().get('col_name'): x.asDict().get('comment')},
 info_df.select('col_name', 'comment').collect()))   # 获取到df每个字段的注释
-paras = []
-for col_name, data_type in col_comment_in_hive.keys():
-    if col_name.find("#") < 0:
-        hive_comment = col_comment_in_hive.get((col_name, data_type))
-        df_comment = col_comment_in_df.get(col_name)
-        if hive_comment != df_comment and df_comment:  # t_comment_records中存在注释且hive表中的注释与mysql里不同
-            # 需要更新注释
-            paras.append((str(table_name), str(col_name), str(col_name), str(data_type), str(df_comment)))
-        else:
-            if hive_comment != '' and hive_comment != '无注释' and not df_comment:   # hive表有注释而mysql无对应注释
-                # mysql中没有对应字段的注释而Hive中有
-                logger.info("Hive表%s的%s字段有注释而dataframe中未记录" % (table_name, col_name))
-                query.query("""INSERT IGNORE INTO t_no_comment_records(table_name,col,state) VALUES ('%s','%s','in hive')""" % (table_name, col_name))
-            if not hive_comment and not df_comment:
-                logger.info("dataframe中与Hive中表%s的%s字段都没有注释" % (table_name, col_name))
-                query.query("""INSERT IGNORE INTO t_no_comment_records(table_name,col,state) VALUES ('%s','%s','no comment')""" % (table_name, col_name))
-if paras:
-    hive_cursor = create_hive_cursor()
-    for para in paras:
-        # hive_cursor.execute("""ALTER TABLE %s CHANGE COLUMN %s %s %s COMMENT '%s' """ % para)
-        print("修改字段注释", para)
+    paras = []
+    for col_name, data_type in col_comment_in_hive.keys():
+        if col_name.find("#") < 0 and col_name != 'dt_batch':   # 不对dt_batch字段做注释处理
+            hive_comment = col_comment_in_hive.get((col_name, data_type))
+            mysql_comment = comment_info_in_mysql.get(col_name)  # t_comment_records表中的注释
+            if not mysql_comment:
+                mysql_comment = ''
+            if hive_comment != mysql_comment and mysql_comment:  # t_comment_records中存在注释且hive表中的注释与mysql里不同
+                # 需要更新注释
+                paras.append((str(table_name), str(col_name), str(col_name), str(data_type), str(mysql_comment)))
+            else:
+                # 不需要更新注释 可能是因为hive有注释而mysql没有，也可能是hive和mysql中都没有
+                if (hive_comment != '' and hive_comment != '无注释' and hive_comment != u'None' and hive_comment) and not mysql_comment:
+                    # hive有注释而mysql没有
+                    logger.warn("表%s的%s字段有注释而Mysql未记录,存入t_no_comment_records表" % (table, col_name))
+                    query.query("""INSERT IGNORE INTO t_no_comment_records(table_name,col,state) VALUES ('%s','%s','in hive')""" % (table, col_name))
+                if (hive_comment == '' or hive_comment == '无注释' or hive_comment == u'None' or not hive_comment) and not mysql_comment:
+                    # hive和mysql中都没有
+                    logger.warn("表%s的%s字段没有注释,存入t_no_comment_records表" % (table, col_name))
+                    query.query("""INSERT IGNORE INTO t_no_comment_records(table_name,col,state) VALUES ('%s','%s','no comment')""" % (table, col_name))
+
+    if paras:
+        flag = True
+        hive_cursor = create_hive_cursor()
+        column_comment_dict = {}  # 让spark的元数据修改的dict
+        for para in paras:
+            tb = para[0]
+            col = para[1]
+            types = para[3]
+            comment = para[4]
+            replace_para = []
+            # 遇到'array<struct<_id:struct<_oid:string>,_code:int,name:string>>'类型自动加反引号
+            for i in types.split('<'):
+                logger.info(i)
+                if i.startswith('_'):
+                    replace_para.append(i.split(':')[0])
+                if len(i.split(',')) != 1:
+                    for j in i.split(','):
+                        if j.startswith('_'):
+                            replace_para.append(j.split(':')[0])
+            replace_para = set(replace_para)
+            logger.info(replace_para)
+            if replace_para:
+                for i in replace_para:
+                    types = types.replace(i, "`" + i + "`")
+            # hive的注释元数据修改
+            alter_sql = """ALTER TABLE %s CHANGE COLUMN `%s` `%s` %s COMMENT '%s' """ % (tb, col, col, types, comment)
+            logger.info(alter_sql)
+            hive_cursor.execute(alter_sql)
+            logger.info("[hive元数据] 表%s的字段注释已修改" % table_name)
+            column_comment_dict[col] = comment
+
+        # spark的注释元数据修改
+        change_sql = get_spark_ddl_sql(table_name, column_comment_dict, hive_cursor)
+        sql_list = change_sql.encode('utf-8').split('\n')
+        for s in sql_list:
+            if s:
+                try:
+                    hive_cursor.execute(s.rstrip(';'))
+                    logger.info("[Spark SQL元数据] 表%s的SparkSQL注释元数据已修改" % table_name)
+                except Exception as e:
+                    logger.warn("Spark SQL元数据修改失败，错误信息：" , e)
+        # if len(change_sql) > 0:
+        #     filename = "/data/ddl_change.txt"
+        #     if os.path.exists(filename):
+        #         print(filename + "已存在,新建该文件")
+        #         os.remove(filename)
+        #     f = open("/data/ddl_change.txt", "w")
+        #     f.write(change_sql)
+        #     f.close()
+        # command = "hive  -f /data/ddl_change.txt "
+        # status, text = commands.getstatusoutput(command)
+    else:
+        logger.info("表的字段注释无需修改")
 
 可能Driver内存不足：
 Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.
@@ -178,6 +233,7 @@ Hive map join：https://www.jianshu.com/p/b52466e93226
 
 hive查看分区:show partitions table_name;
 
+ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
 ##################################################
 Mysql相关
 
