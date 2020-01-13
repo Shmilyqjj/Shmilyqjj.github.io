@@ -74,7 +74,9 @@ logger.info()
 for i in enumerate(list):
     print(i)   # i是(0,list[0])  (1,list[1])....
 
-对数组和
+pandas的dataframe转python的dict （orient指定方向）
+df.to_dict(orient='records')
+[df.to_dict(orient='index')]
 
 ###################################################
 Spark相关
@@ -84,6 +86,9 @@ PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
 Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
 df.repartition(10).rdd.getNumPartitions()  重分区并查看分区数
+
+spark.sql("""select CAST(unix_timestamp() as string)""").show(1,False)   # 查看当前时间戳，转为string
+spark.sql("""select CAST(unix_timestamp() as bigint)""").show(1,False)   # 查看当前时间戳，转为bigint
 
 df.dtypes
 http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
@@ -197,6 +202,8 @@ info_df.select('col_name', 'comment').collect()))   # 获取到df每个字段的
 Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.
 Dump of the process-tree for container_e23_1574819880505_43157_01_000001
 
+spark.driver.maxResultSize worker发送给driver的最大结果大小，超过限制会报错，如果不限制，会无限占用driver内存，可能将Driver内存耗尽
+
 spark_ddl = df._jdf.schema().treeString()
 df_schema = df.schema().json()
 
@@ -219,6 +226,7 @@ scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 
 ###################################################
 Hive相关
+分区分文件夹，分桶分文件
 hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
 Hive map join：https://www.jianshu.com/p/b52466e93226
                                                                                                             spark.sql.sources.schema.part.0）
