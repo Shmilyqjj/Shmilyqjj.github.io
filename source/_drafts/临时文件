@@ -224,6 +224,20 @@ catalog.cacheTable(table_name) # 缓存一张表
 scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
 ```
 
+比较时间大小
+spark.sql("""
+        SELECT t1.task_id AS ti,
+            t1.table_name AS tb,
+            cast(t2.execution_date AS BIGINT)-8*3600 AS ed,
+            cast(unix_timestamp('%s','yyyyMMdd') AS BIGINT) AS yesterday
+        FROM airflow_task_table_relation t1
+        LEFT JOIN task_instance t2 ON t1.task_id = t2.task_id
+        WHERE t1.table_type = 'target'
+        HAVING ed >= yesterday
+        AND ed <= yesterday+86400
+""" % batch[0: 8]).drop('yesterday').collect()
+
+
 ###################################################
 Hive相关
 分区分文件夹，分桶分文件
