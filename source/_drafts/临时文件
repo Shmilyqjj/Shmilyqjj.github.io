@@ -30,6 +30,24 @@ Hadoop相关
 NFS挂载hdfs到本地目录 开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
 NFS卸载umount /data/hdfs_nfs
 
+HDFS元数据浏览
+【oiv】offline image viwer   
+1.用于查看Hadoop fsimage 
+2.语法
+    $> hdfs oiv -i inputfile -o outputfile -P process
+3.inputfile: 要查看的fsimage文件
+   outputfile: 用于保存格式化之后的文件
+   process: 使用什么进程解码，XML|Web|...
+
+【oev】
+1.用于查看Hadoop 的 edit 文件 
+2.语法
+    $> hdfs oev -i inputfile -o outputfile -P process
+3.inputfile: 要查看的edit文件
+   outputfile: 用于保存格式化之后的文件
+   process: 使用什么进程解码，XML|Web|...
+
+
 
 
 ##################################################
