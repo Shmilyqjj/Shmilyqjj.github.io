@@ -27,8 +27,15 @@ https://cloud.tencent.com/developer/article/1544865
 
 ##################################################
 Hadoop相关
+
+NFS挂载（不如HDFS Fuse挂载性能好）
 NFS挂载hdfs到本地目录 开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
 NFS卸载umount /data/hdfs_nfs
+fuser -m -v /data/hdfs_nfs   对于umount.nfs: /data/hdfs_nfs: device is busy  查看哪个进程占用
+rpcinfo -p  nfs_ip  查看服务是否已启动并正在运行
+showmount -e nfs_ip  验证HDFS名称空间是否已导出并且可以挂载
+nfsstat -m   NFS状态查看
+默认rsize和wsize是1M，自己设置更大，mount之后这个参数也还是1M，因为linux内核的限制，要想提高这个阈值，要编译内核的。
 
 HDFS元数据浏览
 【oiv】offline image viwer   
