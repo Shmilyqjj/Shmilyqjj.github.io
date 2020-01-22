@@ -105,12 +105,66 @@ df.to_dict(orient='records')
 
 ###################################################
 Spark相关
+
+# 一些概念（参考https://juejin.im/post/5a5dc6056fb9a01c982c9505）
+每个JVM只有一个SparkContext,一台服务器可以启动多个JVM
+SparkSession包含了SQLContext和HiveContext
+Driver：
+    运行main方法的Java虚拟机进程,负责监听spark application的executor进程发来的通信和连接,将工程jar发送到所有的executor进程中
+    Driver与Master、Worker协作完成application进程的启动、DAG划分、计算任务封装、分配task到executor上、计算资源的分配等调度执行作业等
+    driver调度task给executor执行，所以driver最好和spark集群在一片网络内,便以通信
+    driver进程通常在worker节点中,和Cluster Manager不在同一个节点上
+Worker:
+    启动并运行executor进程
+    standalone模式下:Worker进程所在节点
+    yarn模式下: yarn的nodemanager进程所在的节点
+Executor:
+    spark application不会共享一个executor进程
+Job：
+    一个spark application可能会被分为多个job，每次调用Action时，逻辑上会生成一个Job，一个Job包含了一个或多个Stage。
+Stage:
+    每个job都会划分为一个或多个stage（阶段），每个stage都会有对应的一批task(即一个taskset)，分配到executor上去执行
+    Stage包括两类：ShuffleMapStage和ResultStage，如果用户程序中调用了需要进行Shuffle计算的Operator，如groupByKey等，就会以Shuffle为边界分成ShuffleMapStage和ResultStage。
+    如果一次shuffle都没执行，那就只有一个stage
+TaskSet:
+    一组关联的，但相互之间没有Shuffle依赖关系的Task集合;Stage可以直接映射为TaskSet，一个TaskSet封装了一次需要运算的、具有相同处理逻辑的Task，这些Task可以并行计算，粗粒度的调度是以TaskSet为单位的。
+    一个stage对应一个taskset
+Task:
+    driver发送到executor上执行的计算单元，每个task负责在一个阶段(stage)，处理一小片数据，计算出对应的结果
+    Task是在物理节点上运行的基本单位，Task包含两类：ShuffleMapTask和ResultTask，分别对应于Stage中ShuffleMapStage和ResultStage中的一个执行基本单元。
+    InputSplit-task-partition有一一对应关系,Spark会为每一个partition运行一个task来进行处理
+Cluster Manager:
+    集群管理器，为每个spark application在集群中调度和分配资源的组件，如Spark Standalone、YARN、Mesos等
+Deploy Mode:
+    不论是standalone/yarn,都分为两种模式，client和cluster,区别在于driver运行的位置
+    client模式下driver运行在提交spark作业的机器上,可以实时看到详细的日志信息，方便追踪和排查错误,用于测试
+    cluster模式下，spark application提交到cluster manager，cluster manager(比如master)负责在集群中某个节点上，启动driver进程,用于生产环境
+    通常情况下driver和worker在同一个网络中是最好的,而client很可能就是driver worker分开布置,这样网络通信很耗时,cluster没有这样的问题
+DAGScheduler:
+    根据Job构建基于Stage的DAG，并提交Stage给TaskScheduler
+TaskScheduler:
+    将Taskset提交给Worker node集群运行并返回结果
+Spark基本工作原理：
+    Driver向Master申请资源；
+    Master让Worker给程序分配具体的Executor
+    Driver把划分好的Task传送给Executor，Task就是我们的Spark程序的业务逻辑代码
+    job生成,stage划分和task分配都是发生在driver端?是
+Shuffle算子:
+    distinct、groupByKey、reduceByKey、aggregateByKey、join、cogroup、repartition等
+    容易导致部分task慢(数据倾斜)
+    推算shuffle代码：只要看到Spark代码中出现了一个shuffle类算子或者是Spark SQL的SQL语句中出现了会导致shuffle的语句（比如group by语句），那么就可以判定，以那个地方为界限划分出了前后两个stage
+
+
 Spark Broadcast https://blog.csdn.net/zx8167107/article/details/79186477
 spark 操作 https://www.cnblogs.com/Frank99/p/8295949.html
 PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark
 Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
 df.repartition(10).rdd.getNumPartitions()  重分区并查看分区数
+
+
+
+
 
 spark.sql("""select CAST(unix_timestamp() as string)""").show(1,False)   # 查看当前时间戳，转为string
 spark.sql("""select CAST(unix_timestamp() as bigint)""").show(1,False)   # 查看当前时间戳，转为bigint
