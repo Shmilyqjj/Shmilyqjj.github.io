@@ -153,6 +153,11 @@ Shuffle算子:
     distinct、groupByKey、reduceByKey、aggregateByKey、join、cogroup、repartition等
     容易导致部分task慢(数据倾斜)
     推算shuffle代码：只要看到Spark代码中出现了一个shuffle类算子或者是Spark SQL的SQL语句中出现了会导致shuffle的语句（比如group by语句），那么就可以判定，以那个地方为界限划分出了前后两个stage
+coalesce和repartition区别：
+
+
+
+
 
 
 Spark Broadcast https://blog.csdn.net/zx8167107/article/details/79186477
