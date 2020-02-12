@@ -61,10 +61,12 @@ Notebook提供给数据分析人员的前端工作环境，方便数据分析和
 解释器组是开启、停止解释器运行的基本单位。(同时开启，停止)  
 
 ### Interpreter binding mode  
+![alt Zeppelin-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-04.jpg)  
 解释器绑定模式：可选'shared', 'scoped', 'isolated' 其一  
 **shared：**共享模式，绑定解释器的每个Notebook共享单个解释器实例(方便不同Notebook间共享变量，但资源利用率低)  
 **scoped：**作用域模式，在相同解释器程序中创建新的解释器实例(每个Notebook拥有自己的回话，资源利用率略高，不能直接共享变量)  
 **isolated：**隔离模式，每个Notebook创建新的解释器程序(笔记本之间互不影响，不能直接共享变量)  
+![alt Zeppelin-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-05.jpg)  
 [解释器绑定模式-官方详细介绍](http://zeppelin.apache.org/docs/0.8.2/usage/interpreter/interpreter_binding_mode.html)
 
 ### Interpreter生命周期  
@@ -85,10 +87,11 @@ ConfInterpreter是可以被任何解释器使用的通用解释器，输入格�
 设置为org.apache.zeppelin.interpreter.recovery.FileSystemRecoveryStorage开启进程恢复，关闭Zeppelin不会关闭解释器程序
 如果开启了进程恢复，关闭了Zeppelin，又想再关闭解释器程序，则执行bin/stop-interpreter.sh
 
-
 ### 官方文档
 [官方Docs](http://zeppelin.apache.org/docs)  
 
+## 常见问题及错误排除
+1. **Interpreter *** is not found**：检查是否已经配置了该解释器，如果配置了，检查该解释器是否已被点亮(右上角设置图标点为蓝色并保存)  
 
 
 **详细深入了解: [Apache Zeppelin官网](http://zeppelin.apache.org/)**
