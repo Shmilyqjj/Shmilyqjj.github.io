@@ -57,7 +57,7 @@ Notebook提供给数据分析人员的前端工作环境，方便数据分析和
 解释器组：默认情况下，每个解释器属于一个解释器组，一个解释器组可能包含多个解释器  
 同一InterpreterGroup中的Interpreter可以相互引用
 例如Spark解释器组包括Spark支持，PSpark，SparkSql和其他依赖项  
-同一解释器组中的Zeppelin程序在同一JVM运行。  
+同一解释器组中的Zeppelin程序在同一JVM运行  
 解释器组是开启、停止解释器运行的基本单位。(同时开启，停止)  
 
 ### Interpreter binding mode  
