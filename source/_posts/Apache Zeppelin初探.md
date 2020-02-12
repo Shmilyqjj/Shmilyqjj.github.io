@@ -42,8 +42,49 @@ Apache支持的部分组件：
 4. 需要多人协作的场景
 5. 数据平台与数据分析分离，对数据分析人员无感知的场景
 
-## Zeppelin原理  
-### 解释器（重要）
+## Zeppelin详细  
+### 解释器Interpreters（重要）  
+Zeppelin Interpreter是一个插件，允许将支持的语言/数据处理后端插入Zeppelin。  
+通过简单的配置即可将语言/数据处理查询后端接入Zeppelin。
+[Zeppelin解释器](http://zeppelin.apache.org/docs/0.8.2/usage/interpreter/overview.html)
+[Zeppelin-Spark解释器](http://zeppelin.apache.org/docs/0.8.2/interpreter/spark.html#object-exchange)
+
+### Notebook  
+Zeppelin的工作簿(Notebook)支持分为多个段，每段支持绑定多个不同的解释器，支持做单独处理和执行不同的操作，结果会一直被保留，可以选择让其他人浏览或者修改。
+Notebook提供给数据分析人员的前端工作环境，方便数据分析和数据可视化。
+
+### Interpreter Group  
+解释器组：默认情况下，每个解释器属于一个解释器组，一个解释器组可能包含多个解释器  
+同一InterpreterGroup中的Interpreter可以相互引用
+例如Spark解释器组包括Spark支持，PSpark，SparkSql和其他依赖项  
+同一解释器组中的Zeppelin程序在同一JVM运行。  
+解释器组是开启、停止解释器运行的基本单位。(同时开启，停止)  
+
+### Interpreter binding mode  
+解释器绑定模式：可选'shared', 'scoped', 'isolated' 其一  
+**shared：**共享模式，绑定解释器的每个Notebook共享单个解释器实例(方便不同Notebook间共享变量，但资源利用率低)  
+**scoped：**作用域模式，在相同解释器程序中创建新的解释器实例(每个Notebook拥有自己的回话，资源利用率略高，不能直接共享变量)  
+**isolated：**隔离模式，每个Notebook创建新的解释器程序(笔记本之间互不影响，不能直接共享变量)  
+[解释器绑定模式-官方详细介绍](http://zeppelin.apache.org/docs/0.8.2/usage/interpreter/interpreter_binding_mode.html)
+
+### Interpreter生命周期  
+Zeppelin 0.8.0以后支持LifecycleManager来控制解释器生命周期(之前是关闭UI界面后生命周期结束)  
+NullLifecycleManager不做操作，要像以前一样自行控制生命周期  
+TimeoutLifecycleManager(默认生命周期管理)默认超过1小时关闭解释器，可以更改  
+
+### Generic ConfInterpreter
+Zeppelin解释器配置由所有用户和Notebook共享，如果想使用其他的设置，需要创建新的解释器，能实现但不方便，ConfInterpreter可以提供对解释器设置的更细粒度的控制和更大的灵活性。  
+ConfInterpreter是可以被任何解释器使用的通用解释器，输入格式应为属性文件格式。它用于为任何解释器进行自定义设置。  
+用户需要将ConfInterpreter放在Notebook的第一段  
+![alt Zeppelin-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-03.png)  
+如上图%spark.conf独立设置了该Notebook中的Spark解释器
+
+### Interpreter进程恢复  
+0.8.0版本前，关闭Zeppelin会同时关闭所有正在运行的解释器程序，但是我们可能只是想维护Zeppelin服务器而不想关闭解释器程序，Interpreter进程恢复就派上用场了。  
+0.8.0版本后，设置zeppelin.recovery.storage.class属性的值默认org.apache.zeppelin.interpreter.recovery.NullRecoveryStorage不开启进程恢复  
+设置为org.apache.zeppelin.interpreter.recovery.FileSystemRecoveryStorage开启进程恢复，关闭Zeppelin不会关闭解释器程序
+如果开启了进程恢复，关闭了Zeppelin，又想再关闭解释器程序，则执行bin/stop-interpreter.sh
+
 
 ### 官方文档
 [官方Docs](http://zeppelin.apache.org/docs)  
