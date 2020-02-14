@@ -364,6 +364,13 @@ col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[
 查看库的信息/机器IP
 show slave status\G;
 
+MySQL出现Waiting for table metadata lock的原因以及解决方法:
+出现场景https://www.cnblogs.com/digdeep/p/4892953.html
+show processlist ；显示的数据里有个id字段，就是sessionid，执行 kill id就可
+还可以调整超时锁的时间阈值  默认阈值1年。。。 下面改为1800s
+set session lock_wait_timeout = 1800;
+set global lock_wait_timeout = 1800;
+
 ##################################################
 
 
