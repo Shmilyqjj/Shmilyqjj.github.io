@@ -167,9 +167,18 @@ Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
 df.repartition(10).rdd.getNumPartitions()  重分区并查看分区数
 
+spark sql DataFrame的差集，交集，合集
+差集（与df顺序有关）：df =  df1.select("user_id","auto_id").subtract(df2.select("user_id","auto_id"))  # scala是except
+交集：df =  df1.select("user_id","auto_id").intersect(df2.select("user_id","auto_id"))
+并集：df =  df1.select("user_id","auto_id").union(df2.select("user_id","auto_id"))  不去重
 
-
-
+spark sql生成df：
+sentenceDataFrame = spark.createDataFrame((
+      (1, "asf"),
+      (2, "2143"),
+      (3, "rfds")
+    )).toDF("label", "sentence")
+sentenceDataFrame.show()
 
 spark.sql("""select CAST(unix_timestamp() as string)""").show(1,False)   # 查看当前时间戳，转为string
 spark.sql("""select CAST(unix_timestamp() as bigint)""").show(1,False)   # 查看当前时间戳，转为bigint
