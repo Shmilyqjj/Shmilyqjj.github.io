@@ -167,6 +167,13 @@ Structured Streaming分析https://www.jianshu.com/p/d4e2a2be9a10
 
 df.repartition(10).rdd.getNumPartitions()  重分区并查看分区数
 
+给读取文件的df应用schema:
+pyspark.sql.types.StructType
+schema = StructType()
+schema.add(StructField(field_name, StringType(), True))
+schema类型StructType(List(StructField(eid,StringType,true),StructField(name,StringType,true),StructField(shareholders_tree,StringType,true),StructField(shareholders_count,StringType,true),StructField(holding_tree,StringType,true),StructField(holding_count,StringType,true),StructField(group_id,StringType,true),StructField(split_tag,StringType,true),StructField(created_time,StringType,true),StructField(updated_time,StringType,true)))
+df = spark.read.csv("{hdfs_file_path}".format(hdfs_file_path=hdfs_file_path),schema=schema,sep=u"\u0001")
+
 spark sql DataFrame的差集，交集，合集
 差集（与df顺序有关）：df =  df1.select("user_id","auto_id").subtract(df2.select("user_id","auto_id"))  # scala是except
 交集：df =  df1.select("user_id","auto_id").intersect(df2.select("user_id","auto_id"))
