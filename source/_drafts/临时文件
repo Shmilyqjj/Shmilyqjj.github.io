@@ -158,7 +158,8 @@ coalesce和repartition区别：
 
 
 
-
+spark加JVM日志打印
+"spark.driver.extraJavaOptions":"-XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
 
 Spark Broadcast https://blog.csdn.net/zx8167107/article/details/79186477
 spark 操作 https://www.cnblogs.com/Frank99/p/8295949.html
