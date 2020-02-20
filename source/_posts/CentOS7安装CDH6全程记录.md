@@ -588,6 +588,9 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。  
 ![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
 
+CM功能扩展：  
+[自定义告警脚本](https://cloud.tencent.com/developer/article/1544865)
+
 总结坑点：  
 1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
