@@ -103,6 +103,11 @@ pandas的dataframe转python的dict （orient指定方向）
 df.to_dict(orient='records')
 [df.to_dict(orient='index')]
 
+如果用了staticmethod，那么就可以无视这个self，而将这个方法当成一个普通的函数使用。
+而对于classmethod，它的第一个参数不是self，是cls，它表示这个类本身。
+
+python import是将py文件(模块)中的元素（类，方法）加载到内存，放入sys.modules，生成同名的.pyc文件  如果没加载过就会加载到内存，如果之前已经加载过，就不再重复加载到内存，而是改变命名空间
+
 ###################################################
 Spark相关
 
@@ -174,6 +179,9 @@ schema = StructType()
 schema.add(StructField(field_name, StringType(), True))
 schema类型StructType(List(StructField(eid,StringType,true),StructField(name,StringType,true),StructField(shareholders_tree,StringType,true),StructField(shareholders_count,StringType,true),StructField(holding_tree,StringType,true),StructField(holding_count,StringType,true),StructField(group_id,StringType,true),StructField(split_tag,StringType,true),StructField(created_time,StringType,true),StructField(updated_time,StringType,true)))
 df = spark.read.csv("{hdfs_file_path}".format(hdfs_file_path=hdfs_file_path),schema=schema,sep=u"\u0001")
+df = spark.read.csv("{hdfs_file_path}".format(hdfs_file_path=hdfs_file_path),schema=schema,sep=u"\u0001", multiLine=True)  # 单个字段存在多行数据的情况 multiLine=True可以解决字段可能串位的问题
+df = spark.read.json("/opt/test/test.json")
+df.collect().asDict()  # pyspark df结果转dict
 
 spark sql DataFrame的差集，交集，合集
 差集（与df顺序有关）：df =  df1.select("user_id","auto_id").subtract(df2.select("user_id","auto_id"))  # scala是except
