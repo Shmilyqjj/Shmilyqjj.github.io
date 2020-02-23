@@ -45,7 +45,6 @@ HDFS元数据浏览
 3.inputfile: 要查看的fsimage文件
    outputfile: 用于保存格式化之后的文件
    process: 使用什么进程解码，XML|Web|...
-
 【oev】
 1.用于查看Hadoop 的 edit 文件 
 2.语法
@@ -54,7 +53,8 @@ HDFS元数据浏览
    outputfile: 用于保存格式化之后的文件
    process: 使用什么进程解码，XML|Web|...
 
-
+HDFS查看文件是否存在
+hadoop fs -test -e /data/;echo $?
 
 
 ##################################################
@@ -359,6 +359,10 @@ spark.sql("""
         AND ed <= yesterday+86400
 """ % batch[0: 8]).drop('yesterday').collect()
 
+数据抽取-根据主键获取mysql删除数据 同步更新到hive
+native_all 是存量hive数据
+delete_data = native_all.join(primary_key_df,primary,"left_anti")  # delete_data是hive存量数据 join sparkjdbc主键和增量字段获取的primary_key_df
+all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回左df也就是all_full的数据 实现去除mysql删除数据
 
 ###################################################
 Hive相关
@@ -409,6 +413,17 @@ show processlist ；显示的数据里有个id字段，就是sessionid，执行 
 set session lock_wait_timeout = 1800;
 set global lock_wait_timeout = 1800;
 
+with xx as语法 可以实现一个或多个别名
+with as 相当于虚拟视图
+with as短语，也叫做子查询部分(subquery factoring)，可以让你做很多事情，定义一个sql片断，该sql片断会被整个sql语句所用到。有的时候，是为了让sql语句的可读性更高些，也有可能是在union all的不同部分，作为提供数据的部分。
+特别对于union all比较有用。因为union all的每个部分可能相同，但是如果每个部分都去执行一遍的话，则成本太高，所以可以使用with as短语，则只要执行一遍即可。如果with as短语所定义的表名被调用两次以上，则优化器会自动将with as短语所获取的数据放入一个temp表里，如果只是被调用一次，则不会。而提示materialize则是强制将with as短语里的数据放入一个全局临时表里。很多查询通过这种方法都可以提高速度。
+with tmp_table as (select * from table where i>1),
+with tmp_table1 as (select * from table where i>2),
+with tmp_table2 as (select * from table where i>3);
+select * from tmp_table;
+优点
+(1). SQL可读性增强。比如对于特定with子查询取个有意义的名字等。
+(2)、with子查询只执行一次，将结果存储在用户临时表空间中，可以引用多次，增强性能。
 ##################################################
 
 
@@ -472,7 +487,7 @@ if __name__ == "__main__":
 　　for chunk in read_in_chunks(filePath):
 　　　　print(chunk)
 
-
+正则判断str中特定字符后的内容 'a:"(.*?)"'
 
 *************************************待写博客****************************************
 --------------------------------Mysql Binlog---------------------------------
