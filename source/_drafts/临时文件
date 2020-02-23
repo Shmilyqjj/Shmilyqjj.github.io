@@ -185,6 +185,16 @@ df = spark.read.csv("{hdfs_file_path}".format(hdfs_file_path=hdfs_file_path),sch
 df = spark.read.csv("{hdfs_file_path}".format(hdfs_file_path=hdfs_file_path),schema=schema,sep=u"\u0001", multiLine=True)  # 单个字段存在多行数据的情况 multiLine=True可以解决字段可能串位的问题
 df = spark.read.json("/opt/test/test.json")
 df.collect().asDict()  # pyspark df结果转dict
+#Spark加载mongo
+conf = {'spark.mongodb.input.partitionerOptions.partitionKey': '_id', 'pipeline': '{$match:{last_updated_time:{$gte:1582041600000}}}', 'spark.mongodb.input.partitionerOptions.numberOfPartitions': '2000', 'spark.mongodb.input.readPreference.name': 'secondaryPreferred', 'spark.mongodb.input.partitioner': 'MongoPaginateByCountPartitioner', 'uri': 'mongodb://user:passwd@ip:port/db.collection'}
+spark.read.format("com.mongodb.spark.sql").options(**conf).load()
+如果有schema schema=StructType.fromJson(schema_dict)
+如果有schema schema=StructType.fromJson(schema_dict)
+spark.read.format("com.mongodb.spark.sql").options(**conf).load(schema=StructType.fromJson(schema_dict))
+#Spark加载mysql
+conf={'user': 'spark', 'url': u'jdbc:mysql://ip:3306/db?zeroDateTimeBehavior=convertToNull&autoReconnect=true', 'driver': 'com.mysql.jdbc.Driver', 'password': '123456', 'db': u'db', 'dbtable': u"(select * from db.tb where field_name>='1582214400000' and field_name<'1582300800000' )tmp", 'tb': u'tb'} # dbtable可参考官网
+df = spark.read.format("jdbc").options(**conf).load()
+
 
 spark sql DataFrame的差集，交集，合集
 差集（与df顺序有关）：df =  df1.select("user_id","auto_id").subtract(df2.select("user_id","auto_id"))  # scala是except
@@ -442,7 +452,25 @@ wget 192.168.1.101:8000/xxx
 
 Linux最大线程数限制，超过就创建失败（查看可生成的最大线程数cat /proc/sys/kernel/pid_max）（查看当前使用的线程数pstree -p | wc -l）
 
-
+python readline一次读一行  readlines和read是读整个 写入内存  内存不够用readline
+with open('filepath', 'r', encoding = 'utf-8') as f:
+　　while True:
+　　　　line = f.readline() # 逐行读取
+　　　　if not line: # 到 EOF，返回空字符串，则终止循环
+　　　　　　break
+　　　　Operate(line) #对每行数据进行处理
+python读大文件 分块读比较实用
+def read_in_chunks(filePath, chunk_size=1024*1024):
+　　file_object = open(filePath,'r',encoding='utf-8')
+　　while True:
+　　　　chunk_data = file_object.read(chunk_size)
+　　　　if not chunk_data:
+　　　　　　break
+　　　　yield chunk_data
+if __name__ == "__main__":
+　　filePath = "C:/Users/Public/Documents/data/user_data.csv"
+　　for chunk in read_in_chunks(filePath):
+　　　　print(chunk)
 
 
 
