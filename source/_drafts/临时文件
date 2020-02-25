@@ -194,6 +194,8 @@ spark.read.format("com.mongodb.spark.sql").options(**conf).load(schema=StructTyp
 #Spark加载mysql
 conf={'user': 'spark', 'url': u'jdbc:mysql://ip:3306/db?zeroDateTimeBehavior=convertToNull&autoReconnect=true', 'driver': 'com.mysql.jdbc.Driver', 'password': '123456', 'db': u'db', 'dbtable': u"(select * from db.tb where field_name>='1582214400000' and field_name<'1582300800000' )tmp", 'tb': u'tb'} # dbtable可参考官网
 df = spark.read.format("jdbc").options(**conf).load()
+#spark读取avro
+avro_df = spark.read.format("com.databricks.spark.avro").load(hdfs_path)
 
 
 spark sql DataFrame的差集，交集，合集
