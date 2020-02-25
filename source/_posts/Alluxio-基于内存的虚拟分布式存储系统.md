@@ -16,7 +16,7 @@ description: Alluxio干货分享
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg
 abbrlink: 44511
-date: 2019-09-27 22:16:00
+date: 2020-01-01 22:16:00
 ---
 ![alt Alluxio-1](https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg)   
 ### 什么是Alluxio  
