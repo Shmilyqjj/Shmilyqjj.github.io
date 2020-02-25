@@ -17,7 +17,7 @@ description: Hive 3.x来了,学习一下新特性
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-cover.jpg
 abbrlink: 7fbbfd34
-date: 2019-12-22 15:18:25
+date: 2019-12-27 15:18:25
 ---
 # Hive3.x新特性  
 ## 新特性简述  
