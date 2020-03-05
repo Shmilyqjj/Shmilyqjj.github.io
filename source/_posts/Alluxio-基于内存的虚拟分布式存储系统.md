@@ -974,7 +974,7 @@ import java.io.IOException;
 public class IOTestUtil {
     public static void main(String[] args) throws IOException, AlluxioException {
         String filePath = args[0];
-        HDFSUtil h = new HDFSUtil("hdfs://10.2.5.63:8020");
+        HDFSUtil h = new HDFSUtil("hdfs://192.168.1.101:8020");
         h.readFile(filePath);
         AlluxioUtil a = new AlluxioUtil();
         a.readFile(filePath);
