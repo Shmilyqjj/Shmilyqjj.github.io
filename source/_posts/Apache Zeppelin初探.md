@@ -24,7 +24,7 @@ date: 2020-02-11 10:16:00
 Apache Zeppelin是一个高性能，高可用，高可靠的分布式Key-Value存储与**可视化平台**，它是集数据摄取，数据分析，数据可视化与协作于一身的notebook形式的基于Web的工具，支持多种解释器(Interpreter),能广泛支持多种大数据查询引擎和计算引擎(如Spark，Flink，Presto，Kylin...)，多种存储系统(如JDBC数据源，HBase，Elasticsearch，Hive，Neo4j，Alluxio，Ignite...),以及多种脚本语言(如python,scala,R,shell...)和markdown。
 ![alt Zeppelin-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-02.png)  
 - - -
-Apache支持的部分组件：  
+Apache Zeppelin支持的部分组件：  
 ![alt Zeppelin-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-01.png)  
 ## Zeppelin优势  
 1. **为数据分析与可视化提供便利**：在Zeppelin中以笔记本（notebook）的形式组织和管理交互式数据探索任务，一个笔记本（note）可以包括多个段（paragraph）。段是进行数据分析的最小单位，即在段中可以完成数据分析代码的编写以及结果的可视化查看
