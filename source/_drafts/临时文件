@@ -523,7 +523,8 @@ delete_sql="delete from ${TABLENAME}"
 mysql -h${HOSTNAME}  -P${PORT}  -u${USERNAME} -p${PASSWORD} ${DBNAME} -e "${delete_sql}"
 mysql -h${HOSTNAME}  -P${PORT}  -u${USERNAME} -p${PASSWORD} ${DBNAME} -e "${select_sql}"
 
-
+查找当前目录一个月(30天)以前大于100M的日志文件(.log)并删除
+find  . -name "*.log" –mtime +30 –type f –size +100M |xargs rm –rf {} ;
 *************************************待写博客****************************************
 --------------------------------Mysql Binlog---------------------------------
 mysql回滚(表引擎必须是INNODB) 可以show create table xx;查看
