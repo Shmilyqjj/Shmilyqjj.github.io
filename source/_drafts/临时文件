@@ -197,6 +197,9 @@ conf={'user': 'spark', 'url': u'jdbc:mysql://ip:3306/db?zeroDateTimeBehavior=con
 df = spark.read.format("jdbc").options(**conf).load()
 #spark读取avro
 avro_df = spark.read.format("com.databricks.spark.avro").load(hdfs_path)
+#spark读csv自动解析schema
+spark.read.csv("E:\Video_Games_Sales_CSV.csv",header=True)  # 加header=True
+
 
 
 spark sql DataFrame的差集，交集，合集
