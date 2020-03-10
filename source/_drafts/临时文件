@@ -390,8 +390,12 @@ hive查看分区:show partitions table_name;
 ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
 ##################################################
 Mysql相关
+查询多久时间之前的时间
+select DATE_SUB(start_time,Interval 2 DAY) from table;
+select DATE_SUB(now(),Interval 60 MINUTE);
 
-show status like 'Threads%'; 查看并发线程数
+查看并发线程数
+show status like 'Threads%';
 show status 下面有一些参数可以参考 https://www.cnblogs.com/zuxing/articles/7761262.html 和  https://blog.csdn.net/sdhymllc/article/details/88052704
 
 select * from information_schema.processlist where user='root';与show processlist类似，能进行筛选想看的信息。
