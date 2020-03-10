@@ -69,7 +69,7 @@ function bot_ui_ini() {
             }).then(function () {
                 botui.message.add({
                     delay: 1500,
-                    content: "在上海工作，我要学好多好多技术哼！"
+                    content: "曾在上海工作，学到了很多，也认识很多好朋友！"
                 }).then(function () {
                     botui.message.add({
                         delay: 1200,
