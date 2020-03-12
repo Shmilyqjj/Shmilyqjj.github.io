@@ -393,6 +393,7 @@ Mysql相关
 查询多久时间之前的时间
 select DATE_SUB(start_time,Interval 2 DAY) from table;
 select DATE_SUB(now(),Interval 60 MINUTE);
+select datediff(DATE_SUB(now(),Interval 2 DAY), now()) as diff;
 
 查看并发线程数
 show status like 'Threads%';
