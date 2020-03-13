@@ -349,7 +349,7 @@ catalog.isCached(db_table_name) # 查看表是否被缓存
 catalog.dropTempView(view_name) # 如果是Spark SQL视图，会删除事先注册好的，如果hive视图，删除元数据中hive视图
 catalog.uncacheTable(table_name） # 取消缓存
 catalog.cacheTable(table_name) # 缓存一张表
-scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在
+scala版本独有：catalog.databaseExists(db_name)  # 查看库是否存在  在python中使用这个：spark._jsparkSession.catalog().databaseExists('default')
 ```
 
 比较时间大小
