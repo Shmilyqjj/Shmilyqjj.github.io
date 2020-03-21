@@ -186,31 +186,34 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
 
 
 #### Alluxio元数据  
-在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对数以亿级的元数据存储。  
-首先，文件系统是INode-Tree组成的，即文件和目录树，Alluxio Master管理多个底层存储系统的元数据，每个文件目录都是INode-Tree的节点，在Java对象中，可能一个目录信息本身占用空间不大，但映射在JavaHeap内存中，算上附加信息，每个文件大概要有1kb的元数据，如果十亿个文件，则要有约1TB的堆内存来存储元数据，这完全是不现实的。  
+1. <u>**Alluxio元数据的存储**</u>  
+在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对**数以亿级的元数据存储**。  
+![alt Alluxio-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-18.jpg)  
+首先，文件系统是**INode-Tree**组成的，即文件目录树，Alluxio Master管理多个底层存储系统的元数据，每个文件目录都是INode-Tree的节点，在Java对象中，可能一个目录信息本身占用空间不大，但映射在JavaHeap内存中，算上附加信息，每个文件大概要有1KB左右的元数据，如果有十亿个文件和路径，则要有约1TB的堆内存来存储元数据，完全是不现实的。  
 所以，为了方便管理元数据，减小因为元数据过多对Master性能造成的影响，**Alluxio的元数据通过RocksDB键值数据库来管理元数据**，**Master会Cache常用数据的元数据**，而**大部分元数据则存在RocksDB中**，这样大大减小了Master Heap的压力，降低OOM可能性，使Alluxio可以同时管理多个存储系统的元数据。  
 通过RocksDB的行锁，也可以方便高并发的操作Alluxio元数据。  
 高可用过程中，INode-Tree是进程中的资源，不共享，如果ActiveMaster挂掉，StandByMaster节点可以从Journal持久日志（位于持久化存储中如HDFS）恢复状态。
-Alluxio还通过Raft算法保证元数据的完整性，即使宕机，也不会丢失已经提交的元数据。
+这样会依赖持久存储（如HDFS）的健康状况，如果持久存储服务宕机，Journal日志也不能写，Alluxio高可用服务就会受到影响。
+所以，Alluxio通过Raft算法保证元数据的完整性，即使宕机，也不会丢失已经提交的元数据。
 
-#### Alluxio RPC  
-Alluxio 1.x中
-    Master RPC using Thrift（元数据操作）
-    Workers RPC using Netty（数据操作） 
-而新的Alluxio 2.x中
-    使用gRPC 保证高吞吐，方便代码维护
-
-#### Alluxio元数据一致性
-* Alluxio读取磁层存储系统的元数据,包括文件名,文件大小,创建者,组别,目录结构等
-* 如果绕过Alluxio修改底层存储系统的目录结构,Alluxio会同步更新
+2. <u>**Alluxio元数据一致性**</u>
+    * Alluxio读取磁层存储系统的元数据,包括文件名,文件大小,创建者,组别,目录结构等
+    * 如果绕过Alluxio修改底层存储系统的目录结构,Alluxio会同步更新
     alluxio.user.file.metadata.sync.interval=-1 Alluxio不主动同步底层存储元数据
     alluxio.user.file.metadata.sync.interval=正整数 正整数指定了时间窗口,该时间窗口内不触发元数据同步
     alluxio.user.file.metadata.sync.interval=0 时间窗口为0,每次读取都触发元数据同步
     __时间窗口越大,同步元数据频率越低,Alluxio Master性能受影响越小__
-* Alluxio不加载具体数据,只加载元数据,若要加载文件数据,可以通过load命令或FileStream API
-* 在Alluxio中创建文件或文件夹时可以指定是否持久化  
+    * Alluxio不加载具体数据,只加载元数据,若要加载文件数据,可以通过load命令或FileStream API
+    * 在Alluxio中创建文件或文件夹时可以指定是否持久化  
     alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH mkdir /xxx
     alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH touch /xxx/xx  
+
+#### Alluxio RPC  
+Alluxio 1.x中
+ Master RPC using Thrift（元数据操作）
+ Workers RPC using Netty（数据操作） 
+而新的Alluxio 2.x中
+ 使用**gRPC**保证高吞吐，方便代码维护
 
 #### Alluxio的Metrics  
 __度量指标信息可以让用户深入了解集群上运行的任务,是监控和调试的宝贵资源。__  
@@ -1077,8 +1080,9 @@ class AlluxioUtil{
 Alluxio的Python库基于REST API实现的  
 CentOS6和Windows的环境下安装alluxio的python库失败，最终在CentOS7 Python2.7.5的环境下成功执行了***pip install alluxio***
 ```Python
-
-
+if __name__ == '__main__':
+    print("后续用到API再更新")
+    pass
 ```  
 
 ### Q&A
