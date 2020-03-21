@@ -187,11 +187,11 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
 
 
 #### Alluxio元数据  
-在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对数以亿级的小文件存储。  
+在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对数以亿级的元数据存储。  
 首先，文件系统是INode-Tree组成的，即文件和目录树，Alluxio Master管理多个底层存储系统的元数据，每个文件目录都是INode-Tree的节点，在Java对象中，可能一个目录信息本身占用空间不大，但映射在JavaHeap内存中，算上附加信息，每个文件大概要有1kb的元数据，如果十亿个文件，则要有约1TB的堆内存来存储元数据，这完全是不现实的。  
 所以，为了方便管理元数据，减小因为元数据过多对Master性能造成的影响，**Alluxio的元数据通过RocksDB键值数据库来管理元数据**，**Master会Cache常用数据的元数据**，而**大部分元数据则存在RocksDB中**，这样大大减小了Master Heap的压力，降低OOM可能性，使Alluxio可以同时管理多个存储系统的元数据。  
 通过RocksDB的行锁，也可以方便高并发的操作Alluxio元数据。  
-高可用过程中，INode-Tree是进程中的资源，如果ActiveMaster挂掉，StandByMaster节点可以从Journal持久日志（位于持久化存储中如HDFS）恢复状态。
+高可用过程中，INode-Tree是进程中的资源，不共享，如果ActiveMaster挂掉，StandByMaster节点可以从Journal持久日志（位于持久化存储中如HDFS）恢复状态。
 Alluxio还通过Raft算法保证元数据的完整性，即使宕机，也不会丢失已经提交的元数据。
 
 #### Alluxio RPC  
