@@ -57,6 +57,24 @@ HDFS元数据浏览
 HDFS查看文件是否存在
 hadoop fs -test -e /data/;echo $?
 
+Yarn的调度器：
+--1.先进先出调度器（FIFO）
+Hadoop 中默认的调度器，也是一种批处理调度器。它先按照作业的优先级高低，再按照到达时间的先后选择被执行的作业
+--2.容量调度器（Capacity Scheduler)
+支持多个队列，每个队列可配置一定的资源量，每个队列采用FIFO调度策略，为了防止同一个用户的作业独占队列中的资源，该调度器会对同一用户提交的作业所占资源量进行限定。
+调度时，首先按以下策略选择一个合适队列：计算每个队列中正在运行的任务数与其应该分得的计算资源之间的比值，选择一个该比值最小的队列；然后按以下策略选择该队列中一个作业：按照作业优先级和提交时间顺序选择，同时考虑用户资源量限制和内存限制
+--3.公平调度器（Fair Scheduler）
+所有的 job 具有相同的资源
+公平调度是一种赋予作业（job）资源的方法，它的目的是让所有的作业随着时间的推移，都能平均的获取等同的共享资源。
+所有的 job 具有相同的资源,当单独一个作业在运行时，它将使用整个集群。当有其它作业被提交上来时，系统会将任务（task）空闲资源（container）赋给这些新的作业，以使得每一个作业都大概获取到等量的CPU时间。
+与Hadoop默认调度器FIFO维护一个作业队列不同，这个特性让小作业在合理的时间内完成的同时又不"饿"到消耗较长时间的大作业。
+公平调度可以和作业优先权搭配使用——优先权像权重一样用作为决定每个作业所能获取的整体计算时间的比例。同计算能力调度器类似，支持多队列多用户，每个队列中的资源量可以配置，同一队列中的作业公平共享队列中所有资源。
+
+Yarn工作流程
+1.用户向Yarn提交任务
+2.ResourceManager分配Container，与NodeManager通信，在Container中启动ApplicationMaster
+3.ApplicationMaster向ResourceManager注册，申请资源，监控运行状态直到结束
+4.应用程序执行完，Application通过RPC协议向ResourceManager注销自己。
 
 ##################################################
 Python相关
@@ -114,6 +132,15 @@ python import是将py文件(模块)中的元素（类，方法）加载到内存
 正则 [\u4e00-\u9fa5] 匹配所有中文
 ###################################################
 Spark相关
+
+groupByKey(11)将Shuffle并行度调整为11
+计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
+虽然两个函数都能得出正确的结果， 但reduceByKey函数更适合使用在大数据集上。
+ReduceByKey优点：会先进行局部聚合再进行全局聚合，这样全局聚合时减少了网络IO
+尽量少使用groupByKey 当调用 groupByKey时，所有的键值对(key-value pair) 都会被移动。在网络上传输这些数据非常没有必要。避免使用 GroupByKey。
+以下函数应该优先于 groupByKey ：
+　　（1）combineByKey组合数据，但是组合之后的数据类型与输入时值的类型不一样。
+　　（2）foldByKey 合并每一个 key 的所有值，在级联函数和“零值”中使用。
 
 # 一些概念（参考https://juejin.im/post/5a5dc6056fb9a01c982c9505）
 每个JVM只有一个SparkContext,一台服务器可以启动多个JVM
@@ -390,6 +417,30 @@ hive查看分区:show partitions table_name;
 ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
 ##################################################
 Mysql相关
+
+explain分析sql性能的方法：
+select_type :
+    SIMPLE: 简单的查询，不包括子查询，关联查询等等
+    PRIMARY: 查询中如果有复杂的部分，最外层的查询将被标记为PRIMARY
+    SUBQUERY: 子查询中的第一个查询
+    UNION: 关联查询，最后面的一个
+type：查询语句的性能表现: 依次递增 all<index<range<index_merge<ref<eq_ref<constant/system
+    All:  全表扫描，最耗性能
+    index: 全索引列扫描
+    range: 对单个索引列进行范围查找 ,使用 < 或者 between and 或者 in 或者 !=
+    index_merge: 多个索引合并查询
+    ref:  根据单个索引查找
+    eq_ref: 连接时使用primary key 或者 unique类型
+    constant: 常量
+    system: 系统
+possible_keys: 可能使用到的索引
+key: 真实使用的索引
+key_len: 使用到的索引长度
+rows：扫描的行数
+extra：包含MySQL为了解决查询的详细信息
+
+
+
 查询多久时间之前的时间
 select DATE_SUB(start_time,Interval 2 DAY) from table;
 select DATE_SUB(now(),Interval 60 MINUTE);
