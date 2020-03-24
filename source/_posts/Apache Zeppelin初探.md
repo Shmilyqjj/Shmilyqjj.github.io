@@ -66,6 +66,11 @@ Notebook提供给数据分析人员的前端工作环境，方便数据分析和
 **shared：**共享模式，绑定解释器的每个Notebook共享单个解释器实例(方便不同Notebook间共享变量，但资源利用率低)  
 **scoped：**作用域模式，在相同解释器程序中创建新的解释器实例(每个Notebook拥有自己的回话，资源利用率略高，不能直接共享变量)  
 **isolated：**隔离模式，每个Notebook创建新的解释器程序(笔记本之间互不影响，不能直接共享变量)  
+```
+ 比如shared模式下，每个Notebook都可以使用SparkInterpreter但是只有一个SparkContext
+ 如果isolated模式，每个Notebook都可以使用SparkInterpreter但每个Notebook有单独的SparkContext
+```
+
 ![alt Zeppelin-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-05.jpg)  
 [解释器绑定模式-官方详细介绍](http://zeppelin.apache.org/docs/0.8.2/usage/interpreter/interpreter_binding_mode.html)
 
