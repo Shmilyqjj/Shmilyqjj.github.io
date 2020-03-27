@@ -66,7 +66,7 @@ date: 2020-03-24 10:16:00
 2.部分操作符（<font size="3" color="red">**<,<=,=,>,>=,BETWEEN,IN可以用索引，但<>,not in,!=不能**</font>）
 3.判空操作（is null或is not null）
 4.int类型字段（如手机号没用varchar存，查186开头的，不能）
-5.联合索引（设置了col1和col2两个字段联合索引，WHERE col1='xxx'或WHERE col1='xxx' AND col2='xxx'可用索引，但WHERE col2='xxx'不能）
+5.联合索引（设置了col1和col2两个字段联合索引，WHERE col1='xxx'或WHERE col1='xxx' AND col2='xxx'或WHERE col2='xxx' AND col1='xxx'都可用索引，但WHERE col2='xxx'不能）
 6.对索引列操作（**计算、函数、自动类型转换、手动类型转换**都会使索引失效）
 7.SELECT *（尽量使用覆盖索引，尽量取用到的字段值而非使用<u>星号</u>,这样WHERE的时候覆盖索引效率高）
 8.字符串不加单引号引起索引失效
