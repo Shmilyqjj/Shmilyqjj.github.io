@@ -169,6 +169,7 @@ Task:
     driver发送到executor上执行的计算单元，每个task负责在一个阶段(stage)，处理一小片数据，计算出对应的结果
     Task是在物理节点上运行的基本单位，Task包含两类：ShuffleMapTask和ResultTask，分别对应于Stage中ShuffleMapStage和ResultStage中的一个执行基本单元。
     InputSplit-task-partition有一一对应关系,Spark会为每一个partition运行一个task来进行处理
+总结SparkAPP-Action，Job，Stage，TaskSet，Task数量关系： SparkApplication-Action操作:Job:Stage:TaskSet:Task = 1:1:n:n:n*m(m个partition)
 Cluster Manager:
     集群管理器，为每个spark application在集群中调度和分配资源的组件，如Spark Standalone、YARN、Mesos等
 Deploy Mode:
@@ -190,6 +191,75 @@ Shuffle算子:
     容易导致部分task慢(数据倾斜)
     推算shuffle代码：只要看到Spark代码中出现了一个shuffle类算子或者是Spark SQL的SQL语句中出现了会导致shuffle的语句（比如group by语句），那么就可以判定，以那个地方为界限划分出了前后两个stage
 coalesce和repartition区别：
+    coalesce: def coalesce(numPartitions: Int, shuffle: Boolean = false...
+    repartition: def repartition(numPartitions: Int)
+    coalesce将1000分区转换成100个分区不会shuffle反之会shuffle，但是大幅度合并分区会导致计算并行度不够，这时可以指定第二个参数shuffle为True，通过HashPartitioner分布数据，提高并行度。
+    repartition也能增加和减少分区，会shuffle。如果只考虑减少分区数，建议用coalesce
+    repartition只是coalesce接口中shuffle为true的简易实现
+rdd的算子类型：
+    transformation，rdd由一种转为另一种rdd
+    action行动算子
+    controller，控制算子(cache/persist) 对性能和效率的有很好的支持
+宽依赖-窄依赖：
+    窄依赖：父RDD的一个分区只与一个子RDD的分区对应，子RDD的分区通常与多个RDD分区对应
+    宽依赖：父RDD的一个分区要与多个子RDD的分区对应，子RDD的分区通常对应所有父RDD的分区
+    对于性能优化，窄依赖更有利：
+        RDD分区丢失重算时，窄依赖由于父RDD的一个分区对应子RDD的一个分区，只要重算子RDD对应的父RDD即可；而宽依赖最差情况下要计算所有父RDD
+        宽依赖通常与shuffle有关
+    窄依赖的函数有：map, filter, union, join(父RDD是hash-partitioned ), mapPartitions, mapValues
+    宽依赖的函数有：groupByKey, join(父RDD不是hash-partitioned ), partitionBy
+Stage划分原理：
+    因此spark划分stage的整体思路是：从后往前推，遇到宽依赖就断开，划分为一个stage；遇到窄依赖就将这个RDD加入该stage中。（总结：遇到一个宽依赖就分一个stage）
+
+
+
+
+
+
+
+Spark问题：
+1.Spark Master HA主从切换会影响正在跑的任务吗？
+    不会，因为之前已经申请过资源且注册过driver和executors，driver和executors之间通讯不走master。
+2.Spark并行度怎么设置比较合适？
+    spark作业中，各个stage的task的数量，也就代表了spark作业在各个阶段stage的并行度！并行度要与分配的资源匹配，否则会浪费资源。
+    合理设置并行度，可以充分利用集群资源，减少每个task处理数据量，而增加性能加快运行速度。
+    调并行度策略：一般是task数是Cpu总core数的2-3倍  本来最理想的状况是task数与application设置的core数相同，但是考虑到可能每个task跑的时间不一样，这种情况会资源浪费。task数是core的2-3倍就既不浪费还高效。
+    调并行度方式：
+    spark application并行度task数设置：1.spark.default.parallelism  2.数据在HDFS则增加Block数  3.repartition 4.spark.sql.shuffle.partitions
+3.Spark中数据的位置是被谁管理的？
+    每个数据分片都对应具体物理位置，数据的位置是被blockManager管理
+4.为什么要进行序列化？
+    减少存储空间和减少网络传输（缺点：序列化和反序列化消耗CPU）
+5.MR和Spark的Shuffle异同？
+    Hadoop是从Map(Spark的ShuffleMapTask)输出partition，不同分区数据送到不同的Reduce(Spark下一个Stage的ShuffleMapTask或者ResultTask)
+    HadoopMR的Shuffle是基于归并排序，Spark的Shuffle基于Hash
+    HadoopMR的Shuffle是Map端分片数据通过网络收集到reduce端，Spark的shuffle是stage间
+6.reduceByKey和groupByKey区别？
+    reduceByKey用于对每个key对应的多个value进行merge操作，最重要的是它能够在本地先进行merge操作，并且merge操作可以通过函数自定义。（在数据移动之前聚合）
+    groupByKey因为不接收函数，所以先将所有k-v都移动。开销大。
+7.cache后面能不能接其他算子,它是不是action操作？
+    cache之后可接算子，但是如果接了算子，如果是行动算子，会重新触发cache。cache不是action操作。通过unpersist取消cache（非lazy）
+    默认的存储级别 - MEMORY_ONLY
+8.Spark累加器有哪些特点？
+    全局的，只增不减，记录全局集群的唯一状态
+    在exe中修改它，在driver读取
+    executor级别共享的，广播变量是task级别的共享
+    两个application不可以共享累加器，但是同一个app不同的job可以共享
+9.spark hashParitioner的弊端是什么？
+    HashPartitioner确定分区的方式：partition = key.hashCode () % numPartitions 弊端：弊端是数据不均匀，容易导致数据倾斜，极端情况下某几个分区会拥有rdd的所有数据。
+10.Spark中的HashShufle的有哪些不足？
+    shuffle产生海量的小文件在磁盘上，此时会产生大量耗时的、低效的IO操作；
+    容易导致内存不够用，由于内存需要保存海量的文件操作句柄和临时缓存信息
+    容易出现数据倾斜，导致OOM
+
+
+Spark Job 默认的调度模式 - FIFO
+RDD 特点 - 可分区/可序列化/可持久化
+Broadcast - 任何函数调用/是只读的/存储在各个节点
+Accumulator - 支持加法/支持数值类型/可并行
+master 和 worker 通过 Akka 方式进行通信的
+
+
 
 
 
