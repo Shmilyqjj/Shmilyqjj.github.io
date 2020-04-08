@@ -509,11 +509,8 @@ mkdir /opt/software/cloudera-repos
 ├── enterprise-debuginfo-6.3.1-1466458.el7.x86_64.rpm
 └── cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm
 
-scp -r /opt/software/cloudera-repos  root@cdh067:/opt/software/
-scp -r /opt/software/cloudera-repos  root@cdh068:/opt/software/
-scp -r /opt/software/cloudera-repos  root@cdh069:/opt/software/
 
-各个节点执行如下命令  目的是建立本地存储库 搭建本地源  为了节省空间，也可以只在一台机器上搭建源
+CDH066节点执行如下命令  目的是建立本地存储库 搭建本地源  为了节省空间，也可以只在一台机器上搭建源
 ```shell
  cd /opt/software/cloudera-repos  
  createrepo .
@@ -536,7 +533,7 @@ type=rpm-md
  yum clean all 
  yum makecache
 ```  
-制作本地源后http://cdh066/cloudera-repos/这个链接可以访问到源的文件  
+制作本地源后[http://cdh066/cloudera-repos/](http://cdh066/cloudera-repos/)这个链接可以访问到源的文件  
 我们搭建的本地源，后面会用到  
 ![alt CDH-14](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-14.jpg)  
 
