@@ -381,6 +381,16 @@ GRANT ALL ON nav.* TO 'nav'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY '123456';
 GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY '123456';
 
+GRANT ALL ON scm.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON amon.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON rman.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON hue.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON hive.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON sentry.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON nav.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON navms.* TO 'root'@'%' IDENTIFIED BY '123456';
+GRANT ALL ON oozie.* TO 'root'@'%' IDENTIFIED BY '123456';
+
 set global validate_password_policy=LOW; 
 set global validate_password_length=6; 
 GRANT ALL ON root.* TO 'root'@'%' IDENTIFIED BY '123456';  # 让root用户可以在cdh066节点上登录
