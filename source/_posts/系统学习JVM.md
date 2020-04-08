@@ -28,10 +28,72 @@ Java跨平台，一次编译到处运行，垃圾回收等特性离不开JVM，�
 ```bash
  $ javac Hello.java
  $ javap -c Hello.class  # javap可查看字节码的操作数
+ $ javap -p -v Hello   # -p打印私有字段和方法  -v尽量多打印一些信息
+
+ 当在java代码中添加一些注释信息后，.class的MD5不一样了。因为javac可以指定输出一些额外内容到.class
+ javac -g:lines 强制生成LineNumberTable | javac -g:vars 强制生成LocalVariableTable | javac -g 生成所有debug信息
+ 当然如果使用IDEA，可以使用jclasslib Bytecode viewerb插件（插件商店搜索即可）
 ```
 JVM的程序运行是在栈上完成的，运行main方法自动分配一个栈帧，退出方法体时候再弹出相应栈帧。从javap得到的结果看，大多数字节码指令是不断操作栈帧。
 整个过程：**Java 文件->编译器->字节码->JVM->机器码**
 整个过程：**Hello.java -> Hello.class -> Java类加载器(JVM中) -> 执行引擎(JVM中) -> 通过操作系统接口解释执行+JIT**
+
+如下有两段代码：我们可以通过字节码文件判断它们的执行结果
+```java
+ public class A{  # 第一段
+    static int a = 0;
+    static {
+        a = 1;
+        b = 1;
+    }
+    static int b = 0;
+    public static void main(String[] args) {
+        System.out.println(a);
+        System.out.println(b);
+    }
+ }
+//执行结果：1 0
+//字节码如下：
+       0: iconst_0
+       1: putstatic     #3                  // Field a:I
+       4: iconst_1
+       5: putstatic     #3                  // Field a:I
+       8: iconst_1
+       9: putstatic     #5                  // Field b:I
+      12: iconst_0
+      13: putstatic     #5                  // Field b:I
+      16: return
+--------------------------------------------------------------------------------------------------
+ public class A{  # 第二段
+    static int a = 0;
+    static {
+        a = 1;
+        b = 1;
+    }
+    static int b;
+    public static void main(String[] args) {
+        System.out.println(a);
+        System.out.println(b);
+    }
+ }
+//执行结果：1 1
+//字节码如下：
+       0: iconst_0
+       1: putstatic     #3                  // Field a:I
+       4: iconst_1
+       5: putstatic     #3                  // Field a:I
+       8: iconst_1
+       9: putstatic     #5                  // Field b:I
+      12: return
+```
+其他信息：
+stack=1, locals=0, args_size=0中
+stack表示该方法最大操作数栈深度为4，JVM根据这个分配栈帧中操作栈深度，
+locals变量存储了局部变量的存储空间，单位是Slot(槽)，
+args_size指方法参数个数
+其他字节码指令表可参照：https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html
+
+
 
 ## JVM
 ### 定义
@@ -71,7 +133,7 @@ Java的运行时数据区可以分成**堆、元空间(含方法区)、虚拟机
 
 ### JVM类加载机制
 类加载过程：**加载->验证->准备->解析->初始化**  大多数情况按这个流程加载。
-**加载**：将.class文件加载到方法区
+**加载**：将类的同名.class文件加载到方法区
 **验证**：检查.class是否合规。如果.class不合规，抛异常。如果任何.class都能加载就不安全了。
 **准备**：为一些类变量分配内存，并初始化为默认值。此时，实例对象还没有分配内存，所以这些动作是在方法区上进行的。
 ```java
@@ -154,24 +216,115 @@ class B extends A{
 * 如何加载远程.class文件，怎么加密.class文件？
 通过实现一个新的自定义类加载器。
 
+### JVM的GC
+![alt JVM-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-06.png)  
+**GC Roots**：可达性分析法，是GC实现的一种方法(另一种是引用计数法)，GC Roots是一组活跃的引用，程序在接下来的运行中能直接或间接引用或能被引用的对象。从GC Roots不断向下追溯遍历，会产生Reference Chain引用链。GC Roots遍历过程是找出所有活对象，并把其余空间认定为无用，而不是找到死对象。如果一个对象连续两次遍历过程中跟GC Roots没有任何直接或间接引用，则会被GC掉。
+GC Roots包括：
+* 活动线程相关的各种引用
+* 类的静态变量的引用
+* JNI引用
+* GC Roots是引用不是对象
+**引用级别（引用链的表现）**：
+* 强引用：内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap<User,String>存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)
+* 软引用：维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。
+* 弱引用：引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。
+* 虚引用：形同虚设的引用，任何时候都可被回收。
+
+**可能发生OOM的内存区域**：除了程序计数器，都有可能。但主要是发生在堆上。
+**OOM发生原因**：
+* 内存不足需要扩容。
+* 错误的引用方式，没有及时切断GC Roots的引用，导致内存泄漏。(典型)
+* 没有进行数据范围检查，比如全量查询了某个数据库。
+* 无限制无节制使用MemoryOverHead
+
+**JVM的垃圾回收算法**
+**GC的标记过程**：从GC Roots遍历所有可达的活跃对象并标记。
+**GC算法：**
+* 标记清除算法：标记-标记已用对象，清除-清除未被标记的对象。
+   + 缺点：产生内存碎片
+* 复制算法：内存空间分等大两块，一块满了，未被标记的对象复制到另一块。
+   + 优点：解决了内存碎片问题，效率最高
+   + 缺点：会有一半的内存空间浪费
+* 标记整理算法：移动所有存活的对象，且按内存地址顺序依次排列，然后将末端内存全部回收。
+   + 优点：解决了内存碎片问题，同时解决标记复制算法的内存空间浪费问题
+   + 缺点：效率低于复制算法和标记清除算法
+   
+**GC种类：**
+MinorGC 发生在年轻代的GC
+MajorGC 发生在老年代的GC
+FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）
+   
+Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。
+<font size="3" color="red">**年轻代的GC**：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。
+年轻代分为**Eden:From Survivor:To Survivor = 8:1:1**三个空间。对象首先在Eden区，如果**Eden区满了就会触发MinorGC**。
+<u>单数次MinorGC:在MinorGC后，存活的对象进入Form Survivor区。双数次MinorGC，Eden和From Survivor区一起清理，存活对象被复制到To区，并清空From区。</u>
+从上面可以得知每次GC都有一个Survivor区空闲，由于Eden:From Survivor:To Survivor = 8:1:1，年轻代GC复制算法只浪费了10%的内存空间，同时做到了高效，无碎片和节约空间。
+扩展：TLAB(Thread Local Allocation Buffer)，是JVM给每个线程单独开辟的区域，用来加速对象分配。在Eden区分多个TLAB，TLAB通常比较小，对象优先分配在TLAB上，对象较大才会在Eden区分配。TLAB是一种优化，类似于逃逸分析的对象在栈上分配的优化。
+
+<font size="3" color="red">**老年代的GC**：老年代一般使用**标记整理和标记清除算法**</font>。因为老年代很多对象存活率高，占用较大，不方便复制。
+**对象怎么进入老年代**：
+1. **达到一定年龄**
+每次发生MinorGC，对象年龄加1，达到阈值(最大值是15可通过‐XX:+MaxTenuringThreshold调)，进入老年代。
+2. **分配担保机制**
+因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次存活的对象大小都小于Survivor区空间，通过分配担保机制，Survivor区放不下的对象直接进入老年代。
+3. **大对象直接进入老年代**
+超过一定大小的对象直接进入老年代。(通过-XX:PretenureSizeThreshold设置，默认0表示都要先走年轻代)
+
+<font size="3" color="red">**JVM常见垃圾回收器**：</font>
+* 年轻代垃圾回收器
+    1. Serial垃圾回收器
+    单线程的垃圾回收器，垃圾回收时暂停一切用户线程，使用复制算法。
+    优点：简单轻量级，使用资源少。
+    场景：用于客户端应用，因为客户端应用不会频繁创建对象。
+    2. ParNew垃圾回收器
+    Serial回收器的多线程版本，多条GC线程并行回收，垃圾回收时仍暂停一切用户线程
+    优点：多CPU环境下收集效率高些，GC停顿时间缩短。
+    场景：多CPU场景下使用，ParNew适合交互多计算少的场景。
+    3. Parallel Scavenge垃圾回收器
+    多线程回收器
+    场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。
+* 老年代垃圾回收器
+    1. Serial Old垃圾回收器
+    与年轻代的Serial垃圾回收器对应，也是单线程，使用标记-整理算法。
+    优点：简单轻量级，使用资源少。
+    场景：也适用于客户端应用
+    2. Parallel Old垃圾回收器
+    Parallel Scavenge垃圾回收器的老年代版本。
+    场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。
+    3.CMS垃圾回收器
+    以最短GC时间为目标，用户线程与GC线程可并发执行，垃圾回收过程用户不会感到明显卡顿。
+    长期来看G1、ZGC等更高级的垃圾回收器是趋势。
+* CMS垃圾回收器
+    全称：Mostly Concurrent Mark and Sweep Garbage Collector（主要并发­标记­清除­垃圾收集器）
+    CMS在年轻代使用复制算法，在老年代使用标记-清除算法。它把耗时的GC操作通过多线程并发执行的。
+    优点：避免老年代GC出现长时间卡顿
+    缺点：产生内存碎片随时间推移增多时必须要FullGC才能清理
+    场景：不希望GC停顿时间长且CPU资源较充足
+    回收过程：1.标记阶段：只标记GC Roots直接关联的对象，不向下追溯，还标记年轻代中的引用，缩短了标记时间。2.标记阶段二，并发地追溯可达对象
 
 
 
 
+```text
+查看当前Java版本垃圾回收信息
+$ java -XX:+PrintCommandLineFlags -version  
+    -XX:InitialHeapSize=266248768 -XX:MaxHeapSize=4259980288 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC
+    java version "1.8.0_191"
+    Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+    Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+
+设置应用的垃圾回收器：
+-XX:+UseSerialGC 年轻代和老年代都用串行收集器
+-XX:+UseParNewGC 年轻代使用 ParNew，老年代使用 Serial Old [JDK9被抛弃]
+-XX:+UseParallelGC 年轻代使用 ParallerGC，老年代使用 Serial Old
+-XX:+UseParallelOldGC 新生代和老年代都使用并行收集器
+-XX:+UseConcMarkSweepGC，表示年轻代使用 ParNew，老年代的用 CMS
+-XX:+UseG1GC 使用 G1垃圾回收器
+-XX:+UseZGC 使用 ZGC 垃圾回收器
+```
 
 
 
-
-
-
-
-
-
-
-
-
-
-JAVA8元空间？为什么要元空间？为什么替代永久代？
 
 
 常量池分静态常量池和运行时常量池，静态常量池在 .class 中，运行时常量池在方法区中。
@@ -207,5 +360,5 @@ ___粗斜体文本___
 
 ## 参考资料  
 [Java双亲委派机制及其作用](https://www.jianshu.com/p/1e4011617650)
-[Apache Kafka](http://kafka.apache.org/)
+[拉勾网](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31)
 
