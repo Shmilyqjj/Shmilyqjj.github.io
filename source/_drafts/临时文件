@@ -76,6 +76,8 @@ Yarn工作流程
 3.ApplicationMaster向ResourceManager注册，申请资源，监控运行状态直到结束
 4.应用程序执行完，Application通过RPC协议向ResourceManager注销自己。
 
+
+
 ##################################################
 Python相关
 打印调用栈
@@ -211,7 +213,8 @@ rdd的算子类型：
 Stage划分原理：
     因此spark划分stage的整体思路是：从后往前推，遇到宽依赖就断开，划分为一个stage；遇到窄依赖就将这个RDD加入该stage中。（总结：遇到一个宽依赖就分一个stage）
 Executor内存划分：
-    Spark Executor的内存划分为四块，ExecutionMemory，StorageMemory，UserMemory，ReservedMemory(300m)。其中ExecutionMemory，StorageMemory，UserMemory是JVM使用的内存。
+    [堆外内存]堆外内存主要用于JVM自身，字符串，NIO Buffer等开销。默认是executorMemory*0.3且最低限制384m。
+    [堆内内存]即为JVM最大堆内存(-Xmx)，Spark Executor的内存划分为四块，ExecutionMemory，StorageMemory，UserMemory，ReservedMemory(300m)。其中ExecutionMemory，StorageMemory，UserMemory是JVM使用的内存。
     - ExecutionMemory用于存放Shuffle、Join、Sort、Aggregation等计算过程中的临时数据
     - StorageMemory用于存储Spark的Cache数据，如RDD缓存
     - UserMemory用于RDD转换过程中需要的数据，如依赖信息，元数据
@@ -729,10 +732,13 @@ OLAP数据量大，DML少，数仓  OLTP数据量少，DML频繁，并行事务�
 具体：https://www.cnblogs.com/hhandbibi/p/7118740.html
 
 
+-----------------------------------------------------------------------------
+HBase相关
 
-
-
-
+为何行存储比列存储效率更高速度更快？适用场景？
+- 对于行存储，这个查询需要两次IO将全部数据放入内存后，进行页间数据的跳读（类随机读取)
+- 对于列存储，只需要一次IO将page2放入内存后进行连续读取，如果字段2还有多页的话，也都是进行的物理连续读取
+行存储适合OLTP，列存储适合OLAP
 
 
 
