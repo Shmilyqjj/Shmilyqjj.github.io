@@ -11,7 +11,7 @@ categories:
 comments: true
 tags:
   - 数据库
-keywords: 事务ACID
+keywords: 事务ACID与隔离级别
 description: 事务的ACID，加深一下印象
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Mysql/MYSQL-ACID-Cover.jpg
