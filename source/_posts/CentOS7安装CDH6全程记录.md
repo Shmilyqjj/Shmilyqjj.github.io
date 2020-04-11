@@ -79,6 +79,7 @@ CDH的组件：
 ### 环境
 物理机i7-6700hq 16GB内存 1T HDD  
 虚拟机四台 8个逻辑核心 内存分配分别是 5GB 3GB 2GB 2GB （可以说是榨干了物理机性能）  
+建议如果没有i7-8th及以上CPU或没有32G+的电脑，就不要尝试了。还是直接装Apache版的好些。
 VMWare 15  
 SecureCRT 8.1.4  
 FileZilla 3.40.0  
