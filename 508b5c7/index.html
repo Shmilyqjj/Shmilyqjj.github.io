@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">系统学习JVM | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(12).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(15).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(16).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(24).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+</head>
+</html>
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/技术/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/生活/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/音乐/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/随想/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/其他/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tech/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-cover.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      系统学习JVM</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-3-21<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="系统学习JVM"><a href="#系统学习JVM" class="headerlink" title="系统学习JVM"></a>系统学习JVM</h1><p>Java跨平台，一次编译到处运行，垃圾回收等特性离不开JVM，学习JVM的原理可以让我们在工作中更快速定位问题。写这篇的目的就是避免零零散散地学习JVM，那样效率很低，也方便以后回顾和复习。</p>
+<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><p>学习之前先要学会简单分析字节码。<br>用户Java代码与JVM交互沟通的桥梁。代码编译为.class字节码给JVM运行。</p>
+<pre><code class="bash"> $ javac Hello.java
+ $ javap -c Hello.class  # javap可查看字节码的操作数
+ $ javap -p -v Hello   # -p打印私有字段和方法  -v尽量多打印一些信息
+
+ 当在java代码中添加一些注释信息后，.class的MD5不一样了。因为javac可以指定输出一些额外内容到.class
+ javac -g:lines 强制生成LineNumberTable | javac -g:vars 强制生成LocalVariableTable | javac -g 生成所有debug信息
+ 当然如果使用IDEA，可以使用jclasslib Bytecode viewerb插件（插件商店搜索即可）
+</code></pre>
+<p>JVM的程序运行是在栈上完成的，运行main方法自动分配一个栈帧，退出方法体时候再弹出相应栈帧。从javap得到的结果看，大多数字节码指令是不断操作栈帧。<br>整个过程：<strong>Java 文件-&gt;编译器-&gt;字节码-&gt;JVM-&gt;机器码</strong><br>整个过程：<strong>Hello.java -&gt; Hello.class -&gt; Java类加载器(JVM中) -&gt; 执行引擎(JVM中) -&gt; 通过操作系统接口解释执行+JIT</strong></p>
+<p>如下有两段代码：我们可以通过字节码文件判断它们的执行结果</p>
+<pre><code class="java"> public class A{  # 第一段
+    static int a = 0;
+    static {
+        a = 1;
+        b = 1;
+    }
+    static int b = 0;
+    public static void main(String[] args) {
+        System.out.println(a);
+        System.out.println(b);
+    }
+ }
+//执行结果：1 0
+//字节码如下：
+       0: iconst_0
+       1: putstatic     #3                  // Field a:I
+       4: iconst_1
+       5: putstatic     #3                  // Field a:I
+       8: iconst_1
+       9: putstatic     #5                  // Field b:I
+      12: iconst_0
+      13: putstatic     #5                  // Field b:I
+      16: return
+--------------------------------------------------------------------------------------------------
+ public class A{  # 第二段
+    static int a = 0;
+    static {
+        a = 1;
+        b = 1;
+    }
+    static int b;
+    public static void main(String[] args) {
+        System.out.println(a);
+        System.out.println(b);
+    }
+ }
+//执行结果：1 1
+//字节码如下：
+       0: iconst_0
+       1: putstatic     #3                  // Field a:I
+       4: iconst_1
+       5: putstatic     #3                  // Field a:I
+       8: iconst_1
+       9: putstatic     #5                  // Field b:I
+      12: return
+</code></pre>
+<p>其他信息：<br>stack=1, locals=0, args_size=0中<br>stack表示该方法最大操作数栈深度为4，JVM根据这个分配栈帧中操作栈深度，<br>locals变量存储了局部变量的存储空间，单位是Slot(槽)，<br>args_size指方法参数个数<br>其他字节码指令表可参照：<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html</a></p>
+<h2 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>JVM（JAVA虚拟机）是一个规范，定义了.class文件的结构，加载机制，数据存储，运行时栈等内容。<br>JDK8以后Java是编译与解释混合执行模式。<br>JDK8以后JVM的技术实现是HotSpot(包含一个解释器和两个编译器)。<br>两个编译器：可以动态编译，含server模式和client模式。<br>    client模式是一种轻量级编译器，也叫C1编译器，占用内存小，启动快，但是执行效率没有server模式高，默认状态下不进行动态编译，适用于桌面应用程序。<br>    server模式是一种重量级编译器，也叫C2编译器，启动慢，占用内存大，执行效率高，默认是开启动态编译的，适合服务器应用。</p>
+<pre><code class="text"> -XX:RewriteFrequentPairs   用于开启动态编译。
+ -Xint:禁用JIT编译，UYZNGSUYZNGS即禁用两个编译器，纯解释执行。
+ -Xcomp:纯编译执行，如果方法无法编译，则回退到解释执行模式解释无法编译的代码。
+</code></pre>
+<h3 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h3><ul>
+<li>JVM内存区域如何划分？<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-01.png" alt="alt JVM-01"><br>Java内存布局一直在调整，Java8开始彻底移除了持久代，使用MetaSpace(元空间)来代替。 =&gt; -XX:PermSize和-XX:MaxPermSize失效</li>
+</ul>
+<p>Java的运行时数据区可以分成<strong>堆、元空间(含方法区)、虚拟机栈、本地方法栈和程序计数器</strong></p>
+<ul>
+<li>堆：存放绝大多数Java对象，是JVM中最大的一块内存，随着频繁创建对象，堆空间占用越来越大，需要不定期的GC。（JVM主要GC区域：堆和元空间）。是线程共享的。<br> <strong>对象是否被分配在堆中取决于对象的基本类型和Java类中存在的位置</strong>：<ul>
+<li>基本数据类型（byte,short,int,long,float,double,char）如果在方法体内声明则在栈上(栈帧的局部变量表)直接分配，其他情况在堆上分配。</li>
+<li>int[]这样的数组类型不属于基本数据类型，在堆上分配。</li>
+</ul>
+</li>
+<li>栈：分虚拟机栈和本地方法栈。<br>  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-02.png" alt="alt JVM-02">  <ul>
+<li>虚拟机栈：Java中<strong>每个方法被调用时都会创建一个栈帧，执行完后再出栈，所有栈帧都出栈后线程结束</strong>。每一个方法对应一个栈帧，每一个线程对应一个栈。栈帧中包括：<strong>局部变量表，操作数，动态链接，返回地址</strong>，这些不是线程共享的。</li>
+<li>本地方法栈：与虚拟机栈相似，但它主要包含Native对象。本地方法栈有一个叫returnAddress的数据类型。</li>
+</ul>
+</li>
+<li>元空间：先对比一下JDK8和以前版本的方法区<br>  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-03.png" alt="alt JVM-03"><br>  Perm区(永久代)在JDK8废除，用元空间来取代。<strong>好处：非堆区，使用操作系统内存，不会出现方法区内存溢出；坏处：无限制使用操作系统内存会导致操作系统崩溃。所以一般要加-XX:MaxMetaspaceSize参数来控制大小。</strong><br>  <strong>方法区</strong>：包含在元空间中。方法区存储：<strong>类信息、静态（static）变量，常量（final），编译后的代码等数据</strong>。是线程共享的。</li>
+<li>程序计数器：在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了<strong>异常处理，跳转，循环分支</strong>的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。</li>
+</ul>
+<h3 id="JVM类加载机制"><a href="#JVM类加载机制" class="headerlink" title="JVM类加载机制"></a>JVM类加载机制</h3><p>类加载过程：<strong>加载-&gt;验证-&gt;准备-&gt;解析-&gt;初始化</strong>  大多数情况按这个流程加载。<br><strong>加载</strong>：将类的同名.class文件加载到方法区<br><strong>验证</strong>：检查.class是否合规。如果.class不合规，抛异常。如果任何.class都能加载就不安全了。<br><strong>准备</strong>：为一些类变量分配内存，并初始化为默认值。此时，实例对象还没有分配内存，所以这些动作是在方法区上进行的。</p>
+<pre><code class="java"> 类加载的准备阶段会给类变量分配内存和初始化默认值。所以下面这段，我们不手动给a赋值也能编译通过。
+ public class test_java {
+    static int a;
+    public static void main(String[] args) {
+        System.out.println(a);  // output:0
+    }
+ }
+ 类变量有两个阶段可以被赋值，一是类加载准备阶段，二是初始化阶段。而局部变量只有一次初始化，如果没赋初值，不能使用，下面代码编译不通过。
+ public class test_java {
+    public static void main(String[] args) {
+        int a;
+        System.out.println(a);
+    }
+ }
+</code></pre>
+<p><strong>解析</strong>：保证引用的完整性。做了：类或接口解析，类方法解析，接口方法解析，字段解析。</p>
+<pre><code class="text">这个阶段相关的报错信息：
+java.lang.NoSuchFieldError  根据继承关系从上往下没找到相关字段时报错
+java.lang.IllegalAccessError  不具备访问权限时报错
+java.lang.NoSuchMethodError  找不到相关方法时报错
+</code></pre>
+<p><strong>初始化</strong>：初始化成员变量，这一步才开始执行字节码。</p>
+<pre><code class="java">public class A {
+    static{
+        System.out.println(1);
+    }
+    public A(){
+        System.out.println(&quot;A&quot;);
+    }
+
+    public static void main(String[] args) {
+        A ab = new B();
+        ab = new B();
+    }
+}
+
+class B extends A{
+    static {
+        System.out.println(&quot;2&quot;);
+    }
+    public B(){
+        System.out.println(&quot;B&quot;);
+    }
+
+//执行结果: 1 2 A B A B   原因:初始化子类先调用父类无参构造，static在类加载的准备阶段执行一次，不重复执行。
+//static只会执行一次，对应cint方法
+//对象初始化调用构造方法，每次新建对象都会执行，对应init方法
+</code></pre>
+<p>如果你自己写一个java.lang包，改写了String类，编译后发现没起作用。JRE不能被轻易篡改，否则可能会有安全问题。这就是类加载机制在起作用。<br><strong>类加载机制流程</strong>：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-04.png" alt="alt JVM-04">  </p>
+<p><strong>双亲委派机制</strong>：当某个类加载器需要加载某个.class文件时，它首先把这个任务委托给他的上级类加载器，递归这个操作，如果上级的类加载器没有加载，才会去真正加载这个类。<br>比如Object类，毫无疑问会交给最上层的类加载器加载，保证只有一个被加载的Object类。如果没有双亲委派机制，会有多个Object类，很混乱。<br>类加载器运行有先后顺序的，下面是类加载器的种类：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-05.png" alt="alt JVM-05">  </p>
+<ul>
+<li>BootstrapClassLoader（启动类加载器）：c++编写，加载java核心库 java.*,构造ExtClassLoader和AppClassLoader。由于引导类加载器涉及到虚拟机本地实现细节，开发者无法直接获取到启动类加载器的引用，所以不允许直接通过引用进行操作</li>
+<li>ExtentionClassLoader （标准扩展类加载器）：java编写，加载扩展库，如classpath中的jre(lib/ext下jar包和.class)，javax.*和java.ext.dirs指定位置中的类，开发者可以直接使用标准扩展类加载器。</li>
+<li>AppClassLoader（系统类加载器）：java编写，加载程序所在的目录，classpath位置下其他所有jar和.class。我们写的代码最先尝试使用这个进行加载，再通过双亲委派机制递归委托上级类加载器。</li>
+<li>CustomClassLoader（用户自定义类加载器）：java编写,用户自定义的类加载器,可加载指定路径的class文件。支持自定义扩展功能。</li>
+</ul>
+<p><strong>双亲委派机制作用</strong>：<br>1、防止一个.class被重复加载，一个一个去上面问，加载过了就不加载了。保证数据安全。<br>2、保证核心.class不被篡改，即使篡改也不会加载，即使加载也不会是同一个.class对象。（不同的类加载器加载同一个.class得到的是不同的对象）。保证.class执行没问题。</p>
+<ul>
+<li><p>可以覆盖HashMap类的实现吗？<br>可以，用到Java的endorsed技术，我们可以把自己的HashMap类打成jar放在-Djava.endorsed.dirs指定的目录，类名和包名应该与jdk原生的一致。这个目录下的jar会被优先加载，比rt.jar优先级更高。</p>
+</li>
+<li><p>哪些地方打破了Java的类加载机制?<br>举例子：<br>1.tomcat使用war包发布应用，由WebAppClassLoader类加载器优先加载，它加载自己目录的.class但不传递给父类加载器，但它可以通过SharedClassLoader实现共享和分离。<br>2.Java的SPI机制，例子：Mysql的JDBC。使用JDBC Driver前使用Class.forName(“com.mysql.jdbc.driver)，但如果删除这行代码也能正确加载到驱动类，因为使用ServiceLoader来动态装载。</p>
+</li>
+<li><p>如何加载远程.class文件，怎么加密.class文件？<br>通过实现一个新的自定义类加载器。</p>
+</li>
+</ul>
+<h3 id="JVM的GC"><a href="#JVM的GC" class="headerlink" title="JVM的GC"></a>JVM的GC</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-06.png" alt="alt JVM-06"><br><strong>GC Roots</strong>：可达性分析法，是GC实现的一种方法(另一种是引用计数法)，GC Roots是一组活跃的引用，程序在接下来的运行中能直接或间接引用或能被引用的对象。从GC Roots不断向下追溯遍历，会产生Reference Chain引用链。GC Roots遍历过程是找出所有活对象，并把其余空间认定为无用，而不是找到死对象。如果一个对象连续两次遍历过程中跟GC Roots没有任何直接或间接引用，则会被GC掉。<br>GC Roots包括：</p>
+<ul>
+<li>活动线程相关的各种引用</li>
+<li>类的静态变量的引用</li>
+<li>JNI引用</li>
+<li>GC Roots是引用不是对象<br><strong>引用级别（引用链的表现）</strong>：</li>
+<li>强引用：内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap&lt;User,String&gt;存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)</li>
+<li>软引用：维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。</li>
+<li>弱引用：引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。</li>
+<li>虚引用：形同虚设的引用，任何时候都可被回收。</li>
+</ul>
+<p><strong>可能发生OOM的内存区域</strong>：除了程序计数器，都有可能。但主要是发生在堆上。<br><strong>OOM发生原因</strong>：</p>
+<ul>
+<li>内存不足需要扩容。</li>
+<li>错误的引用方式，没有及时切断GC Roots的引用，导致内存泄漏。(典型)</li>
+<li>没有进行数据范围检查，比如全量查询了某个数据库。</li>
+<li>无限制无节制使用MemoryOverHead</li>
+</ul>
+<p><strong>JVM的垃圾回收算法</strong><br><strong>GC的标记过程</strong>：从GC Roots遍历所有可达的活跃对象并标记。<br><strong>GC算法：</strong></p>
+<ul>
+<li>标记清除算法：标记-标记已用对象，清除-清除未被标记的对象。<ul>
+<li>缺点：产生内存碎片</li>
+</ul>
+</li>
+<li>复制算法：内存空间分等大两块，一块满了，未被标记的对象复制到另一块。<ul>
+<li>优点：解决了内存碎片问题，效率最高</li>
+<li>缺点：会有一半的内存空间浪费</li>
+</ul>
+</li>
+<li>标记整理算法：移动所有存活的对象，且按内存地址顺序依次排列，然后将末端内存全部回收。<ul>
+<li>优点：解决了内存碎片问题，同时解决标记复制算法的内存空间浪费问题</li>
+<li>缺点：效率低于复制算法和标记清除算法</li>
+</ul>
+</li>
+</ul>
+<p><strong>GC种类：</strong><br>MinorGC 发生在年轻代的GC<br>MajorGC 发生在老年代的GC<br>FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）</p>
+<p>Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。</p>
+<p><font size="3" color="red"><strong>年轻代的GC</strong>：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。<br>年轻代分为<strong>Eden:From Survivor:To Survivor = 8:1:1</strong>三个空间。对象首先在Eden区，如果<strong>Eden区满了就会触发MinorGC</strong>。<br><u>单数次MinorGC:在MinorGC后，存活的对象进入Form Survivor区。双数次MinorGC，Eden和From Survivor区一起清理，存活对象被复制到To区，并清空From区。</u><br>从上面可以得知每次GC都有一个Survivor区空闲，由于Eden:From Survivor:To Survivor = 8:1:1，年轻代GC复制算法只浪费了10%的内存空间，同时做到了高效，无碎片和节约空间。<br>扩展：TLAB(Thread Local Allocation Buffer)，是JVM给每个线程单独开辟的区域，用来加速对象分配。在Eden区分多个TLAB，TLAB通常比较小，对象优先分配在TLAB上，对象较大才会在Eden区分配。TLAB是一种优化，类似于逃逸分析的对象在栈上分配的优化。</p>
+<p><font size="3" color="red"><strong>老年代的GC</strong>：老年代一般使用<strong>标记整理和标记清除算法</strong></font>。因为老年代很多对象存活率高，占用较大，不方便复制。<br><strong>对象怎么进入老年代</strong>：</p>
+<ol>
+<li><strong>达到一定年龄</strong><br>每次发生MinorGC，对象年龄加1，达到阈值(最大值是15可通过‐XX:+MaxTenuringThreshold调)，进入老年代。</li>
+<li><strong>分配担保机制</strong><br>因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次存活的对象大小都小于Survivor区空间，通过分配担保机制，Survivor区放不下的对象直接进入老年代。</li>
+<li><strong>大对象直接进入老年代</strong><br>超过一定大小的对象直接进入老年代。(通过-XX:PretenureSizeThreshold设置，默认0表示都要先走年轻代)</li>
+</ol>
+<p><font size="3" color="red"><strong>JVM常见垃圾回收器</strong>：</font></p>
+<ul>
+<li>年轻代垃圾回收器<ol>
+<li>Serial垃圾回收器<br>单线程的垃圾回收器，垃圾回收时暂停一切用户线程，使用复制算法。<br>优点：简单轻量级，使用资源少。<br>场景：用于客户端应用，因为客户端应用不会频繁创建对象。</li>
+<li>ParNew垃圾回收器<br>Serial回收器的多线程版本，多条GC线程并行回收，垃圾回收时仍暂停一切用户线程<br>优点：多CPU环境下收集效率高些，GC停顿时间缩短。<br>场景：多CPU场景下使用，ParNew适合交互多计算少的场景。</li>
+<li>Parallel Scavenge垃圾回收器<br>多线程回收器<br>场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。</li>
+</ol>
+</li>
+<li>老年代垃圾回收器<ol>
+<li>Serial Old垃圾回收器<br>与年轻代的Serial垃圾回收器对应，也是单线程，使用标记-整理算法。<br>优点：简单轻量级，使用资源少。<br>场景：也适用于客户端应用</li>
+<li>Parallel Old垃圾回收器<br>Parallel Scavenge垃圾回收器的老年代版本。<br>场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。<br>3.CMS垃圾回收器<br>以最短GC时间为目标，用户线程与GC线程可并发执行，垃圾回收过程用户不会感到明显卡顿。<br>长期来看G1、ZGC等更高级的垃圾回收器是趋势。</li>
+</ol>
+</li>
+<li>CMS垃圾回收器<br>  全称：Mostly Concurrent Mark and Sweep Garbage Collector（主要并发­标记­清除­垃圾收集器）<br>  CMS在年轻代使用复制算法，在老年代使用标记-清除算法。它把耗时的GC操作通过多线程并发执行的。<br>  优点：避免老年代GC出现长时间卡顿<br>  缺点：对老年代的回收没整理阶段，产生内存碎片随时间推移增多时必须要FullGC才能清理。可能会导致大对象创建失败。<br>  场景：不希望GC停顿时间长且CPU资源较充足<br>  回收过程：1.初始标记阶段：只标记GC Roots直接关联的对象和年轻代中的引用，不向下追溯，缩短了标记时GC暂停时间。2.并发标记阶段，并发地追溯可达对象，持续时间较长但跟用户线程并行执行。3.并发预清理，这个过程会清理dirty状态的老年代对象。4.可选的预清理。5.最终标记，会GC暂停。6.并发清理，用户线程重新激活，删除不可达对象。<br>  关于CMS的碎片整理问题：两个参数<pre><code>  UseCMSCompactAtFullCollection（默认开启）：FullGC时压缩，整理内存碎片，会造成较长时间停顿。
+  CMSFullGCsBeforeCompaction：每隔几次FullGC后执行一次带压缩的FullGC。
+</code></pre>  总结CMS中有哪些会造成STW(GC停顿)的操作：<pre><code>  初始标记阶段-较短停顿
+  最终标记阶段-较短停顿
+  老年代的回收-较长停顿
+  Full GC阶段-较长停顿
+</code></pre></li>
+</ul>
+<pre><code class="text">查看当前Java版本垃圾回收信息
+$ java -XX:+PrintCommandLineFlags -version  
+    -XX:InitialHeapSize=266248768 -XX:MaxHeapSize=4259980288 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC
+    java version &quot;1.8.0_191&quot;
+    Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+    Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+
+设置应用的垃圾回收器：
+-XX:+UseSerialGC 年轻代和老年代都用串行收集器
+-XX:+UseParNewGC 年轻代使用 ParNew，老年代使用 Serial Old [JDK9被抛弃]
+-XX:+UseParallelGC 年轻代使用 ParallerGC，老年代使用 Serial Old
+-XX:+UseParallelOldGC 新生代和老年代都使用并行收集器
+-XX:+UseConcMarkSweepGC，表示年轻代使用 ParNew，老年代的用 CMS
+-XX:+UseG1GC 使用 G1垃圾回收器
+-XX:+UseZGC 使用 ZGC 垃圾回收器
+</code></pre>
+<p>常量池分静态常量池和运行时常量池，静态常量池在 .class 中，运行时常量池在方法区中。<br>字符串池在JDK 1.7 之后被分离到堆区。<br>String str = new String(“Hello world”) 创建了 2 个对象，一个驻留在字符串池，一个分配在 Java 堆，str 指向堆上的实例。<br>String.intern() 能在运行时向字符串池添加常量。</p>
+<h2 id="小标题1"><a href="#小标题1" class="headerlink" title="小标题1"></a>小标题1</h2><h2 id="小标题2"><a href="#小标题2" class="headerlink" title="小标题2"></a>小标题2</h2><h2 id="原理（中标题）"><a href="#原理（中标题）" class="headerlink" title="原理（中标题）"></a>原理（中标题）</h2><ul>
+<li>字体<br><em>斜体文本</em><br><em>斜体文本</em><br><strong>粗体文本</strong><br><strong>粗体文本</strong><br><strong><em>粗斜体文本</em></strong><br><strong><em>粗斜体文本</em></strong><br><u>带下划线文本</u></li>
+</ul>
+<p>字颜色大小</p>
+<p><font size="3" color="red">This is some text!</font></p>
+<p><font size="2" color="blue">This is some text!</font></p>
+<p><font face="verdana" color="green" size="3">This is some text!</font></p>
+<h2 id="一些常用Java命令"><a href="#一些常用Java命令" class="headerlink" title="一些常用Java命令"></a>一些常用Java命令</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/1e4011617650" target="_blank" rel="noopener">Java双亲委派机制及其作用</a><br><a href="https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31" target="_blank" rel="noopener">拉勾网</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/7c15e85/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Mysql/MYSQL-index-Cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Mysql/MYSQL-index-Cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                MySQL索引原理深入</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/6f97dc89/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/ThreadAndLock/ThreadAndLock-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/ThreadAndLock/ThreadAndLock-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                线程进程与锁</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2019</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/技术/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/生活/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/音乐/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/随想/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/其他/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tech/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2019 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

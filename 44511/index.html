@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">Alluxio-基于内存的虚拟分布式存储系统 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(12).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(15).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(16).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(24).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+</head>
+</html>
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/技术/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/生活/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/音乐/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/随想/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/其他/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tech/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      Alluxio-基于内存的虚拟分布式存储系统</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-1-1<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <p><img src="https://vi2.xiu123.cn/live/2019/09/24/22/1002v1569336488318656852_b.jpg" alt="alt Alluxio-1">   </p>
+<h3 id="什么是Alluxio"><a href="#什么是Alluxio" class="headerlink" title="什么是Alluxio"></a>什么是Alluxio</h3><p>Alluxio 是世界上第一个虚拟的分布式存储系统，它为计算框架和存储系统构建了桥梁，使计算框架能够通过一个公共接口连接到多个独立的存储系统,使计算与存储隔离。 Alluxio 是内存为中心的架构，以内存速度统一了数据访问速度，使得数据的访问速度能比现有方案快几个数量级,为大数据软件栈带来了显著的性能提升<br><img src="https://vi3.xiu123.cn/live/2019/09/27/23/1002v1569597084038268730_b.jpg" alt="alt Alluxio-3"><br>在大数据生态系统中，Alluxio 位于数据驱动框架或应用（如 Apache Spark、Presto、Tensorflow、Apache HBase、Apache Hive 或 Apache Flink）和各种持久化存储系统（如 Amazon S3、Google Cloud Storage、OpenStack Swift、GlusterFS、HDFS、IBM Cleversafe、EMC ECS、Ceph、NFS 和 Alibaba OSS）之间,Alluxio 统一了存储在这些不同存储系统中的数据,为其上层数据框架提供统一的客户端API和全局命名空间  </p>
+<h3 id="Alluxio最新动态"><a href="#Alluxio最新动态" class="headerlink" title="Alluxio最新动态:"></a>Alluxio最新动态:</h3><p>为了方便大家可以持续跟进Alluxio发展动态，这里给出两条跟进Alluxio最新发展和动态的途径:<br><strong><a href="https://docs.alluxio.io/os/user/stable/cn/Overview.html" target="_blank" rel="noopener">Alluxio官方文档</a></strong><br><strong><a href="https://zhuanlan.zhihu.com/alluxio" target="_blank" rel="noopener">Alluxio知乎专栏</a></strong></p>
+<h4 id="Alluxio优势"><a href="#Alluxio优势" class="headerlink" title="Alluxio优势"></a>Alluxio优势</h4><ol>
+<li><strong>内存速度 I/O</strong>:Alluxio 能够用于分布式共享缓存服务，这样与 Alluxio 通信的计算应用程序可以透明地缓存频繁访问的数据（尤其是从远程位置）,以提供近似于内存级 I/O 吞吐率，同时提升稳定性。</li>
+<li><strong>简化云存储和对象存储接入</strong>:与传统文件系统相比,云存储系统和对象存储系统使用不同的语义,这些语义对性能的影响也不同于传统文件系统。常见的文件系统操作（如列出目录和重命名）通常会导致显著的性能开销。当访问云存储中的数据时，应用程序没有节点级数据本地性或跨应用程序缓存。将 Alluxio 与云存储或对象存储一起部署可以缓解这些问题,因为这样将从Alluxio中检索读取数据,而不是从底层云存储或对象存储中检索读取。</li>
+<li><strong>简化数据管理</strong>:Alluxio 提供对多数据源的单点访问,便捷地管理远程的存储系统,并向上层提供统一的命名空间。除了连接不同类型的数据源之外,Alluxio 还允许用户同时连接到不同版本的同一存储系统,如多个版本的HDFS,并且无需复杂的系统配置和管理，提高了数据访问灵活性。</li>
+<li><strong>应用程序部署简易</strong>:Alluxio 管理应用程序和文件或对象存储之间的通信，将应用程序的数据访问请求转换为底层存储接口的请求。Alluxio 与 Hadoop 兼容,现有的数据分析应用程序,如Spark和MapReduce程序,无需更改任何代码就能在Alluxio上运行。</li>
+<li><strong>分层存储特性</strong>:综合使用了内存、SSD和磁盘多种存储资源。通过Alluxio提供的LRU、LFU等缓存策略可以保证热数据一直保留在内存中，冷数据则被持久化到level 2甚至level 3的存储设备上</li>
+<li><strong>方便迁移可插拔</strong>:Alluxio提供多种易用的API方便将整个系统迁移到Alluxio</li>
+</ol>
+<h4 id="Alluxio的特征"><a href="#Alluxio的特征" class="headerlink" title="Alluxio的特征:"></a>Alluxio的特征:</h4><p><strong>对Alluxio的优势和特征进行了概括 点击可进入官网介绍</strong><br><a href="https://www.alluxio.io/blog/store-1-billion-files-in-alluxio-20/" target="_blank" rel="noopener">超大规模工作负载</a>:支持超大规模工作负载并具有HA高可用性<br><a href="https://docs.alluxio.io/os/user/stable/en/compute/Spark.html" target="_blank" rel="noopener">灵活的API</a> :计算框架可使用HDFS、S3、Java、RESTful或POSIX为基础的API来访问Alluxio<br><a href="https://docs.alluxio.io/os/user/stable/en/advanced/Alluxio-Storage-Management.html" target="_blank" rel="noopener">智能数据缓存和分层</a> : 使用包括内存在内的本地存储，来充当分布式缓存,很大程度上改善I/O性能，且缓存对用户透明<br><a href="https://docs.alluxio.io/os/user/stable/en/ufs/S3.html" target="_blank" rel="noopener">存储系统接口</a> : 通过一系列接口集成HDFS，S3，Azure Blob Store，Google Cloud Store等存储系统<br><a href="https://docs.alluxio.io/os/user/stable/en/advanced/Namespace-Management.html" target="_blank" rel="noopener">统一全局命名空间</a> : 多个存储系统安装到一个统一的名称空间中，不需要创建永久数据副本，方便管理多数据源<br><a href="https://docs.alluxio.io/os/user/stable/en/advanced/Security.html" target="_blank" rel="noopener">安全性</a> : 通过内置审核、基于角色的访问控制、LDAP、活动目录和加密通信，提供数据保护<br><a href="https://docs.alluxio.io/os/user/stable/en/basic/Web-Interface.html" target="_blank" rel="noopener">监控和管理</a> : 提供了用户友好的Web界面和命令行工具，允许用户监控和管理集群<br><a href="https://docs.alluxio.io/os/user/stable/en/advanced/Tiered-Locality.html" target="_blank" rel="noopener">分层次的本地性</a> : 将更多的读写安排在本地,实现成本和性能的优化  </p>
+<h4 id="Alluxio的应用场景"><a href="#Alluxio的应用场景" class="headerlink" title="Alluxio的应用场景"></a>Alluxio的应用场景</h4><p>Alluxio 的落地非常依赖场景，否则优化效果并不明显（无法发挥内存读取的优势）<br>1.计算应用需要反复访问远程云端或机房的数据（存储计算分离）<br>2.混合云,计算与存储分离,异构的数据存储带来的系统耦合（Alluxio提供统一命名空间，统一访问接口）<br>3.多个独立的大数据应用（比如不同的Spark Job）需要高速有效的共享数据（数据并发访问）<br>4.计算框架所在机器内存占用较高,GC频繁,或者任务失败率较高,Alluxio通过数据的OffHeap来减少GC开销<br>5.有明显热表/热数据，相同数据被单应用多次访问<br>6.需要加速人工智能云上分析（如TensorFlow本地训练，可通过FUSE挂载Alluxio FS到本地）</p>
+<p>我也做了很多Allxuio的性能测试工作,效果都不是很理想,有幸与Alluxio PMC范斌和李浩源交流了测试结果不如人意的原因,大佬是这么说的:”<strong>如果HDFS本身已经和Spark和Hive共置了，那么这个场景并不算Alluxio的目标场景。计算和存储分离的情况下才会有明显效果，否则通常是HDFS已经成为瓶颈时才会有帮助。</strong>“<br>还有,如果HDFS部署在计算框架本地,作业的输入数据可能会存在于系统的高速缓存区,则Alluxio对数据加速也并不明显。<br>所以:应用场景很关键,新技术产生时,一定要<strong>了解其应用场景和原理并经过考虑之后再做一些性能测试之类的后续工作</strong>!<br><u><strong><a href="https://www.alluxio.io/use-cases/" target="_blank" rel="noopener">官方介绍的Alluxio应用场景</a></strong></u>  </p>
+<h3 id="Alluxio原理"><a href="#Alluxio原理" class="headerlink" title="Alluxio原理"></a>Alluxio原理</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png" alt="alt Alluxio-7"><br>如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  </p>
+<h4 id="Alluxio核心组件"><a href="#Alluxio核心组件" class="headerlink" title="Alluxio核心组件"></a>Alluxio核心组件</h4><p>Alluxio使用了<strong>单Master</strong>和<strong>多Worker</strong>的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  </p>
+<hr>
+<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png" alt="alt Alluxio-8"><br><strong>Master:</strong> 负责管理整个集群的全局元数据并响应Client对文件系统的请求。在Alluxio文件系统内部，每一个文件被划分为一个或多个数据块(block)，并以数据块为单位存储在Worker中。Master节点负责管理文件系统的元数据(如文件系统的inode树、文件到数据块的映射)、数据块的元数据(如block到Worker的位置映射)，以及Worker元数据(如集群当中每个Worker的状态)。所有Worker定期向Master发送心跳消息汇报自己状态，以维持参与服务的资格。Master通常不主动与其他组件通信，只通过RPC服务被动响应请求，同时Master还负责实时记录文件系统的日志(Journal)，以保证集群重启之后可以准确恢复文件系统的状态。Master分为Primary Master和Secondary Master，Secondary Master需要将文件系统日志写入持久化存储，从而实现在多Master（HA模式下）间共享日志，实现Master主从切换时可以恢复Master的状态信息。Alluxio集群中可以有多个Secondary Master，每个Secondary Master定期压缩文件系统日志并生成Checkpoint以便快速恢复，并在切换成Primary Master时读取之前Primary Master写入的日志。Secondary Master不处理任何Alluxio组件的任何请求。  </p>
+<hr>
+<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-9.png" alt="alt Alluxio-9"><br><strong>Worker:</strong> Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。Worker会把新的数据存储在本地存储，并响应未来的Client读请求，Client未命中本地资源时也可能从底层持久化存储系统中读数据并缓存至Worker本地。<br>Worker代替Client在持久化存储上操作数据有两个好处:1.底层读取的数据可直接存储在Worker中，可立即供其他Client使用 2.Alluxio Worker的存在让Client不依赖底层存储的连接器，更加轻量化。<br>Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数据块需要替换已有数据块，缓存策略来决定保留哪些数据块。  </p>
+<hr>
+<p><strong>Client:</strong> 允许分析和AI/ML应用程序与Alluxio连接和交互，它发起与Master的通信，执行元数据操作，并从Worker读取和写入存储在Alluxio中的数据。它提供了Java的本机文件系统API，支持多种客户端语言包括REST，Go，Python等，而且还兼容HDFS和Amazon S3的API。<br>可以把Client理解为一个库，它实现了文件系统的接口，根据用户请求调用Alluxio服务，客户端被编译为alluxio-2.0.1-client.jar文件，它应当位于JVM类路径上，才能正常运行。<br>当Client和Worker在同一节点时，客户端对本地缓存数据的读写请求可以绕过RPC接口，使本地文件系统可以直接访问Worker所管理的数据，这种情况被称为短路写，速度比较快，如果该节点没有Worker在运行，则Client的读写需要通过网络访问其他节点上的Worker，速度受网络宽带的限制。  </p>
+<h4 id="Alluxio读写场景与参数"><a href="#Alluxio读写场景与参数" class="headerlink" title="Alluxio读写场景与参数"></a>Alluxio读写场景与参数</h4><ul>
+<li><strong>Alluxio读场景与性能分析:</strong><ul>
+<li><strong>命中本地Worker</strong><ol>
+<li>Client向Master检索存储该数据的Worker位置</li>
+<li>如果本地存有该数据，则”短路读”,避免网络传输</li>
+<li>短路读提供内存级别访问速度，是Alluxio最高读性能的方式</li>
+</ol>
+</li>
+<li><strong>命中远程Worker</strong><ol>
+<li>Client请求的数据不在本地Worker则Client将从远程Worker读取数据</li>
+<li>远程Worker将数据返回本地Worker并写一个本地副本，请求频繁的数据会有更多副本，从而实现热度优化计算的本地性，也可选NO_CACHE读取方式禁用本地副本写入</li>
+<li>远程缓存命中，读取速度受网络速度限制</li>
+</ol>
+</li>
+<li><strong>未命中Worker</strong><ol>
+<li>Alluxio任何一个Worker没有缓存所需数据，则Client把请求委托给本地Worker从底层存储系统(UFS)读取，缓存未命中的情况下延迟较高</li>
+<li>Alluxio 1.7前Worker从底层读取完整数据块缓存下来并返回给Client，1.7版本后支持异步缓存，Client读取，Worker缓存，不需要等待缓存完成即可返回结果</li>
+<li>指定NO_CACHE读取方式则禁用本地缓存</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>Alluxio写场景与性能分析:</strong><ul>
+<li><strong>仅写缓存</strong><ol>
+<li>写入类型通过alluxio.user.file.writetype.default来设置，MUST_CACHE仅写本地缓存而不写入UFS</li>
+<li>如果”短路写”可用，则直接写本地Worker避免网络传输，性能最高<br>3.如果无本地Worker，即”短路写”不可用，数据写入远端Worker，写速度受限于网络IO</li>
+<li>数据没有持久化，机器崩溃或需要释放数据用于较新的写入时，数据可能丢失</li>
+</ol>
+</li>
+<li><strong>同步写缓存和持久化存储</strong><ol>
+<li>alluxio.user.file.writetype.default=CACHE_THROUGH，同步写入Worker和UFS</li>
+<li>速度比仅写缓存的方式慢很多，需要数据持久化时使用</li>
+</ol>
+</li>
+<li><strong>仅写持久化存储</strong><ol>
+<li>alluxio.user.file.writetype.default=THROUGH，只将数据写入UFS，不会创建Alluxio缓存中的副本</li>
+<li>输入数据重要但不立刻使用的情况下使用该方式</li>
+</ol>
+</li>
+<li><strong>异步写持久化存储(目前2.0.1为实验性)</strong><ol>
+<li>alluxio.user.file.writetype.default=ASYNC_THROUGH</li>
+<li>可以以内存的速度写入Alluxio Worker，并异步完成持久化</li>
+<li>实验性功能-如果异步持久化到底层存储前机器崩溃，数据丢失，异步写机制要求文件所有块都在同一个Worker中</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>Alluxio读写参数总结</strong><ul>
+<li><strong>写参数:</strong> alluxio.user.file.writetype.default<ol>
+<li>CACHE_THROUGH:数据被同步写入AlluxioWorker和底层存储</li>
+<li>MUST_CACHE:数据被同步写入AlluxioWorker,不写底层存储</li>
+<li>THROUGH:数据只写底层存储,不写入AlluxioWorker</li>
+<li>ASYNC_THROUGH:数据同步写入AlluxioWorker并异步写底层存储(速度快)</li>
+</ol>
+</li>
+<li><strong>读参数:</strong> alluxio.user.file.readtype.default<ol>
+<li>CACHE_PROMOTE:数据在Worker上,则被移动到Worker的最高层,否则创建副本到本地Worker</li>
+<li>CACHE:数据不在本地Worker中时直接创建副本到本地Worker</li>
+<li>NO_CACHE:仅读数据,不写副本到Worker</li>
+</ol>
+</li>
+<li><strong>是否缓存全部数据块:</strong> alluxio.user.file.cache.partially.read.block (v1.7以前,V1.7以后采取异步缓存策略)<ol>
+<li>false读多少缓存多少,一个数据块只有完全被读取时，才能被缓存</li>
+<li>true读部分缓存全部,没有完全读取的数据块也会被全部存到Alluxio内  </li>
+</ol>
+</li>
+<li><strong>Worker写文件数据块的数据分布策略:</strong> alluxio.user.block.write.location.policy.class<ol>
+<li>LocalFirstPolicy (alluxio.client.block.policy.LocalFirstPolicy) 默认值,首先返回本地主机，如果本地worker没有足够的块容量，它从活动worker列表中随机选择一名worker。</li>
+<li>MostAvailableFirstPolicy (alluxio.client.block.policy.MostAvailableFirstPolicy) 返回具有最多可用字节的worker。</li>
+<li>RoundRobinPolicy (alluxio.client.block.policy.RoundRobinPolicy) 以循环方式选择下一个worker，跳过没有足够容量的worker。</li>
+<li>SpecificHostPolicy (alluxio.client.block.policy.SpecificHostPolicy) 返回具有指定主机名的worker。此策略不能设置为默认策略。</li>
+<li>目前有六种策略,详见<a href="https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html" target="_blank" rel="noopener">配置项列表</a><h4 id="Alluxio的分层存储"><a href="#Alluxio的分层存储" class="headerlink" title="Alluxio的分层存储"></a>Alluxio的分层存储</h4><strong>概念:</strong> Alluxio workers节点使用包括内存在内的本地存储来充当分布式缓冲缓存区,可以很大程度上改善I/O性能。每个Alluxio节点管理的存储数量和类型由用户配置,Alluxio还支持层次化存储,让数据存储获得类似于L1/L2 cpu缓存的优化。<br><strong>单层存储设置(推荐):</strong>  <ul>
+<li>默认使用两个参数<u>alluxio.worker.memory.size=16GB</u> + <u>alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk</u>来设置Alluxio Worker的缓存大小</li>
+<li>也可以单层多个存储介质并指定每个介质可用空间大小<u>alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk,/mnt/ssd</u> + <u>alluxio.worker.tieredstore.level0.dirs.quota=16GB,100GB</u>  </li>
+<li>alluxio.worker.memory.size和alluxio.worker.tieredstore.level0.dirs.quota的区别-&gt;ramdisk的大小默认由前者决定,后者可以决定除内存外的其他介质如ssd和hdd的大小  </li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>多层存储设置:</strong>  </p>
+<ul>
+<li>多层存储的配置-使用两层存储MEM和HDD<pre><code class="bash">  alluxio.worker.tieredstore.levels=2    # 最大存储级数 在Alluxio中配置了两级存储
+  alluxio.worker.tieredstore.level0.alias=MEM    # alluxio.worker.tieredstore.level0.alias=MEM 配置了首层(顶层)是内存存储层
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk    # 设置了ramdisk的配额是100GB
+  alluxio.worker.tieredstore.level0.dirs.quota=100GB
+  alluxio.worker.tieredstore.level0.watermark.high.ratio=0.9  # 回收策略的高水位
+  alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 
+  alluxio.worker.tieredstore.level1.alias=HDD  # 配置了第二层是硬盘层
+  alluxio.worker.tieredstore.level1.dirs.path=/mnt/hdd1,/mnt/hdd2,/mnt/hdd3  # 定义了第二层3个文件路径各自的配额
+  alluxio.worker.tieredstore.level1.dirs.quota=2TB,5TB,500GB
+  alluxio.worker.tieredstore.level1.watermark.high.ratio=0.9
+  alluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
+</code></pre>
+</li>
+<li>写数据默认写入顶层存储,也可以指定写数据的默认层级 <u>alluxio.user.file.write.tier.default</u> 默认0最顶层,1表示第二层,-1倒数第一层  </li>
+<li>Alluxio收到写请求,直接把数据写入有足够缓存的层,如果缓存全满,则置换掉底层的一个Block.</li>
+</ul>
+<h4 id="Alluxio缓存回收策略"><a href="#Alluxio缓存回收策略" class="headerlink" title="Alluxio缓存回收策略"></a>Alluxio缓存回收策略</h4><p><strong>缓存回收:</strong> Alluxio中的数据是动态变化的,存储空间不足时会为新数据腾出空间</p>
+<ul>
+<li>异步缓存回收与同步缓存回收<br>  alluxio.worker.tieredstore.reserver.enabled=true (默认异步回收)  在读写缓存工作负载较高的情况下异步回收可以提升性能<br>  alluxio.worker.tieredstore.reserver.enabled=false (同步回收)     请求所用空间比Worker上请求空间更多时,同步回收可以最大化Alluxio空间利用率,同步回收建议使用小数据块配置(64-128MB)来降低回收延迟  </li>
+<li>缓存回收中空间预留器的水位(阈值)<br>  <strong>Worker存储利用率达到高水位时,基于回收策略回收Worker缓存直到达到配置的低水位</strong><br>  <strong>高水位:</strong> alluxio.worker.tieredstore.level0.watermark.high.ratio=0.95 (默认95%)<br>  <strong>低水位:</strong> alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 (默认70%)<br>  比如配置了32GB(MEM)+100GB(SSD)=132GB的Worker内存,当内存达到高水位<u>132x0.95=125.4GB</u>时开始回收缓存,直到到达低水位<u>132x0.7=92.4GB</u>时停止回收缓存  </li>
+<li>自定义回收策略<br>  alluxio.worker.allocator.class=alluxio.worker.block.allocator.MaxFreeAllocator  (Alluxio中新数据块分配策略的类名)<br>  alluxio.worker.evictor.class=alluxio.worker.block.evictor.LRUEvictor  (当存储层空间用尽时块回收策略的类名)<br>  <strong>贪心回收策略:</strong> 回收任意数据块直到释放出所需空间<br>  <strong>LRU回收策略:</strong> 回收最近最少使用数据块直到释放出所需空间<br>  <strong>部分LRU回收策略:</strong> 在最大剩余空间的目录回收最近最少使用数据块<br>  <strong>LRFU回收策略:</strong> 基于权重分配的最近最少使用和最不经常使用策略回收数据块,如果权重完全偏向最近最少使用,则LRFU变为LRU</li>
+</ul>
+<h4 id="Alluxio异步缓存策略"><a href="#Alluxio异步缓存策略" class="headerlink" title="Alluxio异步缓存策略"></a>Alluxio异步缓存策略</h4><ul>
+<li>Alluxio v1.7以后支持异步缓存<br>  异步缓存是将Alluxio的缓存开销由客户端转移到Worker上,第一次读数据时,在不设置读属性为NO_CACHE的情况下Client只负责从底层存储读数据,然后缓存任务由Worker来执行,对Client读性能没有影响,也不需要像V1.7版本前那样设置<u>alluxio.user.file.cache.partially.read.block</u>来决定缓存部分或全部数据,而且Worker内部也在Client读取底层存储系统的数据方面做了优化,设置读属性为CACHE的情况下:<br>  Client顺序读完整数据块时Worker顺便缓存完整数据块<br>  Client只读部分数据或非顺序读数据时Worker不会读取时顺便缓存,等客户端读取完以后再向Worker系欸点发送异步缓存命令,Worker节点再从底层存储中获取完整的块<br>  异步缓存使得第一次从Alluxio读取和直接从底层存储读取花费相同时间,且数据异步缓存到Alluxio中,提高集群整体性能  </li>
+<li>异步缓存参数调整<br>  Worker在异步缓存的同时也响应Client读取请求,可通过设置Worker端的线程池大小来加快异步缓存的速度<br>  <u>alluxio.worker.network.netty.async.cache.manager.threads.max</u> 指定Worker线程池大小,该属性默认为8,表示最多同时用八核从其他Worker或底层存储读数据并缓存,提高此值可以加快后台异步缓存的速度,但会增加CPU使用率</li>
+</ul>
+<h4 id="Alluxio元数据"><a href="#Alluxio元数据" class="headerlink" title="Alluxio元数据"></a>Alluxio元数据</h4><ol>
+<li><p><u><strong>Alluxio元数据的存储</strong></u><br>在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对<strong>数以亿级的元数据存储</strong>。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-18.jpg" alt="alt Alluxio-18"><br>首先，文件系统是<strong>INode-Tree</strong>组成的，即文件目录树，Alluxio Master管理多个底层存储系统的元数据，每个文件目录都是INode-Tree的节点，在Java对象中，可能一个目录信息本身占用空间不大，但映射在JavaHeap内存中，算上附加信息，每个文件大概要有1KB左右的元数据，如果有十亿个文件和路径，则要有约1TB的堆内存来存储元数据，完全是不现实的。<br>所以，为了方便管理元数据，减小因为元数据过多对Master性能造成的影响，<strong>Alluxio的元数据通过RocksDB键值数据库来管理元数据</strong>，<strong>Master会Cache常用数据的元数据</strong>，而<strong>大部分元数据则存在RocksDB中</strong>，这样大大减小了Master Heap的压力，降低OOM可能性，使Alluxio可以同时管理多个存储系统的元数据。<br>通过RocksDB的行锁，也可以方便高并发的操作Alluxio元数据。<br>高可用过程中，INode-Tree是进程中的资源，不共享，如果ActiveMaster挂掉，StandByMaster节点可以从Journal持久日志（位于持久化存储中如HDFS）恢复状态。<br>这样会依赖持久存储（如HDFS）的健康状况，如果持久存储服务宕机，Journal日志也不能写，Alluxio高可用服务就会受到影响。<br>所以，Alluxio通过Raft算法保证元数据的完整性，即使宕机，也不会丢失已经提交的元数据。</p>
+</li>
+<li><p><u><strong>Alluxio元数据一致性</strong></u></p>
+<ul>
+<li>Alluxio读取磁层存储系统的元数据,包括文件名,文件大小,创建者,组别,目录结构等</li>
+<li>如果绕过Alluxio修改底层存储系统的目录结构,Alluxio会同步更新<br>alluxio.user.file.metadata.sync.interval=-1 Alluxio不主动同步底层存储元数据<br>alluxio.user.file.metadata.sync.interval=正整数 正整数指定了时间窗口,该时间窗口内不触发元数据同步<br>alluxio.user.file.metadata.sync.interval=0 时间窗口为0,每次读取都触发元数据同步<br><strong>时间窗口越大,同步元数据频率越低,Alluxio Master性能受影响越小</strong></li>
+<li>Alluxio不加载具体数据,只加载元数据,若要加载文件数据,可以通过load命令或FileStream API</li>
+<li>在Alluxio中创建文件或文件夹时可以指定是否持久化<br>alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH mkdir /xxx<br>alluxio fs -Dalluxio.user.file.writetype.default=CACHE_THROUGH touch /xxx/xx  </li>
+</ul>
+</li>
+</ol>
+<h4 id="Alluxio-RPC"><a href="#Alluxio-RPC" class="headerlink" title="Alluxio RPC"></a>Alluxio RPC</h4><p>Alluxio 1.x中<br> Master RPC using Thrift（元数据操作）<br> Workers RPC using Netty（数据操作）<br>而新的Alluxio 2.x中<br> 使用<strong>gRPC</strong>保证高吞吐，方便代码维护</p>
+<h4 id="Alluxio的Metrics"><a href="#Alluxio的Metrics" class="headerlink" title="Alluxio的Metrics"></a>Alluxio的Metrics</h4><p><strong>度量指标信息可以让用户深入了解集群上运行的任务,是监控和调试的宝贵资源。</strong><br>Alluxio的度量指标信息被分配到<u>各种相关Alluxio组件的实例</u>中。每个实例中，用户可以配置一组度量指标槽，来决定报告哪些度量指标信息。现支持Master进程,Worker进程和Client进程的度量指标 。  </p>
+<ol>
+<li><p>度量指标的sink<br>参数为alluxio.metrics.sink.xxx<br>ConsoleSink: 输出控制台的度量值。<br>CsvSink: 每隔一段时间将度量指标信息导出到CSV文件中。<br>JmxSink: 查看JMX控制台中注册的度量信息。<br>GraphiteSink: 给Graphite服务器发送度量信息。<br>MetricsServlet: 添加Web UI中的servlet，作为JSON数据来为度量指标数据服务。</p>
+</li>
+<li><p>可选度量的配置</p>
+<ul>
+<li><p>Master的Metrics  配置方法 master.*  例如:master.CapacityTotal<br><u>常规信息</u><br>CapacityTotal: 文件系统总容量（以字节为单位）。<br>CapacityUsed: 文件系统中已使用的容量（以字节为单位）。<br>CapacityFree: 文件系统中未使用的容量（以字节为单位）。<br>PathsTotal: 文件系统中文件和目录的数目。<br>UnderFsCapacityTotal: 底层文件系统总容量（以字节为单位）。<br>UnderFsCapacityUsed: 底层文件系统中已使用的容量（以字节为单位）。<br>UnderFsCapacityFree: 底层文件系统中未使用的容量（以字节为单位）。<br>Workers: Worker的数目。<br><u>逻辑操作</u><br>DirectoriesCreated: 创建的目录数目。<br>FileBlockInfosGot: 被检索的文件块数目。<br>FileInfosGot: 被检索的文件数目。<br>FilesCompleted: 完成的文件数目。<br>FilesCreated: 创建的文件数目。<br>FilesFreed: 释放掉的文件数目。<br>FilesPersisted: 持久化的文件数目。<br>FilesPinned: 被固定的文件数目。<br>NewBlocksGot: 获得的新数据块数目。<br>PathsDeleted: 删除的文件和目录数目。<br>PathsMounted: 挂载的路径数目。<br>PathsRenamed: 重命名的文件和目录数目。<br>PathsUnmounted: 未被挂载的路径数目。<br><u>RPC调用</u><br>CompleteFileOps: CompleteFile操作的数目。<br>CreateDirectoryOps: CreateDirectory操作的数目。<br>CreateFileOps: CreateFile操作的数目。<br>DeletePathOps: DeletePath操作的数目。<br>FreeFileOps: FreeFile操作的数目。<br>GetFileBlockInfoOps: GetFileBlockInfo操作的数目。<br>GetFileInfoOps: GetFileInfo操作的数目。<br>GetNewBlockOps: GetNewBlock操作的数目。<br>MountOps: Mount操作的数目。<br>RenamePathOps: RenamePath操作的数目。<br>SetStateOps: SetState操作的数目。<br>UnmountOps: Unmount操作的数目。</p>
+</li>
+<li><p>Worker的Metrics 配置方法 192_168_1_1.*  例如:192_168_1_1.CapacityTotal<br>常规信息<br>CapacityTotal: 该Worker的总容量（以字节为单位）。<br>CapacityUsed: 该Worker已使用的容量（以字节为单位）。<br>CapacityFree: 该Worker未使用的容量（以字节为单位）。<br>逻辑操作<br>BlocksAccessed: 访问的数据块数目。<br>BlocksCached: 被缓存的数据块数目。<br>BlocksCanceled: 被取消的数据块数目。<br>BlocksDeleted: 被删除的数据块数目。<br>BlocksEvicted: 被替换的数据块数目。<br>BlocksPromoted: 被提升到内存的数据块数目。<br>BytesReadAlluxio: 通过该worker从Alluxio存储读取的数据量，单位为byte。其中不包括UFS读。<br>BytesWrittenAlluxio: 通过该worker写到Alluxio存储的数据量，单位为byte。其中不包括UTF写。<br>BytesReadUfs-UFS:${UFS}: 通过该worker从指定UFS读取的数据量，单位为byte。<br>BytesWrittenUfs-UFS:${UFS}: 通过该worker写到指定UFS的数据量，单位为byte。</p>
+</li>
+<li><p>Client的Metrics 配置方法 client.* 例如:clien.BytesReadRemote<br>常规信息<br>NettyConnectionOpen: 当前Netty网络连接的数目。<br>逻辑操作<br>BytesReadRemote: 远程读取的字节数目。<br>BytesWrittenRemote: 远程写入的字节数目。<br>BytesReadUfs: 从ufs中读取的字节数目。<br>BytesWrittenUfs: 写入ufs的字节数目。</p>
+</li>
+</ul>
+</li>
+<li><p>配置示例</p>
+<pre><code class="bash">vim metrics.properties
+# List of available sinks and their properties.
+alluxio.metrics.sink.ConsoleSink
+alluxio.metrics.sink.CsvSink
+alluxio.metrics.sink.JmxSink
+alluxio.metrics.sink.MetricsServlet
+alluxio.metrics.sink.PrometheusMetricsServlet
+alluxio.metrics.sink.GraphiteSink
+
+master.GetFileBlockInfoOps
+master.GetNewBlockOps
+master.FreeFileOps
+
+192_168_1_101.BytesReadAlluxio
+192_168_1_101.BytesWrittenAlluxio
+192_168_1_101.BlocksAccessed
+192_168_1_101.BlocksCached
+192_168_1_101.BlocksCanceled
+192_168_1_101.BlocksDeleted
+192_168_1_101.BlocksEvicted
+192_168_1_101.BlocksPromoted
+
+192_168_1_102.BytesReadAlluxio
+192_168_1_102.BytesWrittenAlluxio
+192_168_1_102.BlocksAccessed
+192_168_1_102.BlocksCached
+192_168_1_102.BlocksCanceled
+192_168_1_102.BlocksDeleted
+192_168_1_102.BlocksEvicted
+192_168_1_102.BlocksPromoted
+
+192_168_1_103.BytesReadAlluxio
+192_168_1_103.BytesWrittenAlluxio
+192_168_1_103.BlocksAccessed
+192_168_1_103.BlocksCached
+192_168_1_103.BlocksCanceled
+192_168_1_103.BlocksDeleted
+192_168_1_103.BlocksEvicted
+192_168_1_103.BlocksPromoted
+</code></pre>
+<p>然后访问 <a href="http://192.168.1.101:19999/metrics/json/" target="_blank" rel="noopener">http://192.168.1.101:19999/metrics/json/</a> 可得到监控信息<br>喜欢看源码的小伙伴可以戳这里哟-&gt;<a href="https://github.com/Alluxio/alluxio" target="_blank" rel="noopener">Alluxio源码入口</a></p>
+</li>
+</ol>
+<h4 id="Alluixo审计日志"><a href="#Alluixo审计日志" class="headerlink" title="Alluixo审计日志"></a>Alluixo审计日志</h4><p>Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访问操作。<br>开启审计日志： 讲JVM参数<strong>alluxio.master.audit.logging.enabled</strong>设为<strong>true</strong><br>审计日志包含如下条目： </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">key</th>
+<th style="text-align:center">desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">succeeded</td>
+<td style="text-align:center">如果命令成功运行，值为true。在命令成功运行前，该命令必须是被允许的。</td>
+</tr>
+<tr>
+<td style="text-align:center">allowed</td>
+<td style="text-align:center">如果命令是被允许的，值为true。即使一条命令是被允许的它也可能运行失败。</td>
+</tr>
+<tr>
+<td style="text-align:center">ugi</td>
+<td style="text-align:center">用户组信息，包括用户名，主要组，认证类型。</td>
+</tr>
+<tr>
+<td style="text-align:center">ip</td>
+<td style="text-align:center">客户端IP地址。</td>
+</tr>
+<tr>
+<td style="text-align:center">cmd</td>
+<td style="text-align:center">用户运行的命令。</td>
+</tr>
+<tr>
+<td style="text-align:center">src</td>
+<td style="text-align:center">源文件或目录地址。</td>
+</tr>
+<tr>
+<td style="text-align:center">dst</td>
+<td style="text-align:center">目标文件或目录的地址。如果不适用，值为空。</td>
+</tr>
+<tr>
+<td style="text-align:center">perm</td>
+<td style="text-align:center">user:group:mask，如果不适用值为空。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Alluxio安装和部署"><a href="#Alluxio安装和部署" class="headerlink" title="Alluxio安装和部署"></a>Alluxio安装和部署</h3><h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>1.<a href="https://www.alluxio.io/download/" target="_blank" rel="noopener">下载Alluxio压缩包</a>并上传到NN所在集群<br>2.解压并进入安装目录  </p>
+<pre><code class="console"> tar -zxvf alluxio-2.0.1-bin.tar.gz -C /opt/module/
+ mv /opt/module/alluxio-2.0.1 /opt/module/alluxio
+ cd /opt/module/alluxio
+ cp conf/alluxio-site.properties.template conf/alluxio-site.properties
+ cp conf/alluxio-env.sh.template conf/alluxio-env.sh
+</code></pre>
+<h4 id="常规集群参数配置"><a href="#常规集群参数配置" class="headerlink" title="常规集群参数配置"></a>常规集群参数配置</h4><p>常规非高可用集群配置，针对1.x和2.x版本通用<br><strong>conf/alluxio-env.sh</strong>  </p>
+<pre><code class="console"> vim conf/alluxio-env.sh
+ ALLUXIO_HOME=/opt/module/alluxio-2.0.1
+ ALLUXIO_LOGS_DIR=/opt/module/alluxio-2.1.0/logs
+ ALLUXIO_MASTER_HOSTNAME=hadoop101 
+ ALLUXIO_RAM_FOLDER=/mnt/ramdisk
+ ALLUXIO_UNDERFS_ADDRESS=hdfs://hadoop101:9000/alluxio 
+ ALLUXIO_WORKER_MEMORY_SIZE=512MB
+ JAVA_HOME=/opt/module/jdk1.8.0_161
+ # 设置ALLUXIO_MASTER_JAVA_OPTS作用于master JVM
+ # 设置ALLUXIO_WORKER_JAVA_OPTS作用于worker JVM
+ # 以及ALLUXIO_JAVA_OPTS同时作用于master以及worker JVM
+ # 增加worker JVM GC事件的logging, 输出写至worker节点的logs/worker.out文件中
+ ALLUXIO_WORKER_JAVA_OPTS=&quot; -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -XX:+PrintGCTimestamps&quot;
+ # 设置master JVM的的heap size
+ ALLUXIO_MASTER_JAVA_OPTS=&quot; -Xms2048M -Xmx4096M&quot;
+</code></pre>
+<p><strong>conf/alluxio-site.properties</strong></p>
+<pre><code class="console"> vim conf/alluxio-site.properties
+ # Common properties
+ alluxio.master.hostname=hadoop101
+ alluxio.master.mount.table.root.ufs=hdfs://192.168.1.101:9000/alluxio
+ alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+ # Worker properties
+ alluxio.worker.memory.size=512MB
+ alluxio.worker.tieredstore.levels=1
+ alluxio.worker.tieredstore.level0.alias=MEM
+ alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+
+ vim conf/masters 
+ hadoop101
+
+ vim conf/workers
+ hadoop102
+ hadoop103
+
+ scp -r /opt/module/alluxio/ root@hadoop102:/opt/module/
+ scp -r /opt/module/alluxio/ root@hadoop103:/opt/module/
+
+ # 打开Alluxio服务
+ alluxio format
+ alluxio-start.sh master  
+ alluxio-start.sh workers NoMount
+ 或直接 alluxio-start.sh all
+ 访问Master节点的WEB UI: hadoop101:19999
+ 访问Worker节点的WEB UI: hadoop102:30000
+
+ #测试部署是否成功
+ bin/alluxio runTests  # 如果出现Passed the test则说明部署成功
+ bin/alluxio-stop.sh all  # 关闭集群
+</code></pre>
+<p>出现类似以下界面即为部署成功<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-4.jpg" alt="alt Alluxio-4"><br>此时可以通过命令<strong>alluxio fsdamin report</strong>来查看集群状态<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-6.jpg" alt="alt Alluxio-6">  </p>
+<h4 id="高可用集群参数配置"><a href="#高可用集群参数配置" class="headerlink" title="高可用集群参数配置"></a>高可用集群参数配置</h4><p>高可用(HA)通过支持同时运行多个master来保证服务的高可用性，多个master中有一个master被选为primary master作为所有worker和client的通信首选，其余master为备选状态(StandBy)，它们通过和primary master共享日志来维护同样的文件系统元数据，并在primary master失效时迅速接替其工作(master主从切换过程中，客户端可能会出现短暂的延迟或瞬态错误)<br>搭建高可用集群前的准备:<br>①确保Zookeeper服务已经运行<br>②一个单独安装的可靠的共享日志存储系统(可用HDFS或S3等系统)<br>③这个配置针对Alluxio 2.x版本，不适用于1.x版本<br>④需要事先创建好ramdisk挂载目录  </p>
+<pre><code class="properties">  注意去掉中文注释 否则会报错
+
+  在所有机器上配置env.sh
+  vim alluxio-env.sh
+  ALLUXIO_HOME=/opt/alluxio
+  ALLUXIO_LOGS_DIR=/opt/alluxio/logs
+  ALLUXIO_RAM_FOLDER=/mnt/ramdisk
+  JAVA_HOME=/opt/module/jdk1.8.0_161
+ # 设置ALLUXIO_MASTER_JAVA_OPTS作用于master JVM
+ # 设置ALLUXIO_WORKER_JAVA_OPTS作用于worker JVM
+ # 以及ALLUXIO_JAVA_OPTS同时作用于master以及worker JVM
+ # 增加worker JVM GC事件的logging, 输出写至worker节点的logs/worker.out文件中
+ ALLUXIO_WORKER_JAVA_OPTS=&quot; -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -XX:+PrintGCTimestamps&quot;
+ # 设置master JVM的的heap size
+ ALLUXIO_MASTER_JAVA_OPTS=&quot; -Xms2048M -Xmx4096M&quot;
+
+  在101机器上配置Master和Worker
+  vim alluxio-site.properties   
+  # 192.168.1.101    Master Worker
+  # Common properties
+  alluxio.master.hostname=192.168.1.101     # 要写其他机器能识别的地址而非localhost等
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml    # 如果底层HDFS存储为高可用，则要写hdfs配置文件地址
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/    # 指向高可用或非高可用的HDFS地址（可以是根目录，也可以是某个文件夹）
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181   # Zookeeper地址中间逗号隔开
+  alluxio.master.journal.type=UFS
+  alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal   # 回滚日志的地址，写入可靠的分布式HDFS
+  alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1000
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*    # 可以模拟很多用户来实现权限控制
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+
+
+  在102机器上配置Master和Worker
+  vim alluxio-site.properties 
+  # 192.168.1.102      Master Worker
+  # Common properties
+  alluxio.master.hostname=192.168.1.102    # 要写其他机器能识别的地址而非localhost等
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
+  alluxio.master.journal.type=UFS
+  alluxio.master.journal.folder=hdfs://192.168.1.101:9000/alluxio/journal
+  alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1000
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+
+  在103机器上配置Worker
+  vim alluxio-site.properties 
+  # 192.168.1.103      Worker
+  # Common properties
+  # Worker不需要写alluxio.master.hostname参数和alluxio.master.journal.folder参数
+  alluxio.underfs.hdfs.configuration=/opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml:/opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml
+  alluxio.master.mount.table.root.ufs=hdfs://hadoop101:9000/
+  # Worker properties
+  alluxio.worker.memory.size=512MB
+  alluxio.worker.tieredstore.levels=1
+  alluxio.worker.tieredstore.level0.alias=MEM
+  alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+  # HA properties
+  alluxio.zookeeper.enabled=true
+  alluxio.zookeeper.address=192.168.1.101:2181,192.168.1.102:2181,192.168.1.103:2181
+  alluxio.worker.block.heartbeat.timeout.ms=300000
+  alluxio.zookeeper.session.timeout=120s
+  # User properties
+  alluxio.user.file.readtype.default=CACHE_PROMOTE
+  alluxio.user.file.writetype.default=ASYNC_THROUGH
+  alluxio.user.metrics.collection.enable=true
+  alluxio.master.metrics.time.series.interval=1000
+  # Security properties
+  alluxio.security.authorization.permission.enabled=true
+  alluxio.security.authentication.type=SIMPLE
+  alluxio.master.security.impersonation.hive.users=*
+  alluxio.master.security.impersonation.hive.groups=*
+  alluxio.master.security.impersonation.yarn.users=*
+  alluxio.master.security.impersonation.yarn.groups=*
+  alluxio.master.security.impersonation.hdfs.users=*
+  alluxio.master.security.impersonation.hdfs.groups=*
+
+  在所有机器上指定Master和Worker节点
+  vim masters
+  192.168.1.101
+  192.168.1.102
+
+  vim workers
+  192.168.1.101
+  192.168.1.102
+  192.168.1.103
+
+  # 测试部署是否成功
+  alluxio format
+  alluxio-start.sh all SudoMount
+  alluxio fsadmin report
+  alluxio runTests    # 如果出现Passed the test则说明部署成功
+  # 测试高可用模式的自动故障处理: (假设此时hadoop101位primary master)
+  ssh hadoop101
+  jps | grep AlluxioMaster
+  kill -9 &lt;AlluxioMaster PID&gt;
+  alluxio fs leader  # 显示新的primary Master(可能需要等待一小段时间选举)
+</code></pre>
+<h4 id="部署说明"><a href="#部署说明" class="headerlink" title="部署说明"></a>部署说明</h4><ol>
+<li>Alluxio可以像CM一样，部署在同一网络中的节点上且不需要机器间免密登陆。免密登陆只是为了方便使用start-all.sh脚本一键启动。非免密登陆的集群可以使用Ansible自动化运维工具对每个节点执行启动和挂载等操作(在每个Master上使用部署Alluxio的用户分别执行alluxio-start.sh master,然后如果使用非root用户启动Alluxio服务，则要在每个worker的root用户执行alluxio-mount.sh Mount local ,然后用部署Alluxio的用户执行alluxio-start.sh worker,并在所有节点alluxio-start.sh job_master,alluxio-start.sh job_worker即可)，作用等同于start-all.sh脚本，不会对Alluxio服务的运行造成影响。  </li>
+<li>Mount和SudoMount需要在root权限下执行，因为只有root用户有权限创建和访问RamFS，启动Alluxio的用户要有这个RamFS的读写执行权限，Alluxio的RAM FLODER（ramdisk）可以理解为是在普通HDD磁盘目录上挂载的一个RamFS文件系统，RamFS是把系统的RAM作为存储，且RamFS不会使用swap交换内存分区，Linux会把RamFS视为一个磁盘文件目录。 查看RamFS的方法： mount | grep -E “(tmpfs|ramfs)” 这里的tmpFS也是基于内存的存储系统，但它会使用到Swap分区，使读写效率降低，Alluxio也可以使用tmpFS作为缓存。 了解更多:<a href="https://www.cnblogs.com/dosrun/p/4057112.html" target="_blank" rel="noopener">ramfs和tmpfs的区别</a>  </li>
+<li>Alluxio的”/“目录权限由启动Mater和Worker的用户决定，并与UFS中对应的文件夹权限一致，可以修改Alluxio根目录权限，Alluxio创建文件和文件夹的用户和组与Linux用户合组一致，并且与持久化到HDFS的文件的用户和组一致。  </li>
+<li>Mount|SudoMount|Umount|SudoUmount说一下这四个参数，Mount和SudoMount是挂载RamFS，后者带sudo权限，Umount和SudoUmount是卸载RamFS，后者带sudo权限。Mount和SudoMount会格式化已存在的RamFS。<br>5.关于<strong>用户模拟</strong>的一些理解和使用很重要参考这篇文章：<a href="https://zhuanlan.zhihu.com/p/57968685" target="_blank" rel="noopener">User Impersonation相关配置问题分析与解决</a>  </li>
+<li>Alluxio部署前，要决定用哪个用户启动Alluxio，如果底层存储是HDFS，建议使用启动NameNode进程的用户来启动Alluxio Master和Workers,保证HDFS权限映射：<a href="https://docs.alluxio.io/os/user/stable/cn/ufs/HDFS.html" target="_blank" rel="noopener">Alluxio On HDFS</a> </li>
+<li>Mount参数一般只在Worker节点使用  </li>
+<li>可以在HDFS建立一个777权限的文件路径作为Alluxio的底层存储  </li>
+<li>job_master和job_worker官网没做介绍，但在当前版本这两个组件必须启动，否则会影响persist功能以及一些其他功能(我目前只知道persist会Time Out)</li>
+</ol>
+<p>配置这块踩了好多坑，终于，Alluxio基本服务部署完毕,一些关于优化和细节的参数在<strong>Alluxio原理</strong>部分中涉及到,也可查阅<a href="https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html" target="_blank" rel="noopener">Alluxio配置参数大全</a>  </p>
+<p>Alluxio2.1.0版本官方介绍说<a href="https://github.com/Alluxio/alluxio/commit/b69e73de1e" target="_blank" rel="noopener">使用ASYNC_THROUGH进行写入时防止数据丢失</a>，所以我这里设置了ASYNC_THROUGH异步写磁盘，既能保证写入速度，又能将文件持久化<br>之前配置Alluxio高可用，一直不稳定，心跳中断，Master和Worker掉线问题频发，Alluxio2.1版本官方说<a href="https://github.com/Alluxio/alluxio/commit/8d2a6ec179" target="_blank" rel="noopener">修复了各种心跳中断问题</a>,当然Alluxio的高可用要求底层的Journal日志存储系统的稳定性很高，如果底层Journal存储系统不稳定（比如HDFS No More Good DataNode的情况），就会导致Master崩溃。  </p>
+<h3 id="Alluxio常用命令"><a href="#Alluxio常用命令" class="headerlink" title="Alluxio常用命令"></a>Alluxio常用命令</h3><p>Alluxio命令速查表包括缓存载入,驻留,释放,数据生存时间等重要命令<br>Alluxio常用Shell命令速查表:  </p>
+<pre><code class="bash">#文件基本操作
+ 可以在执行命令时指定参数 方法: alluxio fs -D...指定参数 copyFromLocal ....
+ alluxio fs cat &lt;path/file&gt;  # 打开文件
+ alluxio fs ls [-d|-f|-p|-R|-h|--sort=option|-r] &lt;path&gt;  #查看目录
+ alluxio fs copyFromLocal [--thread &lt;num&gt;] [--buffersize &lt;bytes&gt;] &lt;src&gt; &lt;remoteDst&gt; # 从本地上传文件到Alluxio
+ alluxio fs copyToLocal [--buffersize &lt;bytes&gt;]  &lt;src&gt; &lt;localDst&gt;   #从Alluxio载文件到本地
+ alluxio fs count &lt;path&gt;  # 统计Alluxio目录的文件数,文件夹数和总大小
+ alluxio fs du [-h|-s|--memory] &lt;path&gt;  # 文件大小
+ alluxio fs cp [-R] [--buffersize &lt;bytes&gt;] &lt;src&gt; &lt;dst&gt;   #复制文件
+ alluxio fs mv &lt;src&gt; &lt;dst&gt;   # 移动文件
+ alluxio fs rm [-R] [-U] [--alluxioOnly] &lt;path&gt;    # 删除文件
+ alluxio fs mkdir &lt;path1&gt; [path2] ... [pathn]  # 创建文件夹
+ alluxio fs touch &lt;path&gt;  #创建一个空文件
+ alluxio fs setTtl [--action delete|free] &lt;path&gt; &lt;time to live&gt;  # 设置一个文件的TTL时间
+ alluxio fs unsetTtl &lt;path&gt;  # 删除文件的TTL值
+ alluxio fs checksum &lt;Alluxio path&gt;  # 得到文件的MD5值
+ alluxio fs stat &lt;path&gt;  # 显示文件路径信息
+ alluxio fs tail &lt;path&gt;  # 显示文件最后1KB的内容
+ alluxio fs location &lt;path&gt;  # 输出包含某个文件数据的主机,使用location命令可以调试数据局部性
+ alluxio fs help &lt;command&gt; # 查看命令介绍和用法
+ alluxio fs distributedMv &lt;src&gt; &lt;dst&gt; # 并行移动文件或目录
+ alluxio fs distributedCp &lt;src&gt; &lt;dst&gt; # 并行复制文件或目录
+ alluxio fs distributedLoad [--replication &lt;num&gt;] &lt;path&gt;  # 在alluxio空间中加载文件或目录，使其驻留在内存中
+
+#与底层存储的交互操作
+ alluxio fs load [--local] &lt;path&gt;  # load命令可为数据分析编排数据,加快数据分析的效率,load命令将底层文件系统中的数据载入到Alluxio中,如果运行该命令的机器上正在运行一个Alluxio worker,那么数据将移动到该worker上,否则数据会被随机移动到一个worker上。 如果该文件已经存在在Alluxio中,设置了--local选项,并且有本地worker,则数据将移动到该worker上。否则该命令不进行任何操作。如果该命令的目标是一个文件夹,那么其子文件和子文件夹会被递归载入。
+ alluxio fs persist [-p|--parallelism &lt;#&gt;] [-t|--timeout &lt;milliseconds&gt;] [-w|--wait &lt;milliseconds&gt;] &lt;path&gt; [&lt;path&gt; ...]  # 持久化Alluxio中的数据到底层存储
+ alluxio fs checkConsistency [-r] [-t|--threads &lt;threads&gt;] &lt;Alluxio path&gt;  # 检查Alluxio与底层存储系统的元数据一致性(确定文件在底层存储还是在under storage system.)
+ alluxio fs free -f &lt;&gt;   # 已经持久化到底层存储,但内存中还保留着的文件可以通过free从内存中释放,未被持久化的文件不能被free
+ alluxio fs mount [--readonly] [--shared] [--option &lt;key=val&gt;] &lt;alluxioPath&gt; &lt;ufsURI&gt;]    # 将底层文件系统的&quot;ufsURI&quot;路径挂载到Alluxio命名空间中的&quot;alluxioPath&quot;路径下，&quot;path&quot;路径事先不能存在并由该命令生成。 没有任何数据或者元数据从底层文件系统加载。当挂载完成后，对该挂载路径下的操作会同时作用于底层文件系统的挂载点。monut命令可以挂载linux服务器上的某个文件夹alluxio fs mount /demo file:///tmp/alluxio-demo
+ alluxio fs unmount &lt;alluxioPath&gt;  # 取消挂载
+ alluxio fs updateMount [--readonly] [--shared] [--option &lt;key=val&gt;] &lt;alluxioPath&gt;  # 保留元数据的同时更改挂载点设置
+ alluxio fs pin &lt;path&gt; media1 media2 media3 ... 如果管理员对作业运行流程十分清楚，那么可以使用pin命令手动提高性能。pin命令对Alluxio中的文件或文件夹进行标记。该命令只针对元数据进行操作，不会导致任何数据被加载到Alluxio中。如果一个文件在Alluxio中被标记了，该文件的任何数据块都不会从Alluxio worker中被剔除。如果存在过多的被锁定的文件，Alluxio worker将会剩余少量存储空间，从而导致无法对其他文件进行缓存。
+ alluxio fs unpin &lt;path&gt;   # 将Alluxio中的文件或文件夹解除标记。该命令仅作用于元数据，不会剔除或者删除任何数据块。一旦文件被解除锁定，Alluxio worker可以剔除该文件的数据块。
+ alluxio fs startSync &lt;path&gt;  # 启动指定路径的自动同步进程
+ alluxio fs stopSync &lt;path&gt;   # 关闭指定路径的自动同步进程
+ alluxio fs setReplication [-R] [--max &lt;num&gt; | --min &lt;num&gt;] &lt;path&gt;  # 设置给定路径或文件的最大/最小副本数 (-1表示不限制最大副本数) -R递归
+
+#权限相关操作及管理员命令
+ alluxio fs chgrp [-R] &lt;group&gt; &lt;path&gt;  # 换组
+ alluxio fs chmod [-R] &lt;mode&gt; &lt;path&gt;   # 更改读写执行等权限                        
+ alluxio fs chown [-R] &lt;owner&gt;[:&lt;group&gt;] &lt;path&gt;  # 所有者
+ alluxio fsadmin backup [directory] [--local]    # 备份Alluxio的元数据到备份目录(默认目录由alluxio.master.backup.directory决定)
+ alluxio fsadmin doctor [category]    # 显示错误和警告
+ alluxio fsadmin report [category] [category args]    # 报告运行集群的信息
+ alluxio fsadmin ufs --mode &lt;noAccess/readOnly/readWrite&gt; &quot;ufsPath&quot;    # 更新挂载的底层存储系统的属性
+ alluxio formatMaster 初始化Master元数据
+ alluxio formatWorker 初始化Worker数据，Worker数据会被清空
+ alluxio getConf [key]  查看各个组件的参数和配置 key:[--master / --source]
+ alluxio runJournalCrashTest  测试Alluxio 高可用日志系统（会停止服务一段时间）
+ alluxio runUfsTests --path &lt;ufs path&gt;
+ alluxio validateConf   使修改的配置生效
+ alluxio validateEnv  &lt;args&gt;  使运行环境生效
+ alluxio copyDir &lt;PATH&gt;  类似于xsync脚本，可以向各个节点分发文件
+
+#集群相关信息
+ alluxio fs masterInfo # 获得master节点的信息
+ alluxio fs leader     # 打印当前Alluxio的leader master节点主机名。
+ alluxio fs getCapacityBytes  # 获取Alluxio总容量
+ alluxio fs getSyncPathList  # 获取同步路径列表
+ alluxio fs getUsedBytes  # 获取已用空间大小
+ alluxio fs getfacl &lt;path&gt; #  显示访问控制列表(ACLs)
+ alluxio fs setfacl [-d] [-R] [--set | -m | -x &lt;acl_entries&gt; &lt;path&gt;] | [-b | -k &lt;path&gt;] # 设置访问控制列表(ACLs)
+</code></pre>
+<p><strong>上面的命令不能帮到你? 那就戳这里</strong>:<br><a href="https://docs.alluxio.io/os/user/stable/cn/basic/Command-Line-Interface.html" target="_blank" rel="noopener">Alluxio命令使用示例</a><br><a href="https://docs.alluxio.io/os/user/stable/cn/operation/Admin-CLI.html" target="_blank" rel="noopener">管理员命令使用示例</a></p>
+<h3 id="Alluxio-WEB-UI介绍及使用"><a href="#Alluxio-WEB-UI介绍及使用" class="headerlink" title="Alluxio WEB UI介绍及使用"></a>Alluxio WEB UI介绍及使用</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-5.png" alt="alt Alluxio-5"><br>Alluxio master提供了Web界面以便用户管理<br>Alluxio master Web界面的默认端口是19999:访问 <a href="http://MASTER" target="_blank" rel="noopener">http://MASTER</a> IP:19999 即可查看<br>Alluxio worker Web界面的默认端口是30000:访问 <a href="http://WORKER" target="_blank" rel="noopener">http://WORKER</a> IP:30000 即可查看<br><strong>WEB UI官方介绍很明确-&gt;戳这里:</strong><a href="https://docs.alluxio.io/os/user/stable/cn/basic/Web-Interface.html" target="_blank" rel="noopener">Alluxio Web UI</a></p>
+<h3 id="Alluxio与计算框架整合"><a href="#Alluxio与计算框架整合" class="headerlink" title="Alluxio与计算框架整合"></a>Alluxio与计算框架整合</h3><p><img src="https://vi1.xiu123.cn/live/2019/09/26/23/1002v1569511241325155301_b.jpg" alt="alt Alluxio-2"></p>
+<h4 id="Alluxio-Hive"><a href="#Alluxio-Hive" class="headerlink" title="Alluxio+Hive"></a>Alluxio+Hive</h4><p>频繁使用的表存在Alluxio上，可通过内存读文件获得更高的吞吐量和更低的延迟  </p>
+<ol>
+<li>准备工作:<pre><code class="bash">cd /opt/module/hive
+vim conf/hive-env.sh
+export HADOOP_HOME=/opt/module/hadoop-2.7.2
+# 添加
+export HIVE_AUX_JARS_PATH=$ALLUXIO_HOME/client:$HIVE_AUX_JARS_PATH
+</code></pre>
+</li>
+<li><p>四种情况:</p>
+<ul>
+<li><p>创建一个Hive表并指定其存储在Alluxio  </p>
+<pre><code class="shell">bin/hive
+create table alluxio_test(
+id int,
+name string,
+color string
+) 
+row format delimited fields terminated by &#39;\t&#39;
+LOCATION &quot;alluxio://hadoop101:19998/user/hive/warehouse/alluxio_test&quot;;
+
+# 查看表位置
+describe extended alluxio_test;
+</code></pre>
+</li>
+</ul>
+<ul>
+<li><p>已存在HDFS的内部表</p>
+<pre><code class="bash">bin/hive
+describe extended table_name; # 查看Hive表存储位置
+alter table table_name set location &quot;alluxio://hadoop101:19998/user/hive/warehouse/table_name&quot;
+describe extended table_name;
+msck repair table table_name; # 确定alluxio对应位置存在表数据后修复Hive表元数据
+</code></pre>
+<p>第一次访问alluxio中的文件默认会被认为访问hdfs的文件，一旦数据被缓存在Alluxio中，之后的查询数据都会从Alluxio读取。  </p>
+</li>
+<li><p>已存在HDFS的外部表</p>
+<pre><code class="bash">bin/hive
+describe extended table_name;
+# 将表数据改为Alluxio存储
+alter table table_name set location &quot;alluxio://hadoop101:19998/user/hive/warehouse/table_name&quot;
+describe extended table_name;
+# 还原表数据到HDFS
+alter table table_name set location &quot;hdfs://hadoop101:9000/user/hive/warehouse/table_name&quot;
+describe extended table_name;
+</code></pre>
+</li>
+<li><p>Hive使用Alluxio作为默认存储系统</p>
+<pre><code class="bash">vim conf/hive-site.xml
+# 添加以下属性
+&lt;property&gt;
+   &lt;name&gt;fs.defaultFS&lt;/name&gt;
+   &lt;value&gt;alluxio://hadoop101:19998&lt;/value&gt;
+   &lt;description&gt;Hive Use Alluxio As Default FileSystem&lt;/description&gt;
+&lt;/property&gt; 
+# 对Hive指定的Alluxio配置属性，将它们添加到每个结点的Hadoop配置目录下core-site.xml中。例如，将alluxio.user.file.writetype.default 属性由默认的MUST_CACHE修改成CACHE_THROUGH:
+&lt;property&gt;
+   &lt;name&gt;alluxio.user.file.writetype.default&lt;/name&gt;
+   &lt;value&gt;CACHE_THROUGH&lt;/value&gt;
+&lt;/property&gt;
+
+# Alluxio中为Hive创建目录
+ alluxio fs mkdir /tmp
+ alluxio fs mkdir /user/hive/warehouse
+ alluxio fs chmod 775 /tmp
+ alluxio fs chmod 775 /user/hive/warehouse
+
+# 检查Hive与Alluxio的集成情况
+ integration/checker/bin/alluxio-checker.sh -h # 查看该命令帮助
+ integration/checker/bin/alluxio-checker.sh hive -hiveurl [HIVE_URL]
+</code></pre>
+<p>注:CM集群设置Hive连接Alluxio Client的方式:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png" alt="alt Alluxio-10"></p>
+</li>
+</ul>
+</li>
+<li>排坑:<br> 安全认证问题:<br> <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png" alt="alt Alluxio-11"><br> <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-12.png" alt="alt Alluxio-12"><br> alluxio-site.properties中添加要模拟的用户:<pre><code class="bash">   alluxio.master.security.impersonation.hive.users=*
+   alluxio.master.security.impersonation.hive.groups=*
+   alluxio.master.security.impersonation.yarn.users=*
+   alluxio.master.security.impersonation.yarn.groups=*
+</code></pre>
+</li>
+</ol>
+<h4 id="Alluxio-Spark"><a href="#Alluxio-Spark" class="headerlink" title="Alluxio+Spark"></a>Alluxio+Spark</h4><p>Spark可以在进行简单配置后直接使用Alluxio作为数据访问层，Spark应用程序可以通过Alluxio透明地访问许多不同类型的持久化存储服务（例如，AWS S3 bucket、Azure Object Store buckets、远程部署的 HDFS 等）的数据，也可以透明地访问同一类型持久化存储服务不同实例中的数据。为了加快I/O性能，用户可以主动获取数据到Alluxio中或将数据透明地缓存到Alluxio中，尤其是在Spark部署位置与数据相距较远时特别有效。此外，通过将计算和物理存储解耦，Alluxio 能够有助于简化系统架构。当底层持久化存储中真实数据的路径对 Spark 隐藏时，对底层存储的更改可以独立于应用程序逻辑；同时Alluxio作为邻近计算的缓存，仍然可以给计算框架提供类似 Spark 数据本地性的特性。  </p>
+<ol>
+<li>配置<br>参数配置（spark-defaults.conf中添加）<br><u>spark.driver.extraClassPath /&lt;PATH_TO_ALLUXIO&gt;/client/alluxio-2.0.1-client.jar</u><br><u>spark.executor.extraClassPath /&lt;PATH_TO_ALLUXIO&gt;/client/alluxio-2.0.1-client.jar</u><br>或者Jar包拷贝<br><u>cp client/alluxio-2.0.1-client.jar $SPARK_HOME/jars/</u><br>如果高可用的Alluxio,还需在spark-default中指定:  <pre><code class="bash">spark.driver.extraJavaOptions   -Dalluxio.zookeeper.address=zkHost1:2181,zkHost2:2181,zkHost3:2181 -Dalluxio.zookeeper.enabled=true
+spark.executor.extraJavaOptions -Dalluxio.zookeeper.address=zkHost1:2181,zkHost2:2181,zkHost3:2181 -Dalluxio.zookeeper.enabled=true  
+或者配置Hadoop文件core-site.xml如下
+&lt;configuration&gt;
+&lt;property&gt;
+  &lt;name&gt;alluxio.zookeeper.enabled&lt;/name&gt;
+  &lt;value&gt;true&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;alluxio.zookeeper.address&lt;/name&gt;
+  &lt;value&gt;zkHost1:2181,zkHost2:2181,zkHost3:2181&lt;/value&gt;
+&lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+自定义Spark作业中Alluxio的属性：<br>spark-submit…. –driver-java-options “-Dalluxio.user.file.writetype.default=CACHE_THROUGH” 而不是–conf  </li>
+</ol>
+<pre><code class="bash">val s = sc.textFile(&quot;alluxio://192.168.1.101:19998/LICENSE&quot;)
+val double = s.map(line =&gt; line + line)
+double.saveAsTextFile(&quot;alluxio://192.168.1.101:19998/out&quot;)
+
+df = spark.table(&quot;select ...&quot;)
+df.format.parquet(&quot;alluxio://xxxxx&quot;)
+</code></pre>
+<p><a href="https://docs.alluxio.io/os/user/stable/cn/compute/Spark.html" target="_blank" rel="noopener">官方Alluxio+Spark配置设置</a></p>
+<ol start="2">
+<li><p>检查配置是否正确<br>在$ALLUXIO_HOME运行 integration/checker/bin/alluxio-checker.sh spark spark://sparkMaster:7077</p>
+</li>
+<li><p>使用</p>
+<pre><code class="bash">存储 RDD 到 Alluxio 内存中就是将 RDD 作为文件保存到 Alluxio 中:
+saveAsTextFile：将 RDD 作为文本文件写入，其中每个元素都是文件中的一行
+saveAsObjectFile：通过对每个元素使用 Java 序列化，将 RDD 写到一个文件中
+// as text file
+rdd.saveAsTextFile(&quot;alluxio://localhost:19998/rdd1&quot;)
+rdd = sc.textFile(&quot;alluxio://localhost:19998/rdd1&quot;)
+
+// as object file
+rdd.saveAsObjectFile(&quot;alluxio://localhost:19998/rdd2&quot;)
+rdd = sc.objectFile(&quot;alluxio://localhost:19998/rdd2&quot;)
+缓存 Dataframe 到 Alluxio 中(将 DataFrame 作为文件保存到 Alluxio 中):
+df.write.parquet(&quot;alluxio://localhost:19998/data.parquet&quot;)
+df = sqlContext.read.parquet(&quot;alluxio://localhost:19998/data.parquet&quot;)
+</code></pre>
+</li>
+<li><p>Alluxio对Shuffle的提升<br>目前三种方案:<br>一是基于Alluxio-Fuse客户端,无需修改源码,直接挂载Shuffle目录,但Alluxio-Fuse目前的性能不是很好<br>二是重写Spark Shuffle Service底层源码实现基于Alluxio Client的Shuffle<br>三是可以Splash Shuffle Manager插件,我的另一篇文章有讲到 -&gt; <a href="https://shmily-qjj.top/39595/#Splash-Shuffle-Manager">QCon总结-Splash Shuffle Manager</a><br><strong>当然也可以选择等Spark3.0的Remote Shuffle Service</strong></p>
+</li>
+</ol>
+<h4 id="Alluxio-HadoopMR"><a href="#Alluxio-HadoopMR" class="headerlink" title="Alluxio+HadoopMR"></a>Alluxio+HadoopMR</h4><p>运行HadoopMR程序:  </p>
+<pre><code class="bash"> bin/hadoop jar ../libexec/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar wordcount -Dalluxio.user.file.writetype.default=CACHE_THROUGH -libjars /opt/module/alluxio/client/alluxio-2.0.1-client.jar \&lt;INPUT FILES&gt; &lt;OUTPUT DIRECTORY&gt;
+</code></pre>
+<h4 id="Alluxio-Presto"><a href="#Alluxio-Presto" class="headerlink" title="Alluxio+Presto"></a>Alluxio+Presto</h4><p>后续更新…  </p>
+<h3 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h3><h4 id="使用官方提供的沙箱"><a href="#使用官方提供的沙箱" class="headerlink" title="使用官方提供的沙箱"></a>使用官方提供的沙箱</h4><p>申请官方测试沙箱Sandbox：<strong><a href="https://www.alluxio.io/sandbox-request/" target="_blank" rel="noopener">ALLUXIO SANDBOX</a></strong><br>申请成功后，按照邮件的指引操作，注意，<u>bin/sandbox setup &amp;</u>的过程中千万不要Ctrl+C中止,部署完成状态如下图：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-13.png" alt="alt Alluxio-13">  </p>
+<p>运行基准测试（TPC-DS），耐心等待后的测试结果：<br>已安装TPC-DS基准套件，用于运行性能测试。Spark已安装为TPC-DS用来将其作业发送到的计算框架。TPC-DS的比例因子为100，这与26GB的数据集大小相关。由索引单独标识的基准按不同的使用方案分组，并且将结果报告为每个方案的汇总。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-14.jpg" alt="alt Alluxio-14"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-15.jpg" alt="alt Alluxio-15"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-16.jpg" alt="alt Alluxio-16"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-17.jpg" alt="alt Alluxio-17"><br>其中 w/o是without，即只是用S3为直接底层存储的情况；w/是with，即使用了Alluxio作为中间件下的性能<br>从图中测试结果可以看出,当计算数据存储在公有云虚拟机实例中时，Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  </p>
+<h4 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h4><p>Spark Sql做测试时候多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢<br>我的测试环境是三台机器,每台101GB内存,16核,同台机器部署CM Hadoop,Spark,Hive,AlluxioWorker,AlluxioClient<br>Alluxio读参数CACHE_PROMOTE,写参数CACHE_THROUGH  </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">测试方法</th>
+<th style="text-align:center">测试操作</th>
+<th style="text-align:center">运行时间(HDFS)</th>
+<th style="text-align:center">运行时间(Alluxio)</th>
+<th style="text-align:center">表结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select count(1) from table;</td>
+<td style="text-align:center">4s</td>
+<td style="text-align:center">6s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select count(1) from table;</td>
+<td style="text-align:center">5s</td>
+<td style="text-align:center">6s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select count(1) from table;</td>
+<td style="text-align:center">6s</td>
+<td style="text-align:center">8s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name;</td>
+<td style="text-align:center">80s</td>
+<td style="text-align:center">80s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name;</td>
+<td style="text-align:center">77s</td>
+<td style="text-align:center">52s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select first(ip),first(language),first(operation_channel),first(imei) from table group by product_name;</td>
+<td style="text-align:center">60s</td>
+<td style="text-align:center">73s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">SparkSQL</td>
+<td style="text-align:center">select count(1) from test.table group by language;</td>
+<td style="text-align:center">11.5s</td>
+<td style="text-align:center">11.5s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">Spark Persist</td>
+<td style="text-align:center">df.write.parquet(Path)</td>
+<td style="text-align:center">3.0min</td>
+<td style="text-align:center">4.0min</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">Spark Persist</td>
+<td style="text-align:center">spark.read.parquet(Path).count()</td>
+<td style="text-align:center">4s</td>
+<td style="text-align:center">5s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+<tr>
+<td style="text-align:center">Spark Persist</td>
+<td style="text-align:center">spark.read.parquet(Path).count()</td>
+<td style="text-align:center">6s</td>
+<td style="text-align:center">6s</td>
+<td style="text-align:center">13.5GB 17字段</td>
+</tr>
+</tbody>
+</table>
+<p>后来又做了Spark Dataframe的Persist到MEMORY_ONLY和Persist到Alluxio,效果也不是很好,究其原因,我认为是我的HDFS DataNode已经和计算框架Spark部署在一起了,而且磁盘IO没有瓶颈,所以这不符合Alluxio的应用场景,从而没有令人满意的效果.<br>至于HDFS更快的原因,我想是Spark要读取的数据很可能已经存在OS的高速缓冲区<br>Alluxio还是要用对场景才行.  </p>
+<h3 id="Alluxio-FUSE"><a href="#Alluxio-FUSE" class="headerlink" title="Alluxio FUSE"></a>Alluxio FUSE</h3><h4 id="什么是Alluxio-FUSE"><a href="#什么是Alluxio-FUSE" class="headerlink" title="什么是Alluxio FUSE"></a>什么是Alluxio FUSE</h4><p>Alluxio-FUSE可以在一台Unix机器上的本地文件系统中挂载一个Alluxio分布式文件系统。通过使用该特性，一些标准的命令行工具（例如ls、 cat以及echo）可以直接访问Alluxio分布式文件系统中的数据。此外更重要的是用不同语言实现的应用程序如C, C++, Python, Ruby, Perl, Java都可以通过标准的POSIX接口(例如open, write, read)来读写Alluxio，而不需要任何Alluxio的客户端整合与设置。  </p>
+<h4 id="Alluxio-FUSE局限性"><a href="#Alluxio-FUSE局限性" class="headerlink" title="Alluxio FUSE局限性"></a>Alluxio FUSE局限性</h4><ol>
+<li>文件只能顺序地一次写入,不能修改和覆盖,如果要修改就要删除原文件再创建</li>
+<li>不支持soft-link和hard-link(即ln)</li>
+<li>alluxio.security.group.mapping.class选项设置为ShellBasedUnixGroupsMapping的值时,用户与分组信息才与Unix系统的用户分组对应</li>
+<li>与直接使用Alluxio客户端相比，使用挂载文件系统的性能会相对较差</li>
+</ol>
+<h4 id="Alluxio-FUSE使用"><a href="#Alluxio-FUSE使用" class="headerlink" title="Alluxio FUSE使用"></a>Alluxio FUSE使用</h4><ol>
+<li>挂载<br> 挂载alluxio_path到本地mount_point,mount_point必须是本地文件系统中的一个空文件夹，并且启动Alluxio-FUSE进程的用户拥有该挂载点及对其的读写权限。可以多次调用该命令来将Alluxio挂载到不同的本地目录下。所有的Alluxio-FUSE会共享$ALLUXIO_HOME\logs\fuse.log这个日志文件。<pre><code class="shell">  integration/fuse/bin/alluxio-fuse mount mount_point [alluxio_path]  
+</code></pre>
+</li>
+<li>卸载<pre><code class="shell">  integration/fuse/bin/alluxio-fuse umount mount_point
+</code></pre>
+</li>
+<li>检查挂载点运行信息<pre><code class="shell">  integration/fuse/bin/alluxio-fuse stat
+</code></pre>
+</li>
+<li>注意事项<br>要使用启动master和worker的用户来挂载fuse，比如使用hdfs用户启动的Alluxio，则要用hdfs来挂载，可以正常使用，如果使用root用户挂载，目录信息会乱码且无法正常使用。hdfs用户下成功mount后，切换到root用户也会看到挂载点信息乱码。Alluxio相关服务未启动，挂载点信息也会乱码。<br>Alluxio默认只能写本地worker，如果明确知道要写入的文件大小的范围，可以使用ASYNC_THROUGH并加大worker的缓存大小，或者配置多级缓存使worker的缓存空间大于写入文件的大小，才能防止被置换，从而提高效率<br>如果不确定写的文件大小的范围，就不要使用ASYNC_THROUGH这个参数，因为如果本地Worker缓存空间不够就会写入失败，这时，为了保险起见可以使用<strong>写参数CACHE_THROUGH边缓存边写</strong>或<strong>写参数THROUGH只写底层存储</strong>，来防止写入文件失败。<br>当然，还有一种比较好的方案，写参数设为ASYNC_THROUGH配合更大的Worker缓存来提高效率，同时设置<u>alluxio.user.file.write.location.policy.class=alluxio.client.file.policy.RoundRobinPolicy</u>参数来保证写入不会失败。如果只写一次，可以及时free掉无用的缓存，减少后面写数据时发生的缓存置换。  </li>
+</ol>
+<h3 id="Alluxio-客户端API"><a href="#Alluxio-客户端API" class="headerlink" title="Alluxio 客户端API"></a>Alluxio 客户端API</h3><h4 id="Java-API"><a href="#Java-API" class="headerlink" title="Java API"></a>Java API</h4><p>Alluxio提供了两种不同的文件系统API：Alluxio API和与Hadoop兼容的API,Alluxio API提供了更多功能，而Hadoop兼容API为用户提供了使用Alluxio的灵活性，无需修改使用Hadoop API编写的现有代码.<br>Maven项目依赖设置 pom.xml  </p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;com.my.alluxio&lt;/groupId&gt;
+    &lt;artifactId&gt;AlluxioTest&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;dependencies&gt;
+            &lt;!-- alluxio-fs --&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.alluxio&lt;/groupId&gt;
+                &lt;artifactId&gt;alluxio-core-client-fs&lt;/artifactId&gt;
+                &lt;version&gt;2.0.1&lt;/version&gt;
+            &lt;/dependency&gt;
+
+            &lt;!-- hdfs --&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.apache.hadoop&lt;/groupId&gt;
+                &lt;artifactId&gt;hadoop-hdfs&lt;/artifactId&gt;
+                &lt;version&gt;2.6.0&lt;/version&gt;
+            &lt;/dependency&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.apache.hadoop&lt;/groupId&gt;
+                &lt;artifactId&gt;hadoop-client&lt;/artifactId&gt;
+                &lt;version&gt;2.6.0&lt;/version&gt;
+            &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+        &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.5.1&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;7&lt;/source&gt;
+                    &lt;target&gt;7&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;!-- 打jar插件 --&gt;
+            &lt;plugin&gt;
+                &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;archive&gt;
+                        &lt;manifest&gt;
+                            &lt;!--Jar包运行时的主类--&gt;
+                            &lt;mainClass&gt;IOTestUtil&lt;/mainClass&gt;
+                        &lt;/manifest&gt;
+                    &lt;/archive&gt;
+                    &lt;descriptorRefs&gt;
+                        &lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;
+                    &lt;/descriptorRefs&gt;
+                &lt;/configuration&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;make-assembly&lt;/id&gt;
+                        &lt;phase&gt;package&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;single&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+            &lt;/plugins&gt;
+        &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+<p>Java读写文件API</p>
+<pre><code class="java">import alluxio.AlluxioURI;
+import alluxio.client.file.FileInStream;
+import alluxio.client.file.FileOutStream;
+import alluxio.exception.AlluxioException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import java.io.IOException;
+
+/**
+ * HDFS &amp; Allxuio IO读取文件测试工具  IO接口 文件API
+ */
+
+public class IOTestUtil {
+    public static void main(String[] args) throws IOException, AlluxioException {
+        String filePath = args[0];
+        HDFSUtil h = new HDFSUtil(&quot;hdfs://192.168.1.101:8020&quot;);
+        h.readFile(filePath);
+        AlluxioUtil a = new AlluxioUtil();
+        a.readFile(filePath);
+        System.out.println(&quot;读文件测试 Finished&quot;);
+        System.out.println(&quot;------------------------&quot;);
+        if (args.length != 1){
+            String fileToWritePath = args[1];
+            a.writeFile(fileToWritePath);
+            System.out.println(&quot;写文件测试 Finished&quot;);
+        }
+    }
+}
+
+class HDFSUtil{
+    private Configuration conf = new Configuration();
+    public HDFSUtil(String HDFSURL){
+        conf.set(&quot;fs.defaultFS&quot;,HDFSURL);
+        System.setProperty(&quot;HADOOP_USER_NAME&quot;,&quot;hdfs&quot;);
+    }
+    public void readFile(String path) throws IOException {
+        FileSystem fs = FileSystem.get(conf);
+        fs.getFileStatus(new Path(path));
+        FSDataInputStream in = fs.open(new Path(path));
+        try{
+            long hdfsStartTime=System.currentTimeMillis();
+            in = fs.open(new Path(path));
+            byte[] buffer = new byte[1024];
+            int byteRead = 0;
+            while ((byteRead = in.read(buffer)) != -1) {
+                System.out.write(buffer, 0, byteRead);    //输出字符流
+            }
+            long hdfsEndTime=System.currentTimeMillis();
+            System.out.println(&quot;HDFS读取运行时间:&quot;+(hdfsEndTime-hdfsStartTime)+&quot; ms&quot;);
+        }catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            in.close();
+        }
+    }
+}
+
+class AlluxioUtil{
+    private static final alluxio.client.file.FileSystem fs = alluxio.client.file.FileSystem.Factory.get();
+    public AlluxioUtil(){}
+    public FileInStream readFile(String AlluxioPath) throws IOException, AlluxioException {
+        AlluxioURI path = new AlluxioURI(AlluxioPath);  //封装Alluxio 文件路径的path
+        FileInStream in = fs.openFile(path);
+        try{
+            long startTime=System.currentTimeMillis();
+            in = fs.openFile(path);
+            // 调用文件输入流FileInStream实例的read()方法读数据
+            byte[] buffer = new byte[1024];
+            int byteRead = 0;
+            // 读入多个字节到字节数组中，byteRead为一次读入的字节数
+            while ((byteRead = in.read(buffer)) != -1) {
+                System.out.write(buffer, 0, byteRead);    //输出字符流
+            }
+            long endTime=System.currentTimeMillis();
+            System.out.println(&quot;Alluxio读取运行时间:&quot;+(endTime-startTime)+&quot; ms&quot;);
+        }catch (IOException | AlluxioException e){
+            e.printStackTrace();
+        }finally {
+            in.close();
+        }
+        in.close();  //关闭文件并释放锁
+        return in;
+    }
+    public void writeFile(String AlluxioPath) throws IOException, AlluxioException {
+        AlluxioURI path = new AlluxioURI(AlluxioPath);   // 文件夹路径
+        FileOutStream out = null;
+        try {
+            out = fs.createFile(path);   //创建文件并得到文件输入流
+            out.write(&quot;qjj1234567&quot;.getBytes());   // 调用文件输出流FileOutStream实例的write()方法写入数据
+        }catch (IOException | AlluxioException e){
+            e.printStackTrace();
+        }finally {
+            out.close();  // 关闭和释放文件
+        }
+    }
+}
+</code></pre>
+<h4 id="Python-API"><a href="#Python-API" class="headerlink" title="Python API"></a>Python API</h4><p>Alluxio的Python库基于REST API实现的<br>CentOS6和Windows的环境下安装alluxio的python库失败，最终在CentOS7 Python2.7.5的环境下成功执行了<strong><em>pip install alluxio</em></strong></p>
+<pre><code class="Python">if __name__ == &#39;__main__&#39;:
+    print(&quot;后续用到API再更新&quot;)
+    pass
+</code></pre>
+<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h3><ul>
+<li>加速不明显?<br>  Alluxio通过使用分布式的内存存储以及分层存储,和时间或空间的本地化来实现性能加速。如果数据集没有任何本地化, 性能加速效果并不明显。</li>
+<li>速度反而更慢了?<br>  测试时尽量多观察集群的CPU占用率,Yarn内存分配和网络IO等多种因素,可能瓶颈不在读取数据的IO上。<br>  确保要读取的数据缓存在Alluxio中,才能加速加速数据的读取。<br>  一定要明确应用场景,Alluxio的设计主要是针对计算与存储分离的场景。在数据远端读取且网络延迟和吞吐量存在瓶颈的情况下,Alluxio的加速效果会很明显,但如果HDFS和Spark等计算框架已经共存在一台机器(计算和存储未分离),Alluxio的加速效果并不明显,甚至可能出现更慢的情况。<br>  多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢。  </li>
+<li>内存爆炸，副本过多内存占用过大？<br>   两种方案：关闭被动缓存alluxio.user.file.passive.cache.enabled=false关闭被动缓存对于不需要数据本地性但希望更大的Alluxio存储容量的工作负载是有益的，或者通过命令alluxio fs setReplication -R –max 5 <path>限制某个目录的文件最大副本数  </path></li>
+<li>一些官方的Q&amp;A<br>  <a href="https://www.alluxio.io/answers/" target="_blank" rel="noopener">Alluxio官方问题与答案</a>  </li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>对新技术的调研，最重要的是了解它的应用场景，只有场景对了，效果才会很明显  </li>
+<li>一定要多看官方文档，虽然Alluxio文档不是很详细，但也有帮助，要自己找细节</li>
+<li>对自己遇到的难以解决的问题要积极与社区沟通和讨论  </li>
+<li>自己遇到的问题可能别人也遇到了，有可能是版本的BUG，或许已经有人提交Issue了，一定多留意  </li>
+<li>新的稳定版发行，一定要了解它的新特性以及修复了哪些漏洞  </li>
+</ol>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/4b21953d/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/SoftPower/diaoyan-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/SoftPower/diaoyan-cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                分享我的技术调研流程</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2d8df45c/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2019Summary/2019Summary-cover.jpeg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2019Summary/2019Summary-cover.jpeg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                我的2019年度总结博客</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2019</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/技术/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/生活/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/音乐/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/随想/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/其他/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tech/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2019 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

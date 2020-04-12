@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>佳境的小本本</title>
+  
+  <subtitle>佳境Shmily的个人网站</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://shmily-qjj.top/"/>
+  <updated>2020-04-12T14:15:47.998Z</updated>
+  <id>https://shmily-qjj.top/</id>
+  
+  <author>
+    <name>佳境Shmily</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MySQL索引原理深入</title>
+    <link href="https://shmily-qjj.top/7c15e85/"/>
+    <id>https://shmily-qjj.top/7c15e85/</id>
+    <published>2020-03-24T02:16:00.000Z</published>
+    <updated>2020-04-12T14:15:47.998Z</updated>
+    
+    <summary type="html">
+    
+      MySQL索引数据结构是如何选型的？
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>系统学习JVM</title>
+    <link href="https://shmily-qjj.top/508b5c7/"/>
+    <id>https://shmily-qjj.top/508b5c7/</id>
+    <published>2020-03-21T04:19:00.000Z</published>
+    <updated>2020-04-12T14:15:48.003Z</updated>
+    
+    <summary type="html">
+    
+      系统学习一下JVM，很重要
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Java" scheme="https://shmily-qjj.top/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>线程进程与锁</title>
+    <link href="https://shmily-qjj.top/6f97dc89/"/>
+    <id>https://shmily-qjj.top/6f97dc89/</id>
+    <published>2020-02-11T03:20:08.000Z</published>
+    <updated>2020-04-12T14:15:48.004Z</updated>
+    
+    <summary type="html">
+    
+      线程进程与锁的深入学习
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="线程、进程" scheme="https://shmily-qjj.top/tags/%E7%BA%BF%E7%A8%8B%E3%80%81%E8%BF%9B%E7%A8%8B/"/>
+    
+      <category term="概念" scheme="https://shmily-qjj.top/tags/%E6%A6%82%E5%BF%B5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Apache Zeppelin初探</title>
+    <link href="https://shmily-qjj.top/174820fd/"/>
+    <id>https://shmily-qjj.top/174820fd/</id>
+    <published>2020-02-11T02:16:00.000Z</published>
+    <updated>2020-04-12T14:15:47.997Z</updated>
+    
+    <summary type="html">
+    
+      高性能，高可用的分布式K-V存储平台
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Zeppelin" scheme="https://shmily-qjj.top/tags/Zeppelin/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分享我的技术调研流程</title>
+    <link href="https://shmily-qjj.top/4b21953d/"/>
+    <id>https://shmily-qjj.top/4b21953d/</id>
+    <published>2020-01-03T13:10:00.000Z</published>
+    <updated>2020-04-12T14:15:48.000Z</updated>
+    
+    <summary type="html">
+    
+      如何流程化做好一份技术调研任务？
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="技术调研" scheme="https://shmily-qjj.top/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Alluxio-基于内存的虚拟分布式存储系统</title>
+    <link href="https://shmily-qjj.top/44511/"/>
+    <id>https://shmily-qjj.top/44511/</id>
+    <published>2020-01-01T14:16:00.000Z</published>
+    <updated>2020-04-12T14:15:47.996Z</updated>
+    
+    <summary type="html">
+    
+      Alluxio干货分享
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Alluxio" scheme="https://shmily-qjj.top/tags/Alluxio/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>我的2019年度总结博客</title>
+    <link href="https://shmily-qjj.top/2d8df45c/"/>
+    <id>https://shmily-qjj.top/2d8df45c/</id>
+    <published>2020-01-01T00:08:08.000Z</published>
+    <updated>2020-04-12T14:15:48.001Z</updated>
+    
+    <summary type="html">
+    
+      告别2019展望2020，期待更完美的自己！
+    
+    </summary>
+    
+      <category term="生活" scheme="https://shmily-qjj.top/categories/%E7%94%9F%E6%B4%BB/"/>
+    
+    
+      <category term="个人总结" scheme="https://shmily-qjj.top/tags/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
+    
+      <category term="2019" scheme="https://shmily-qjj.top/tags/2019/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>数据库事务ACID理解</title>
+    <link href="https://shmily-qjj.top/1f7eb1b3/"/>
+    <id>https://shmily-qjj.top/1f7eb1b3/</id>
+    <published>2019-12-28T12:22:00.000Z</published>
+    <updated>2020-04-12T14:15:48.001Z</updated>
+    
+    <summary type="html">
+    
+      事务的ACID，加深一下印象
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="数据库" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hive3.x来了</title>
+    <link href="https://shmily-qjj.top/7fbbfd34/"/>
+    <id>https://shmily-qjj.top/7fbbfd34/</id>
+    <published>2019-12-27T07:18:25.000Z</published>
+    <updated>2020-04-12T14:15:47.998Z</updated>
+    
+    <summary type="html">
+    
+      Hive 3.x来了,学习一下新特性
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Hive" scheme="https://shmily-qjj.top/tags/Hive/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>人声混音总结</title>
+    <link href="https://shmily-qjj.top/d2c4813b/"/>
+    <id>https://shmily-qjj.top/d2c4813b/</id>
+    <published>2019-12-21T07:06:06.000Z</published>
+    <updated>2020-04-12T14:15:48.000Z</updated>
+    
+    <summary type="html">
+    
+      记录翻唱混音技巧的小本本
+    
+    </summary>
+    
+      <category term="音乐" scheme="https://shmily-qjj.top/categories/%E9%9F%B3%E4%B9%90/"/>
+    
+    
+      <category term="人声混音" scheme="https://shmily-qjj.top/tags/%E4%BA%BA%E5%A3%B0%E6%B7%B7%E9%9F%B3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>程序猿是怎么表白的</title>
+    <link href="https://shmily-qjj.top/d1c9241f/"/>
+    <id>https://shmily-qjj.top/d1c9241f/</id>
+    <published>2019-12-11T13:10:21.000Z</published>
+    <updated>2020-04-12T14:15:48.003Z</updated>
+    
+    <summary type="html">
+    
+      当然是用代码来表白啦
+    
+    </summary>
+    
+      <category term="生活" scheme="https://shmily-qjj.top/categories/%E7%94%9F%E6%B4%BB/"/>
+    
+    
+      <category term="表白" scheme="https://shmily-qjj.top/tags/%E8%A1%A8%E7%99%BD/"/>
+    
+      <category term="程序猿" scheme="https://shmily-qjj.top/tags/%E7%A8%8B%E5%BA%8F%E7%8C%BF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mysql Event Scheduler</title>
+    <link href="https://shmily-qjj.top/3c26421b/"/>
+    <id>https://shmily-qjj.top/3c26421b/</id>
+    <published>2019-11-15T13:25:04.000Z</published>
+    <updated>2020-04-12T14:15:47.999Z</updated>
+    
+    <summary type="html">
+    
+      Mysql事件调度器
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Mysql" scheme="https://shmily-qjj.top/tags/Mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>浅谈group by与distinct去重</title>
+    <link href="https://shmily-qjj.top/96009187/"/>
+    <id>https://shmily-qjj.top/96009187/</id>
+    <published>2019-11-13T12:45:37.000Z</published>
+    <updated>2020-04-12T14:15:48.002Z</updated>
+    
+    <summary type="html">
+    
+      group by与distinct去重
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="SQL" scheme="https://shmily-qjj.top/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>王者荣耀-元歌教学</title>
+    <link href="https://shmily-qjj.top/26e6fc90/"/>
+    <id>https://shmily-qjj.top/26e6fc90/</id>
+    <published>2019-11-03T15:05:06.000Z</published>
+    <updated>2020-04-12T14:15:48.002Z</updated>
+    
+    <summary type="html">
+    
+      王者荣耀-元歌深度解析
+    
+    </summary>
+    
+      <category term="其他" scheme="https://shmily-qjj.top/categories/%E5%85%B6%E4%BB%96/"/>
+    
+    
+      <category term="王者荣耀" scheme="https://shmily-qjj.top/tags/%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Sqoop学习笔记</title>
+    <link href="https://shmily-qjj.top/26078/"/>
+    <id>https://shmily-qjj.top/26078/</id>
+    <published>2019-11-03T05:15:27.000Z</published>
+    <updated>2020-04-12T14:15:47.999Z</updated>
+    
+    <summary type="html">
+    
+      Sqoop = SQL To Hadoop
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Sqoop工具" scheme="https://shmily-qjj.top/tags/Sqoop%E5%B7%A5%E5%85%B7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CentOS7安装CDH6安装与排坑</title>
+    <link href="https://shmily-qjj.top/38328/"/>
+    <id>https://shmily-qjj.top/38328/</id>
+    <published>2019-10-29T02:50:40.000Z</published>
+    <updated>2020-04-12T14:15:47.997Z</updated>
+    
+    <summary type="html">
+    
+      CDH6+CentOS7安装过程与排坑
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="CDH6+CentOS7" scheme="https://shmily-qjj.top/tags/CDH6-CentOS7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>记一次参加QCon全球软件开发大会</title>
+    <link href="https://shmily-qjj.top/39595/"/>
+    <id>https://shmily-qjj.top/39595/</id>
+    <published>2019-10-21T11:59:50.000Z</published>
+    <updated>2020-04-12T14:15:48.004Z</updated>
+    
+    <summary type="html">
+    
+      QCon全球软件开发大会10th 2019上海站
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="QCon全球软件开发大会" scheme="https://shmily-qjj.top/tags/QCon%E5%85%A8%E7%90%83%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%A4%A7%E4%BC%9A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>随想类博客-待更新</title>
+    <link href="https://shmily-qjj.top/14419/"/>
+    <id>https://shmily-qjj.top/14419/</id>
+    <published>2019-09-21T14:16:00.000Z</published>
+    <updated>2020-04-12T14:15:48.005Z</updated>
+    
+    <summary type="html">
+    
+      随想类博客正在开发中，今天的主题是...
+    
+    </summary>
+    
+      <category term="随想" scheme="https://shmily-qjj.top/categories/%E9%9A%8F%E6%83%B3/"/>
+    
+    
+      <category term="标签1" scheme="https://shmily-qjj.top/tags/%E6%A0%87%E7%AD%BE1/"/>
+    
+      <category term="标签2" scheme="https://shmily-qjj.top/tags/%E6%A0%87%E7%AD%BE2/"/>
+    
+  </entry>
+  
+</feed>
