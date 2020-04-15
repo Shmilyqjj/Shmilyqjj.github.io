@@ -55,6 +55,7 @@ date: 2020-03-24 10:16:00
 3.在用来<font size="3" color="red">**JOIN的列**</font>上创建索引
 4.在经常通过WHERE根据<font size="3" color="red">**范围检索的列**</font>上创建索引
 5.在经常<font size="3" color="red">**GROUP BY/ORDER BY的列**</font>上创建索引
+6.在经常<font size="3" color="red">**DISTINCT的列**</font>上创建索引
 
 ### 索引字段要求
 1.列值的唯一性太小不适合建索引

@@ -24,8 +24,8 @@ date: 2019-11-13 20:45:37
 按理说，GROUP BY都是要与聚合函数搭配使用的，所以确实是逻辑有问题，写代码规范很重要，规范的同时还要弄清楚原理，于是就有了这篇博客，详细说一下使用GROUP BY和DISTINCT去重...  
 
 ## DISTINCT去重  
-多条记录，每个字段的值都完全相同的情况下使用DISTINCT去重  
-DISTINCT和GROUP BY同时适用的场景下，DISTINCT的效率更高  
+DISTINCT可多字段去重，每个字段的值都完全相同的情况下使用DISTINCT去重  
+DISTINCT也可以单个字段值去重 select(name),id from table;
 ```sql
 mysql> select name,tel,wxid from person_info where wxid in ('SCALA');    
 +--------+-------+-------+
@@ -257,7 +257,10 @@ GROUP BY name;
 ```  
 准确地拿到了name,tel,wxid，但是groupname字段呢，到底是哪个被舍弃了？不同情况下不一定。如果我们只要name,tel,wxid这三个字段，在groupname字段上加个max()好了，这样逻辑也说得通，也比较规范，如果要求精确拿到groupname字段的值，就不能使用group by去重。  
 
-
+## 关于效率  
+DISTINCT和GROUP BY同时适用的场景下，**不能说一定是谁的效率更高**
+DISTINCT就是字段值对比的方式，要遍历整个表。GROUP BY类似于先建索引再查索引。
+**小表DISTINCT去重效率高，大表GROUP BY去重效率高**
 
 ## 总结  
 * 认清DISTINCT和GROUP BY的去重场景  
