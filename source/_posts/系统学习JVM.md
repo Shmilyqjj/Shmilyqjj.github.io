@@ -10,7 +10,6 @@ categories:
   - 技术
 comments: true
 tags:
-  - 大数据
   - Java
 keywords: JVM
 description: 系统学习一下JVM，很重要
