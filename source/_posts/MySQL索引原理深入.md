@@ -200,3 +200,4 @@ ll /var/lib/mysql/db_name/
 ## 其他细节
 1.[ORDER BY与索引失效](https://blog.csdn.net/lan12334321234/article/details/70048830)：当order by的字段出现在where条件中时，才会利用索引而不排序，更准确的说，order by中的字段在执行计划中利用了索引时，不用排序操作。这个结论不仅对order by有效，对其他需要排序的操作也有效。比如group by 、union 、distinct等。（出现在Order by 后的索引列都是用于排序的，不会用于查找，所以索引无效）
 2.innodb引擎的4大特性：插入缓冲（insert buffer),二次写(double write),自适应哈希索引(ahi),预读(read ahead)
+3.主键和唯一索引的区别：①唯一索引列允许空值，主键不允许空值 ②主键可以被其他表引用为外键，唯一索引不能  ③一个表只能一个主键但可有多个唯一索引
