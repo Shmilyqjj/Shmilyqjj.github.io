@@ -123,10 +123,12 @@ Java的运行时数据区可以分成**堆、元空间(含方法区)、虚拟机
     ![alt JVM-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-02.png)  
     + 虚拟机栈：Java中**每个方法被调用时都会创建一个栈帧，执行完后再出栈，所有栈帧都出栈后线程结束**。每一个方法对应一个栈帧，每一个线程对应一个栈。栈帧中包括：**局部变量表，操作数，动态链接，返回地址**，这些不是线程共享的。
     + 本地方法栈：与虚拟机栈相似，但它主要包含Native对象。本地方法栈有一个叫returnAddress的数据类型。
-* 元空间：先对比一下JDK8和以前版本的方法区
+* 元空间：存放类名与字段(类的元数据)，运行时常量池，JIT优化。
+    先对比一下JDK8和以前版本的方法区
     ![alt JVM-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-03.png)  
-    Perm区(永久代)在JDK8废除，用元空间来取代。**好处：非堆区，使用操作系统内存，不会出现方法区内存溢出；坏处：无限制使用操作系统内存会导致操作系统崩溃。所以一般要加-XX:MaxMetaspaceSize参数来控制大小。**
+    Perm区(永久代)在JDK8废除，用元空间来取代。**好处：元空间的出现解决了类和类加载器元数据过多导致的OOM问题，它是非堆区，使用操作系统内存，不会出现方法区内存溢出，省去了GC扫描压缩的开销，每个加载器有专门的存储空间；坏处：无限制使用操作系统内存会导致操作系统崩溃，所以一般要加-XX:MaxMetaspaceSize参数来控制大小。元空间不支持压缩，有内存碎片问题。**
     **方法区**：包含在元空间中。方法区存储：**类信息、静态（static）变量，常量（final），编译后的代码等数据**。是线程共享的。
+    元空间内存管理由元空间虚拟机完成。
 * 程序计数器：在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了**异常处理，跳转，循环分支**的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。
     
 
@@ -224,10 +226,32 @@ GC Roots包括：
 * JNI引用
 * GC Roots是引用不是对象
 **引用级别（引用链的表现）**：
-* 强引用：内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap<User,String>存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)
-* 软引用：维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。
-* 弱引用：引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。
-* 虚引用：形同虚设的引用，任何时候都可被回收。
+* 强引用：[有用且必须]内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap<User,String>存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)
+* 软引用：[有用非必须]维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。
+* 弱引用：[可能有用非必须]引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。
+* 虚引用：[无用]形同虚设的引用，任何时候都可被回收。
+```java
+//强引用
+ Shmily shmily = new Shmily();
+
+//软引用  
+ SoftReference<Shmily> softReference = new SoftReference<Shmily>(new Shmily());
+ Shmily shmily = softReference.get();
+
+//弱引用  
+ WeakReference<Shmily> weakReference = new WeakReference<Shmily>(new Shmily());
+ Shmily shmily = weakReference.get();
+
+//虚引用 虚引用的使用必须和引用队列（Reference Queue）联合使用 
+ ReferenceQueue referenceQueue = new ReferenceQueue();
+ PhantomReference<Shmily> phantomReference = new PhantomReference<Shmily>(new Shmily(), referenceQueue);
+ Shmily shmily = phantomReference.get();
+
+//所有以上对象出了强引用之外，一旦被回收，get方法返回null。
+//以上创建软引用，弱引用的对象softReference和weakReference还都属于强引用，用完也需要回收避免内存溢出，方法如下：
+ ReferenceQueue referenceQueue = new ReferenceQueue();
+ PhantomReference<Shmily> phantomReference = new PhantomReference<Shmily>(softReference, referenceQueue);
+```
 
 **可能发生OOM的内存区域**：除了程序计数器，都有可能。但主要是发生在堆上。
 **OOM发生原因**：
@@ -241,17 +265,23 @@ GC Roots包括：
 **GC算法：**
 * 标记清除算法：标记-标记已用对象，清除-清除未被标记的对象。
    + 缺点：产生内存碎片
+   + 场景：适合在收集频率低的老年代使用
 * 复制算法：内存空间分等大两块，一块满了，未被标记的对象复制到另一块。
    + 优点：解决了内存碎片问题，效率最高
    + 缺点：会有一半的内存空间浪费
+   + 场景：适合收集频率高且追求收集效率的年轻代使用
 * 标记整理算法：移动所有存活的对象，且按内存地址顺序依次排列，然后将末端内存全部回收。
    + 优点：解决了内存碎片问题，同时解决标记复制算法的内存空间浪费问题
-   + 缺点：效率低于复制算法和标记清除算法
+   + 缺点：效率低于复制算法和标记清除算法   
+   + 场景：适合在收集频率低的老年代使用
    
 **GC种类：**
-MinorGC 发生在年轻代的GC
-MajorGC 发生在老年代的GC
-FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）
+* MinorGC 发生在年轻代的GC
+触发条件：Eden区不够存放新创建的对象
+* MajorGC 发生在老年代的GC 与FullGC区别是只清理老年代而不清理年轻代
+触发条件：①
+* FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）
+触发条件：①调用System.gc ②老年代空间不足(可能无足够连续空间) ③担保机制失败(Eden大对象无法存入老年代，因为检测到老年代无足够连续内存空间) ④Minor GC后进入老年代的平均大小大于老年代可用内存
    
 Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。
 <font size="3" color="red">**年轻代的GC**：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。
@@ -303,7 +333,7 @@ Java的大部分对象生命周期都不长，它们位于年轻代(Young Genera
     关于CMS的碎片整理问题：两个参数
         UseCMSCompactAtFullCollection（默认开启）：FullGC时压缩，整理内存碎片，会造成较长时间停顿。
         CMSFullGCsBeforeCompaction：每隔几次FullGC后执行一次带压缩的FullGC。
-    总结CMS中有哪些会造成STW(GC停顿)的操作：
+    总结CMS中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font>
         初始标记阶段-较短停顿
         最终标记阶段-较短停顿
         老年代的回收-较长停顿
@@ -369,4 +399,4 @@ ___粗斜体文本___
 ## 参考资料  
 [Java双亲委派机制及其作用](https://www.jianshu.com/p/1e4011617650)
 [拉勾网](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31)
-
+[MetaSpace整体介绍](https://www.cnblogs.com/duanxz/p/3520829.html)
