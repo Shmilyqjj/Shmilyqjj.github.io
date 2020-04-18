@@ -497,6 +497,10 @@ ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hiv
 ##################################################
 Mysql相关
 
+三大范式：
+1NF：表的每个列都有原子性(所有字段都是不可分割的原子值) - 提高数据库性能
+2NF：表的每个列都与主键相关(一个表只能保存一种数据，不可以把多种数据保存在同一张表) - 减少数据冗余
+3NF：表的每个列都与主键直接相关而非间接相关 - 减少数据冗余
 
 获取一个表的主键：
 select column_name from information_schema.COLUMNS where TABLE_NAME='system_state' and TABLE_SCHEMA='d_bigdata' and COLUMN_KEY='PRI';
