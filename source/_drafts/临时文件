@@ -220,6 +220,14 @@ Executor内存划分：
     - UserMemory用于RDD转换过程中需要的数据，如依赖信息，元数据
     - ReservedMemory预留内存，用于存储Spark内部对象
     ExecutionMemory和StorageMemory是统一内存，由spark.memory.fraction指定  默认0.6
+spark数据倾斜及解决：
+    因为数据倾斜是发生在shuffle过程中，首先根据Stage划分原理，定位代码中shuffle算子，结合WebUI中显示的每个task的数据量差异较大就是数据倾斜了。
+    解决:1.hive端预处理，对hive数据均匀重分区，预聚合。
+         2.数据倾斜的key无意义则过滤掉，有意义则单独处理这些key。
+         3.提高shuffle并行度（增加shuffle read task），让原本给一个task的数据量分给多个task，从而让每个task处理比原来更少的数据
+         4.rdd.reduceByKey或sparksql的group by预聚合
+         5.reduce join转map join。存在小表join大表的场景。可以将小表进行广播从而避免shuffle。
+         6.sample采样倾斜key单独进行join
 
 
 
