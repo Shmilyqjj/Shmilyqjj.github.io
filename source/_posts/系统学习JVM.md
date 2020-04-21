@@ -129,7 +129,7 @@ Java的运行时数据区可以分成**堆、元空间(含方法区)、虚拟机
     Perm区(永久代)在JDK8废除，用元空间来取代。**好处：元空间的出现解决了类和类加载器元数据过多导致的OOM问题，它是非堆区，使用操作系统内存，不会出现方法区内存溢出，省去了GC扫描压缩的开销，每个加载器有专门的存储空间；坏处：无限制使用操作系统内存会导致操作系统崩溃，所以一般要加-XX:MaxMetaspaceSize参数来控制大小。元空间不支持压缩，有内存碎片问题。**
     **方法区**：包含在元空间中。方法区存储：**类信息、静态（static）变量，常量（final），编译后的代码等数据**。是线程共享的。
     元空间内存管理由元空间虚拟机完成。
-* 程序计数器：在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了**异常处理，跳转，循环分支**的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。
+* 程序计数器：**[JVM中唯一不会OOM的区域]**在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了**异常处理，跳转，循环分支**的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。
     
 
 ### JVM类加载机制
@@ -229,26 +229,27 @@ GC Roots包括：
 * 强引用：[有用且必须]内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap<User,String>存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)
 * 软引用：[有用非必须]维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。
 * 弱引用：[可能有用非必须]引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。
-* 虚引用：[无用]形同虚设的引用，任何时候都可被回收。
+* 虚引用：[无用]形同虚设的引用，任何时候都可被回收。  
+
 ```java
-//强引用
+ //强引用
  Shmily shmily = new Shmily();
 
 //软引用  
  SoftReference<Shmily> softReference = new SoftReference<Shmily>(new Shmily());
  Shmily shmily = softReference.get();
 
-//弱引用  
+ //弱引用  
  WeakReference<Shmily> weakReference = new WeakReference<Shmily>(new Shmily());
  Shmily shmily = weakReference.get();
 
-//虚引用 虚引用的使用必须和引用队列（Reference Queue）联合使用 
+ //虚引用 虚引用的使用必须和引用队列（Reference Queue）联合使用 
  ReferenceQueue referenceQueue = new ReferenceQueue();
  PhantomReference<Shmily> phantomReference = new PhantomReference<Shmily>(new Shmily(), referenceQueue);
  Shmily shmily = phantomReference.get();
 
-//所有以上对象出了强引用之外，一旦被回收，get方法返回null。
-//以上创建软引用，弱引用的对象softReference和weakReference还都属于强引用，用完也需要回收避免内存溢出，方法如下：
+ //所有以上对象出了强引用之外，一旦被回收，get方法返回null。
+ //以上创建软引用，弱引用的对象softReference和weakReference还都属于强引用，用完也需要回收避免内存溢出，方法如下：
  ReferenceQueue referenceQueue = new ReferenceQueue();
  PhantomReference<Shmily> phantomReference = new PhantomReference<Shmily>(softReference, referenceQueue);
 ```
@@ -274,7 +275,9 @@ GC Roots包括：
    + 优点：解决了内存碎片问题，同时解决标记复制算法的内存空间浪费问题
    + 缺点：效率低于复制算法和标记清除算法   
    + 场景：适合在收集频率低的老年代使用
-   
+
+JVM采用**分代收集算法**，对不同的区域采用不用的收集算法。
+
 **GC种类：**
 * MinorGC 发生在年轻代的GC
 触发条件：Eden区不够存放新创建的对象
@@ -282,6 +285,7 @@ GC Roots包括：
 触发条件：①
 * FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）
 触发条件：①调用System.gc ②老年代空间不足(可能无足够连续空间) ③担保机制失败(Eden大对象无法存入老年代，因为检测到老年代无足够连续内存空间) ④Minor GC后进入老年代的平均大小大于老年代可用内存
+* Mixed GC[G1收集器特有] 收集整个YoungGeneration和部分OldGeneration
    
 Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。
 <font size="3" color="red">**年轻代的GC**：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。
@@ -295,11 +299,14 @@ Java的大部分对象生命周期都不长，它们位于年轻代(Young Genera
 1. **达到一定年龄**
 每次发生MinorGC，对象年龄加1，达到阈值(最大值是15可通过‐XX:+MaxTenuringThreshold调)，进入老年代。
 2. **分配担保机制**
-因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次存活的对象大小都小于Survivor区空间，通过分配担保机制，Survivor区放不下的对象直接进入老年代。
+因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次Eden+其中一个Survivor存活的对象大小都小于另一个Survivor区空间，通过分配担保机制，另一个Survivor区放不下的对象直接进入老年代。JVM每次MinorGC前会检查老年代最大可用连续内存空间是否大于新生代对象的总空间，如果是的话确保MinorGC是安全的。
 3. **大对象直接进入老年代**
 超过一定大小的对象直接进入老年代。(通过-XX:PretenureSizeThreshold设置，默认0表示都要先走年轻代)
+4. **动态年龄判定**
+为了使内存分配更灵活，JVM不一定要求对象年龄达到MaxTenuringThreshold(15)才晋升为老年代，若Survivor区相同年龄对象总大小大于Survivor区空间的一半，则大于等于这个年龄的对象将会在MinorGC时移到老年代。
 
 <font size="3" color="red">**JVM常见垃圾回收器**：</font>
+如果垃圾收集算法是JVM垃圾回收的方法论，那垃圾回收器就是上述算法的实现。
 * 年轻代垃圾回收器
     1. Serial垃圾回收器
     单线程的垃圾回收器，垃圾回收时暂停一切用户线程，使用复制算法。
@@ -338,8 +345,26 @@ Java的大部分对象生命周期都不长，它们位于年轻代(Young Genera
         最终标记阶段-较短停顿
         老年代的回收-较长停顿
         Full GC阶段-较长停顿
+* G1垃圾回收器
+    全称：Garbage First（尽可能多地收集垃圾以减少FullGC）
+    目前比较好的收集器，关注低延迟，用于替代CMS的功能更强大的新型收集器。
+    引入了分区概念，弱化了分带概念
+    优点：避免老年代GC出现长时间卡顿，同时与CMS相比解决了CMS产生碎片的缺陷。
+    缺点：
+    场景：不希望GC停顿时间长且CPU资源较充足
+    回收过程：
+    关于CMS的碎片整理问题：两个参数
         
+    总结G1中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font>
         
+**GC小技巧**
+1. GC日志查看
+    加-XX:+PrintGCDetails参数 查看GC日志，有关GC日志的解析后续我会单写一个博客。
+    使用Sun公司的gchisto，gcviewer离线分析工具
+    使用JDK自带的JConsole
+    使用jstat -gcutil pid命令
+
+
 
 
 
@@ -369,7 +394,14 @@ $ java -XX:+PrintCommandLineFlags -version
 字符串池在JDK 1.7 之后被分离到堆区。
 String str = new String("Hello world") 创建了 2 个对象，一个驻留在字符串池，一个分配在 Java 堆，str 指向堆上的实例。
 String.intern() 能在运行时向字符串池添加常量。
+为什么String为final：1.为了实现字符串池：创建字符串常量时，JVM会检测字符串常量池，如果已存在，直接返回常量池中的实例的引用，如果不存在就实例化并放入字符串常量池。因为String为Final类型，我们可以十分肯定字符串常量池不存在两个相同的字符串。2.为了线程安全：因为它不可变，本身就是线程安全的3.节约内存4.HashMap的key往往用String是因为String不可变，在被创建时HashCode就被缓存了不需要重新计算。
 
+GC是怎么判断对象是被标记的？
+通过枚举根节点的方式，通过jvm提供的一种oopMap的数据结构，简单来说就是不要再通过去遍历内存里的东西，而是通过OOPMap的数据结构去记录该记录的信息,比如说它可以不用去遍历整个栈，而是扫描栈上面引用的信息并记录下来。
+总结:通过OOPMap把栈上代表引用的位置全部记录下来，避免全栈扫描，加快枚举根节点的速度，除此之外还有一个极为重要的作用，可以帮HotSpot实现准确式GC【这边的准确关键就是类型，可以根据给定位置的某块数据知道它的准确类型，HotSpot是通过oopMap外部记录下这些信息，存成映射表一样的东西】。
+
+CMS收集器是否会扫描年轻代？
+会，在初始标记的时候会扫描新生代。虽然cms是老年代收集器，但是我们知道年轻代的对象是可以晋升为老年代的，为了空间分配担保，还是有必要去扫描年轻代。
 
 
 
@@ -400,3 +432,4 @@ ___粗斜体文本___
 [Java双亲委派机制及其作用](https://www.jianshu.com/p/1e4011617650)
 [拉勾网](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31)
 [MetaSpace整体介绍](https://www.cnblogs.com/duanxz/p/3520829.html)
+[深入理解JMM和GC](https://www.jianshu.com/p/76959115d486)
