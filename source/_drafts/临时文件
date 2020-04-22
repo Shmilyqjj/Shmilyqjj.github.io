@@ -140,7 +140,7 @@ groupByKey(11)将Shuffle并行度调整为11
 虽然两个函数都能得出正确的结果， 但reduceByKey函数更适合使用在大数据集上。
 ReduceByKey优点：会先进行局部聚合再进行全局聚合，这样全局聚合时减少了网络IO
 尽量少使用groupByKey 当调用 groupByKey时，所有的键值对(key-value pair) 都会被移动。在网络上传输这些数据非常没有必要。避免使用 GroupByKey。
-以下函数应该优先于 groupByKey ：
+以下函数应该优先于 groupByKey：
 　　（1）combineByKey组合数据，但是组合之后的数据类型与输入时值的类型不一样。
 　　（2）foldByKey 合并每一个 key 的所有值，在级联函数和“零值”中使用。
 
@@ -228,8 +228,32 @@ spark数据倾斜及解决：
          4.rdd.reduceByKey或sparksql的group by预聚合
          5.reduce join转map join。存在小表join大表的场景。可以将小表进行广播从而避免shuffle。
          6.sample采样倾斜key单独进行join
-
-
+map、foreach、mapPartitions和foreachPartition区别：
+    map：用于遍历RDD,将函数f应用于每一个元素，返回新的RDD(transformation算子)。
+    foreach:用于遍历RDD,将函数f应用于每一个元素，无返回值(action算子)。
+    mapPartitions:用于遍历操作RDD中的每一个分区，返回生成一个新的RDD（transformation算子）。
+    foreachPartition: 用于遍历操作RDD中的每一个分区。无返回值(action算子)。
+    总结：一般使用mapPartitions或者foreachPartition算子比map和foreach更加高效，推荐使用。
+    详细对比：
+    map: 比如一个partition中有100万条数据，10个partition，那么你的function要执行和计算1000万次。
+    MapPartitions:一个partition仅仅会执行一次function，function一次接收一个partition数据，每次处理的是一个partition的数据。只要执行10次就可以了，性能比较高。
+    将rdd中的数据通过jdbc写入数据库,map需要为每个元素创建一个链接，而mapPartition为每个partition创建一个链接，则mapPartitions效率比map高的多。
+    但是：
+    map：function每次处理一条数据，处理完的数据在内存中过段时间就会被清掉，内存空间会被释放，一般不会导致OOM，内存溢出。
+    MapPartitions： function一次接收一个partition数据，每次处理的是一个partition的数据，假如每个partition数据量很大，一次性全放入内存，容易发生OOM。
+Storage内存分配：--executor-memory 18g
+    WEB UI很清楚地看到 Storage Memory 的可用内存是 10.1GB，这个数是咋来的呢？根据前面的规则，我们可以得出以下的计算：
+    systemMemory = spark.executor.memory
+    reservedMemory = 300MB
+    usableMemory = systemMemory - reservedMemory
+    StorageMemory= usableMemory * spark.memory.fraction * spark.memory.storageFraction
+    如果我们把数据代进去，得出以下的结果：
+    systemMemory = 18Gb = 19327352832 字节
+    reservedMemory = 300MB = 300 * 1024 * 1024 = 314572800
+    usableMemory = systemMemory - reservedMemory = 19327352832 - 314572800 = 19012780032
+    StorageMemory = usableMemory * spark.memory.fraction * spark.memory.storageFraction = 19012780032 * 0.6 * 0.5 = 5703834009.6 = 5.312109375GB
+    和上面的 10.1GB 对不上啊。为什么呢？这是因为 Spark UI 上面显示的 Storage Memory 可用内存其实等于 Execution 内存和 Storage 内存之和，也就是 usableMemory * spark.memory.fraction :
+    StorageMemory = usableMemory * spark.memory.fraction = 19012780032 * 0.6 = 11407668019.2 = 10.62421GB
 
 
 
@@ -752,6 +776,10 @@ HBase相关
 - 对于列存储，只需要一次IO将page2放入内存后进行连续读取，如果字段2还有多页的话，也都是进行的物理连续读取
 行存储适合OLTP，列存储适合OLAP
 
+HBase宕机处理：
+HMaster宕机：HMaster没有单点问题，可以起多个HMaster来保证总有一个活动的HMaster。
+HRegionServer宕机：HMaster会将这个宕机的RS管理的Region分配到其他机器，而这个宕机的RS中的MemStore中数据还未持久化到HDFS，可以通过重播WAL的方式，保证数据不丢失。
+
 
 
 
@@ -767,3 +795,25 @@ HBase相关
 --------------------------------JVM GC分析--------------------------------
 https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
 -------------------------------------------------------------------------
+
+可以尝试做的项目：
+1.ClusterProfiler
+    类似于JVM Profiler的分布式集群资源信息收集和JVM进程跟踪（目标：应用级指标监控，不侵入用户代码）
+    现有的同类开源工具, 比如 Etsy 的 statsd-jvm-profiler , 可以在单个应用程序级别收集度量, 但是不提供动态代码注入收集度量的能力。在这些工具的启发下, 我们的探查器提供了新功能, 如任意 Java 方法/参数分析。
+2.海量数据统计排序
+    基于问题： 1.如果给你尽可能多的资源，磁盘IO,网络，CPU都不受限，如何读取一个大文件中的结果并统计和？（读取怎么读？多线程读，用什么数据结构存储读到的数据：队列 多个线程一个队列还是多个队列，哪个好 多个队列 多个队列怎么累加求和效率高  如果计算中断了需要从0开始计算很耗资源怎么办？怎么缓存？设置ID，类似程序计数器，保存中间结果和ID。 如果多线程处理时对数据做了重复累加怎么办？怎么避免重复累加？BitMap。。。。）
+              2.内存放不下求哪些数据不重复，哪些数据重复
+              3.内存放不下求TopK
+              4.内存放不下的10个文件每个1G，求搜索频率最高的关键字
+              5.两个大文件，内存放不下，统计共有的元素（求交集）
+              6.内存放不下，求中位数
+              7.内存放不下，对文件内容排序
+              8.海量IP数据提取访问最多的IP
+    海量数据问题的最优解决方案
+    技术栈：Hash+BitMap+BloomFilter+堆排序/快速排序/归并排序+Trie树+HashMap+HashSet+TreeMap+按位计算+MapReduce+Spark
+
+
+
+
+
+
