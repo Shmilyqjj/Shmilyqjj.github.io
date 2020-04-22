@@ -254,6 +254,18 @@ Storage内存分配：--executor-memory 18g
     StorageMemory = usableMemory * spark.memory.fraction * spark.memory.storageFraction = 19012780032 * 0.6 * 0.5 = 5703834009.6 = 5.312109375GB
     和上面的 10.1GB 对不上啊。为什么呢？这是因为 Spark UI 上面显示的 Storage Memory 可用内存其实等于 Execution 内存和 Storage 内存之和，也就是 usableMemory * spark.memory.fraction :
     StorageMemory = usableMemory * spark.memory.fraction = 19012780032 * 0.6 = 11407668019.2 = 10.62421GB
+    还是不对，这是因为我们虽然设置了 --executor-memory 18g ，但是 Spark 的 Executor 端通过 Runtime.getRuntime.maxMemory 拿到的内存其实没这么大，只有 17179869184 字节，所以 systemMemory=17179869184，然后计算的数据如下：
+    systemMemory = 17179869184 字节
+    reservedMemory = 300MB = 300 * 1024 * 1024 = 314572800
+    usableMemory = systemMemory - reservedMemory = 17179869184 - 314572800 = 16865296384
+    StorageMemory= usableMemory * spark.memory.fraction = 16865296384 * 0.6 = 9.42421875 GB
+    我们通过将上面的 16865296384 * 0.6 字节除于 1024 * 1024 * 1024 转换成 9.42421875 GB，和 UI 上显示的还是对不上，这是因为 Spark UI 是通过除于 1000 * 1000 * 1000 将字节转换成 GB，如下：
+    systemMemory = 17179869184 字节
+    reservedMemory = 300MB = 300 * 1024 * 1024 = 314572800
+    usableMemory = systemMemory - reservedMemory = 17179869184 - 314572800 = 16865296384
+    StorageMemory = usableMemory * spark.memory.fraction = 16865296384 * 0.6 字节 =  16865296384 * 0.6 / (1000 * 1000 * 1000) = 10.1GB
+    现在终于对上了。
+
 
 
 
