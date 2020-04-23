@@ -363,6 +363,7 @@ Java的大部分对象生命周期都不长，它们位于年轻代(Young Genera
     使用Sun公司的gchisto，gcviewer离线分析工具
     使用JDK自带的JConsole
     使用jstat -gcutil pid命令
+    使用JvisualVM工具
 
 
 
