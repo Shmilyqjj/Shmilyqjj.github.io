@@ -61,10 +61,11 @@ Yarn的调度器：
 --1.先进先出调度器（FIFO）
 Hadoop 中默认的调度器，也是一种批处理调度器。它先按照作业的优先级高低，再按照到达时间的先后选择被执行的作业
 --2.容量调度器（Capacity Scheduler)
+选择占用资源小，优先级高的先执行
 支持多个队列，每个队列可配置一定的资源量，每个队列采用FIFO调度策略，为了防止同一个用户的作业独占队列中的资源，该调度器会对同一用户提交的作业所占资源量进行限定。
 调度时，首先按以下策略选择一个合适队列：计算每个队列中正在运行的任务数与其应该分得的计算资源之间的比值，选择一个该比值最小的队列；然后按以下策略选择该队列中一个作业：按照作业优先级和提交时间顺序选择，同时考虑用户资源量限制和内存限制
 --3.公平调度器（Fair Scheduler）
-所有的 job 具有相同的资源
+同一队列中的作业公平共享队列中所有资源
 公平调度是一种赋予作业（job）资源的方法，它的目的是让所有的作业随着时间的推移，都能平均的获取等同的共享资源。
 所有的 job 具有相同的资源,当单独一个作业在运行时，它将使用整个集群。当有其它作业被提交上来时，系统会将任务（task）空闲资源（container）赋给这些新的作业，以使得每一个作业都大概获取到等量的CPU时间。
 与Hadoop默认调度器FIFO维护一个作业队列不同，这个特性让小作业在合理的时间内完成的同时又不"饿"到消耗较长时间的大作业。
@@ -147,6 +148,7 @@ ReduceByKey优点：会先进行局部聚合再进行全局聚合，这样全局
 # 一些概念（参考https://juejin.im/post/5a5dc6056fb9a01c982c9505）
 每个JVM只有一个SparkContext,一台服务器可以启动多个JVM
 SparkSession包含了SQLContext和HiveContext
+sparkContext负责与clusterManager通信，将应用程序分发给Executor。sparkContext构建成DAG图，将DAG图分解成Stage、将Taskset发送给TaskScheduler，最后由TaskScheduler将Task发送给Executor运行。Task在Executor上运行，运行完释放所有资源.
 Driver：
     运行main方法的Java虚拟机进程,负责监听spark application的executor进程发来的通信和连接,将工程jar发送到所有的executor进程中
     Driver与Master、Worker协作完成application进程的启动、DAG划分、计算任务封装、分配task到executor上、计算资源的分配等调度执行作业等
