@@ -338,6 +338,15 @@ Spark问题：
         为了实现自动调节数据的传输速率，在原有的架构上新增了一个名为 RateController 的组件，这个组件继承自 StreamingListener，其监听所有作业的 onBatchCompleted 事件，并且基于 processingDelay 、schedulingDelay 、当前 Batch 处理的记录条数以及处理完成事件来估算出一个速率；这个速率主要用于更新流每秒能够处理的最大记录的条数。速率估算器（RateEstimator）可以又多种实现，不过目前的 Spark 2.2 只实现了基于 PID 的速率估算器。
         InputDStreams 内部的 RateController 里面会存下计算好的最大速率，这个速率会在处理完 onBatchCompleted 事件之后将计算好的速率推送到 ReceiverSupervisorImpl，这样接收器就知道下一步应该接收多少数据了。
         如果用户配置了 spark.streaming.receiver.maxRate 或 spark.streaming.kafka.maxRatePerPartition，那么最后到底接收多少数据取决于三者的最小值。也就是说每个接收器或者每个 Kafka 分区每秒处理的数据不会超过 spark.streaming.receiver.maxRate 或 spark.streaming.kafka.maxRatePerPartition 的值。
+15.HashShuffle和SortShuffle
+    HashShuffle已被弃用，原理是：每个map task的不同结果写入buffer默认32k，一个buffer对应一个小文件写磁盘，reduce拉取磁盘小文件 =>效率低 小文件过多 容易OOM
+    SortShuffle分两种：普通机制(reduceByKey),Bypass机制(sortByKey,repartition) 原理：maptask数据先写内存(默认5M)，如果写入内存大小超5M就尝试申请更多内存，如果申请成功则不溢写磁盘，否则会溢写磁盘，可能会溢写多个磁盘文件，再合并为一个大磁盘文件，且生成一个索引文件。reduce去map端拉取数据时先解析索引文件，再根据Offset获取到对应数据。
+
+
+
+
+
+
 
 
 Spark Job 默认的调度模式 - FIFO
