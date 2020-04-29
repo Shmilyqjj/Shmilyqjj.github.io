@@ -339,9 +339,10 @@ Spark问题：
         InputDStreams 内部的 RateController 里面会存下计算好的最大速率，这个速率会在处理完 onBatchCompleted 事件之后将计算好的速率推送到 ReceiverSupervisorImpl，这样接收器就知道下一步应该接收多少数据了。
         如果用户配置了 spark.streaming.receiver.maxRate 或 spark.streaming.kafka.maxRatePerPartition，那么最后到底接收多少数据取决于三者的最小值。也就是说每个接收器或者每个 Kafka 分区每秒处理的数据不会超过 spark.streaming.receiver.maxRate 或 spark.streaming.kafka.maxRatePerPartition 的值。
 15.HashShuffle和SortShuffle
-    HashShuffle已被弃用，原理是：每个map task的不同结果写入buffer默认32k，一个buffer对应一个小文件写磁盘，reduce拉取磁盘小文件 =>效率低 小文件过多 容易OOM
-    SortShuffle分两种：普通机制(reduceByKey),Bypass机制(sortByKey,repartition) 原理：maptask数据先写内存(默认5M)，如果写入内存大小超5M就尝试申请更多内存，如果申请成功则不溢写磁盘，否则会溢写磁盘，可能会溢写多个磁盘文件，再合并为一个大磁盘文件，且生成一个索引文件。reduce去map端拉取数据时先解析索引文件，再根据Offset获取到对应数据。
-
+    HashShuffle已被弃用，原理是：每个map task的不同结果写入buffer默认32k，一个buffer对应一个小文件写磁盘，reduce拉取磁盘小文件 =>效率低 小文件过多 容易OOM(磁盘小文件多，IO增多，GC增多)
+    SortShuffle分两种：普通机制(reduceByKey),Bypass机制(sortByKey,repartition) 原理：maptask数据先写内存(默认5M)，如果写入内存大小超5M就尝试申请更多内存(5.01*2-5)，如果申请成功则不溢写磁盘，否则会溢写磁盘，可能会溢写多个磁盘文件，再合并为一个大磁盘文件，且生成一个索引文件。reduce去map端拉取数据时先解析索引文件，再根据Offset获取到对应数据。
+        ByPass机制触发条件：Shuffle reduce task 数量小于spark.shuffle .sort.bypassMerge Threadshold参数的值，小于200，不开启，溢写磁盘不需要排序，小于等于的时候是开启的。
+        优化机制产生的磁盘小文件的个数：C*R    Hash shuffle：产生的磁盘小文件：M*R       Sort shuffle产生的磁盘小文件的个数为：2*M      Bypass机制产生的磁盘小文件的个数为:2*M
 
 
 
