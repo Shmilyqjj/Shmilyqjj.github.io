@@ -669,6 +669,7 @@ select * from tmp_table;
 小技巧：
 where 1=1 and xxx 有时候场景需要根据条件拼sql，如果拼接的字符串为空，那就要把where去掉，麻烦  所以 先 where 1=1，然后所有拼接的语句有直接加 “AND xx=xx” 方便，且where 1=1 始终为True。
 where 1=0同理始终为False 始终无结果
+update b set address = concat('1',address);  更新一个表中address字段让它每个前面都加上1
 
 ##################################################
 
