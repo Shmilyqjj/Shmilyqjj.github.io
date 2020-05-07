@@ -357,6 +357,16 @@ Accumulator - 支持加法/支持数值类型/可并行
 master 和 worker 通过 Akka 方式进行通信的
 
 
+在Spark shell中用scala语言编写spark程序
+sc.textFile("hdfs://master01:9000/RELEASE").flatMap(_.split(" "))
+.map((_,1)).reduceByKey(_+_).saveAsTextFile("hdfs://master01:9000/out")
+上面代码的解释：
+sc是SparkContext对象，该对象时提交spark程序的入口
+textFile(hdfs://master01:9000/RELEASE)是hdfs中读取数据
+flatMap(_.split(" "))先map在压平
+map((_,1))将单词和1构成元组
+reduceByKey(_+_)按照key进行reduce，并将value累加
+saveAsTextFile("hdfs:// master01:9000/out")将结果写入到hdfs中
 
 
 
