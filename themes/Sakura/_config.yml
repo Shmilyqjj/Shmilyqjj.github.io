@@ -129,9 +129,9 @@ leancloud_visitors:
   v_appId: zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz
   v_appKey: xIEyTcrkTuJLz6ewPbpTj8mz
 
-chatra:
+tidio:
   enable: true
-  key: nTagGvQmp2gEijFqK
+  key: rqnapcryvmmmmlsloeajxv04jys5wmjx
 
 
 #sitemap-搜索引擎爬取
