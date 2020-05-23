@@ -3,7 +3,7 @@ prefixName: 佳境
 siteName: Shmily
 # favicon and site master avatar
 favicon: /images/favicon.ico
-avatar: /img/custom/avatar.gif
+avatar: /img/custom/avatar.jpg
 url: shmily-qjj.top
 description: 记得每天要早睡呀！
 cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
