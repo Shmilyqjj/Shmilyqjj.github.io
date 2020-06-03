@@ -1,0 +1,328 @@
+Alluxio调研
+### 大数据/云计算面临的问题
+0.云计算?
+-云计算的资源:计算、网络、存储资源
+-云计算的目的:云计算的最终目标是将计算、服务和应用作为一种公共设施提供给公众，使人们能够像使用水、电、煤气和电话那样使用计算机资源,实现从资源到架构的全面弹性
+
+云计算的弹性
+	云计算的时间灵活性:想拿资源,随时可以拿
+	云计算的空间灵活性:想拿多少资源,都可以拿 
+
+
+1.混合和多云环境
+Paas
+IaaS -> PaaS -> SaaS
+IaaS - 基础设施即服务:硬件的扩展,实现了计算、网络、存储资源的弹性。
+PaaS - 平台即服务:IaaS可以扩展机器但是部署环境需要运维一台一台搞,所以在IaaS基础上加上一层PaaS,分为两部分-{自己的应用程序(自己安装),通用的程序(例如数据库,自带)} - 可以实现自动部署
+SaaS - 人工智能程序作为SaaS平台进入了云计算,云计算平台积累了大量数据,暴露一个服务接口,为人工智能提供服务
+
+混合云:私有云环境与一个或多个公共云环境的组合(多数企业使用)
+多云:使用多个公有云服务提供商的服务
+•对于私有云，所有内容均位于组织的数据中心内。其服务具有自己的沙箱，其应用程序设计是单一的。
+•公共云位于数据中心的外部。它以服务和应用为中心，云原生应用程序更加模块化，但人们仍将公共云环境视为一种数据中心。
+•混合云是两者兼而有之。每一方面都是独立的，但它们形成了一个更大的整体。它仍然以应用程序为中心，但基础设施集成规模更大。
+•采用多云，应用程序可以跨越云端，应用程序的组件可以运行在任何有意义的地方。人们不再采用内部部署数据中心，但他们把多云视为一个将应用组件绑定在一起的大规模结构
+
+云编排
+云编排是在云环境中部署服务的过程的端到端自动化。更具体地讲，它是复杂计算机系统、中间件和服务的自动化的安排、协调和管理—所有这些都有助于加速 IT 服务的交付，同时减少成本。它用于管理云基础架构，后者向客户提供和分配需要的云资源，比如创建虚拟机、分配存储容量、管理网络资源，以及授予云软件访问权。通过使用合适的编排机制，用户可在服务器上或任何云平台上部署和开始使用服务。
+编排处理的是端到端流程，包括管理所有相关服务，负责保证高可用性 (HA)、部署后期工作、故障恢复、扩展等。编排指的是流程和工作流的自动化。
+云编排分三部分:
+1.资源编排负责分配资源
+2.工作负载编排负责在资源之间共享工作负载
+3.服务编排负责将服务部署在服务器或云环境中
+Docker就是同时被用作虚拟化技术和云编排的工具
+
+我们面临的问题:
+混合云实现HDFS和对象存储可以被任何云中的任何计算访问很复杂
+存储性能特别是操作元数据的性能不可预测(元数据管理决定访问的性能)
+从多云管理数据的复杂性
+
+[了解更多](https://baijiahao.baidu.com/s?id=1603870236361690230&wfr=spider&for=pc)
+
+RPC调用
+ RPC英文全称remote procedure call 翻译成中文的意思就是远程过程调用。RPC的出现其实主要是为了解决分布式系统间的通信透明性的问题。
+RPC调用是指不同机器间的进程通讯。程序不需要关心某个远程服务是在哪台机器上执行的，远程服务调用就和调用本地服务一样。要在不同机器间进行通讯我们需要知道通讯机器的ip和端口号。ip帮助我们定位是哪一台机器，端口号帮我们定位是机器上的哪一个进程。RPC的出现使用得机器的进程通讯透明化，这在分布式系统中是很重要的。RPC调用架构中客户端和服务端都和一个叫服务注册中心的第三方通讯。
+
+
+
+
+
+https://docs.alluxio.io/os/user/stable/cn/Overview.html
+https://www.cnblogs.com/yandufeng/p/10729539.html
+https://docs.alluxio.io/os/user/stable/en/Getting-Started.html#configuring-alluxio
+https://docs.alluxio.io/os/user/stable/cn/reference/Properties-List.html
+https://blog.csdn.net/weixin_33690963/article/details/91593844
+
+
+
+
+
+部署:
+python:
+不好使？
+pip install alluxio
+#如果pip安装Alluxio报错，请先安装依赖库：
+pip install option
+pip install wire
+
+
+
+java:
+maven
+<dependency>
+  <groupId>org.alluxio</groupId>
+  <artifactId>alluxio-core-client-fs</artifactId>
+  <version>2.0.1</version>
+</dependency>
+
+SBT:
+libraryDependencies += "org.alluxio" % "alluxio-core-client-fs" % "2.0.1"
+
+
+alluxio-env.properity
+ALLUXIO_HOME=/opt/alluxio
+ALLUXIO_LOGS_DIR=/opt/alluxio/logs
+ALLUXIO_MASTER_HOSTNAME=10.2.5.63
+ALLUXIO_RAM_FOLDER=/mnt/ramdisk
+ALLUXIO_UNDERFS_ADDRESS=hdfs://intsig-bigdata-test-nameservice/alluxio/test_datas
+ALLUXIO_WORKER_MEMORY_SIZE=8192MB
+JAVA_HOME=/usr/java/jdk1.8.0_152/
+
+alluxio-site.properity
+# 非高可用 
+alluxio.home=/opt/alluxio
+alluxio.work.dir=/opt/alluxio
+alluxio.conf.dir=${alluxio.home}/conf
+alluxio.logs.dir=${alluxio.home}/logs
+alluxio.metrics.conf.file=${alluxio.conf.dir}/metrics.properties
+alluxio.master.hostname=10.2.5.63
+alluxio.underfs.address=hdfs://10.2.5.100:9000/alluxio
+alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml
+alluxio.master.bind.host=10.2.5.63
+alluxio.master.hostname=10.2.5.63
+alluxio.master.journal.folder=/opt/alluxio/journal
+alluxio.master.web.bind.host=10.2.5.63
+alluxio.master.web.hostname=10.2.5.63
+alluxio.master.web.port=19999
+alluxio.worker.bind.host=0.0.0.0
+alluxio.worker.memory.size=4096MB
+alluxio.worker.tieredstore.levels=1
+alluxio.worker.tieredstore.level0.alias=MEM
+alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+
+
+# 高可用:
+alluxio.home=/opt/alluxio
+alluxio.work.dir=/opt/alluxio
+alluxio.conf.dir=${alluxio.home}/conf
+alluxio.logs.dir=${alluxio.home}/logs
+alluxio.metrics.conf.file=${alluxio.conf.dir}/metrics.properties
+alluxio.master.hostname=10.2.5.63
+alluxio.underfs.hdfs.configuration=/etc/hadoop/conf/core-site.xml:/etc/hadoop/conf/hdfs-site.xml
+alluxio.master.bind.host=10.2.5.63
+alluxio.master.hostname=10.2.5.63
+alluxio.master.journal.folder=/opt/alluxio/journal
+alluxio.master.web.bind.host=10.2.5.63
+alluxio.master.web.hostname=10.2.5.63
+alluxio.master.web.port=19999
+alluxio.master.mount.table.root.ufs=hdfs://intsig-bigdata-test-nameservice/alluxio/test_datas
+alluxio.worker.bind.host=0.0.0.0
+alluxio.worker.memory.size=4096MB
+alluxio.worker.tieredstore.levels=1
+alluxio.worker.tieredstore.level0.alias=MEM
+alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+# alluxio.underfs.address=hdfs://10.2.5.100:9000/alluxio
+
+
+
+
+SSH免密登陆 63 64 65
+三台机器分别执行ssh-keygen -t rsa
+chmod 777 .ssh
+cd .ssh
+
+63的.ssh下python -m SimpleHTTPServer 8000
+64机器.ssh下 wget 10.2.5.63:8000/id_rsa.pub  mv id_rsa.pub.1 authorized_keys chmod 600 authorized_keys
+65机器.ssh下 wget 10.2.5.63:8000/id_rsa.pub  mv id_rsa.pub.1 authorized_keys chmod 600 authorized_keys 
+此时 63可ssh到64 63可ssh到65
+
+64的.ssh下python -m SimpleHTTPServer 8000
+63机器.ssh下 wget 10.2.5.64:8000/id_rsa.pub  cat id_rsa.pub.1 >> authorized_keys  rm id_rsa.pub.1
+65机器.ssh下 wget 10.2.5.64:8000/id_rsa.pub  cat id_rsa.pub.1 >> authorized_keys  rm id_rsa.pub.1
+此时 64可ssh到63 64可ssh到65  
+
+65的.ssh下python -m SimpleHTTPServer 8000
+63机器.ssh下 wget 10.2.5.65:8000/id_rsa.pub  cat id_rsa.pub.1 >> authorized_keys  rm id_rsa.pub.1
+64机器.ssh下 wget 10.2.5.65:8000/id_rsa.pub  cat id_rsa.pub.1 >> authorized_keys  rm id_rsa.pub.1
+此时 65可ssh到63 65可ssh到64 
+
+63,64,65的.ssh下分别 cat id_rsa.pub >> authorized_keys
+
+修改所有.ssh目录的权限为700 
+修改所有.ssh/authorized_keys文件权限为600
+完成
+vim /etc/profile
+export ALLUXIO_HOME=/opt/alluxio
+export PATH=$PATH:$ALLUXIO_HOME/bin
+source
+
+
+->分发
+scp -r /opt/alluxio  root@10.2.5.64:/opt/alluxio
+scp -r /opt/alluxio  root@10.2.5.65:/opt/alluxio
+
+或这样分发
+python -m SimpleHTTPServer 8000
+在其他机器的opt下 wget 10.2.5.63:8000/alluxio-2.0.1-bin.tar.gz
+tar -zxvf ...
+
+mv alluxio-2.0.1 alluxio
+cd opt/alluxio/conf
+python -m SimpleHTTPServer 8000
+在其他机器opt/alluxio/conf下 wget 10.2.5.63:8000/alluxio-site.properties
+在其他机器opt/alluxio/conf下 wget 10.2.5.63:8000/masters
+在其他机器opt/alluxio/conf下 wget 10.2.5.63:8000/workers
+
+
+alluxio format  初始化(格式化)
+alluxio validateEnv local 验证alluxio在当前系统可正常运行  有关[validateEnv命令](https://docs.alluxio.io/os/user/stable/en/basic/Command-Line-Interface.html)
+alluxio-start.sh master       
+alluxio-start.sh workers NoMount
+访问: 10.2.5.63:19999
+
+alluxio-stop.sh master
+alluxio-stop.sh workers
+
+Alluxio命令:
+
+alluxio fs ls /  查看根目录文件
+alluxio fs copyFromLocal LICENSE /LICENSE 拷贝本地文件到Alluxio
+alluxio fs cat xx 打开文件
+文件写入Alluxio后,底层文件系统 (UFS)如HDFS的相应目录找不到该文件,这是由于 Alluxio 默认只写入数据到 Alluxio 存储空间，而不会写入 UFS。但是，我们可以告诉 Alluxio 将文件从 Alluxio 空间持久化到 UFS。shell 命令persist可以做到。
+alluxio fs persist /xx
+[Master WebUI](http://localhost:19999/browse)
+
+alluxio fs free /xxx 释放alluxio中的文件
+
+运行一个测试程序:
+alluxio runTests
+成功后去HDFS的Alluxio映射的目录查看是否生成了文件
+
+Alluxio整合计算框架Spark
+Spark 1.1 或更高版本的 Spark 应用程序可以通过其与 HDFS 兼容的接口直接访问 Alluxio 集群。 使用 Alluxio 作为数据访问层，Spark 应用程序可以透明地访问许多不同类型的持久化存储服务（例如，AWS S3 bucket、Azure Object Store buckets、远程部署的 HDFS 等）的数据，也可以透明地访问同一类型持久化存储服务不同实例中的数据。 为了加快 I/O 性能，用户可以主动获取数据到 Alluxio 中或将数据透明地缓存到 Alluxio 中。 这种做法尤其是在 Spark 部署位置与数据相距较远时特别有效。 此外，通过将计算和物理存储解耦，Alluxio 能够有助于简化系统架构。 当底层持久化存储中真实数据的路径对 Spark 隐藏时，对底层存储的更改可以独立于应用程序逻辑；同时，Alluxio 作为邻近计算的缓存，仍然可以给计算框架提供类似 Spark 数据本地性的特性。
+基础设置:
+将Alluxio客户端 jar 包分发在运行 Spark driver 或 executor 的节点上。具体地说，将客户端 jar 包放在每个节点上的同一本地路径（例如/<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar）。
+将Alluxio 客户端 jar 包添加到 Spark driver 和 executor 的 classpath 中，以便 Spark 应用程序能够使用客户端 jar 包在 Alluxio 中读取和写入文件。具体来说，在运行 Spark 的每个节点上，将以下几行添加到spark/conf/spark-defaults.conf中。
+spark.driver.extraClassPath   /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar
+spark.executor.extraClassPath /<PATH_TO_ALLUXIO>/client/alluxio-2.0.1-client.jar
+	
+scp -r spark-defaults.conf 	root@10.2.5.64:/opt/cloudera/parcels/SPARK2/lib/spark2/conf
+scp -r spark-defaults.conf 	root@10.2.5.65:/opt/cloudera/parcels/SPARK2/lib/spark2/conf
+	
+spark.driver.extraClassPath=/opt/alluxio/client/alluxio-2.0.1-client.jar
+spark.executor.extraClassPath=/opt/alluxio/client/alluxio-2.0.1-client.jar
+
+Spark目录下alluxio fs copyFromLocal LICENSE /LICENSE  注意如果指定了路径,路径上不存在的文件夹需要自己创建
+在hdfs用户下启动Spark-Shell -> bin/spark-shell
+val s = sc.textFile("alluxio://10.2.5.63:19998/LICENSE")
+val double = s.map(line => line + line)
+double.saveAsTextFile("alluxio://10.2.5.63:19998/out")
+
+
+与组件的访问和部署
+https://www.cnblogs.com/barneywill/p/10307767.html
+与组件链接
+https://docs.alluxio.io/os/user/stable/cn/basic/Configuration-Settings.html
+
+备份和回复https://docs.alluxio.io/os/user/stable/cn/operation/Journal.html
+
+监控状态信息的JSON : http://10.2.5.63:19999/metrics/json/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+http://blog.sina.com.cn/s/blog_aeb52c090102wzfc.html
+
+https://blog.csdn.net/xfg0218/article/details/79495263
+	
+	
+	
+	http://www.voidcn.com/article/p-wjkcvzoc-bsc.html
+	https://blog.csdn.net/dlke03/article/details/81219848
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+AIM-付同 9-12 19:26:12
+https://mp.weixin.qq.com/s/5hcbfjvAXFgBvVwzyzTiIA
+
+AIM-付同 9-12 19:26:16
+https://blog.csdn.net/duan_zhihua/article/details/73719271
+
+AIM-付同 9-12 19:26:19
+https://mp.weixin.qq.com/s?__biz=MzA5MTc0NTMwNQ==&mid=2650717629&idx=2&sn=a94d7bf8bf091b807f5f0c194fe3c6c8&chksm=887da0cbbf0a29dd7e345452a5140730a25678de6b2429ecea78ef4575c7074c86699e81475e&mpshare=1&scene=1&srcid=&sharer_sharetime=1565578652674&sharer_shareid=48c48ece6a45ac2ca1ad0245e7e20e46&rd2werd=1#wechat_redirect
+
+Alluxio master元数据的性能问题: 熟悉namenode的同学应该比较清楚，如果单个namenode的blocks和文件数超过一定的阈值的话，会导致系统性能出现下架，以及单点故障影响整体服务的风险。在我们内部，目前还是通过白名单的方式限制加载到alluxio里面的metadata的规模。目前社区规划在Alluxio2.0会支持到10亿个文件量级的元数据。
+2019/9/29 20:15:34
+我的手机 2019/9/29 20:15:34
+建议adhoc场景下的Hive表采用ORC+snappy的格式，利用ORC的列式存储和snappy的高压缩比，能够极大程度地减少Presto source stage数据输入的量和Alluxio的存储资源
