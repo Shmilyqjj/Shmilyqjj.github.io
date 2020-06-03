@@ -849,6 +849,7 @@ df.format.parquet("alluxio://xxxxx")
 ![alt Alluxio-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-17.jpg)  
 其中 w/o是without，即只是用S3为直接底层存储的情况；w/是with，即使用了Alluxio作为中间件下的性能  
 从图中测试结果可以看出,当计算数据存储在公有云虚拟机实例中时，Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
+受到各方面限制，以上测试结果并非Alluxio的最佳预期。[其他人的试过程](https://www.cnblogs.com/seaspring/p/6186357.html)
 
 #### 自测
 Spark Sql做测试时候多次重复作业输入数据位于OS的高速缓冲区,Alluxio没有加速效果甚至变慢  
