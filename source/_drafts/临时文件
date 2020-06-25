@@ -84,6 +84,8 @@ Python相关
 
 常见机器学习库：mxnet、tensorflow、pytorch
 
+设计模式：https://www.cnblogs.com/wangjian941118/p/9289145.html
+
 打印调用栈
 import traceback
 def BBQ():
@@ -136,6 +138,8 @@ python import是将py文件(模块)中的元素（类，方法）加载到内存
 连接数据库 插入和更新数据库后，数据库内容未变：conn的时候  autocommit = 1
 
 正则 [\u4e00-\u9fa5] 匹配所有中文
+
+python编译cython => .so
 ###################################################
 Spark相关
 
@@ -207,6 +211,8 @@ rdd的算子类型：
     transformation，rdd由一种转为另一种rdd
     action行动算子
     controller，控制算子(cache/persist) 对性能和效率的有很好的支持
+RDD弹性：自动切换磁盘和内存，先存内存，内存放不下放磁盘/基于血统的容错机制/Task失败进行特定次数（4）的重试/动态调整数据分片个数
+RDD是只读的
 宽依赖-窄依赖：
     窄依赖：父RDD的一个分区只与一个子RDD的分区对应，子RDD的分区通常与多个RDD分区对应
     宽依赖：父RDD的一个分区要与多个子RDD的分区对应，子RDD的分区通常对应所有父RDD的分区
@@ -971,6 +977,8 @@ HBase相关
 - 对于行存储，这个查询需要两次IO将全部数据放入内存后，进行页间数据的跳读（类随机读取)
 - 对于列存储，只需要一次IO将page2放入内存后进行连续读取，如果字段2还有多页的话，也都是进行的物理连续读取
 行存储适合OLTP，列存储适合OLAP
+
+压测工具：YCSB
 
 HBase宕机处理：
 HMaster宕机：HMaster没有单点问题，可以起多个HMaster来保证总有一个活动的HMaster。
