@@ -165,4 +165,10 @@ permalink_defaults:
 Cannot GET /
 npm install hexo-generator-index
 WebStorm绑定Nodejs环境，配置环境完成后，hexo clean，hexo g
-如果该分类下没文章也会出现Cnnnot GET /xxxxxx
+如果该分类下没文章也会出现Cannnot GET /xxxxxx
+
+WebStorm插件：
+Codeglance
+Nyan Progress Bar
+Rainbow Brackets
+Translation
