@@ -601,6 +601,23 @@ Hive map join：https://www.jianshu.com/p/b52466e93226
 hive查看分区:show partitions table_name;
 
 ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
+
+
+Hive合并多个分区为一个分区:
+create table if not exists test_new(id int,name string,age int) partitioned by(dt string) row format delimited fields terminated by ',' stored as textfile;
+alter table test_new add partition (dt="20150608") partition(dt="20150612") partition(dt="20151115") partition(dt="20160825") partition(dt="20170605") partition(dt="20200525");
+create table if not exists test(id int,name string,age int) partitioned by(dt string) row format delimited fields terminated by ',' stored as textfile;
+load data local inpath '/datas/root/test' into table test_new partition(dt="20150608");
+load data local inpath '/datas/root/test' into table test_new partition(dt="20150612");
+load data local inpath '/datas/root/test' into table test_new partition(dt="20151115");
+load data local inpath '/datas/root/test' into table test_new partition(dt="20160825");
+load data local inpath '/datas/root/test' into table test_new partition(dt="20170605");
+load data local inpath '/datas/root/test' into table test_new partition(dt="20200525");
+insert overwrite table test partition (dt="20200524")  select id,name,age from test_new where dt <= "20200524";
+alter table test_new add partition (dt="20200525") ;
+
+
+
 ##################################################
 Mysql相关
 
