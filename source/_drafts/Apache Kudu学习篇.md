@@ -1,5 +1,5 @@
 ---
-title: Phoenix-SQL on HBase
+title: Apache Kudu学习篇
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -15,8 +15,9 @@ tags:
 keywords: Phoenix
 description: 基于HBase的SQL查询引擎
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Phoenix/Phoenix-cover.jpg
-date: 2020-06-29 11:26:08
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png
+abbrlink: a138bbfb
+date: 2020-06-29 12:26:08
 ---
 
 # 大标题  
