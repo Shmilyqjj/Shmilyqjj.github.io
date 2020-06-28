@@ -11,9 +11,9 @@ categories:
 comments: true
 tags:
   - 大数据
-  - Phoenix
-keywords: Phoenix
-description: 基于HBase的SQL查询引擎
+  - Kudu
+keywords: Kudu
+description: 加速对频繁更新且时效性高的数据的分析。
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png
 abbrlink: a138bbfb
