@@ -587,7 +587,7 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 Hive相关
 
 数据去重的三种方法：
-一、distinct,group by与ROW_Number()窗口函数使用方法
+distinct,group by与ROW_Number()
 1. Distinct用法：对select 后面所有字段去重，并不能只对一列去重。
 （1）当distinct应用到多个字段的时候，distinct必须放在开头，其应用的范围是其后面的所有字段，而不只是紧挨着它的一个字段，而且distinct只能放到所有字段的前面
 （2）distinct对NULL是不进行过滤的，即返回的结果中是包含NULL值的
