@@ -585,6 +585,18 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 
 ###################################################
 Hive相关
+
+数据去重的三种方法：
+一、distinct,group by与ROW_Number()窗口函数使用方法
+1. Distinct用法：对select 后面所有字段去重，并不能只对一列去重。
+（1）当distinct应用到多个字段的时候，distinct必须放在开头，其应用的范围是其后面的所有字段，而不只是紧挨着它的一个字段，而且distinct只能放到所有字段的前面
+（2）distinct对NULL是不进行过滤的，即返回的结果中是包含NULL值的
+（3）聚合函数中的DISTINCT,如 COUNT( ) 会过滤掉为NULL 的项
+2.group by用法：对group by 后面所有字段去重，并不能只对一列去重。
+3. ROW_Number() over(partition by xx order by xx) r  窗口函数 where  r = 1
+参考https://blog.csdn.net/weixin_30938149/article/details/99863639?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
+
+
 分区分文件夹，分桶分文件
 hive表和spark sql创建的hive表 元数据都存在hive中，但是不统一，spark sql的元数据基于hive，但不一致，sparksql的元数据可以desc formatted方式看到，在下方，（        spark.sql.create.version        2.2 or prior
 Hive map join：https://www.jianshu.com/p/b52466e93226
