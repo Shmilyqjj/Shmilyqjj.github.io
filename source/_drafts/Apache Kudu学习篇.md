@@ -13,30 +13,33 @@ tags:
   - 大数据
   - Kudu
 keywords: Kudu
-description: 加速对频繁更新且时效性高的数据的分析。
+description: Fast Analytics on Fast Data.
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png
 abbrlink: a138bbfb
-date: 2020-06-29 12:26:08
+date: 2020-07-04 12:26:08
 ---
 
 # Apache Kudu  
 
 ## 前言
+  离线大数据分析处理固然是大数据整个业务流程中必不可少的部分，但它已经很难满足当前的业务需求，数据时效性也越来越受到从业者及业务部门的重视，所以Flink，Storm等实时计算框架以及HBase存储开始被广泛使用，但仍然面临一个问题，在既需要随机读写又需要OLAP批量数据分析的场景下，还没有比较好的解决方案，Kudu应运而生，它的定位介于Hadoop和HBase之间，是一个既支持随机读写又支持OLAP分析的存储引擎。本篇博客主要研究一下Kudu，对其应用场景，架构原理及基本使用做一个总结，方便后续回看。
+## Kudu介绍  
   
 
-## 小标题1  
+### 适用场景
 
-## 小标题2  
+## Kudu架构原理
 
+## Kudu使用  
 
-更多内容: [Writing](https://hexo.io/docs/writing.html)
-
-## 原理（中标题） 
-
-``` python
+``` java
 
 ```
+
+## 总结
+
+
 * 字体
 *斜体文本*
 _斜体文本_
@@ -49,38 +52,8 @@ ___粗斜体文本___
 * 脚注
 [^要注明的文本]: xxxxxxxxx
 
-* 列表
-无序列表用* + -三种符号表示
-    * 列表嵌套
-    1. 有序列表第一项：
-        - 第一项嵌套的第一个元素
-        - 第一项嵌套的第二个元素
-    2. 有序列表第二项：
-        - 第二项嵌套的第一个元素
-        - 第二项嵌套的第二个元素
-            * 最多第三层嵌套
-            + 最多第三层嵌套
-            - 最多第三层嵌套
 
 
-更多内容: [Server](https://hexo.io/docs/server.html)
+## 部署
 
-## 部署（中标题） 
-### 首先
-``` shell
-    sudo rm -rf /
-```
 
-更多内容: [Generating](https://hexo.io/docs/generating.html)
-
-## 操作（中标题） 
-
-``` Java
-public class HelloWorld {
-    public static void main(String[] args){
-        System.out.print("Shmily-qjj");
-    }
-}
-```
-
-更多内容: [Deployment](https://hexo.io/docs/deployment.html)
