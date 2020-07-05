@@ -16,6 +16,7 @@ keywords: Kafka
 description: 每天与Linux打交道，要熟悉呦！
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kafka/Kafka-Cover.jpg
+abbrlink: c8fda62b
 date: 2020-08-15 12:19:00
 ---
 # 前言
