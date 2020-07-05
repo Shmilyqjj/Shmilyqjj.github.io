@@ -83,6 +83,7 @@ date: 2020-07-05 12:26:08
 **TabletServer：**简称TServer，负责数据存储Tablet和提供数据读写服务。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
 **Catalog Table：**目录表，用户不可直接读取或写入，由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table存储在Master节点，随着Master启动而被加载到内存。
 **Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master，半数以上Master存活服务都可正常运行。
+**逻辑复制：**Insert和Update操作会走网络IO，但Delete操作不会，压缩数据也不会走网络。
 
 ### 存储与读写
 **Kudu的存储结构：**
@@ -98,9 +99,8 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;**DeltaMem：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘形成RedoFile。
 
 
-逻辑复制：Insert和Update操作会走网络IO，但Delete操作不会，压缩数据也不会走网络。
+### 分区方式  
 
-### 分区方式
 
 ## Kudu使用  
 
