@@ -61,6 +61,8 @@ date: 2020-07-05 12:26:08
 2. **缺点**  
   * 暂不支持除PK外的二级索引和唯一性限制
   * 不支持BloomFilter优化join 
+  * 不能通过Alter来drop PK
+  * 每表最多不能有300列
 
 ## Kudu架构原理
 &emsp;&emsp;Kudu有很多概念，有分布式文件系统（如HDFS），有一致性算法（类似Zookeeper），有Table（如Hive表），有Tablet（类似Hive表分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。
@@ -89,18 +91,25 @@ date: 2020-07-05 12:26:08
 **Kudu的存储结构：**
 ![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.jpg)  
 &emsp;&emsp;如图，Table分为若干Tablet；Tablet包含Metadata和RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、Ad_hoc Index、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
-&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，一个MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次到达32M生成一个DiskRowSet。可以理解为HBase的MemStore。
-&emsp;&emsp;**DiskRowSet：**用于老数据的变更（Mutation），后台定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。DiskRowSets可以理解为HBase的HFile。
+&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B-树，按行存储一个MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次到达32M生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
+&emsp;&emsp;**DiskRowSet：**用于老数据的变更（Mutation），后台定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。DiskRowSets可以理解为HBase的HFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。
 &emsp;&emsp;**BloomFile：**根据一个DiskRowSet中的Key生成一个Bloom Filter，用于快速模糊定位某个key是否在DiskRowSet中存在。
 &emsp;&emsp;**AdhocIndex：**存放主键的索引，用于定位Key在DiskRowSet中的具体哪个偏移位置。
 &emsp;&emsp;**BaseData：**MemRowSet达到一定大小后Flush下来的数据，按列存储，主键有序。
-&emsp;&emsp;**UndoFile：**是基于BaseData之前时间的历史数据，通过在BaseData上Apply UndoFile中的记录，可以获得历史数据。
-&emsp;&emsp;**RedoFile：**是基于BaseData之后时间的变更记录，通过在BaseData上apply RedoFile中的记录，可获得较新的数据。
+&emsp;&emsp;**UndoFile：**是基于BaseData之前时间的历史数据，数据被修改前的历史值，通过在BaseData上Apply UndoFile中的记录，可以获得历史数据（事务回滚）。
+&emsp;&emsp;**RedoFile：**是基于BaseData之后时间的变更数据，数据被修改后的值，通过在BaseData上apply RedoFile中的记录，可获得较新的数据（事务提交）。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
 &emsp;&emsp;**DeltaMem：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘形成RedoFile。
+
+&emsp;&emsp;Kudu中文件会不断合并，有两种合并：
+Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
+Major Compaction：DeltaFile文件的大小和Base data的文件的比例为0.1的时候，会进行合并操作，生成Undo data。
 
 
 ### 分区方式  
+Kudu的分区即为Tablet，分区模式有两种：
+* 基于Hash分区
 
+* 基于Range分区
 
 ## Kudu使用  
 
