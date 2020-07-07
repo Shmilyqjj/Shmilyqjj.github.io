@@ -15,7 +15,6 @@ tags:
   - 实时
 keywords: 
   - Kudu 
-  - 实时OLAP
 description: Fast Analytics on Fast Data.
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png
@@ -61,6 +60,7 @@ date: 2020-07-05 12:26:08
   * 数据存储在Linux文件系统，不依赖HDFS存储
 2. **缺点**  
   * 暂不支持除PK外的二级索引和唯一性限制
+  * 暂不支持多表ACID，暂不支持事务回滚，未来可能支持
   * 不支持BloomFilter优化join 
   * 不能通过Alter来drop PK
   * 每表最多不能有300列
@@ -173,7 +173,7 @@ Kudu的分区即为Tablet，分区模式有两种：
 ```
 
 ## Kudu优化
-1. 使用SSD会显著提高Kudu性能。
+1. 使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
 2. https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
 
 ## Kudu异常处理
