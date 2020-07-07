@@ -75,7 +75,7 @@
     <div class="focusinfo no-select">
       <div class="header-tou">
         <a href="shmily-qjj.top">
-          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
         </a>
       </div>
       <div class="header-info">
@@ -423,7 +423,7 @@
         <div class="entry-content">
           <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天带我的老哥让我改一下报警模块，把一些联系方式等信息存在Mysql里，方便以后管理和维护，很简单的东西，为了减少Mysql并发压力，我想每次报警只查询一次数据库，但子查询返回的结果有重复记录，于是我写了个类似<strong><em>SELECT col1,col2,col3,col4 FROM (select…) GROUP BY col1;</em></strong>的语句来去重，可以正常执行不报错且达到了目的就直接使用了，也没深究。直到老哥看了代码说找我说老弟呀你这个逻辑，有点问题呀。。。  </p>
 <p>按理说，GROUP BY都是要与聚合函数搭配使用的，所以确实是逻辑有问题，写代码规范很重要，规范的同时还要弄清楚原理，于是就有了这篇博客，详细说一下使用GROUP BY和DISTINCT去重…  </p>
-<h2 id="DISTINCT去重"><a href="#DISTINCT去重" class="headerlink" title="DISTINCT去重"></a>DISTINCT去重</h2><p>多条记录，每个字段的值都完全相同的情况下使用DISTINCT去重<br>DISTINCT和GROUP BY同时适用的场景下，DISTINCT的效率更高  </p>
+<h2 id="DISTINCT去重"><a href="#DISTINCT去重" class="headerlink" title="DISTINCT去重"></a>DISTINCT去重</h2><p>DISTINCT可多字段去重，每个字段的值都完全相同的情况下使用DISTINCT去重<br>DISTINCT也可以单个字段值去重 select(name),id from table;</p>
 <pre><code class="sql">mysql&gt; select name,tel,wxid from person_info where wxid in (&#39;SCALA&#39;);    
 +--------+-------+-------+
 | name   | tel   | wxid  |
@@ -638,6 +638,7 @@ GROUP BY name;
 2 rows in set (0.01 sec)
 </code></pre>
 <p>准确地拿到了name,tel,wxid，但是groupname字段呢，到底是哪个被舍弃了？不同情况下不一定。如果我们只要name,tel,wxid这三个字段，在groupname字段上加个max()好了，这样逻辑也说得通，也比较规范，如果要求精确拿到groupname字段的值，就不能使用group by去重。  </p>
+<h2 id="关于效率"><a href="#关于效率" class="headerlink" title="关于效率"></a>关于效率</h2><p>DISTINCT和GROUP BY同时适用的场景下，<strong>不能说一定是谁的效率更高</strong><br>DISTINCT就是字段值对比的方式，要遍历整个表。GROUP BY类似于先建索引再查索引。<br><strong>小表DISTINCT去重效率高，大表GROUP BY去重效率高</strong></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
 <li>认清DISTINCT和GROUP BY的去重场景  </li>
 <li>某些场景下DISTINCT与GROUP BY去重同时适用，但DISTINCT效率更高  </li>
@@ -874,7 +875,7 @@ $(document).ready(function() {
   </section>
   <div id="mo-nav" class="">
   <div class="m-avatar">
-    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.gif">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
   </div>
   <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
   <p style="text-align: center; word-spacing: 20px;">
