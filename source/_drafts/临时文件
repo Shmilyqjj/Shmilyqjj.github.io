@@ -601,6 +601,15 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 ###################################################
 Hive相关
 
+HQL:
+1.in/exists的优化方案：
+  select a.id,a.name from a where a.id in (selecr b.id from b);
+  select a.id,a.name from a where a.id exists (selecr b.id from b where a.id = b.id);
+  优化为 select a.id,a.name from a left semi join b on a.id = b.id;
+2.not in优化
+  left join on where b.col is null 
+  select * from  A where (select count(1) as num from B where A.ID = B.ID) = 0
+
 数据去重的三种方法：
 distinct,group by与ROW_Number()
 1. Distinct用法：对select 后面所有字段去重，并不能只对一列去重。
