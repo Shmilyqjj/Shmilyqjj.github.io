@@ -159,7 +159,7 @@ Kudu的分区即为Tablet，分区模式有两种：
 ### 一些细节
 1. 为什么Kudu要比HBase、Cassandra扫描速度更快？
 &emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。
-
+::::::::::::https://www.jianshu.com/p/5ffd8730aad8:::::::
 ## Kudu使用  
 
 ### Kudu + Impala
@@ -220,4 +220,4 @@ NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Ku
 3.[Kudu专注于大规模数据快速读写，同时进行快速分析的利器](https://www.cnblogs.com/dajiangtai/p/12461999.html)
 4.[Kudu基础入门](https://www.cnblogs.com/starzy/p/10573508.html)
 5.[Kudu、Hudi和Delta Lake的比较](https://www.cnblogs.com/kehanc/p/12153409.html)
-
+6.[迟到的Kudu设计要点面面观](https://blog.csdn.net/nazeniwaresakini/article/details/104220206/)
