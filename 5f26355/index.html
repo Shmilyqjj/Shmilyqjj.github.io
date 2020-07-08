@@ -433,7 +433,7 @@
 <li>同时高效运行顺序读写和随机读写任务的场景</li>
 <li>支持分布式高性能，高可用，可横向扩展的场景</li>
 <li>Kudu作为持久层与Impala紧密集成的场景</li>
-<li>解决HBase大批量数据SQL分析性能不佳的场景</li>
+<li>解决HBase(Phoenix)大批量数据SQL分析性能不佳的场景</li>
 <li>跨大量历史数据的查询分析场景（Time-series场景）</li>
 </ul>
 <h3 id="特点及缺点"><a href="#特点及缺点" class="headerlink" title="特点及缺点"></a>特点及缺点</h3><ol>
@@ -443,17 +443,20 @@
 <li>使用 <a href="https://shmily-qjj.top/5f26355/#LSM树">LSM树</a> 以支持高效随机读写</li>
 <li>查询性能和耗时较稳定</li>
 <li>不依赖Zookeeper</li>
-<li>有表结构，需要定义Schema，需要定义唯一键，支持SQL分析</li>
-<li>支持增删列,行级ACID</li>
+<li>有表结构，需要定义Schema，需要定义唯一键，支持SQL分析（依赖Impala，Spark等引擎）</li>
+<li>支持增删列,单行级ACID（不支持多行事务-不满足原子性）</li>
 <li>查询时先查询内存再查询磁盘</li>
 <li>数据存储在Linux文件系统，不依赖HDFS存储</li>
 </ul>
 </li>
 <li><strong>缺点</strong>  <ul>
 <li>暂不支持除PK外的二级索引和唯一性限制</li>
+<li>暂不支持多表ACID，暂不支持事务回滚，未来可能支持</li>
 <li>不支持BloomFilter优化join </li>
+<li>不支持数据回滚</li>
 <li>不能通过Alter来drop PK</li>
 <li>每表最多不能有300列</li>
+<li>数据类型少，不支持Map，Struct等复杂类型</li>
 </ul>
 </li>
 </ol>
@@ -575,16 +578,26 @@
 <ul>
 <li><strong>基于Hash分区(Hash Partitioning):</strong>由PK的一个子集以及分区数量组成。哈希分区通过哈希值将行分配到许多buckets(存储桶)之一,当不需要有序访问时，哈希分区可以减轻热点和Tablet大小不均匀问题。</li>
 <li><strong>基于Range分区(Range Partitioning):</strong>由PK范围划分组成。范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象。</li>
-<li><strong>多级分区(Multilevel Partitioning):</strong>可以在单表上组合分区类型，保留两种分区类型的优点。<h2 id="Kudu使用"><a href="#Kudu使用" class="headerlink" title="Kudu使用"></a>Kudu使用</h2></li>
+<li><strong>多级分区(Multilevel Partitioning):</strong>可以在单表上组合分区类型，保留两种分区类型的优点。  </li>
 </ul>
-<h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><pre><code class="Java">
+<h3 id="一些细节"><a href="#一些细节" class="headerlink" title="一些细节"></a>一些细节</h3><ol>
+<li>为什么Kudu要比HBase、Cassandra扫描速度更快？<br>&emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。</li>
+</ol>
+<h2 id="Kudu使用"><a href="#Kudu使用" class="headerlink" title="Kudu使用"></a>Kudu使用</h2><h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><pre><code class="Java">
 </code></pre>
 <pre><code class="Python">
 </code></pre>
 <h2 id="Kudu优化"><a href="#Kudu优化" class="headerlink" title="Kudu优化"></a>Kudu优化</h2><ol>
-<li>使用SSD会显著提高Kudu性能。</li>
+<li>使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）</li>
 <li><a href="https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight</a></li>
 </ol>
+<p>3.memory_limit_hard_bytes<br>该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。<br>官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。</p>
+<p>block_cache_capacity_mb<br>Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。</p>
+<p>memory.soft_limit_in_bytes/memory.limit_in_bytes<br>这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。</p>
+<p>maintenance_manager_num_threads<br>单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。</p>
+<p>max_create_tablets_per_ts<br>创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。</p>
+<p>follower_unavailable_considered_failed_sec<br>当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。</p>
+<p>max_clock_sync_error_usec<br>NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。</p>
 <h2 id="Kudu异常处理"><a href="#Kudu异常处理" class="headerlink" title="Kudu异常处理"></a>Kudu异常处理</h2><p><a href="https://kudu.apache.org/docs/troubleshooting.html" target="_blank" rel="noopener">Apache Kudu Troubleshooting</a></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;Kudu–Fast Analytics on Fast Data.一个Kudu实现了整个大数据技术栈中诸多组件的功能，有分布式文件系统（好比HDFS），有一致性算法（好比Zookeeper），有Table（好比Hive表），有Tablet（好比Hive分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。它轻松地解决了随机读写+快速分析的业务场景，解决了实时数仓的诸多难点，同时降低了存储成本和运维成本。在实时数仓和实时计算蓬勃发展的今天，你确定不学一下Kudu吗？</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.《Kudu:构建高性能实时数据分析存储系统》<br>2.<a href="https://kudu.apache.org/docs/" target="_blank" rel="noopener">Apache Kudu - Fast Analytics on Fast Data</a><br>3.<a href="https://www.cnblogs.com/dajiangtai/p/12461999.html" target="_blank" rel="noopener">Kudu专注于大规模数据快速读写，同时进行快速分析的利器</a><br>4.<a href="https://www.cnblogs.com/starzy/p/10573508.html" target="_blank" rel="noopener">Kudu基础入门</a><br>5.<a href="https://www.cnblogs.com/kehanc/p/12153409.html" target="_blank" rel="noopener">Kudu、Hudi和Delta Lake的比较</a></p>
