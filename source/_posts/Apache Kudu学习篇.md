@@ -44,7 +44,7 @@ date: 2020-07-05 12:26:08
 * 同时高效运行顺序读写和随机读写任务的场景
 * 支持分布式高性能，高可用，可横向扩展的场景
 * Kudu作为持久层与Impala紧密集成的场景
-* 解决HBase大批量数据SQL分析性能不佳的场景
+* 解决HBase(Phoenix)大批量数据SQL分析性能不佳的场景
 * 跨大量历史数据的查询分析场景（Time-series场景）
 
 ### 特点及缺点  
@@ -54,16 +54,18 @@ date: 2020-07-05 12:26:08
   * 使用 [LSM树](https://shmily-qjj.top/5f26355/#LSM树) 以支持高效随机读写
   * 查询性能和耗时较稳定
   * 不依赖Zookeeper
-  * 有表结构，需要定义Schema，需要定义唯一键，支持SQL分析
-  * 支持增删列,行级ACID
+  * 有表结构，需要定义Schema，需要定义唯一键，支持SQL分析（依赖Impala，Spark等引擎）
+  * 支持增删列,单行级ACID（不支持多行事务-不满足原子性）
   * 查询时先查询内存再查询磁盘
   * 数据存储在Linux文件系统，不依赖HDFS存储
 2. **缺点**  
   * 暂不支持除PK外的二级索引和唯一性限制
   * 暂不支持多表ACID，暂不支持事务回滚，未来可能支持
   * 不支持BloomFilter优化join 
+  * 不支持数据回滚
   * 不能通过Alter来drop PK
   * 每表最多不能有300列
+  * 数据类型少，不支持Map，Struct等复杂类型
 
 ### 与相似类型存储引擎对比
 &emsp;&emsp;本文重点说Kudu，但我们也需要了解其他类似组件，了解它们各自擅长的地方，才能更好地做技术选型。这里简单对比一下Kudu，Hudi和DeltaLake这三种存储方案，因为它们都具有相似的特性，能解决类似的问题。  
@@ -152,7 +154,12 @@ Major Compaction：DeltaFile文件的大小和Base data的文件的比例为0.1�
 Kudu的分区即为Tablet，分区模式有两种：
 * **基于Hash分区(Hash Partitioning):**由PK的一个子集以及分区数量组成。哈希分区通过哈希值将行分配到许多buckets(存储桶)之一,当不需要有序访问时，哈希分区可以减轻热点和Tablet大小不均匀问题。
 * **基于Range分区(Range Partitioning):**由PK范围划分组成。范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象。
-* **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型，保留两种分区类型的优点。
+* **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型，保留两种分区类型的优点。  
+
+### 一些细节
+1. 为什么Kudu要比HBase、Cassandra扫描速度更快？
+&emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。
+
 ## Kudu使用  
 
 ### Kudu + Impala
@@ -175,6 +182,30 @@ Kudu的分区即为Tablet，分区模式有两种：
 ## Kudu优化
 1. 使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
 2. https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
+
+3.memory_limit_hard_bytes
+该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。
+官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。
+
+block_cache_capacity_mb
+Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。
+
+memory.soft_limit_in_bytes/memory.limit_in_bytes
+这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。
+
+maintenance_manager_num_threads
+单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。
+
+max_create_tablets_per_ts
+创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。
+
+follower_unavailable_considered_failed_sec
+当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。
+
+max_clock_sync_error_usec
+NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。
+
+
 
 ## Kudu异常处理
 [Apache Kudu Troubleshooting](https://kudu.apache.org/docs/troubleshooting.html)
