@@ -25,7 +25,7 @@ links:
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/jiangshikai.jpg
       name: 精进马大使
       desc: 江仕锴的个人主页，技术分享
-    - url: https://www.jlpyyf.com/
+    - url: https://www.jielongping.com/
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/jielongping.jpg
       name: 介龙平博客
       desc: 介龙平的个人博客，IT技术分享
