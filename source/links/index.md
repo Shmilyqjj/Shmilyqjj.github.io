@@ -36,7 +36,7 @@ links:
     - url: http://www.ivan-zcy.top/
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/zhangchengyou.jpg
       name: Ivan-zcy
-      desc: 张成忧的博客
+      desc: 张成优的博客
     - url: https://www.zhngjie.top/
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/zhangjie.jpg
       name: ZhngJie
