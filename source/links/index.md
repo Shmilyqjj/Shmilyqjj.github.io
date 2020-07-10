@@ -33,4 +33,8 @@ links:
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/chuochuo.jpg
       name: 戳不戳不戳
       desc: 戳戳的哔哩哔哩首页
+    - url: http://www.ivan-zcy.top/
+      img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/zhangchengyou.jpg
+      name: Ivan-zcy
+      desc: 张成忧的博客
 ---
