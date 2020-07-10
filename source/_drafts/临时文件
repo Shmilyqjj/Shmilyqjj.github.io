@@ -776,6 +776,14 @@ mkdir test
 chmod 1777 test
 drwxrwxrwt 权限文件夹 任何人都可以在此目录拥有写权限，但是不能删除别人拥有的文件
 
+看日志
+grep -A5 -B20 "xxx" file  查看关键字xxx所在行及其前5行，后20行日志
+grep -C 20 "xxx" file  查看关键字xxx所在行及其前后20行日志
+grep -n "xxx" file   -n显示行号
+grep -v "INFO" file   查看除INFO外的日志，-v是排除含关键字所在的行
+grep "2020-07-10 08:10.*" file  查看指定时间的日志
+
+
 cat /etc/group查看组信息
 
 内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
