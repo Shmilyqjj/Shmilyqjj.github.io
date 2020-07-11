@@ -153,9 +153,17 @@ date: 2020-07-05 12:26:08
 
 ### 分区方式  
 Kudu的分区即为Tablet，分区模式有两种：
-* **基于Hash分区(Hash Partitioning):**哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet当不需要有序访问时，哈希分区可以减轻热点和Tablet大小不均匀问题。
-* **基于Range分区(Range Partitioning):**由PK范围划分组成，一个区间对应一个Tablet。范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象。
-* **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型，保留两种分区类型的优点。  
+* **基于Hash分区(Hash Partitioning):**
+&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet当不需要有序访问时。
+&emsp;&emsp;优点：哈希分区可以将数据均匀分布，减轻热点和Tablet大小不均匀问题。
+&emsp;&emsp;缺点：查询数据可能要读取所有的Tablet(Bucket)。
+* **基于Range分区(Range Partitioning):**
+&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。
+&emsp;&emsp;优点：可以根据存入数据的数据量，将数据均衡的存储到各个机器上，防止机器出现负载不均衡现象。
+&emsp;&emsp;缺点：一旦数据量超出定义好的最后一个Range，接下来的数据将全部写入最后一个Range，发生倾斜。而且插入数据一次只写入单个Tablet。
+* **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型。  
+&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点--既可以数据分布均匀，又可以在每个分片中保留指定的数据
+&emsp;&emsp;缺点：优点太多...
 
 ### 一些细节
 1. 为什么Kudu要比HBase、Cassandra扫描速度更快？
@@ -164,7 +172,7 @@ Kudu的分区即为Tablet，分区模式有两种：
 &emsp;&emsp;首先肯定不能遍历，O(n)的复杂度是很难受的。它使用二叉查找树，每个节点维护多个DiskRowSet的最大Key和最小Key，这样就可在O(logn)时间内定位Key所在DiskRowSet。
 
 ## Kudu使用  
-实验环境：
+环境：
 四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。
 **OS:**CentOS7;**Impala:**3.2.0-cdh6.3.1;**Kudu:**1.10.0-cdh6.3.1(3Master+3TServer);**Hive:**2.1.1-cdh6.3.1;
 ![alt Kudu-08](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg)  
@@ -174,7 +182,8 @@ Kudu的分区即为Tablet，分区模式有两种：
 &emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。
 &emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。
 
-1. Impala创建Kudu内部表
+**1.使用Impala创建Hash分区的Kudu表**
+
 ```Impala
 impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
 
@@ -186,7 +195,7 @@ id INT,
 name String,
 PRIMARY KEY(id)
 )
-PARTITION BY HASH PARTITIONS 8
+PARTITION BY HASH PARTITIONS 8  -- 使用Hash分区
 STORED AS KUDU
 TBLPROPERTIES (
 'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
@@ -196,30 +205,452 @@ kudu table list cdh102:7051,cdh103:7051,cdh104:7051
 -- 查看表以及tablets
 kudu table list cdh102:7051,cdh103:7051,cdh104:7051 --list_tablets
 ```
+在WebUI上可以看到该表对应8个Tablet以及每个Tablet信息。
+![alt Kudu-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-09.jpg)  
 
-2. 在Impala映射已经存在的Kudu表
+**2.使用Impala创建RANGE分区的Kudu表**
+
+```Impala
+impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
+
+CREATE TABLE impala_kudu.second_kudu_table(  
+id INT,
+name String,
+PRIMARY KEY(id)
+)
+PARTITION BY RANGE (id) ( -- 使用Range分区 只有主键可以做RANGE分区的字段
+    PARTITION 0 <= values <= 3,  -- 如果id范围取多个值，则为values，如果分区字段按是单个值，则为value
+    PARTITION 4 <= values <= 7,
+    PARTITION 8 <= values <= 11,
+    PARTITION 11 < values 
+)
+STORED AS KUDU
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
+);
+-- ------------------------------------------------------------------------------------
+CREATE TABLE impala_kudu.third_kudu_table(  
+state STRING,
+name String,
+PRIMARY KEY(state,name)
+)
+PARTITION BY RANGE (state) ( -- 联合主键时，RANGE分区可以使用其中一个字段
+    PARTITION value = 'succeed',  -- 如果分区字段按是单个值，则为value
+    PARTITION value = 'queued',
+    PARTITION value = 'waiting',
+    PARTITION value = 'failed'
+)
+STORED AS KUDU
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
+);
+```
+**3.使用Impala创建混合分区的Kudu表**
+
+```Impala
+impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
+
+CREATE TABLE impala_kudu.fourth_kudu_table(  
+id INT,
+state String,
+name String,
+PRIMARY KEY(id,state)
+) PARTITION BY HASH (id) PARTITIONS 4,  -- 混合分区 HASH+RANGE
+RANGE (state) (
+    PARTITION value = 'succeed',
+    PARTITION value = 'queued',
+    PARTITION value = 'waiting',
+    PARTITION value = 'failed' -- 最终Tablet数为HASH分区数乘以RANGE分区数
+)
+STORED AS KUDU
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
+);
+```
+
+**4.在Impala映射已经存在的Kudu表**
+
+```Impala
+[kudu@cdh102 /]# kudu table list cdh102:7051,cdh103:7051,cdh104:7051         
+impala::impala_kudu.first_kudu_table
+impala::impala_kudu.test
+impala::impala_kudu.second_kudu_table
+impala::impala_kudu.fourth_kudu_table
+impala::impala_kudu.third_kudu_table
+
+CREATE EXTERNAL TABLE impala_kudu.fifth_kudu_table  
+STORED AS KUDU  -- Kudu表映射到Impala中，不能指定字段，主键和分区方式，由Kudu决定
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051',
+'kudu.table_name' = 'impala::impala_kudu.first_kudu_table'
+);
+
+drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响
+```
+
+**5.转储一张Hive表到Kudu**
+
+```Impala 
+show create table default.test;
+
+CREATE TABLE impala_kudu.test(
+id INT,
+name STRING,
+PRIMARY KEY(id)
+)
+PARTITION BY HASH PARTITIONS 2  -- 数据量少，分2个桶
+STORED AS KUDU
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
+);
+
+INSERT INTO impala_kudu.test SELECT * FROM default.test;
+
+SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因
+```
+
+**6.对不同的列启用不同压缩算法**
 ```Impala
 
-
 ```
+
+在官网了解更多：[Using Apache Kudu with Apache Impala](https://kudu.apache.org/docs/kudu_impala_integration.html)
 
 ### Kudu + Spark
 
 
 ### Kudu + Hive
+**与Hive MetaStore集成**
+官网写的很详细。
+在官网了解更多：[Using the Hive Metastore with Kudu](https://kudu.apache.org/docs/hive_metastore.html)
 
 ### Kudu APIs
+**Kudu常用Java API：**
 ``` Java
+Maven Dep：
+<dependency>
+    <groupId>org.apache.kudu</groupId>
+    <artifactId>kudu-client</artifactId>
+    <version>1.10.0</version>
+</dependency>
 
+//KudoDDL.java  Kudu数据定义API包括：建表，删表，增加字段和删除字段
+package top.qjj.shmily.operations;
+
+import org.apache.kudu.ColumnSchema;
+import org.apache.kudu.Schema;
+import org.apache.kudu.Type;
+import org.apache.kudu.client.*;
+import org.apache.kudu.shaded.com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
+
+public class KuduDDL{
+    public static void main(String[] args) {
+        String kuduMasterAddrs = "cdh102,cdh103,cdh104";
+        KuduDDLOperations kuduDDLOperations = KuduDDLOperations.getInstance(kuduMasterAddrs);
+
+        //创建Kudu表
+        String tableName = "kudu_table_with_hash";
+        //1.Schema指定
+        LinkedList<ColumnSchema> schemaList = new LinkedList<>();
+        schemaList.add(kuduDDLOperations.newColumn("id", Type.INT32, true));
+        schemaList.add(kuduDDLOperations.newColumn("name", Type.STRING, false));
+        Schema schema = new Schema(schemaList);
+        //2.设置建表参数-哈希分区
+//        CreateTableOptions options = new CreateTableOptions();
+//        options.setNumReplicas(1);   //设置存储副本数-必须为奇数否则会抛异常
+//        List<String> hashKey = new LinkedList<String>();
+//        hashKey.add("id");
+//        options.addHashPartitions(hashKey,2);  //哈希分区 设置哈希键和桶数
+        //2.设置建表参数-Range分区
+        CreateTableOptions options = new CreateTableOptions();
+        options.setRangePartitionColumns(ImmutableList.of("id")); //设置id为Range key
+        int temp = 0;
+        for(int i = 0; i < 10; i++){  //id 每10一个区间直到100
+            PartialRow lowLevel = schema.newPartialRow();
+            lowLevel.addInt("id", temp);  //与字段类型对应 INT32则addInt  INT64则addLong
+            PartialRow highLevel = schema.newPartialRow();
+            temp += 10;
+            highLevel.addInt("id", temp);
+            options.addRangePartition(lowLevel, highLevel);
+        }
+        //3.开始建表
+        boolean result = kuduDDLOperations.createTable(tableName, schema, options);
+        System.out.println(result);
+
+        //添加字段
+        kuduDDLOperations.addColumn(tableName, "test", Type.INT8);
+
+        //删除字段
+        kuduDDLOperations.deleteColumn(tableName, "test");
+
+        //删除Kudu表
+        boolean delResult = kuduDDLOperations.dropTable(tableName);
+        System.out.println(delResult);
+
+        //关闭连接
+        kuduDDLOperations.closeConnection();
+    }
+}
+
+class KuduDDLOperations {
+    private static volatile KuduDDLOperations instance;
+    private KuduClient kuduClient = null;
+    private KuduDDLOperations(String masterAddr){
+        kuduClient = new KuduClient.KuduClientBuilder(masterAddr).defaultOperationTimeoutMs(6000).build();
+    }
+
+    public static KuduDDLOperations getInstance(String masterAddr){
+        if(instance == null){
+            synchronized (KuduDDLOperations.class){
+                if(instance == null){
+                    instance = new KuduDDLOperations(masterAddr);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void closeConnection(){
+        try {
+            kuduClient.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ColumnSchema newColumn(String name, Type type, boolean isKey){
+        ColumnSchema.ColumnSchemaBuilder column = new ColumnSchema.ColumnSchemaBuilder(name, type);
+        column.key(isKey);
+        return column.build();
+    }
+
+    /**
+     * 创建表
+     * 注意：Impala DDL对表字段名大小写不敏感，但Kudu层已经转为小写，且Kudu API中字段名必须小写；
+     * 注意：Impala DDL建表表名大小写敏感且到Kudu层表名不会被转成小写，且Kudu API对表名大小写敏感。
+     * @param tableName 表名
+     * @param schema Schema信息
+     * @param tableOptions 建表参数 TableOptions对象
+     * @return boolean
+     */
+    public boolean createTable(String tableName, Schema schema, CreateTableOptions tableOptions){
+        try {
+            kuduClient.createTable(tableName, schema, tableOptions);
+            System.out.println("Create table successfully!");
+            return true;
+        } catch (KuduException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 删库跑路
+     * @param tableName 要删的表名
+     * @return boolean 是否需要跑路
+     */
+    public boolean dropTable(String tableName){
+        try {
+            kuduClient.deleteTable(tableName);
+            System.out.println("Drop table successfully!");
+            return true;
+        } catch (KuduException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 给Kudu表添加字段
+     * @param tableName 表名
+     * @param column 字段名
+     * @param type 类型
+     * @return
+     */
+    public boolean addColumn(String tableName, String column, Type type) {
+        AlterTableOptions alterTableOptions = new AlterTableOptions();
+        alterTableOptions.addColumn(new ColumnSchema.ColumnSchemaBuilder(column, type).nullable(true).build());
+        try {
+            kuduClient.alterTable(tableName, alterTableOptions);
+            System.out.println("成功添加字段" + column + "到表" + tableName);
+            return true;
+        } catch (KuduException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 删除Kudu表指定字段
+     * @param tableName 表名
+     * @param column 字段名
+     * @return
+     */
+    public boolean deleteColumn(String tableName, String column){
+        AlterTableOptions alterTableOptions = new AlterTableOptions().dropColumn(column);
+        try {
+            kuduClient.alterTable(tableName, alterTableOptions);
+            System.out.println("成功删除表" + tableName + "的字段" + column);
+            return true;
+        } catch (KuduException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+}
+// -------------------------------------------------------------------------------------------------------------
+//KuduDML.java  Kudu数据操作API包括：CRUD
+package top.qjj.shmily.operations;
+
+import org.apache.kudu.client.SessionConfiguration.FlushMode;
+import org.apache.kudu.client.*;
+
+public class KuduDML {
+    public static void main(String[] args) {
+        String masterAddr = "cdh102,cdh103,cdh104";
+        KuduDMLOperations kuduDMLOperations = KuduDMLOperations.getInstance(masterAddr);
+        //插入数据
+        kuduDMLOperations.insertRows();
+        //更新一条数据
+        kuduDMLOperations.updateRow();
+        //删除一条数据
+        kuduDMLOperations.deleteRow();
+        //查询数据
+        kuduDMLOperations.selectRows();
+        //关闭Client连接
+        kuduDMLOperations.closeConnection();
+    }
+}
+
+class KuduDMLOperations {
+    private static volatile KuduDMLOperations instance;
+    private KuduClient kuduClient = null;
+    private KuduDMLOperations(String masterAddr){
+        kuduClient = new KuduClient.KuduClientBuilder(masterAddr).defaultOperationTimeoutMs(6000).build();
+    }
+    public static KuduDMLOperations getInstance(String masterAddr){
+        if(instance == null){
+            synchronized (KuduDMLOperations.class){
+                if(instance == null){
+                    instance = new KuduDMLOperations(masterAddr);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void closeConnection() {
+        try {
+            kuduClient.close();
+        } catch (KuduException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 以kudu_table_with_hash表(id INT,name STRING)为例 插入数据
+     * 注意：写数据时数据不支持为null，需要对进来的数据判空
+     */
+    public void insertRows(){
+        try {
+            KuduTable table = kuduClient.openTable("kudu_table_with_hash");  //打开表
+            KuduSession kuduSession = kuduClient.newSession();  //创建会话Session
+            kuduSession.setFlushMode(FlushMode.MANUAL_FLUSH);  //设置数据提交方式
+            /**
+             * 1.AUTO_FLUSH_SYNC（默认） 目前比较慢
+             * 2.AUTO_FLUSH_BACKGROUND  目前有BUG
+             * 3.MANUAL_FLUSH  目前效率最高 远远高于其他
+             * 关于这三个参数测试调优可看这篇：https://www.cnblogs.com/harrychinese/p/kudu_java_api.html
+             */
+            int numOps = 3000;
+            kuduSession.setMutationBufferSpace(numOps); //设置MANUAL_FLUSH需要设置缓冲区操作次数限制 如果超限会抛异常
+            int nowOps = 0;  //记录当前操作数
+            for(int i = 0; i <= 100; i++){
+                Insert insert = table.newInsert();
+                //字段数据
+                insert.getRow().addInt("id", i);
+                insert.getRow().addString("name", "小"+i);
+                nowOps += 1;
+                if(nowOps == numOps / 2){ //所以缓冲区操作次数达到一半时进行flush提交数据，避免抛异常
+                    kuduSession.flush();  //提交数据
+                    nowOps = 0;  //计数器归零
+                }
+                kuduSession.apply(insert);
+            }
+            kuduSession.flush();  //保证最后都提交上去了
+            kuduSession.close();
+            System.out.println("数据成功写入Kudu表");
+        } catch (KuduException e) {
+            e.printStackTrace();
+            System.out.println("数据写入失败，原因：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 以kudu_table_with_hash表(id INT,name STRING)为例 查询数据
+     */
+    public void selectRows(){
+        try {
+            KuduTable table = kuduClient.openTable("kudu_table_with_hash"); // 打开表
+            KuduScanner scanner = kuduClient.newScannerBuilder(table).build();  //创建Scanner
+            while (scanner.hasMoreRows()){
+                for (RowResult r: scanner.nextRows()) {
+                    System.out.println(r.getInt("id") + " - " + r.getString(1));
+                }
+            }
+            scanner.close();
+        } catch (KuduException e) {
+            e.printStackTrace();
+            System.out.println("查询失败，原因：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 以kudu_table_with_hash表(id INT,name STRING)为例 更新一条数据
+     */
+    public void updateRow(){
+        try {
+            KuduTable table = kuduClient.openTable("kudu_table_with_hash");
+            KuduSession session = kuduClient.newSession();
+            session.setFlushMode(FlushMode.AUTO_FLUSH_SYNC);
+            Update update = table.newUpdate();
+            PartialRow row = update.getRow();
+            row.addInt("id", 66);
+            row.addString("name", "qjj");
+            session.apply(update);
+            session.close();
+        } catch (KuduException e) {
+            e.printStackTrace();
+            System.out.println("数据更新失败，原因：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 以kudu_table_with_hash表(id INT,name STRING)为例 删除一条数据
+     */
+    public void deleteRow(){
+        try {
+            KuduTable table = kuduClient.openTable("kudu_table_with_hash");
+            KuduSession session = kuduClient.newSession();
+            Delete delete = table.newDelete();
+            delete.getRow().addInt("id",18);  //根据主键唯一删除一条记录
+            session.flush();
+            session.apply(delete);
+            session.close();
+        } catch (KuduException e) {
+            e.printStackTrace();
+            System.out.println("数据删除失败，原因：" + e.getMessage());
+        }
+    }
+}
 ```
 
-``` Python
-
-```
+**Kudu常用Python API：**[如何使用python操作kudu](https://blog.csdn.net/dhiuwha/article/details/103825140)
 
 ## Kudu优化
-1. 使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
-2. https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
+1.使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
+2.https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
 3.memory_limit_hard_bytes
 该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。
 官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。
@@ -241,8 +672,6 @@ follower_unavailable_considered_failed_sec
 
 max_clock_sync_error_usec
 NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。
-
-
 
 ## Kudu异常处理
 [Apache Kudu Troubleshooting](https://kudu.apache.org/docs/troubleshooting.html)
