@@ -125,7 +125,7 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，数据被修改前的历史值，可以根据时间戳回滚读到历史数据。UndoFile一般只有一份。
 
 
-&emsp;&emsp;DeltaFile-主要是RedoFile会不断增加，不合并不Compaction肯定影响性能，所以就有了下面两种合并方式：
+&emsp;&emsp;DeltaFile(主要是RedoFile)会不断增加，不合并不Compaction肯定影响性能，所以就有了下面两种合并方式：
 * Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
 * Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
 
