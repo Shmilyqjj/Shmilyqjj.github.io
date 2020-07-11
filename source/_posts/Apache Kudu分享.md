@@ -1,5 +1,5 @@
 ---
-title: Apache Kudu学习篇
+title: Apache Kudu分享
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -104,7 +104,7 @@ date: 2020-07-05 12:26:08
 ![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
 
 **Table：**具有Schema和全局有序主键的表。一张表有多个Tablet，多个Tablet包含表的全部数据。
-**Tablet：**是Kudu数据实现分布式存储的关键，Kudu的表Table被水平分割为多段，称为Tablet，类似于HBase的Region，每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。Leader Tablet响应写请求，任何Tablet副本可以响应读请求，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息。
+**Tablet：**是Kudu数据实现分布式存储的关键，Kudu的表Table被水平分割为多段，称为Tablet，类似于HBase的Region，每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
 **TabletServer：**简称TServer，负责数据存储Tablet和提供数据读写服务。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
 **Catalog Table：**目录表，用户不可直接读取或写入，由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table存储在Master节点，随着Master启动而被加载到内存。
 **Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master，半数以上Master存活服务都可正常运行。
@@ -114,52 +114,55 @@ date: 2020-07-05 12:26:08
 **Kudu的存储结构：**
 ![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.jpg)  
 &emsp;&emsp;如图，Table分为若干Tablet；Tablet包含Metadata和RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、Ad_hoc Index、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
-&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B树，按行存储一个MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到32M生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
-&emsp;&emsp;**DiskRowSet：**用于老数据的变更（Mutation），后台定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。DiskRowSets可以理解为HBase的HFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。
-&emsp;&emsp;**BloomFile：**根据一个DiskRowSet中的Key生成一个Bloom Filter，用于快速模糊定位某个key是否在DiskRowSet中存在。
+&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B+树，主键在非叶子节点，数据都在叶子节点。MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到32M生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
+&emsp;&emsp;**DiskRowSet：**用于老数据的变更（Mutation），后台会定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。DiskRowSets存储文件格式为CFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。
+&emsp;&emsp;**BaseData：**DiskRowSet刷写完成的数据，CFile，按列存储，主键有序。BaseData不可变。
+&emsp;&emsp;**BloomFile：**根据一个DiskRowSet中的Key生成一个BloomFilter，用于快速模糊定位某个key是否在DiskRowSet中存在。
 &emsp;&emsp;**AdhocIndex：**存放主键的索引，用于定位Key在DiskRowSet中的具体哪个偏移位置。
-&emsp;&emsp;**BaseData：**MemRowSet达到一定大小后Flush下来的数据，按列存储，主键有序。BaseData不可变。
-&emsp;&emsp;**UndoFile：**是基于BaseData之前时间的历史数据，数据被修改前的历史值，通过在BaseData上Apply UndoFile中的记录，可以获得历史数据（事务回滚）。
-&emsp;&emsp;**RedoFile：**是基于BaseData之后时间的变更数据，数据被修改后的值，通过在BaseData上apply RedoFile中的记录，可获得较新的数据（事务提交）。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
-&emsp;&emsp;**DeltaMemStore：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘形成RedoFile。每份DiskRowSet在内存中都会对应一个DeltaMemStore，负责记录这个DiskRowSet后续的变更数据。DeltaMemStore也维护一个B树，记录发生变更的row_offset及对应的数据变更。
-&emsp;&emsp;**DeltaFile：**DeltaMemStore到一定大小会存储到磁盘形成DeltaFile。
+&emsp;&emsp;**DeltaMemStore：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘形成RedoFile。每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树，记录发生的数据变更。
+&emsp;&emsp;**DeltaFile：**DeltaMemStore到一定大小会存储到磁盘形成DeltaFile，分为UndoFile和RedoFile。
+&emsp;&emsp;**RedoFile：**重做文件，记录上一次Flush生成BaseData之后发生变更数据。DeltaMemStore写满之后，也会刷成CFile，不过与BaseData分开存储，名为RedoFile。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
+&emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，数据被修改前的历史值，可以根据时间戳回滚读到历史数据。UndoFile一般只有一份。
 
-&emsp;&emsp;Kudu中文件会不断合并，有两种合并：
+
+&emsp;&emsp;DeltaFile-主要是RedoFile会不断增加，不合并不Compaction肯定影响性能，所以就有了下面两种合并方式：
 Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
-Major Compaction：DeltaFile文件的大小和Base data的文件的比例为0.1的时候，会进行合并操作，生成Undo data。
+Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
 
 **Kudu写流程：**
 图
-1. Master收到Client的写请求后到Catalog Table找对应的Tablet元数据信息，根据分区策略路由到对应Tablet，Kudu会检查请求是否符合表结构
+1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构
 2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet
 3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet
 4. 如果BloomFilter命中，则查询索引，如果没命中索引则准备写MemRowSet，如果命中了主键索引就报错：主键重复
-5. 写入操作先被提交到Tablet的预写日志(WAL)，并根据Raft一致性算法取得Follower Tablet的同意，然后才会被写入到其中一个Tablet的内存中。插入的数据会被添加到tablet的MemRowSet中。为了在MemRowSet中支持MVCC(多版本并发控制，实现读和写的并行)，对最近插入的行(即尚未刷新到磁盘的新的行)的更新和删除操作将被追加到MemRowSet中的原始行之后以生成REDOFile。
+5. 写入MemRowSet前先被提交到Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的内存中。插入的数据会被添加到tablet的MemRowSet中
 
 **Kudu读流程：**
 图
-1. Client发送读请求，Master根据主键范围确定到包含所需数据的所有Tablet位置和信息
+1. Client发送读请求，Master根据主键范围确定到包含所需数据的所有Tablet位置和信息。
 2. Client找到所需Tablet所在TServer，TServer接受读请求。
-3. 如果要读取的数据位于内存，先从内存（MemRowSet，DeltaMemStore）读取数据，根据读取请求包含的时间戳前提交的更新合并成最终数据。该操作记录形成Mutation链表。
-4. 如果要读取的数据位于磁盘（DiskRowSet，DeltaFile），在DeltaFile和UNDO、REDOFile中找目标数据相关的改动，根据读取请求包含的时间戳合并成最新数据并返回。
+3. 如果要读取的数据位于内存，先从内存（MemRowSet，DeltaMemStore）读取数据，根据读取请求包含的时间戳前提交的更新合并成最终数据。
+4. 如果要读取的数据位于磁盘（DiskRowSet，DeltaFile），在DeltaFile的UndoFile、RedoFile中找目标数据相关的改动，根据读取请求包含的时间戳合并成最新数据并返回。
 
 **Kudu更新流程：**
 图
-1. Client发送更新请求，Master获取表的相关信息，表的所有Tablet信息
-2. Kudu检查是否符合表结构
-3. 如果需要更新的数据在MemRowSet，找到待更新数据所在行，然后将更新操作记录在所在行中一个mutation链表中；在MemRowSet要落盘时，Kudu将更新合并到BaseData，并生成UndoFile用于查看历史版本数据和实现MVCC。
+1. Client发送更新请求，Master获取表的相关信息，表的所有Tablet信息。
+2. Kudu检查是否符合表结构。
+3. 如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。
 4. 如果需要更新的数据在DiskRowSet，找到其所在的DiskRowSet，前面提到每个DiskRowSet都会在内存中有一个DeltaMemStore，将更新操作记录在DeltaMemStore，达到一定大小才会生成DeltaFile到磁盘。
 
 ### 分区方式  
 Kudu的分区即为Tablet，分区模式有两种：
-* **基于Hash分区(Hash Partitioning):**由PK的一个子集以及分区数量组成。哈希分区通过哈希值将行分配到许多buckets(存储桶)之一,当不需要有序访问时，哈希分区可以减轻热点和Tablet大小不均匀问题。
-* **基于Range分区(Range Partitioning):**由PK范围划分组成。范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象。
+* **基于Hash分区(Hash Partitioning):**哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet当不需要有序访问时，哈希分区可以减轻热点和Tablet大小不均匀问题。
+* **基于Range分区(Range Partitioning):**由PK范围划分组成，一个区间对应一个Tablet。范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象。
 * **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型，保留两种分区类型的优点。  
 
 ### 一些细节
 1. 为什么Kudu要比HBase、Cassandra扫描速度更快？
-&emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。
-::::::::::::https://www.jianshu.com/p/5ffd8730aad8:::::::
+&emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，也可以对不同列使用不同压缩算法，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。
+2. Kudu一个Tablet中存很多很多DiskRowSet，怎么才能快速判断Key在哪个DiskRowSet？
+&emsp;&emsp;首先肯定不能遍历，O(n)的复杂度是很难受的。它使用二叉查找树，每个节点维护多个DiskRowSet的最大Key和最小Key，这样就可在O(logn)时间内定位Key所在DiskRowSet。
+
 ## Kudu使用  
 
 ### Kudu + Impala
@@ -221,3 +224,4 @@ NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Ku
 4.[Kudu基础入门](https://www.cnblogs.com/starzy/p/10573508.html)
 5.[Kudu、Hudi和Delta Lake的比较](https://www.cnblogs.com/kehanc/p/12153409.html)
 6.[迟到的Kudu设计要点面面观](https://blog.csdn.net/nazeniwaresakini/article/details/104220206/)
+7.[迟到的Kudu设计要点面面观-前篇](https://www.jianshu.com/p/5ffd8730aad8)
