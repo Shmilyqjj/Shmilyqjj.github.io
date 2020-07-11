@@ -1,5 +1,5 @@
 ---
-title: Apache Kudu分享
+title: Apache Kudu总结
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
