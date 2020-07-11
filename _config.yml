@@ -122,7 +122,7 @@ live2d:
     show: false  #是否在手机进行显示
 
 baidu_url_submit:
-  count: 10 # 提交最新的链接数
+  count: 15 # 提交最新的链接数
   host: shmily-qjj.top    # 在百度站长平台中注册的域名,虽然官方推荐要带有 www, 但可以不带.
   token: GeDVGVfV7a3bL3vu  # 你的秘钥,每个人都不一样,获取方法在下面
   path: baidu_urls.txt # 文本文档的地址,新链接会保存在此文本文档里
