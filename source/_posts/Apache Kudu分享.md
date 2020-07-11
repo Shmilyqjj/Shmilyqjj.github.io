@@ -60,7 +60,7 @@ date: 2020-07-05 12:26:08
   * 数据存储在Linux文件系统，不依赖HDFS存储
 2. **缺点**  
   * 暂不支持除PK外的二级索引和唯一性限制
-  * 暂不支持多表ACID，暂不支持事务回滚，未来可能支持
+  * 只支持单行事务，暂不支持事务回滚，未来可能支持
   * 不支持BloomFilter优化join 
   * 不支持数据回滚
   * 不能通过Alter来drop PK
@@ -93,12 +93,12 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。
 &emsp;&emsp;Raft算法的基本原理：先选举出Leader，Leader完全负责副本的管理，Leader接收客户端请求并转发给Follower节点，Leader也会不断发送心跳给Follower节点来证明存活，如果Follower未收到Leader心跳，则Follower节点状态变为Candidate状态并开始选举新的Leader。
 &emsp;&emsp;详细了解：[一文搞懂Raft算法](https://www.cnblogs.com/xybaby/p/10124083.html)  
-&emsp;&emsp;**Raft算法在Kudu中的应用：**Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。给定一组需要写N个副本（一般为3或5）的Tablet，可以接受(N-1)/2个写入错误。
+&emsp;&emsp;**Raft算法在Kudu中的应用：**多个TMaster之间通过Raft 协议实现数据同步和高可用--Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。给定一组需要写N个副本（一般为3或5）的Tablet，可以接受(N-1)/2个写入错误。
 ### LSM树
-<font size="3" color="blue">**LSM树（Log-Structured Merge Tree）**</font>
+<font size="3" color="blue">**LSM树(Log-Structured Merge Tree)**</font>
 &emsp;&emsp;Kudu与HBase在写的过程中都采用了LSM树的结构，LSM树的主要思想就是随机写转换为顺序写来提高写性能，随机读写需要磁盘的机械臂不断寻道，延迟较高，而转换为顺序写后机械臂不会频繁寻址，性能较好。  
 &emsp;&emsp;LSM树原理是把一棵大的树拆分成N棵小树，小树存在于内存中，随着更新和写入操作，小树存放数据达到一定大小后会写入磁盘，小树到了磁盘中，定期与磁盘中的大树做合并。  
-&emsp;&emsp;大家都知道HBase的MemStore，Kudu在写入方面的设计与之类似，Kudu先将对数据的修改保留在内存中，达到一定大小后将这些修改操作批量写入磁盘。但读取的时候稍微麻烦些，需要合并磁盘中历史数据和内存中最近修改操作。所以写入性能大大提升，而读取时要先去内存读取，如果没命中，则会去磁盘读多个文件。
+&emsp;&emsp;大家都知道HBase的MemStore，Kudu在写入方面的设计与之类似，Kudu先将对数据的修改保留在内存中，达到一定大小后将这些修改操作批量写入磁盘。但读取的时候稍微麻烦些，需要读取历史数据和内存中最近修改操作。所以写入性能大大提升，而读取时要先去内存读取，如果没命中，则会去磁盘读多个文件。
 
 ### Kudu一些概念  
 ![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
@@ -126,11 +126,11 @@ date: 2020-07-05 12:26:08
 
 
 &emsp;&emsp;DeltaFile-主要是RedoFile会不断增加，不合并不Compaction肯定影响性能，所以就有了下面两种合并方式：
-Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
-Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
+* Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
+* Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
 
 **Kudu写流程：**
-图
+![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.jpg)  
 1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构
 2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet
 3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet
@@ -138,14 +138,14 @@ Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的
 5. 写入MemRowSet前先被提交到Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的内存中。插入的数据会被添加到tablet的MemRowSet中
 
 **Kudu读流程：**
-图
+![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.jpg)  
 1. Client发送读请求，Master根据主键范围确定到包含所需数据的所有Tablet位置和信息。
 2. Client找到所需Tablet所在TServer，TServer接受读请求。
 3. 如果要读取的数据位于内存，先从内存（MemRowSet，DeltaMemStore）读取数据，根据读取请求包含的时间戳前提交的更新合并成最终数据。
 4. 如果要读取的数据位于磁盘（DiskRowSet，DeltaFile），在DeltaFile的UndoFile、RedoFile中找目标数据相关的改动，根据读取请求包含的时间戳合并成最新数据并返回。
 
 **Kudu更新流程：**
-图
+![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.jpg)  
 1. Client发送更新请求，Master获取表的相关信息，表的所有Tablet信息。
 2. Kudu检查是否符合表结构。
 3. 如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。
@@ -164,9 +164,44 @@ Kudu的分区即为Tablet，分区模式有两种：
 &emsp;&emsp;首先肯定不能遍历，O(n)的复杂度是很难受的。它使用二叉查找树，每个节点维护多个DiskRowSet的最大Key和最小Key，这样就可在O(logn)时间内定位Key所在DiskRowSet。
 
 ## Kudu使用  
+实验环境：
+四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。
+**OS:**CentOS7;**Impala:**3.2.0-cdh6.3.1;**Kudu:**1.10.0-cdh6.3.1(3Master+3TServer);**Hive:**2.1.1-cdh6.3.1;
+![alt Kudu-08](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg)  
+依次启动HDFS、hive、Kudu、Impala。
 
 ### Kudu + Impala
+&emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。
+&emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。
 
+1. Impala创建Kudu内部表
+```Impala
+impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
+
+CREATE DATABASE IF NOT EXISTS impala_kudu;
+
+-- 建内部表，Impala发生drop操作会删除Kudu上对应数据
+CREATE TABLE impala_kudu.first_kudu_table(  
+id INT,
+name String,
+PRIMARY KEY(id)
+)
+PARTITION BY HASH PARTITIONS 8
+STORED AS KUDU
+TBLPROPERTIES (
+'kudu.master_addresses' = 'cdh102:7051,cdh103:7051,cdh104:7051'
+);
+-- 查看Kudu中已能看到刚创建的表
+kudu table list cdh102:7051,cdh103:7051,cdh104:7051
+-- 查看表以及tablets
+kudu table list cdh102:7051,cdh103:7051,cdh104:7051 --list_tablets
+```
+
+2. 在Impala映射已经存在的Kudu表
+```Impala
+
+
+```
 
 ### Kudu + Spark
 
@@ -185,7 +220,6 @@ Kudu的分区即为Tablet，分区模式有两种：
 ## Kudu优化
 1. 使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
 2. https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
-
 3.memory_limit_hard_bytes
 该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。
 官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。
