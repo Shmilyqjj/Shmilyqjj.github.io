@@ -45,13 +45,11 @@ menus:
 homePageSortType: -1
 # Home page article shown number)
 homeArticleShown: 10
-# 背景图片 更好的修改 1-8王者荣耀  9-26灵笼  27-28为斗罗大陆
+# 背景图片 更好的修改 1-8王者荣耀  9-26灵笼
 bg:
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(12).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(15).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(16).webp
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp
   - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp
