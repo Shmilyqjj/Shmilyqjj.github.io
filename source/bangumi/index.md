@@ -20,6 +20,13 @@ bangumis:
     jp: 悬疑推理，交换杀人游戏
     time: 2019-04-14
     desc: 温柔的妻子菜奈和天真浪漫的丈夫翔太，是一对有15岁年差的相恋夫妇，他们刚搬到东京都内的高级公寓，就意外地被卷入了连续杀人事件，原本抱着有趣的心态，公寓内的住户正在玩交换杀人的游戏，结果弄假成真，真的出现了杀人事件，公寓里所有的居民都开始陷入噩梦之中，精彩的推理谜题也随之展开。
+  - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/zhiwomennuannuandexiaoshiguang.jpg
+    title: 《致我们暖暖的小时光》
+    status: 已追完
+    progress: 100
+    jp: 太甜了，看了就想恋爱呀
+    time: 2019-04-10
+    desc: 该剧根据赵乾乾的同名小说改编，讲述了氧气少女司徒末与物理天才顾未易意外合租后发生的一段暖甜逗趣的恋爱故事。
   - img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/1900.jpg
     title: 《海上钢琴师》
     status: 已追完
