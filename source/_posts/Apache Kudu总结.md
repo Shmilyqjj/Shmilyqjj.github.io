@@ -39,10 +39,10 @@ date: 2020-07-05 12:26:08
 
 ### 适用场景  
 * 既有随机读写随机访问，又有批量扫描分析的场景
-* 要求数据实时性高（如实时决策，实时更新）的场景
-* 数据逐行插入、更新且支持事物ACID特性
+* 要求分析结果实时性高（如实时决策，实时更新）的场景
+* 实时数仓
+* 支持数据逐行插入、更新操作
 * 同时高效运行顺序读写和随机读写任务的场景
-* 支持分布式高性能，高可用，可横向扩展的场景
 * Kudu作为持久层与Impala紧密集成的场景
 * 解决HBase(Phoenix)大批量数据SQL分析性能不佳的场景
 * 跨大量历史数据的查询分析场景（Time-series场景）
@@ -60,12 +60,13 @@ date: 2020-07-05 12:26:08
   * 数据存储在Linux文件系统，不依赖HDFS存储
 2. **缺点**  
   * 暂不支持除PK外的二级索引和唯一性限制
-  * 只支持单行事务，暂不支持事务回滚，未来可能支持
+  * 不支持多行事务
   * 不支持BloomFilter优化join 
   * 不支持数据回滚
-  * 不能通过Alter来drop PK
+  * 不能修改PK
+  * 不支持AUTO INCREMENT PK
   * 每表最多不能有300列
-  * 数据类型少，不支持Map，Struct等复杂类型
+  * 数据类型少，不支持Map，ARRAY，Struct等复杂类型
 
 ### 与相似类型存储引擎对比
 &emsp;&emsp;本文重点说Kudu，但我们也需要了解其他类似组件，了解它们各自擅长的地方，才能更好地做技术选型。这里简单对比一下Kudu，Hudi和DeltaLake这三种存储方案，因为它们都具有相似的特性，能解决类似的问题。  
@@ -104,10 +105,10 @@ date: 2020-07-05 12:26:08
 ![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
 
 **Table：**具有Schema和全局有序主键的表。一张表有多个Tablet，多个Tablet包含表的全部数据。
-**Tablet：**是Kudu数据实现分布式存储的关键，Kudu的表Table被水平分割为多段，称为Tablet，类似于HBase的Region，每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
-**TabletServer：**简称TServer，负责数据存储Tablet和提供数据读写服务。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
-**Catalog Table：**目录表，用户不可直接读取或写入，由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table存储在Master节点，随着Master启动而被加载到内存。
-**Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master，半数以上Master存活服务都可正常运行。
+**Tablet：**Kudu的表Table被水平分割为多段，Tablet是Kudu表的一个片段，每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。只有Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
+**TabletServer：**简称TServer，负责数据存储Tablet、提供数据读写服务、编码、压缩、合并和复制。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
+**Catalog Table：**目录表，用户不可直接读取或写入，仅由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table只存储在Master节点，数据量不会很大，随着Master启动而被全量加载到内存。
+**Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master来保证HA，半数以上Master存活服务都可正常运行。
 **逻辑复制：**Kudu基于Raft协议在集群中对每个Tablet都存储多个副本，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息。Insert和Update操作会走网络IO，但Delete操作不会，压缩数据也不会走网络。
 
 ### 存储与读写
@@ -131,11 +132,12 @@ date: 2020-07-05 12:26:08
 
 **Kudu写流程：**
 ![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.jpg)  
-1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构
-2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet
-3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet
-4. 如果BloomFilter命中，则查询索引，如果没命中索引则准备写MemRowSet，如果命中了主键索引就报错：主键重复
-5. 写入MemRowSet前先被提交到Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的内存中。插入的数据会被添加到tablet的MemRowSet中
+1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构。
+2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet。
+3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet。
+4. 如果BloomFilter命中，则查询索引，如果没命中索引则准备写MemRowSet，如果命中了主键索引就报错：主键重复。
+5. 写入MemRowSet前先被提交到一个Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的MemRowSet中。
+6. MemRowSet写满后，Kudu将数据每行相邻的列分为不同的区间，每个列为一个区间，Flush到DiskRowSet。
 
 **Kudu读流程：**
 ![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.jpg)  
@@ -650,36 +652,23 @@ class KuduDMLOperations {
 
 ## Kudu优化
 1.使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
-2.https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight
-3.memory_limit_hard_bytes
-该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。
+2.[kudu性能调优](https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight)
+3.memory_limit_hard_bytes 该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。
 官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。
-
-block_cache_capacity_mb
-Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。
-
-memory.soft_limit_in_bytes/memory.limit_in_bytes
-这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。
-
-maintenance_manager_num_threads
-单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。
-
-max_create_tablets_per_ts
-创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。
-
-follower_unavailable_considered_failed_sec
-当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。
-
-max_clock_sync_error_usec
-NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。
+4.block_cache_capacity_mb Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。
+5.memory.soft_limit_in_bytes/memory.limit_in_bytes这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。
+6.maintenance_manager_num_threads单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。
+7.max_create_tablets_per_ts创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。
+8.follower_unavailable_considered_failed_sec当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。
+9.max_clock_sync_error_usec NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。
 
 ## Kudu异常处理
 [Apache Kudu Troubleshooting](https://kudu.apache.org/docs/troubleshooting.html)
 
 ## 总结
-&emsp;&emsp;Kudu--Fast Analytics on Fast Data.一个Kudu实现了整个大数据技术栈中诸多组件的功能，有分布式文件系统（好比HDFS），有一致性算法（好比Zookeeper），有Table（好比Hive表），有Tablet（好比Hive分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。它轻松地解决了随机读写+快速分析的业务场景，解决了实时数仓的诸多难点，同时降低了存储成本和运维成本。在实时数仓和实时计算蓬勃发展的今天，你确定不学一下Kudu吗？
-
-
+&emsp;&emsp;Kudu--Fast Analytics on Fast Data.一个Kudu实现了整个大数据技术栈中诸多组件的功能，有分布式文件系统（好比HDFS），有一致性算法（好比Zookeeper），有Table（好比Hive表），有Tablet（好比Hive分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。它轻松地解决了随机读写+快速分析的业务场景，解决了实时数仓的诸多难点，同时降低了存储成本和运维成本。
+&emsp;&emsp;学Kudu时让我想到曾经看过的终结者系列电影，万物互联，主角不小心被街边一个不起眼的监控探头拍到，就会立刻引来终结者的追杀，任何有网络的地方留下任何痕迹都会立刻被终结者感知...很明显，这就是在快速变化的数据上进行快速分析，如果没有Kudu，大量的物联网数据就只能批处理了，就没了时效性，主角就可以随便浪了。没准"天网"系统里就部署了Kudu节点呢？！哈哈哈！
+&emsp;&emsp;在实时数仓、实时计算和物联网蓬勃发展的今天，你确定不学一下Kudu吗？
 ## 参考资料
 1.《Kudu:构建高性能实时数据分析存储系统》
 2.[Apache Kudu - Fast Analytics on Fast Data](https://kudu.apache.org/docs/)
