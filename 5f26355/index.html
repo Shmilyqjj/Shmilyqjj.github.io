@@ -704,9 +704,6 @@ INSERT INTO impala_kudu.test SELECT * FROM default.test;
 
 SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因
 </code></pre>
-<p><strong>6.对不同的列启用不同压缩算法</strong></p>
-<pre><code class="Impala">
-</code></pre>
 <p>在官网了解更多：<a href="https://kudu.apache.org/docs/kudu_impala_integration.html" target="_blank" rel="noopener">Using Apache Kudu with Apache Impala</a></p>
 <h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><p><a href="https://blog.csdn.net/nazeniwaresakini/article/details/104220206/" target="_blank" rel="noopener">https://blog.csdn.net/nazeniwaresakini/article/details/104220206/</a></p>
 <h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><p><strong>与Hive MetaStore集成</strong><br>官网写的很详细。<br>在官网了解更多：<a href="https://kudu.apache.org/docs/hive_metastore.html" target="_blank" rel="noopener">Using the Hive Metastore with Kudu</a></p>
