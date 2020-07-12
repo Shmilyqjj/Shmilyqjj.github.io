@@ -114,13 +114,14 @@ date: 2020-07-05 12:26:08
 ### 存储与读写
 **Kudu的存储结构：**
 ![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.jpg)  
+![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.png)  
 &emsp;&emsp;如图，Table分为若干Tablet；Tablet包含Metadata和RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、Ad_hoc Index、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
-&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B+树，主键在非叶子节点，数据都在叶子节点。MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到32M生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
-&emsp;&emsp;**DiskRowSet：**用于老数据的变更（Mutation），后台会定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。DiskRowSets存储文件格式为CFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。
+&emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B+树，主键在非叶子节点，数据都在叶子节点。MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到1G或者120s时生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
+&emsp;&emsp;**DiskRowSet：**DiskRowSets存储文件格式为CFile。DiskRowSet分为BaseData和DeltaFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。后台会定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。
 &emsp;&emsp;**BaseData：**DiskRowSet刷写完成的数据，CFile，按列存储，主键有序。BaseData不可变。
 &emsp;&emsp;**BloomFile：**根据一个DiskRowSet中的Key生成一个BloomFilter，用于快速模糊定位某个key是否在DiskRowSet中存在。
 &emsp;&emsp;**AdhocIndex：**存放主键的索引，用于定位Key在DiskRowSet中的具体哪个偏移位置。
-&emsp;&emsp;**DeltaMemStore：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘形成RedoFile。每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树，记录发生的数据变更。
+&emsp;&emsp;**DeltaMemStore：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘生成RedoFile。每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树，记录发生的数据变更。
 &emsp;&emsp;**DeltaFile：**DeltaMemStore到一定大小会存储到磁盘形成DeltaFile，分为UndoFile和RedoFile。
 &emsp;&emsp;**RedoFile：**重做文件，记录上一次Flush生成BaseData之后发生变更数据。DeltaMemStore写满之后，也会刷成CFile，不过与BaseData分开存储，名为RedoFile。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
 &emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，数据被修改前的历史值，可以根据时间戳回滚读到历史数据。UndoFile一般只有一份。
@@ -130,24 +131,24 @@ date: 2020-07-05 12:26:08
 * Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
 * Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
 
-**Kudu写流程：**
-![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.jpg)  
-1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构。
-2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet。
-3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet。
-4. 如果BloomFilter命中，则查询索引，如果没命中索引则准备写MemRowSet，如果命中了主键索引就报错：主键重复。
-5. 写入MemRowSet前先被提交到一个Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的MemRowSet中。
-6. MemRowSet写满后，Kudu将数据每行相邻的列分为不同的区间，每个列为一个区间，Flush到DiskRowSet。
-
 **Kudu读流程：**
-![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.jpg)  
+![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.png)  
 1. Client发送读请求，Master根据主键范围确定到包含所需数据的所有Tablet位置和信息。
 2. Client找到所需Tablet所在TServer，TServer接受读请求。
 3. 如果要读取的数据位于内存，先从内存（MemRowSet，DeltaMemStore）读取数据，根据读取请求包含的时间戳前提交的更新合并成最终数据。
 4. 如果要读取的数据位于磁盘（DiskRowSet，DeltaFile），在DeltaFile的UndoFile、RedoFile中找目标数据相关的改动，根据读取请求包含的时间戳合并成最新数据并返回。
 
+**Kudu写流程：**
+![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.jpg)  
+![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.png)  
+1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构。
+2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet。
+3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet。
+4. 如果BloomFilter命中，则查询索引，如果没命中索引则准备写MemRowSet，如果命中了主键索引就报错：主键重复。
+5. 写入MemRowSet前先被提交到一个Tablet的WAL预写日志，并根据Raft一致性算法取得Follower Tablets的同意，然后才会被写入到其中一个Tablet的MemRowSet中。为了在MemRowSet中支持多版本并发控制(MVCC)，对最近插入的行(即尚未刷新到磁盘的新的行)的更新和删除操作将被追加到MemRowSet中的原始行之后以生成重做(REDO)记录的列表。
+6. MemRowSet写满后，Kudu将数据每行相邻的列分为不同的区间，每个列为一个区间，Flush到DiskRowSet。
+
 **Kudu更新流程：**
-![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.jpg)  
 1. Client发送更新请求，Master获取表的相关信息，表的所有Tablet信息。
 2. Kudu检查是否符合表结构。
 3. 如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。
@@ -652,8 +653,63 @@ class KuduDMLOperations {
     }
 }
 ```
+**Kudu常用Python API：**
+```python
+import kudu
+from kudu.client import Partitioning
+from datetime import datetime
 
-**Kudu常用Python API：**[如何使用python操作kudu](https://blog.csdn.net/dhiuwha/article/details/103825140)
+# Connect to Kudu master server
+client = kudu.connect(host='cdh102,cdh103,cdh104', port=7051)
+
+# Define a schema for a new table
+builder = kudu.schema_builder()
+builder.add_column('key').type(kudu.int64).nullable(False).primary_key()
+builder.add_column('ts_val', type_=kudu.unixtime_micros, nullable=False, compression='lz4')
+schema = builder.build()
+
+# Define partitioning schema
+partitioning = Partitioning().add_hash_partitions(column_names=['key'], num_buckets=3)
+
+# Create new table
+client.create_table('python-example', schema, partitioning)
+
+# Open a table
+table = client.table('python_example')
+
+# Create a new session so that we can apply write operations
+session = client.new_session()
+
+# Insert a row
+op = table.new_insert({'key': 1, 'ts_val': datetime.utcnow()})
+session.apply(op)
+
+# Upsert a row
+op = table.new_upsert({'key': 2, 'ts_val': "2020-01-01T00:00:00.000000"})
+session.apply(op)
+
+# Updating a row
+op = table.new_update({'key': 1, 'ts_val': ("2020-07-12", "%Y-%m-%d")})
+session.apply(op)
+
+# Delete a row
+op = table.new_delete({'key': 2})
+session.apply(op)
+
+# Flush write operations, if failures occur, capture print them.
+try:
+    session.flush()
+except kudu.KuduBadStatus as e:
+    print(session.get_pending_errors())
+
+# Create a scanner and add a predicate
+scanner = table.scanner()
+scanner.add_predicate(table['ts_val'] == datetime(2020, 7, 12))
+
+# Open Scanner and read all tuples
+# Note: This doesn't scale for large scans
+result = scanner.open().read_all_tuples()
+```
 
 ## Kudu优化
 1.使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）
