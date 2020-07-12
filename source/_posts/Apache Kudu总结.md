@@ -312,11 +312,6 @@ INSERT INTO impala_kudu.test SELECT * FROM default.test;
 SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因
 ```
 
-**6.对不同的列启用不同压缩算法**
-```Impala
-
-```
-
 在官网了解更多：[Using Apache Kudu with Apache Impala](https://kudu.apache.org/docs/kudu_impala_integration.html)
 
 ### Kudu + Spark
