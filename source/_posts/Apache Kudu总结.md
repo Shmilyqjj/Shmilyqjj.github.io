@@ -105,7 +105,7 @@ date: 2020-07-05 12:26:08
 ![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
 
 **Table：**具有Schema和全局有序主键的表。一张表有多个Tablet，多个Tablet包含表的全部数据。
-**Tablet：**Kudu的表Table被水平分割为多段，Tablet是Kudu表的一个片段，每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。只有Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
+**Tablet：**Kudu的表Table被水平分割为多段，Tablet是Kudu表的一个片段（分区），每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。只有Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
 **TabletServer：**简称TServer，负责数据存储Tablet、提供数据读写服务、编码、压缩、合并和复制。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
 **Catalog Table：**目录表，用户不可直接读取或写入，仅由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table只存储在Master节点，也是以Tablet的形式，数据量不会很大，随着Master启动而被全量加载到内存。
 **Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master来保证HA，半数以上Master存活服务都可正常运行。
@@ -118,18 +118,17 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;如图，Table分为若干Tablet；Tablet包含Metadata和RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、Ad_hoc Index、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
 &emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B+树，主键在非叶子节点，数据都在叶子节点。MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到1G或者120s时生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
 &emsp;&emsp;**DiskRowSet：**DiskRowSets存储文件格式为CFile。DiskRowSet分为BaseData和DeltaFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。后台会定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。
-&emsp;&emsp;**BaseData：**DiskRowSet刷写完成的数据，CFile，按列存储，主键有序。BaseData不可变。
+&emsp;&emsp;**BaseData：**DiskRowSet刷写完成的数据，CFile，按列存储，主键有序。BaseData不可变，类似Parquet。
 &emsp;&emsp;**BloomFile：**根据一个DiskRowSet中的Key生成一个BloomFilter，用于快速模糊定位某个key是否在DiskRowSet中存在。
 &emsp;&emsp;**AdhocIndex：**存放主键的索引，用于定位Key在DiskRowSet中的具体哪个偏移位置。
-&emsp;&emsp;**DeltaMemStore：**用于DiskRowSet中数据的变更，先写到内存中，写满后Flush到磁盘生成RedoFile。每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树，记录发生的数据变更。
+&emsp;&emsp;**DeltaMemStore：**每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据，先写到内存中，写满后Flush到磁盘生成RedoFile。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树。
 &emsp;&emsp;**DeltaFile：**DeltaMemStore到一定大小会存储到磁盘形成DeltaFile，分为UndoFile和RedoFile。
 &emsp;&emsp;**RedoFile：**重做文件，记录上一次Flush生成BaseData之后发生变更数据。DeltaMemStore写满之后，也会刷成CFile，不过与BaseData分开存储，名为RedoFile。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
 &emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，数据被修改前的历史值，可以根据时间戳回滚读到历史数据。UndoFile一般只有一份。
 
-
-&emsp;&emsp;DeltaFile(主要是RedoFile)会不断增加，不合并不Compaction肯定影响性能，所以就有了下面两种合并方式：
+&emsp;&emsp;DeltaFile(主要是RedoFile)会不断增加，很容易产生大量小文件，不Compaction肯定影响性能，所以就有了下面两种合并方式：
 * Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
-* Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并到BaseData，生成UndoData。
+* Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并进入BaseData，生成UndoData。
 
 **Kudu读流程：**
 ![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.png)  
