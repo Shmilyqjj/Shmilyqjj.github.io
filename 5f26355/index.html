@@ -707,8 +707,21 @@ SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了�
 <p>在官网了解更多：<a href="https://kudu.apache.org/docs/kudu_impala_integration.html" target="_blank" rel="noopener">Using Apache Kudu with Apache Impala</a></p>
 <h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><p><a href="https://blog.csdn.net/nazeniwaresakini/article/details/104220206/" target="_blank" rel="noopener">https://blog.csdn.net/nazeniwaresakini/article/details/104220206/</a></p>
 <h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><p><strong>与Hive MetaStore集成</strong><br>官网写的很详细。<br>在官网了解更多：<a href="https://kudu.apache.org/docs/hive_metastore.html" target="_blank" rel="noopener">Using the Hive Metastore with Kudu</a></p>
-<h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><p><strong>Kudu常用Command Lines</strong></p>
-<pre><code class="shell">
+<h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><p><strong>Kudu常用Command Lines</strong><br><a href="https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy" target="_blank" rel="noopener">Kudu客户端命令</a><br>Kudu有很多命令，看了官方文档，大致分几类：</p>
+<pre><code class="shell">kudu cluster 集群管理，包括健康状态检查，移动tablet，rebalance等操作
+kudu diagnose 集群诊断工具
+kudu fs 在本地Kudu文件系统做操作，检查一致性，列出元顺据，数据集更新，数据转储
+kudu hms 操作HiveMetaStore，包括检查与Kudu元数据一致性，自动修复元数据，列出元数据
+kudu local_replica 操作本地副本，包括从远程copy副本过来，获取空间占用情况，删除Tablet，获取副本列表，转储本地副本等
+kudu master 操作KuduMaster，可以运行master，获取master状态，时间戳，flag等信息，
+kudu pbc protobuf容器文件操作
+kudu perf 集群性能测试，运行负载，显示本地Tablet行数等
+kudu remote_replica 操作远程TServer上的副本，远程复制，删除，转储，列出Tablet
+kudu table  操作Kudu表，包括添加范围分区，设置blockSize，设置列的压缩类型，编码类型，默认值，注释，复制表数据到另一表，建表，删除列，删表，描述表，删除范围的分区，获取和更改表其他配置，列出表，找到Row所在Tablet，列重命名，表重命名，scan，获取表的统计信息
+kudu tablet  操作Kudu的Tablet 包括更换Tablet的Leader，Raft配置
+kudu test  测试
+kudu tserver 操作TabletServer包括运行，设置Flag，获取状态，时间戳，列出TServers等
+kudu wal 操作Kudu WAL，转储WAL日志文件
 </code></pre>
 <p><strong>Kudu常用Java API：</strong></p>
 <pre><code class="Java">Maven Dep：
