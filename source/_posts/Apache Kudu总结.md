@@ -324,8 +324,22 @@ https://blog.csdn.net/nazeniwaresakini/article/details/104220206/
 ### Kudu APIs
 **Kudu常用Command Lines**
 [Kudu客户端命令](https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy)
+Kudu有很多命令，看了官方文档，大致分几类：
 ```shell
-
+kudu cluster 集群管理，包括健康状态检查，移动tablet，rebalance等操作
+kudu diagnose 集群诊断工具
+kudu fs 在本地Kudu文件系统做操作，检查一致性，列出元顺据，数据集更新，数据转储
+kudu hms 操作HiveMetaStore，包括检查与Kudu元数据一致性，自动修复元数据，列出元数据
+kudu local_replica 操作本地副本，包括从远程copy副本过来，获取空间占用情况，删除Tablet，获取副本列表，转储本地副本等
+kudu master 操作KuduMaster，可以运行master，获取master状态，时间戳，flag等信息，
+kudu pbc protobuf容器文件操作
+kudu perf 集群性能测试，运行负载，显示本地Tablet行数等
+kudu remote_replica 操作远程TServer上的副本，远程复制，删除，转储，列出Tablet
+kudu table  操作Kudu表，包括添加范围分区，设置blockSize，设置列的压缩类型，编码类型，默认值，注释，复制表数据到另一表，建表，删除列，删表，描述表，删除范围的分区，获取和更改表其他配置，列出表，找到Row所在Tablet，列重命名，表重命名，scan，获取表的统计信息
+kudu tablet  操作Kudu的Tablet 包括更换Tablet的Leader，Raft配置
+kudu test  测试
+kudu tserver 操作TabletServer包括运行，设置Flag，获取状态，时间戳，列出TServers等
+kudu wal 操作Kudu WAL，转储WAL日志文件
 ```
 
 **Kudu常用Java API：**
