@@ -323,6 +323,7 @@ https://blog.csdn.net/nazeniwaresakini/article/details/104220206/
 
 ### Kudu APIs
 **Kudu常用Command Lines**
+[Kudu客户端命令](https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy)
 ```shell
 
 ```
