@@ -42,6 +42,11 @@ date: 2020-08-15 12:19:00
 1.Linux是操作系统，包含核心和系统呼叫两层，应用程序不属于操作系统。Linux具有可移植性。
 2.从Unix开始，系统所有的程序和装置都是文件。
 3.GNU计划：建立一个自由，开放的Unix系统。掀起了自由软件开源软件浪潮。gcc编译C的编译程序：GNU C Compiler。为了避免GNU自由软件没人利用成为专利软件，成立了GPL通用公共许可证。
+4.同时启动两个进程在一个CPU上要比一个一个执行更耗时一些因为切换消耗CPU时间。
+5.程序执行时有一个最大CPU时间，若超过这个时间会被推出，等待下次轮到CPU时间片。
+6.POSIX(Portable Operating System Interface)，规范核心与应用程序之间的接口。Linux开发依照POSIX标准，而POSIX标准针对Unix的，所以Linux就兼容Unix软件了。Linux也被称为类Unix。
+7.不同发行版采用Linux内核基本一致且都依赖LinuxStandardBase(LSB)标准和目录架构的FileSystemHierarchyStandard(FHS)标准。所以基本上只有架构严谨度和包管理方式不同。
+8.X Window System是Linux上的一个套间，用于桌面显示，即使崩了，Linux系统也能正常使用。
 
 ```
 
