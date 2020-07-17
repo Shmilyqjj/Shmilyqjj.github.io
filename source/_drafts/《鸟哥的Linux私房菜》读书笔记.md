@@ -46,7 +46,7 @@ date: 2020-08-15 12:19:00
 5.程序执行时有一个最大CPU时间，若超过这个时间会被推出，等待下次轮到CPU时间片。
 6.POSIX(Portable Operating System Interface)，规范核心与应用程序之间的接口。Linux开发依照POSIX标准，而POSIX标准针对Unix的，所以Linux就兼容Unix软件了。Linux也被称为类Unix。
 7.不同发行版采用Linux内核基本一致且都依赖LinuxStandardBase(LSB)标准和目录架构的FileSystemHierarchyStandard(FHS)标准。所以基本上只有架构严谨度和包管理方式不同。
-8.X Window System是Linux上的一个套间，用于桌面显示，即使崩了，Linux系统也能正常使用。
+8.X Window System是Linux上的一个套件，用于桌面显示，即使崩了，Linux系统也能正常使用。
 
 ```
 

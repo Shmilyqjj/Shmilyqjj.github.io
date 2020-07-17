@@ -101,6 +101,11 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;LSM树原理是把一棵大的树拆分成N棵小树，小树存在于内存中，随着更新和写入操作，小树存放数据达到一定大小后会写入磁盘，小树到了磁盘中，定期与磁盘中的大树做合并。  
 &emsp;&emsp;大家都知道HBase的MemStore，Kudu在写入方面的设计与之类似，Kudu先将对数据的修改保留在内存中，达到一定大小后将这些修改操作批量写入磁盘。但读取的时候稍微麻烦些，需要读取历史数据和内存中最近修改操作。所以写入性能大大提升，而读取时要先去内存读取，如果没命中，则会去磁盘读多个文件。
 
+### 压缩和编码
+&emsp;&emsp;我们都知道列式存储的压缩效果很好，那么为什么列式存储比行存储压缩效果好呢？
+&emsp;&emsp;比如一个列存的国家名，那只能包含“美国”，“日本”，“韩国”，“加拿大”等值，而这些值会存储在一起，而不是分散到包含很多不相关的其他列值之间。这样列式存储也就不需要将每个值都完完整整保存起来，所以压缩效果显著。
+&emsp;&emsp;编码对于列式存储的优化更加明显，编码和压缩作用相同，比如上面的例子，编码会将数据的值转换为一种更小的表现形式，比如，“美国”编码为1，“日本”编码为2，“韩国”编码为3，“加拿大”编码为4...则Kudu只存储1，2，3，4...而不存储长字符串，占用空间大大减少。
+
 ### Kudu一些概念  
 ![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
 
@@ -124,11 +129,12 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;**DeltaMemStore：**每份DiskRowSet都对应内存中一个DeltaMemStore，负责记录这个DiskRowSet上BaseData发生后续变更的数据，先写到内存中，写满后Flush到磁盘生成RedoFile。DeltaMemStore的组织方式与MemRowSet相同，也维护一个B+树。
 &emsp;&emsp;**DeltaFile：**DeltaMemStore到一定大小会存储到磁盘形成DeltaFile，分为UndoFile和RedoFile。
 &emsp;&emsp;**RedoFile：**重做文件，记录上一次Flush生成BaseData之后发生变更数据。DeltaMemStore写满之后，也会刷成CFile，不过与BaseData分开存储，名为RedoFile。UndoFile和RedoFile与关系型数据库中的Undo日子和Redo日志类似。
-&emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，数据被修改前的历史值，可以根据时间戳回滚读到历史数据。UndoFile一般只有一份。
+&emsp;&emsp;**UndoFile：**撤销文件，记录上一次Flush生成BaseData之前时间的历史数据，Kudu通过UndoFile可以读到历史某个时间点的数据。UndoFile一般只有一份。默认UndoFile保存15分钟，Kudu可以查询到15分钟内某列的内容，超过15分钟后会过期，该UndoFile被删除。
 
-&emsp;&emsp;DeltaFile(主要是RedoFile)会不断增加，很容易产生大量小文件，不Compaction肯定影响性能，所以就有了下面两种合并方式：
+&emsp;&emsp;DeltaFile(主要是RedoFile)会不断增加，产生大量小文件，不Compaction肯定影响性能，所以就有了下面两种合并方式：
 * Minor Compaction：多个DeltaFile进行合并生成一个大的DeltaFile。默认是1000个DeltaFile进行合并一次。
-* Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并进入BaseData，生成UndoData。
+* Major Compaction：RedoFile文件的大小和BaseData的文件的比例为0.1的时候，会将RedoFile合并进入BaseData，Kudu记录所有更新操作并保存为UndoFile。
+补充一下：合并和重写BaseData是成本很高的，会产生大量IO操作，Kudu不会将全部DeltaFile合并进BaseData。如果只更新几行数据，但要重写BaseData，费力不讨好，所以Kudu会在某个特定列需要大量更新时再把BaseData与DeltaFile合并。未合并的RedoFile会继续保留等待后续合并操作。
 
 **Kudu读流程：**
 ![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.png)  
