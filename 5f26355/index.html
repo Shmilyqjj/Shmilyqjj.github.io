@@ -610,7 +610,7 @@ TServer数量 = (60 * 3) / (8 * (1 - 0.25)) = 30
 </code></pre>
 <p>&emsp;&emsp;Tablet的数据可以用机械盘HDD来存储(SSD更好)，可以与DataNode处于同一块磁盘，这样更方便管理，因为这样可以充分利用磁盘负载和磁盘空间，不至于一个盘爆满另一个盘空余很多。</p>
 <h2 id="Kudu使用"><a href="#Kudu使用" class="headerlink" title="Kudu使用"></a>Kudu使用</h2><p>环境：<br>四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。<br><strong>OS:</strong>CentOS7;<strong>Impala:</strong>3.2.0-cdh6.3.1;<strong>Kudu:</strong>1.10.0-cdh6.3.1(3Master+3TServer);<strong>Hive:</strong>2.1.1-cdh6.3.1;<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg" alt="alt Kudu-08"><br>依次启动HDFS、hive、Kudu、Impala。</p>
-<h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><p>&emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。<br>&emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。</p>
+<h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><p>&emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。<br>&emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。<br>&emsp;&emsp;注意：=, &lt;=, ‘\&lt;’, ‘>‘, &gt;=, BETWEEN, IN等操作会从Impala谓词下推到Kudu，性能高。而!=, like和其他Impala关键字会让Kudu返回所有结果再让Impala过滤，效率低下。</p>
 <p><strong>1.使用Impala创建Hash分区的Kudu表</strong></p>
 <pre><code class="Impala">impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
 
