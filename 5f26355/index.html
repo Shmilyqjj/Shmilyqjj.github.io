@@ -581,12 +581,13 @@
 <li>如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。</li>
 <li>如果需要更新的数据在DiskRowSet，找到其所在的DiskRowSet，前面提到每个DiskRowSet都会在内存中有一个DeltaMemStore，将更新操作记录在DeltaMemStore，达到一定大小才会生成DeltaFile到磁盘。</li>
 </ol>
-<h3 id="分区方式"><a href="#分区方式" class="headerlink" title="分区方式"></a>分区方式</h3><p>Kudu的分区即为Tablet，分区模式有三种：</p>
+<h3 id="分区方式"><a href="#分区方式" class="headerlink" title="分区方式"></a>分区方式</h3><p>&emsp;&emsp;Kudu的分区即为Tablet，如果主键设计不好以及分区不合理都会造成数据发生单点读写问题，也就是热点问题。最好是将读写操作分散到大部分节点。<br>分区模式有三种：</p>
 <ul>
-<li><strong>基于Hash分区(Hash Partitioning):</strong><br>&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet当不需要有序访问时。<br>&emsp;&emsp;优点：哈希分区可以将数据均匀分布，减轻热点和Tablet大小不均匀问题。<br>&emsp;&emsp;缺点：查询数据可能要读取所有的Tablet(Bucket)。</li>
-<li><strong>基于Range分区(Range Partitioning):</strong><br>&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。<br>&emsp;&emsp;优点：可以根据存入数据的数据量，将数据均衡的存储到各个机器上，防止机器出现负载不均衡现象。<br>&emsp;&emsp;缺点：一旦数据量超出定义好的最后一个Range，接下来的数据将全部写入最后一个Range，发生倾斜。而且插入数据一次只写入单个Tablet。</li>
+<li><strong>基于Hash分区(Hash Partitioning):</strong><br>&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet。<br>&emsp;&emsp;优点：哈希分区可以将数据均匀分布，减轻热点和Tablet大小不均匀问题。<br>&emsp;&emsp;缺点：查询数据可能要读取所有的Tablet(Bucket)。</li>
+<li><strong>基于Range分区(Range Partitioning):</strong><br>&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。<br>&emsp;&emsp;优点：可以根据存入数据的数据量，将数据均衡的存储到各个机器上，防止机器出现负载不均衡现象。<br>&emsp;&emsp;缺点：一旦数据量超出定义好的最后一个Range，接下来的数据将全部写入最后一个Range分区，发生倾斜。</li>
 <li><strong>多级分区(Multilevel Partitioning):</strong>可以在单表上组合分区类型。<br>&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点–既可以数据分布均匀，又可以在每个分片中保留指定的数据<br>&emsp;&emsp;缺点：优点太多…</li>
 </ul>
+<p>&emsp;&emsp;Kudu分区设计方案需要根据场景和读取写入的方式来制定。<br>比如如果设置日期范围分区，写这天的数据时写操作都落在该天的Tablet所在节点，这就发生了热点问题，但读取一条ID的在不同日期的数据就会去多个节点执行。</p>
 <h3 id="一些细节"><a href="#一些细节" class="headerlink" title="一些细节"></a>一些细节</h3><ol>
 <li>为什么Kudu要比HBase、Cassandra扫描速度更快？<br>&emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，也可以对不同列使用不同压缩算法，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。</li>
 <li>Kudu一个Tablet中存很多很多DiskRowSet，怎么才能快速判断Key在哪个DiskRowSet？<br>&emsp;&emsp;首先肯定不能遍历，O(n)的复杂度是很难受的。它使用二叉查找树，每个节点维护多个DiskRowSet的最大Key和最小Key，这样就可在O(logn)时间内定位Key所在DiskRowSet。</li>
