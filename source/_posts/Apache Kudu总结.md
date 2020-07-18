@@ -226,6 +226,7 @@ Kudu的WAL日志是可以控制大小，日志段数量的。
 ### Kudu + Impala
 &emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。
 &emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。
+&emsp;&emsp;注意：=, <=, '\<', '\>', >=, BETWEEN, IN等操作会从Impala谓词下推到Kudu，性能高。而!=, like和其他Impala关键字会让Kudu返回所有结果再让Impala过滤，效率低下。
 
 **1.使用Impala创建Hash分区的Kudu表**
 
@@ -334,7 +335,6 @@ drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响
 ```
 
 **5.转储一张Hive表到Kudu**
-
 ```Impala 
 show create table default.test;
 
