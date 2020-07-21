@@ -38,7 +38,8 @@ date: 2020-07-05 12:26:08
   ![alt Kudu-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-02.JPG)  
 
 ### 适用场景  
-* 既有随机读写随机访问，又有批量扫描分析的场景
+* 既有随机读写随机访问，又有批量扫描分析的场景(OLAP)
+* HTAP（Hybrid Transactional Analytical Processing）混合事务分析处理场景
 * 要求分析结果实时性高（如实时决策，实时更新）的场景
 * 实时数仓
 * 支持数据逐行插入、更新操作
@@ -63,9 +64,8 @@ date: 2020-07-05 12:26:08
   * 不支持多行事务
   * 不支持BloomFilter优化join 
   * 不支持数据回滚
-  * 不能修改PK
-  * 不支持AUTO INCREMENT PK
-  * 每表最多不能有300列
+  * 不能修改PK，不支持AUTO INCREMENT PK
+  * 每表最多不能有300列，每个TServer数据压缩后不超8TB
   * 数据类型少，不支持Map，ARRAY，Struct等复杂类型
 
 ### 与相似类型存储引擎对比
@@ -94,7 +94,7 @@ date: 2020-07-05 12:26:08
 &emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。
 &emsp;&emsp;Raft算法的基本原理：先选举出Leader，Leader完全负责副本的管理，Leader接收客户端请求并转发给Follower节点，Leader也会不断发送心跳给Follower节点来证明存活，如果Follower未收到Leader心跳，则Follower节点状态变为Candidate状态并开始选举新的Leader。
 &emsp;&emsp;详细了解：[一文搞懂Raft算法](https://www.cnblogs.com/xybaby/p/10124083.html)  
-&emsp;&emsp;**Raft算法在Kudu中的应用：**多个TMaster之间通过Raft 协议实现数据同步和高可用--Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。给定一组需要写N个副本（一般为3或5）的Tablet，可以接受(N-1)/2个写入错误。
+&emsp;&emsp;**Raft算法在Kudu中的应用：**多个TMaster之间通过Raft协议实现数据同步和高可用--Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。
 ### LSM树
 <font size="3" color="blue">**LSM树(Log-Structured Merge Tree)**</font>
 &emsp;&emsp;Kudu与HBase在写的过程中都采用了LSM树的结构，LSM树的主要思想就是随机写转换为顺序写来提高写性能，随机读写需要磁盘的机械臂不断寻道，延迟较高，而转换为顺序写后机械臂不会频繁寻址，性能较好。  
@@ -112,8 +112,9 @@ date: 2020-07-05 12:26:08
 **Table：**具有Schema和全局有序主键的表。一张表有多个Tablet，多个Tablet包含表的全部数据。
 **Tablet：**Kudu的表Table被水平分割为多段，Tablet是Kudu表的一个片段（分区），每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。只有Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
 **TabletServer：**简称TServer，负责数据存储Tablet、提供数据读写服务、编码、压缩、合并和复制。一个TServer可以是某些Tablet的Leader，也可以是某些Tablet的Follower，一个Tablet可以被多个TServer服务（多对多关系）。TServer会定期（默认1s）向Master发送心跳。
-**Catalog Table：**目录表，用户不可直接读取或写入，仅由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table只存储在Master节点，也是以Tablet的形式，数据量不会很大，随着Master启动而被全量加载到内存。
-**Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master将新表的元数据写入Catalog Table并协调TServer创建Tablet。Master高可用，同一时刻只有一个Master工作，如果该Master出现问题，也是通过Raft来做选举，一般配置3或5个Master来保证HA，半数以上Master存活服务都可正常运行。
+**Catalog Table：**目录表，用户不可直接读取或写入，仅由Master维护，存储两类元数据：表元数据（Schema信息，位置和状态）和Tablet元数据（所有TServer的列表、每个TServer包含哪些Tablet副本、Tablet的开始Key和结束Key）。Catalog Table只存储在Master节点，也是以Tablet的形式，数据量不会很大，只有一个分区，随着Master启动而被全量加载到内存。
+**Master：**负责集群管理和元数据管理。具体：跟踪所有Tablets、TServer、Catalog Table和其他相关的元数据。协调客户端做元数据操作，比如创建一个新表，客户端向Master发起请求，Master写入其WAL并得到其他Master同意后将新表的元数据写入Catalog Table，并协调TServer创建Tablet。
+**WAL：**一个仅支持追加写的预写日志，无论Master还是Tablet都有预写日志，任何对表的修改都会在该表对应的WAL中写入条目(entry)，其他副本在数据相对落后时可以通过WAL赶上来。
 **逻辑复制：**Kudu基于Raft协议在集群中对每个Tablet都存储多个副本，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息。Insert和Update操作会走网络IO，但Delete操作不会，压缩数据也不会走网络。
 
 ### 存储与读写
@@ -160,24 +161,68 @@ date: 2020-07-05 12:26:08
 4. 如果需要更新的数据在DiskRowSet，找到其所在的DiskRowSet，前面提到每个DiskRowSet都会在内存中有一个DeltaMemStore，将更新操作记录在DeltaMemStore，达到一定大小才会生成DeltaFile到磁盘。
 
 ### 分区方式  
-Kudu的分区即为Tablet，分区模式有三种：
+&emsp;&emsp;Kudu的分区即为Tablet，如果主键设计不好以及分区不合理都会造成数据发生单点读写问题，也就是热点问题。Kudu分区设计方案需要根据场景和读取写入的方式来制定。最好是将读写操作都能分散到大部分节点。  
+&emsp;&emsp;在Kudu中只有主键才能被用来分区。
+分区模式有三种：
 * **基于Hash分区(Hash Partitioning):**
-&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet当不需要有序访问时。
-&emsp;&emsp;优点：哈希分区可以将数据均匀分布，减轻热点和Tablet大小不均匀问题。
-&emsp;&emsp;缺点：查询数据可能要读取所有的Tablet(Bucket)。
+&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet。
+&emsp;&emsp;优点：按ID哈希分区可以将数据均匀分布，写操作会分布在多个节点，减轻热点和Tablet大小不均匀问题。**也就是基于ID哈希分区写效率高**
+&emsp;&emsp;缺点：按ID查询数据会读取单个Tablet(Bucket)，单点读取效率低。
 * **基于Range分区(Range Partitioning):**
-&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。
-&emsp;&emsp;优点：可以根据存入数据的数据量，将数据均衡的存储到各个机器上，防止机器出现负载不均衡现象。
-&emsp;&emsp;缺点：一旦数据量超出定义好的最后一个Range，接下来的数据将全部写入最后一个Range，发生倾斜。而且插入数据一次只写入单个Tablet。
+&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。将数据按给定的主键范围的存储到各个TS节点上。
+&emsp;&emsp;优点：如果按日期范围分区，单个ID的读取会跨多个节点并行执行，效率高。**也就是基于时间范围分区查询效率高。**
+&emsp;&emsp;缺点：如果按日期范围分区会有写热点问题，而且一旦数据量超出最后一个Range，接下来的数据将全部写入最后一个Range分区，发生倾斜。
 * **多级分区(Multilevel Partitioning):**可以在单表上组合分区类型。  
-&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点--既可以数据分布均匀，又可以在每个分片中保留指定的数据
+&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点--既可以数据分布均匀，又可以在每个分片中保留指定的数据。**也就是基于ID哈希分区且基于时间范围分区组合方式读写效率都会提高**
 &emsp;&emsp;缺点：优点太多...
+
+### 复制策略
+&emsp;&emsp;如果一个TServer出现故障，副本的数量由3减到2个，Kudu会尽快恢复副本数。两种复制策略：
+**3-4-3**：如果一个副本丢失，先添加替换的副本，再删除失败的副本，Kudu默认使用这种复制策略。
+**3-2-3**：如果一个副本丢失，先删除失败的副本，再添加替换的副本。
 
 ### 一些细节
 1. 为什么Kudu要比HBase、Cassandra扫描速度更快？
 &emsp;&emsp;HBase、Cassandra都有列簇(CF)，并不是纯正的列存储，那么一个列簇中有几个列，但这几个列不能一起编码，压缩效果相对不好，而且在扫描其中一个列的数据时，必然会扫描同一列簇中的其他列。Kudu没有列簇的概念，它的不同列数据都在相邻的数据区域，可以在一起压缩，也可以对不同列使用不同压缩算法，压缩效果很好；而且需要哪列读哪列不会读其他列，读取时不需要进行Merge操作，根据BaseData和Delta数据得到最终数据。Kudu扫描性能可媲美Parquet。还有，Kudu的读取方式避免了很多字段的比较操作，CPU利用率高。
 2. Kudu一个Tablet中存很多很多DiskRowSet，怎么才能快速判断Key在哪个DiskRowSet？
 &emsp;&emsp;首先肯定不能遍历，O(n)的复杂度是很难受的。它使用二叉查找树，每个节点维护多个DiskRowSet的最大Key和最小Key，这样就可在O(logn)时间内定位Key所在DiskRowSet。
+3. Kudu不同的列类型不同，使用的编码和压缩方式？
+&emsp;&emsp;Kudu每列都有类型，编码方式和压缩方式，编码方式根据数据类型不同有合适的默认值，压缩方式默认不压缩。
+
+## Kudu的部署
+&emsp;&emsp;Kudu有两种进程Master和TServer，Kudu服务是可以单独部署在集群的，但大多数情况可能是与Hadoop集群共置，不同的环境需要不同的部署方案，本节用**数据化运营**的思想来说Kudu服务的部署。
+### Master部署
+&emsp;&emsp;Master高可用，一般配置3或5个Master来保证HA，同一时刻只有一个Master工作，半数以上Master存活，服务都可正常运行。Master之间需要达成共识，大多数Master“投票”得到Leader，其他的为Follower。如果该Master出现问题，也是通过Raft一致性算法来做选举，既容错又高效。
+&emsp;&emsp;一般配置3或5个Master，7个就有点多了没必要。Master数目必须为奇数个。给定一组需要写N个副本（一般为3或5）的Tablet，可以接受(N-1)/2个写入错误。
+&emsp;&emsp;由于Mater中只保存元数据，数据量会一直比较小，即使被频繁请求，被全量加载到内存，也不需要占用大量系统资源。
+
+### TServer部署
+&emsp;&emsp;根据业务量，了解大概要存储多少数据。因为Kudu列式存储与Parquet相似，可以根据相同数据量Parquet占用磁盘大小来粗略估计需要多少存储空间。
+&emsp;&emsp;TServer数量和配置大致给多少呢？
+```text
+假设:
+Parquet格式存储的数据集大小60TB
+每个TServer数据磁盘最大8T
+给数据磁盘预留25%的磁盘空间
+Tablet冗余副本3
+
+TServer数量 = (Parquet格式存储的数据集大小 * 冗余数) / (TS磁盘容量 * ( 1 - 磁盘预留))
+TServer数量 = (60 * 3) / (8 * (1 - 0.25)) = 30
+```
+
+### 存储介质
+&emsp;&emsp;在CM部署Master和TServer时，我们可以看到如下配置：
+![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.png)  
+![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.jpg)  
+&emsp;&emsp;**Kudu设计时就对数据和WAL分开存储的，为什么呢？**
+&emsp;&emsp;之前说过WAL仅支持追加写，单个操作乍一看会顺序写WAL，但同时执行多个任务时，更像是随机写WAL，这就很考验WAL底层存储的IOPS(IO Per Second)了。传统机械盘IOPS也就几百，而NVMe-SSD的IOPS能达到万级甚至百万级，所以Kudu WAL尽量存储在SSD中。
+&emsp;&emsp;**那WAL的SSD盘大概要选多大呢？**
+```text
+Kudu的WAL日志是可以控制大小，日志段数量的。
+默认日志段大小8M，数量1-80个，按默认的8M，80个算，如果共2000个Tablet，需要WAL的SSD大小：
+8 * 80 * 2000 = 1280000MB 约1.3TB
+```
+&emsp;&emsp;Tablet的数据可以用机械盘HDD来存储(SSD更好)，可以与DataNode处于同一块磁盘，这样更方便管理，因为这样可以充分利用磁盘负载和磁盘空间，不至于一个盘爆满另一个盘空余很多。
 
 ## Kudu使用  
 环境：
@@ -189,6 +234,7 @@ Kudu的分区即为Tablet，分区模式有三种：
 ### Kudu + Impala
 &emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。
 &emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。
+&emsp;&emsp;注意：=, <=, '\<', '\>', >=, BETWEEN, IN等操作会从Impala谓词下推到Kudu，性能高。而!=, like和其他Impala关键字会让Kudu返回所有结果再让Impala过滤，效率低下。因为Kudu没二级索引，所以没有主键的谓词也会造成全表扫描。
 
 **1.使用Impala创建Hash分区的Kudu表**
 
@@ -297,7 +343,6 @@ drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响
 ```
 
 **5.转储一张Hive表到Kudu**
-
 ```Impala 
 show create table default.test;
 
@@ -330,8 +375,9 @@ https://blog.csdn.net/nazeniwaresakini/article/details/104220206/
 ### Kudu APIs
 **Kudu常用Command Lines**
 [Kudu客户端命令](https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy)
-Kudu有很多命令，看了官方文档，大致分几类：
+Kudu有很多命令，大致分几类：
 ```shell
+su - kudu
 kudu cluster 集群管理，包括健康状态检查，移动tablet，rebalance等操作
 kudu diagnose 集群诊断工具
 kudu fs 在本地Kudu文件系统做操作，检查一致性，列出元顺据，数据集更新，数据转储
@@ -357,7 +403,7 @@ Maven Dep：
     <version>1.10.0</version>
 </dependency>
 
-//KudoDDL.java  Kudu数据定义API包括：建表，删表，增加字段和删除字段
+//KuduDDL.java  Kudu数据定义API包括：建表，删表，增加字段和删除字段
 package top.qjj.shmily.operations;
 
 import org.apache.kudu.ColumnSchema;
@@ -390,7 +436,7 @@ public class KuduDDL{
         options.setRangePartitionColumns(ImmutableList.of("id")); //设置id为Range key
         int temp = 0;
         for(int i = 0; i < 10; i++){  //id 每10一个区间直到100
-            PartialRow lowLevel = schema.newPartialRow();
+            PartialRow lowLevel = schema.newPartialRow();  //定义用来分区的列
             lowLevel.addInt("id", temp);  //与字段类型对应 INT32则addInt  INT64则addLong
             PartialRow highLevel = schema.newPartialRow();
             temp += 10;
@@ -638,7 +684,7 @@ class KuduDMLOperations {
             KuduSession session = kuduClient.newSession();
             session.setFlushMode(FlushMode.AUTO_FLUSH_SYNC);
             Update update = table.newUpdate();
-            PartialRow row = update.getRow();
+            PartialRow row = update.getRow();   //定义用来分区的列
             row.addInt("id", 66);
             row.addString("name", "qjj");
             session.apply(update);
@@ -740,6 +786,14 @@ result = scanner.open().read_all_tuples()
 
 ## Kudu异常处理
 [Apache Kudu Troubleshooting](https://kudu.apache.org/docs/troubleshooting.html)
+
+## HTAP混合事务分析处理
+HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
+HTAP的场景举例：
+1. 管理层希望看到实时的数据汇总报表
+2. 客服人员希望能够尽快访问某设备的最新数据以便尽快排除故障
+3. 乘车线路拥堵立刻感知并立刻规划线路
+4. 车联网，物联网
 
 ## 总结
 &emsp;&emsp;Kudu--Fast Analytics on Fast Data.一个Kudu实现了整个大数据技术栈中诸多组件的功能，有分布式文件系统（好比HDFS），有一致性算法（好比Zookeeper），有Table（好比Hive表），有Tablet（好比Hive分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。它轻松地解决了随机读写+快速分析的业务场景，解决了实时数仓的诸多难点，同时降低了存储成本和运维成本。
