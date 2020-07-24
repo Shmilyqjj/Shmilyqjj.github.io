@@ -97,7 +97,12 @@ Yarn工作流程
 ##################################################
 Python相关
 
-常见机器学习库：mxnet、tensorflow、pytorch
+常见机器学习库：mxnet、tensorflow、pytorch、pandas
+
+pip日志自动保存：
+vim ~/.pip/pip.conf 
+[global]标签下添加
+log=~/.pip/pip.log
 
 设计模式：https://www.cnblogs.com/wangjian941118/p/9289145.html
 
