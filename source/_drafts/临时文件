@@ -642,6 +642,7 @@ Hive map join：https://www.jianshu.com/p/b52466e93226
 hive查看分区:show partitions table_name;
 
 ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
+ALTER TABLE test_table DROP PARTITION (dt_batch>'20200620',dt_batch<'20201231'); hive批量删除分区
 
 
 Hive合并多个分区为一个分区:
@@ -657,8 +658,11 @@ load data local inpath '/datas/root/test' into table test_new partition(dt="2020
 insert overwrite table test partition (dt="20200524")  select id,name,age from test_new where dt <= "20200524";
 alter table test_new add partition (dt="20200525") ;
 
-
-
+合并小文件的表并合并多个分区为一个分区
+    1.备份原表 create table 备份表 like 原表; hadoop fs -cp 原表目录 备份表目录 msck repair table 备份表;
+    2.合并原表分区 使用spark repartition或hive set hive.execution.engine=mr;set hive.merge.mapredfiles=TRUE;set hive.merge.smallfiles.avgsize=100000000;set mapred.reduce.tasks=xx;insert overwrite table 表(partition) select * from 表 where partiton_col...;  
+    3.验证数据量没问题以及hdfs文件大小
+    4.删除多余分区ALTER TABLE 表 DROP PARTITION (dt_batch>'20200620',dt_batch<'20201231'); ...
 ##################################################
 Mysql相关
 
