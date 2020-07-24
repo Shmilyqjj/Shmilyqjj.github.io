@@ -663,6 +663,17 @@ alter table test_new add partition (dt="20200525") ;
     2.合并原表分区 使用spark repartition或hive set hive.execution.engine=mr;set hive.merge.mapredfiles=TRUE;set hive.merge.smallfiles.avgsize=100000000;set mapred.reduce.tasks=xx;insert overwrite table 表(partition) select * from 表 where partiton_col...;  
     3.验证数据量没问题以及hdfs文件大小
     4.删除多余分区ALTER TABLE 表 DROP PARTITION (dt_batch>'20200620',dt_batch<'20201231'); ...
+
+Hive表数据转移-表迁移：
+    hadoop fs -cp 原表文件 目标表路径
+    msck repair table 目标表 
+    注意：如果只移动部分文件，可以msck，得到表数据就是部分文件中包含的数据，如果后面新加入文件，可以再次msck，就会有更多数据
+
+插入文件中数据到Hive表：
+    需要文件数据格式与建表格式相同
+    LOAD DATA LOCAL INPATH '/data/xxx' overwrite into TABLE table_name PARTITION(dt=xxx)
+    完成后去相应的文件夹下看，xxx文件被移动到那个分区目录下，并且名字没变。
+
 ##################################################
 Mysql相关
 
