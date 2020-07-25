@@ -578,7 +578,7 @@
 <ol>
 <li>Client发送更新请求，Master获取表的相关信息，表的所有Tablet信息。</li>
 <li>Kudu检查是否符合表结构。</li>
-<li>如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。</li>
+<li>如果需要更新的数据在MemRowSet，B+树找到待更新数据所在叶子节点，然后将更新操作记录在所在行中一个Mutation链表中；Kudu采用了MVCC(多版本并发控制，实现读和写的并行，任何写都是插入)思想，将更改的数据以链表形式追加到叶子节点后面，避免在树上进行更新和删除操作。</li>
 <li>如果需要更新的数据在DiskRowSet，找到其所在的DiskRowSet，前面提到每个DiskRowSet都会在内存中有一个DeltaMemStore，将更新操作记录在DeltaMemStore，达到一定大小才会生成DeltaFile到磁盘。</li>
 </ol>
 <h3 id="分区方式"><a href="#分区方式" class="headerlink" title="分区方式"></a>分区方式</h3><p>&emsp;&emsp;Kudu的分区即为Tablet，如果主键设计不好以及分区不合理都会造成数据发生单点读写问题，也就是热点问题。Kudu分区设计方案需要根据场景和读取写入的方式来制定。最好是将读写操作都能分散到大部分节点。<br>&emsp;&emsp;在Kudu中只有主键才能被用来分区。<br>分区模式有三种：</p>
