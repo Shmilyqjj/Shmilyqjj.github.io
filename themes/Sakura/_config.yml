@@ -61,9 +61,10 @@ bgclass: filter-dot
 
 # 三张图的位置 url, title, desc img
 startdash: 
-  - {url: /tech/, title: 技术分享, desc: 开发中，敬请期待, img: /img/startdash/tech-intro.jpg}
+  - {url: /tech/, title: 技术分享, desc: 技术在这里成长, img: /img/startdash/tech-intro.jpg}
+  - {url: /music/, title: 音乐小屋, desc: 音符在这里跳动, img: /img/startdash/music.jpg}
   - {url: http://space.bilibili.com/, title: Bilibili, desc: 开发中，敬请期待, img: /img/startdash/bilibili.jpg}
-  - {url: /, title: 佳境的万事屋, desc: 开发中，敬请期待, img: /img/startdash/wangshiwu.jpg}
+
 
 
 # your site build time or founded date
