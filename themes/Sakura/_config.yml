@@ -108,6 +108,7 @@ aplayer:
   preload: auto
   volume: 0.7
   mutex: true
+  mini: true
 
 
 # Valine (+LeanCloud)
