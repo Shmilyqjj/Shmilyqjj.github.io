@@ -68,7 +68,7 @@ bgclass: filter-dot
 startdash: 
   - {url: http://tech.shmily-qjj.top/, title: 技术分享, desc: 技术在这里成长, img: /img/startdash/tech.jpg}
   - {url: /music/, title: 音乐小屋, desc: 音符在这里跳动, img: /img/startdash/music.jpg}
-  - {url: http://space.bilibili.com/, title: Bilibili, desc: 开发中，敬请期待, img: /img/startdash/bilibili.JPG}
+  - {url: http://space.bilibili.com/, title: 哔哩哔哩, desc: 画面在这里浮现, img: /img/startdash/bilibili.JPG}
 
 
 
