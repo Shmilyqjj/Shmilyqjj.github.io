@@ -11,7 +11,7 @@ pjax: 1
 # 1开启
 mathjax: 0
 
-notice: 感谢光临我的博客，部分模块还在开发中，随便逛逛吧！
+notice: 欢迎大佬光临寒舍，部分功能还在开发中，随便逛逛吧！
 lazyloadImg: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg
 
 menus:
