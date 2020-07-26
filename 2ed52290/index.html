@@ -543,6 +543,24 @@ df.show() / df.writeInsertInto(table_name) / df.write.option(‘header’,True),
 </code></pre>
 <p><a href="http://spark.apache.org/docs/2.4.4/api/python/index.html" target="_blank" rel="noopener">PySpark使用文档</a></p>
 <p><strong>结论：</strong><br>在数据量特别大的情况下，分布式计算是首选，所以对于大规模数据分析，目前PySpark是比较推荐的方式。</p>
+<h3 id="使用Dask加速"><a href="#使用Dask加速" class="headerlink" title="使用Dask加速"></a>使用Dask加速</h3><p><a href="https://dask.org/" target="_blank" rel="noopener">Dask官方网站</a><br><strong>优点：</strong></p>
+<ol>
+<li>高效处理大量数据</li>
+<li>支持分布式</li>
+</ol>
+<p><strong>示例：</strong></p>
+<pre><code class="python"># 低速：
+import numpy as np
+import pandas as pd
+df = pd.Dataframe(np.random.randint(0, 6, size=(100000000, 5)), columns = list(&#39;abcde&#39;)
+df.groupby(&#39;a&#39;).mean()
+
+# 高速：
+import dask.dataframe as dd
+df_dask = dd.from_pandas(df, npartitions=50)
+df_dask.groupby(&#39;a&#39;).mean().compute()
+</code></pre>
+<p><a href="https://blog.csdn.net/jack_jmsking/article/details/91433854" target="_blank" rel="noopener">详细了解Dask</a></p>
 <h3 id="使用多线程"><a href="#使用多线程" class="headerlink" title="使用多线程"></a>使用多线程</h3><p><strong>优点：</strong>能提高IO密集型Python程序效率。因为在一个线程因IO阻塞等待时，CPU切换到其他线程，CPU利用率高。<br><strong>局限：</strong>由于GIL(Global Interpreter Lock)机制限制Python解释器任何时刻都只能执行一个线程，在计算密集型Python程序并不能提高执行效率，反而可能因线程切换降低效率。<br><strong>使用：</strong></p>
 <pre><code class="python"># 用法1
 import threading
@@ -696,10 +714,127 @@ print &#39;Took %.3f seconds.&#39; % (end - start)
 multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。
 </code></pre>
 <p>详细参考：<a href="https://www.cnblogs.com/kangoroo/p/7628092.html" target="_blank" rel="noopener">python concurrent.futures</a></p>
-<h2 id="查看Python性能日志"><a href="#查看Python性能日志" class="headerlink" title="查看Python性能日志"></a>查看Python性能日志</h2><p>python中的profiler可以帮助我们测量程序的时间和空间复杂度。 使用时通过-o参数传入可选输出文件以保留性能日志。</p>
+<h3 id="优化在集合中查找"><a href="#优化在集合中查找" class="headerlink" title="优化在集合中查找"></a>优化在集合中查找</h3><ol>
+<li><p>在set中查找比在list查找快</p>
+<pre><code class="python">list_data = list(data)
+set_data = set(data)
+# 低速：
+789 in list_data
+# 高速：
+789 in set_data
+</code></pre>
+</li>
+<li><p>用dict而非两个list进行匹配查找</p>
+<pre><code class="python"># 已知list_a,list_b
+# 低速：
+list_b[list_a.index(123)]
+# 高速：
+dict(zip(list_a,list_b)).get(123,None)
+</code></pre>
+</li>
+<li><p>优先用for循环，比while略快</p>
+</li>
+<li>在循环体中避免重复计算</li>
+<li><p>用循环机制代替递归函数</p>
+<pre><code class="python"># 低速：
+def fib():
+ return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+# 高速：
+def fib(n):
+ if n in (1,2):
+     return 1
+ a, b = 1, 1
+ for i in range(2,n):
+     a,b = b, a+b
+ return b
+</code></pre>
+</li>
+<li><p>使用缓存机制加速递归函数<br><code>`</code>python</p>
+<h1 id="低速："><a href="#低速：" class="headerlink" title="低速："></a>低速：</h1><p>def fib():<br> return (1 if n in (1,2) else fib(n-1)+fib(n-2))</p>
+<h1 id="高速："><a href="#高速：" class="headerlink" title="高速："></a>高速：</h1><p>from functools import lru_cache</p>
+</li>
+</ol>
+<p>@lru_cache(100)<br>def fib():<br>    return (1 if n in (1,2) else fib(n-1)+fib(n-2))</p>
+<pre><code>
+7. 使用collections.Counter加速计数
+```python
+import time
+data = [x**2 % 1989 for x in range(2000000)]
+
+# 低速
+st = time.time()
+values_count = {}
+for i in data:
+    i_cnt = values_count.get(i, 0)
+    values_count[i] = i_cnt + 1
+print(values_count.get(4, 0))
+print(&quot;time: %s&quot; % (time.time() - st))
+
+# 高速
+st = time.time()
+from collections import Counter
+values_count = Counter(data)
+print(values_count.get(4, 0))
+print(&quot;time: %s&quot; % (time.time() - st))
+</code></pre><ol start="8">
+<li>使用collections.ChainMap加速字典合并<br><code>`</code>python<h1 id="低速"><a href="#低速" class="headerlink" title="低速"></a>低速</h1>dict_a = {i: i + 1 for i in range(1, 1000000, 2)}<br>dict_b = {i: i <em> 2 + 1 for i in range(1, 1000000, 3)}<br>dict_c = {i: i </em> 3 + 1 for i in range(1, 1000000, 5)}<br>dict_d = {i: i * 4 + 1 for i in range(1, 1000000, 7)}<br>result = dict_a.copy()<br>result.update(dict_b)<br>result.update(dict_c)<br>result.update(dict_d)<br>print(result.get(9999))</li>
+</ol>
+<h1 id="高速"><a href="#高速" class="headerlink" title="高速"></a>高速</h1><p>from collections import ChainMap<br>chain = ChainMap(dict_a, dict_b, dict_c, dict_d)<br>print(chain.get(9999))</p>
+<pre><code>
+9. 使用map代替推导式进行加速
+```python
+a = [x**2 for x in range(1, 1000000, 3)]  # 低速
+a = map(lambda x: x**2, range(1, 1000000, 3)) # 高速
+</code></pre><ol start="10">
+<li><p>使用filter代替推导式进行加速</p>
+<pre><code class="python">a = [x for x in range(1, 1000000, 3) if x % 7 == 0]  # 低速
+a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速
+</code></pre>
+</li>
+<li><p>numpy向量化加速-使用np.array代替list<br><code>`</code>python</p>
+<h1 id="低速-1"><a href="#低速-1" class="headerlink" title="低速"></a>低速</h1><p>a = range(1, 1000000, 3)<br>b = range(1, 1000000, -3)<br>c = [3 <em> a[i] - 2 </em> b[i] for i in range(0, len(a)]</p>
+</li>
+</ol>
+<h1 id="高速-1"><a href="#高速-1" class="headerlink" title="高速"></a>高速</h1><p>import numpy as np<br>array_a = np.arange(1, 1000000, 3)<br>array_b = np.arange(1, 1000000, -3)<br>array_c = 3 <em> array_a - 2 </em> array_b</p>
+<pre><code>
+12. 使用np.ufunc代替math.func
+```python
+# 低速
+import math 
+a = range(1, 1000000, 3)
+b = [math.log(x) for x in a]
+
+# 高速
+import numpy as np
+array_a = np.arange(1, 1000000, 3)
+array_b = np.log(array_a)
+</code></pre><ol start="13">
+<li>pandas df.to_excel效率低于df.to_csv</li>
+</ol>
+<h2 id="查看Python性能日志"><a href="#查看Python性能日志" class="headerlink" title="查看Python性能日志"></a>查看Python性能日志</h2><h3 id="使用profiler"><a href="#使用profiler" class="headerlink" title="使用profiler"></a>使用profiler</h3><p>python中的profiler可以帮助我们测量程序执行过程中详细的时间和空间复杂度。使用时通过-o参数传入可选输出文件以保留性能日志。</p>
 <pre><code class="shell">python -m cProfile [-o output_file] my_python_file.py
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-05.JPG" alt="alt FastPython-05"></p>
+<h3 id="使用profile"><a href="#使用profile" class="headerlink" title="使用profile"></a>使用profile</h3><p>导入profile监控python程序整体执行耗时。</p>
+<pre><code class="python">import profile
+profile.run(&#39;main()&#39;)
+</code></pre>
+<h3 id="使用line-profiler"><a href="#使用line-profiler" class="headerlink" title="使用line_profiler"></a>使用line_profiler</h3><p>监控方法耗时。</p>
+<pre><code class="python"># pip install line_profiler
+def a():
+    pass
+def main():
+    a()
+from line_profiler import LineProfiler
+lp = LineProfiler(a,main)
+lp.run(&#39;main()&#39;)
+lp.print_stats()
+</code></pre>
+<h3 id="在ipython中获取代码耗时"><a href="#在ipython中获取代码耗时" class="headerlink" title="在ipython中获取代码耗时"></a>在ipython中获取代码耗时</h3><pre><code class="ipython">%time code  获取执行code这一行代码的耗时
+%%time 获取耗时
+%%timeit -n 10  获取执行10次的平均耗时
+%prun method()  获取执行method方法的耗时详情，输出与profiler一样
+</code></pre>
 
         </div>
         <!-- .entry-content -->
