@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2020-07-21T15:09:36.514Z</updated>
+  <updated>2020-07-26T15:21:07.808Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>高效运行Python方案</title>
+    <link href="https://shmily-qjj.top/2ed52290/"/>
+    <id>https://shmily-qjj.top/2ed52290/</id>
+    <published>2020-07-26T03:16:00.000Z</published>
+    <updated>2020-07-26T15:21:07.808Z</updated>
+    
+    <summary type="html">
+    
+      xxxx介绍
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="xx技术/xx框架" scheme="https://shmily-qjj.top/tags/xx%E6%8A%80%E6%9C%AF-xx%E6%A1%86%E6%9E%B6/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Apache Kudu总结</title>
     <link href="https://shmily-qjj.top/5f26355/"/>
     <id>https://shmily-qjj.top/5f26355/</id>
     <published>2020-07-05T04:26:08.000Z</published>
-    <updated>2020-07-21T15:09:36.514Z</updated>
+    <updated>2020-07-25T12:47:44.039Z</updated>
     
     <summary type="html">
     
@@ -415,28 +437,6 @@
     
     
       <category term="QCon全球软件开发大会" scheme="https://shmily-qjj.top/tags/QCon%E5%85%A8%E7%90%83%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%A4%A7%E4%BC%9A/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>随想类博客-待更新</title>
-    <link href="https://shmily-qjj.top/14419/"/>
-    <id>https://shmily-qjj.top/14419/</id>
-    <published>2019-09-21T14:16:00.000Z</published>
-    <updated>2020-04-12T14:15:48.005Z</updated>
-    
-    <summary type="html">
-    
-      随想类博客正在开发中，今天的主题是...
-    
-    </summary>
-    
-      <category term="随想" scheme="https://shmily-qjj.top/categories/%E9%9A%8F%E6%83%B3/"/>
-    
-    
-      <category term="标签1" scheme="https://shmily-qjj.top/tags/%E6%A0%87%E7%AD%BE1/"/>
-    
-      <category term="标签2" scheme="https://shmily-qjj.top/tags/%E6%A0%87%E7%AD%BE2/"/>
     
   </entry>
   
