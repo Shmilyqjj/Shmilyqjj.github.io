@@ -169,6 +169,29 @@ df.show() / df.writeInsertInto(table_name) / df.write.option(‘header’,True),
 **结论：**
 在数据量特别大的情况下，分布式计算是首选，所以对于大规模数据分析，目前PySpark是比较推荐的方式。
 
+### 使用Dask加速
+[Dask官方网站](https://dask.org/)
+**优点：**
+1. 高效处理大量数据
+2. 支持分布式
+
+**示例：**
+
+```python
+# 低速：
+import numpy as np
+import pandas as pd
+df = pd.Dataframe(np.random.randint(0, 6, size=(100000000, 5)), columns = list('abcde')
+df.groupby('a').mean()
+
+# 高速：
+import dask.dataframe as dd
+df_dask = dd.from_pandas(df, npartitions=50)
+df_dask.groupby('a').mean().compute()
+```
+
+[详细了解Dask](https://blog.csdn.net/jack_jmsking/article/details/91433854)
+
 ### 使用多线程
 **优点：**能提高IO密集型Python程序效率。因为在一个线程因IO阻塞等待时，CPU切换到其他线程，CPU利用率高。
 **局限：**由于GIL(Global Interpreter Lock)机制限制Python解释器任何时刻都只能执行一个线程，在计算密集型Python程序并不能提高执行效率，反而可能因线程切换降低效率。
@@ -344,14 +367,177 @@ multiprocessing开销比较大，原因就在于：主进程和子进程之间�
 ```
 详细参考：[python concurrent.futures](https://www.cnblogs.com/kangoroo/p/7628092.html)
 
+### 优化在集合中查找
+1. 在set中查找比在list查找快
+```python
+list_data = list(data)
+set_data = set(data)
+# 低速：
+789 in list_data
+# 高速：
+789 in set_data
+```
+
+2. 用dict而非两个list进行匹配查找
+```python
+# 已知list_a,list_b
+# 低速：
+list_b[list_a.index(123)]
+# 高速：
+dict(zip(list_a,list_b)).get(123,None)
+```
+
+3. 优先用for循环，比while略快
+4. 在循环体中避免重复计算
+5. 用循环机制代替递归函数
+```python
+# 低速：
+def fib():
+    return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+# 高速：
+def fib(n):
+    if n in (1,2):
+        return 1
+    a, b = 1, 1
+    for i in range(2,n):
+        a,b = b, a+b
+    return b
+```
+
+6. 使用缓存机制加速递归函数
+```python
+# 低速：
+def fib():
+    return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+# 高速：
+from functools import lru_cache
+
+@lru_cache(100)
+def fib():
+    return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+```
+
+7. 使用collections.Counter加速计数
+```python
+import time
+data = [x**2 % 1989 for x in range(2000000)]
+
+# 低速
+st = time.time()
+values_count = {}
+for i in data:
+    i_cnt = values_count.get(i, 0)
+    values_count[i] = i_cnt + 1
+print(values_count.get(4, 0))
+print("time: %s" % (time.time() - st))
+
+# 高速
+st = time.time()
+from collections import Counter
+values_count = Counter(data)
+print(values_count.get(4, 0))
+print("time: %s" % (time.time() - st))
+```
+
+8. 使用collections.ChainMap加速字典合并
+```python
+# 低速
+dict_a = {i: i + 1 for i in range(1, 1000000, 2)}
+dict_b = {i: i * 2 + 1 for i in range(1, 1000000, 3)}
+dict_c = {i: i * 3 + 1 for i in range(1, 1000000, 5)}
+dict_d = {i: i * 4 + 1 for i in range(1, 1000000, 7)}
+result = dict_a.copy()
+result.update(dict_b)
+result.update(dict_c)
+result.update(dict_d)
+print(result.get(9999))
+
+
+# 高速
+from collections import ChainMap
+chain = ChainMap(dict_a, dict_b, dict_c, dict_d)
+print(chain.get(9999))
+```
+
+9. 使用map代替推导式进行加速
+```python
+a = [x**2 for x in range(1, 1000000, 3)]  # 低速
+a = map(lambda x: x**2, range(1, 1000000, 3)) # 高速
+```
+
+10. 使用filter代替推导式进行加速
+```python
+a = [x for x in range(1, 1000000, 3) if x % 7 == 0]  # 低速
+a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速
+```
+
+11. numpy向量化加速-使用np.array代替list
+```python
+# 低速
+a = range(1, 1000000, 3)
+b = range(1, 1000000, -3)
+c = [3 * a[i] - 2 * b[i] for i in range(0, len(a)]
+
+# 高速
+import numpy as np
+array_a = np.arange(1, 1000000, 3)
+array_b = np.arange(1, 1000000, -3)
+array_c = 3 * array_a - 2 * array_b
+```
+
+12. 使用np.ufunc代替math.func
+```python
+# 低速
+import math 
+a = range(1, 1000000, 3)
+b = [math.log(x) for x in a]
+
+# 高速
+import numpy as np
+array_a = np.arange(1, 1000000, 3)
+array_b = np.log(array_a)
+```
+
+13. pandas df.to_excel效率低于df.to_csv
 
 ## 查看Python性能日志
-python中的profiler可以帮助我们测量程序的时间和空间复杂度。 使用时通过-o参数传入可选输出文件以保留性能日志。
+### 使用profiler
+python中的profiler可以帮助我们测量程序执行过程中详细的时间和空间复杂度。使用时通过-o参数传入可选输出文件以保留性能日志。
 
 ```shell
 python -m cProfile [-o output_file] my_python_file.py
 ```
 ![alt FastPython-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-05.JPG)
+
+### 使用profile
+导入profile监控python程序整体执行耗时。
+
+```python
+import profile
+profile.run('main()')
+```
+
+### 使用line_profiler
+监控方法耗时。
+```python
+# pip install line_profiler
+def a():
+    pass
+def main():
+    a()
+from line_profiler import LineProfiler
+lp = LineProfiler(a,main)
+lp.run('main()')
+lp.print_stats()
+```
+
+### 在ipython中获取代码耗时
+```ipython
+%time code  获取执行code这一行代码的耗时
+%%time 获取耗时
+%%timeit -n 10  获取执行10次的平均耗时
+%prun method()  获取执行method方法的耗时详情，输出与profiler一样
+```
 
 
 
