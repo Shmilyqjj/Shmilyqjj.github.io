@@ -367,7 +367,7 @@ multiprocessing开销比较大，原因就在于：主进程和子进程之间�
 ```
 详细参考：[python concurrent.futures](https://www.cnblogs.com/kangoroo/p/7628092.html)
 
-### 优化在集合中查找
+### 常见代码优化
 1. 在set中查找比在list查找快
 ```python
 list_data = list(data)
@@ -389,7 +389,8 @@ dict(zip(list_a,list_b)).get(123,None)
 
 3. 优先用for循环，比while略快
 4. 在循环体中避免重复计算
-5. 用循环机制代替递归函数
+
+5. 用循环机制代替递归函数  
 ```python
 # 低速：
 def fib():
@@ -411,7 +412,6 @@ def fib():
     return (1 if n in (1,2) else fib(n-1)+fib(n-2))
 # 高速：
 from functools import lru_cache
-
 @lru_cache(100)
 def fib():
     return (1 if n in (1,2) else fib(n-1)+fib(n-2))
@@ -421,7 +421,6 @@ def fib():
 ```python
 import time
 data = [x**2 % 1989 for x in range(2000000)]
-
 # 低速
 st = time.time()
 values_count = {}
@@ -430,7 +429,6 @@ for i in data:
     values_count[i] = i_cnt + 1
 print(values_count.get(4, 0))
 print("time: %s" % (time.time() - st))
-
 # 高速
 st = time.time()
 from collections import Counter
@@ -451,8 +449,6 @@ result.update(dict_b)
 result.update(dict_c)
 result.update(dict_d)
 print(result.get(9999))
-
-
 # 高速
 from collections import ChainMap
 chain = ChainMap(dict_a, dict_b, dict_c, dict_d)
@@ -471,18 +467,15 @@ a = [x for x in range(1, 1000000, 3) if x % 7 == 0]  # 低速
 a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速
 ```
 
-11. numpy向量化加速-使用np.array代替list
+11. numpy向量化加速-使用np.array代替list集合
 ```python
-# 低速
 a = range(1, 1000000, 3)
 b = range(1, 1000000, -3)
-c = [3 * a[i] - 2 * b[i] for i in range(0, len(a)]
-
-# 高速
+c = [3 * a[i] - 2 * b[i] for i in range(0, len(a)] # 低速
 import numpy as np
 array_a = np.arange(1, 1000000, 3)
 array_b = np.arange(1, 1000000, -3)
-array_c = 3 * array_a - 2 * array_b
+array_c = 3 * array_a - 2 * array_b # 高速
 ```
 
 12. 使用np.ufunc代替math.func
@@ -491,7 +484,6 @@ array_c = 3 * array_a - 2 * array_b
 import math 
 a = range(1, 1000000, 3)
 b = [math.log(x) for x in a]
-
 # 高速
 import numpy as np
 array_a = np.arange(1, 1000000, 3)
