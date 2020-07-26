@@ -714,7 +714,7 @@ print &#39;Took %.3f seconds.&#39; % (end - start)
 multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。
 </code></pre>
 <p>详细参考：<a href="https://www.cnblogs.com/kangoroo/p/7628092.html" target="_blank" rel="noopener">python concurrent.futures</a></p>
-<h3 id="优化在集合中查找"><a href="#优化在集合中查找" class="headerlink" title="优化在集合中查找"></a>优化在集合中查找</h3><ol>
+<h3 id="常见代码优化"><a href="#常见代码优化" class="headerlink" title="常见代码优化"></a>常见代码优化</h3><ol>
 <li><p>在set中查找比在list查找快</p>
 <pre><code class="python">list_data = list(data)
 set_data = set(data)
@@ -734,8 +734,9 @@ dict(zip(list_a,list_b)).get(123,None)
 </li>
 <li><p>优先用for循环，比while略快</p>
 </li>
-<li>在循环体中避免重复计算</li>
-<li><p>用循环机制代替递归函数</p>
+<li><p>在循环体中避免重复计算</p>
+</li>
+<li><p>用循环机制代替递归函数  </p>
 <pre><code class="python"># 低速：
 def fib():
  return (1 if n in (1,2) else fib(n-1)+fib(n-2))
@@ -749,67 +750,86 @@ def fib(n):
  return b
 </code></pre>
 </li>
-<li><p>使用缓存机制加速递归函数<br><code>`</code>python</p>
-<h1 id="低速："><a href="#低速：" class="headerlink" title="低速："></a>低速：</h1><p>def fib():<br> return (1 if n in (1,2) else fib(n-1)+fib(n-2))</p>
-<h1 id="高速："><a href="#高速：" class="headerlink" title="高速："></a>高速：</h1><p>from functools import lru_cache</p>
+<li><p>使用缓存机制加速递归函数</p>
+<pre><code class="python"># 低速：
+def fib():
+ return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+# 高速：
+from functools import lru_cache
+@lru_cache(100)
+def fib():
+ return (1 if n in (1,2) else fib(n-1)+fib(n-2))
+</code></pre>
 </li>
-</ol>
-<p>@lru_cache(100)<br>def fib():<br>    return (1 if n in (1,2) else fib(n-1)+fib(n-2))</p>
-<pre><code>
-7. 使用collections.Counter加速计数
-```python
-import time
+<li><p>使用collections.Counter加速计数</p>
+<pre><code class="python">import time
 data = [x**2 % 1989 for x in range(2000000)]
-
 # 低速
 st = time.time()
 values_count = {}
 for i in data:
-    i_cnt = values_count.get(i, 0)
-    values_count[i] = i_cnt + 1
+ i_cnt = values_count.get(i, 0)
+ values_count[i] = i_cnt + 1
 print(values_count.get(4, 0))
 print(&quot;time: %s&quot; % (time.time() - st))
-
 # 高速
 st = time.time()
 from collections import Counter
 values_count = Counter(data)
 print(values_count.get(4, 0))
 print(&quot;time: %s&quot; % (time.time() - st))
-</code></pre><ol start="8">
-<li>使用collections.ChainMap加速字典合并<br><code>`</code>python<h1 id="低速"><a href="#低速" class="headerlink" title="低速"></a>低速</h1>dict_a = {i: i + 1 for i in range(1, 1000000, 2)}<br>dict_b = {i: i <em> 2 + 1 for i in range(1, 1000000, 3)}<br>dict_c = {i: i </em> 3 + 1 for i in range(1, 1000000, 5)}<br>dict_d = {i: i * 4 + 1 for i in range(1, 1000000, 7)}<br>result = dict_a.copy()<br>result.update(dict_b)<br>result.update(dict_c)<br>result.update(dict_d)<br>print(result.get(9999))</li>
-</ol>
-<h1 id="高速"><a href="#高速" class="headerlink" title="高速"></a>高速</h1><p>from collections import ChainMap<br>chain = ChainMap(dict_a, dict_b, dict_c, dict_d)<br>print(chain.get(9999))</p>
-<pre><code>
-9. 使用map代替推导式进行加速
-```python
-a = [x**2 for x in range(1, 1000000, 3)]  # 低速
+</code></pre>
+</li>
+<li><p>使用collections.ChainMap加速字典合并</p>
+<pre><code class="python"># 低速
+dict_a = {i: i + 1 for i in range(1, 1000000, 2)}
+dict_b = {i: i * 2 + 1 for i in range(1, 1000000, 3)}
+dict_c = {i: i * 3 + 1 for i in range(1, 1000000, 5)}
+dict_d = {i: i * 4 + 1 for i in range(1, 1000000, 7)}
+result = dict_a.copy()
+result.update(dict_b)
+result.update(dict_c)
+result.update(dict_d)
+print(result.get(9999))
+# 高速
+from collections import ChainMap
+chain = ChainMap(dict_a, dict_b, dict_c, dict_d)
+print(chain.get(9999))
+</code></pre>
+</li>
+<li><p>使用map代替推导式进行加速</p>
+<pre><code class="python">a = [x**2 for x in range(1, 1000000, 3)]  # 低速
 a = map(lambda x: x**2, range(1, 1000000, 3)) # 高速
-</code></pre><ol start="10">
+</code></pre>
+</li>
 <li><p>使用filter代替推导式进行加速</p>
 <pre><code class="python">a = [x for x in range(1, 1000000, 3) if x % 7 == 0]  # 低速
 a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速
 </code></pre>
 </li>
-<li><p>numpy向量化加速-使用np.array代替list<br><code>`</code>python</p>
-<h1 id="低速-1"><a href="#低速-1" class="headerlink" title="低速"></a>低速</h1><p>a = range(1, 1000000, 3)<br>b = range(1, 1000000, -3)<br>c = [3 <em> a[i] - 2 </em> b[i] for i in range(0, len(a)]</p>
+<li><p>numpy向量化加速-使用np.array代替list集合</p>
+<pre><code class="python">a = range(1, 1000000, 3)
+b = range(1, 1000000, -3)
+c = [3 * a[i] - 2 * b[i] for i in range(0, len(a)] # 低速
+import numpy as np
+array_a = np.arange(1, 1000000, 3)
+array_b = np.arange(1, 1000000, -3)
+array_c = 3 * array_a - 2 * array_b # 高速
+</code></pre>
 </li>
-</ol>
-<h1 id="高速-1"><a href="#高速-1" class="headerlink" title="高速"></a>高速</h1><p>import numpy as np<br>array_a = np.arange(1, 1000000, 3)<br>array_b = np.arange(1, 1000000, -3)<br>array_c = 3 <em> array_a - 2 </em> array_b</p>
-<pre><code>
-12. 使用np.ufunc代替math.func
-```python
-# 低速
+<li><p>使用np.ufunc代替math.func</p>
+<pre><code class="python"># 低速
 import math 
 a = range(1, 1000000, 3)
 b = [math.log(x) for x in a]
-
 # 高速
 import numpy as np
 array_a = np.arange(1, 1000000, 3)
 array_b = np.log(array_a)
-</code></pre><ol start="13">
-<li>pandas df.to_excel效率低于df.to_csv</li>
+</code></pre>
+</li>
+<li><p>pandas df.to_excel效率低于df.to_csv</p>
+</li>
 </ol>
 <h2 id="查看Python性能日志"><a href="#查看Python性能日志" class="headerlink" title="查看Python性能日志"></a>查看Python性能日志</h2><h3 id="使用profiler"><a href="#使用profiler" class="headerlink" title="使用profiler"></a>使用profiler</h3><p>python中的profiler可以帮助我们测量程序执行过程中详细的时间和空间复杂度。使用时通过-o参数传入可选输出文件以保留性能日志。</p>
 <pre><code class="shell">python -m cProfile [-o output_file] my_python_file.py
