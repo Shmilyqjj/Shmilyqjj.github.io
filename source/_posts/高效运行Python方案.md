@@ -20,7 +20,7 @@ abbrlink: 2ed52290
 date: 2020-07-26 11:16:00
 ---
 # 高效运行Python  
-&emsp;&emsp;Python以其简洁的语法，丰富的三方库，强大的功能而受到越来越多人的欢迎，但没有十全十美的编程语言，Python的运行效率一直被人们诟病。在一些场景下，我们希望Python也能够高效率运行，充分利用系统资源，所以这篇文章记录一些加快Python程序运行效率的方法，让我们的Python更效！
+&emsp;&emsp;Python以其简洁的语法，丰富的三方库，强大的功能而受到越来越多人的欢迎，但没有十全十美的编程语言，Python的运行效率一直被人们诟病。在一些场景下，我们希望Python也能够高效率运行，充分利用系统资源，所以这篇文章记录一些加快Python程序运行效率的方法，让我们的Python更高效！
 
 ## 加速已有代码
 &emsp;&emsp;这部分介绍的方案主要针对已有Python代码在不想做太大改动的情况下的优化方案。
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 此外，pandas官网给出了一些优化效率的建议，参考：[Enhancing performance](https://pandas.pydata.org/pandas-docs/stable/user_guide/enhancingperf.html)
 
 ### 使用pandarallel加速pandas
-[pandarallel官方网站](https://github.com/nalepae/pandarallel)
+**[pandarallel官方网站](https://github.com/nalepae/pandarallel)**
 **优点：**
 1. 无学习成本，只添加1-2行代码
 2. 充分利用CPU
@@ -164,16 +164,19 @@ df = spark.sql(“””select * from tmp limit 10”””)  结果为新的dat
 df.show() / df.writeInsertInto(table_name) / df.write.option(‘header’,True),csv(file) 
 # …… 很多种输出方式，也可以继续转回pandas dataframe做后续操作
 ```
-[PySpark使用文档](http://spark.apache.org/docs/2.4.4/api/python/index.html)
+**[PySpark使用文档](http://spark.apache.org/docs/2.4.4/api/python/index.html)**
 
 **结论：**
 在数据量特别大的情况下，分布式计算是首选，所以对于大规模数据分析，目前PySpark是比较推荐的方式。
 
-### 使用Dask加速
-[Dask官方网站](https://dask.org/)
+### 使用Dask
+**[Dask官方网站](https://dask.org/)**
 **优点：**
 1. 高效处理大量数据
 2. 支持分布式
+**局限：**
+1. 只有来自pandas的某些功能才能移植到Dask上执行
+2. 仅在不适合主存储器的数据集上，才建议使用Dask
 
 **示例：**
 
@@ -190,7 +193,7 @@ df_dask = dd.from_pandas(df, npartitions=50)
 df_dask.groupby('a').mean().compute()
 ```
 
-[详细了解Dask](https://blog.csdn.net/jack_jmsking/article/details/91433854)
+**[详细了解Dask](https://blog.csdn.net/jack_jmsking/article/details/91433854)**
 
 ### 使用多线程
 **优点：**能提高IO密集型Python程序效率。因为在一个线程因IO阻塞等待时，CPU切换到其他线程，CPU利用率高。
@@ -365,7 +368,7 @@ print 'Took %.3f seconds.' % (end - start)
 10.最后，把每个子进程所求出的计算结果合并到一份列表之中，并返回给调用者。
 multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。
 ```
-详细参考：[python concurrent.futures](https://www.cnblogs.com/kangoroo/p/7628092.html)
+详细参考：**[python concurrent.futures](https://www.cnblogs.com/kangoroo/p/7628092.html)**
 
 ### 常见代码优化
 1. 在set中查找比在list查找快
