@@ -421,7 +421,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="高效运行Python"><a href="#高效运行Python" class="headerlink" title="高效运行Python"></a>高效运行Python</h1><p>&emsp;&emsp;Python以其简洁的语法，丰富的三方库，强大的功能而受到越来越多人的欢迎，但没有十全十美的编程语言，Python的运行效率一直被人们诟病。在一些场景下，我们希望Python也能够高效率运行，充分利用系统资源，所以这篇文章记录一些加快Python程序运行效率的方法，让我们的Python更效！</p>
+          <h1 id="高效运行Python"><a href="#高效运行Python" class="headerlink" title="高效运行Python"></a>高效运行Python</h1><p>&emsp;&emsp;Python以其简洁的语法，丰富的三方库，强大的功能而受到越来越多人的欢迎，但没有十全十美的编程语言，Python的运行效率一直被人们诟病。在一些场景下，我们希望Python也能够高效率运行，充分利用系统资源，所以这篇文章记录一些加快Python程序运行效率的方法，让我们的Python更高效！</p>
 <h2 id="加速已有代码"><a href="#加速已有代码" class="headerlink" title="加速已有代码"></a>加速已有代码</h2><p>&emsp;&emsp;这部分介绍的方案主要针对已有Python代码在不想做太大改动的情况下的优化方案。</p>
 <h3 id="使用numba加速"><a href="#使用numba加速" class="headerlink" title="使用numba加速"></a>使用numba加速</h3><p><strong><a href="http://numba.pydata.org/" target="_blank" rel="noopener">numba官方网站</a></strong></p>
 <p><strong>优点：</strong></p>
@@ -501,7 +501,7 @@ if __name__ == &#39;__main__&#39;:
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-03.jpg" alt="alt FastPython-03"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-04.jpg" alt="alt FastPython-04"><br>单机跑Apply API速度大概快了3.5倍多。分布式还没测试。</p>
 <p><strong>结论：</strong><br>使用modin模块的pandas代替普通的pandas，本质是将单机单核跑的任务负载分散到多核心甚至多机器来加速运算。基本可以满足使用pandas的业务需求场景，而且核心数越多，机器数越多，运行效率提升越高，但相应需要更大的内存。适合对大量数据操作的场景。<br>此外，pandas官网给出了一些优化效率的建议，参考：<a href="https://pandas.pydata.org/pandas-docs/stable/user_guide/enhancingperf.html" target="_blank" rel="noopener">Enhancing performance</a></p>
-<h3 id="使用pandarallel加速pandas"><a href="#使用pandarallel加速pandas" class="headerlink" title="使用pandarallel加速pandas"></a>使用pandarallel加速pandas</h3><p><a href="https://github.com/nalepae/pandarallel" target="_blank" rel="noopener">pandarallel官方网站</a><br><strong>优点：</strong></p>
+<h3 id="使用pandarallel加速pandas"><a href="#使用pandarallel加速pandas" class="headerlink" title="使用pandarallel加速pandas"></a>使用pandarallel加速pandas</h3><p><strong><a href="https://github.com/nalepae/pandarallel" target="_blank" rel="noopener">pandarallel官方网站</a></strong><br><strong>优点：</strong></p>
 <ol>
 <li>无学习成本，只添加1-2行代码</li>
 <li>充分利用CPU</li>
@@ -541,12 +541,14 @@ df = spark.sql(“””select * from tmp limit 10”””)  结果为新的dat
 df.show() / df.writeInsertInto(table_name) / df.write.option(‘header’,True),csv(file) 
 # …… 很多种输出方式，也可以继续转回pandas dataframe做后续操作
 </code></pre>
-<p><a href="http://spark.apache.org/docs/2.4.4/api/python/index.html" target="_blank" rel="noopener">PySpark使用文档</a></p>
+<p><strong><a href="http://spark.apache.org/docs/2.4.4/api/python/index.html" target="_blank" rel="noopener">PySpark使用文档</a></strong></p>
 <p><strong>结论：</strong><br>在数据量特别大的情况下，分布式计算是首选，所以对于大规模数据分析，目前PySpark是比较推荐的方式。</p>
-<h3 id="使用Dask加速"><a href="#使用Dask加速" class="headerlink" title="使用Dask加速"></a>使用Dask加速</h3><p><a href="https://dask.org/" target="_blank" rel="noopener">Dask官方网站</a><br><strong>优点：</strong></p>
+<h3 id="使用Dask"><a href="#使用Dask" class="headerlink" title="使用Dask"></a>使用Dask</h3><p><strong><a href="https://dask.org/" target="_blank" rel="noopener">Dask官方网站</a></strong><br><strong>优点：</strong></p>
 <ol>
 <li>高效处理大量数据</li>
-<li>支持分布式</li>
+<li>支持分布式<br><strong>局限：</strong></li>
+<li>只有来自pandas的某些功能才能移植到Dask上执行</li>
+<li>仅在不适合主存储器的数据集上，才建议使用Dask</li>
 </ol>
 <p><strong>示例：</strong></p>
 <pre><code class="python"># 低速：
@@ -560,7 +562,7 @@ import dask.dataframe as dd
 df_dask = dd.from_pandas(df, npartitions=50)
 df_dask.groupby(&#39;a&#39;).mean().compute()
 </code></pre>
-<p><a href="https://blog.csdn.net/jack_jmsking/article/details/91433854" target="_blank" rel="noopener">详细了解Dask</a></p>
+<p><strong><a href="https://blog.csdn.net/jack_jmsking/article/details/91433854" target="_blank" rel="noopener">详细了解Dask</a></strong></p>
 <h3 id="使用多线程"><a href="#使用多线程" class="headerlink" title="使用多线程"></a>使用多线程</h3><p><strong>优点：</strong>能提高IO密集型Python程序效率。因为在一个线程因IO阻塞等待时，CPU切换到其他线程，CPU利用率高。<br><strong>局限：</strong>由于GIL(Global Interpreter Lock)机制限制Python解释器任何时刻都只能执行一个线程，在计算密集型Python程序并不能提高执行效率，反而可能因线程切换降低效率。<br><strong>使用：</strong></p>
 <pre><code class="python"># 用法1
 import threading
@@ -713,7 +715,7 @@ print &#39;Took %.3f seconds.&#39; % (end - start)
 10.最后，把每个子进程所求出的计算结果合并到一份列表之中，并返回给调用者。
 multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。
 </code></pre>
-<p>详细参考：<a href="https://www.cnblogs.com/kangoroo/p/7628092.html" target="_blank" rel="noopener">python concurrent.futures</a></p>
+<p>详细参考：<strong><a href="https://www.cnblogs.com/kangoroo/p/7628092.html" target="_blank" rel="noopener">python concurrent.futures</a></strong></p>
 <h3 id="常见代码优化"><a href="#常见代码优化" class="headerlink" title="常见代码优化"></a>常见代码优化</h3><ol>
 <li><p>在set中查找比在list查找快</p>
 <pre><code class="python">list_data = list(data)
