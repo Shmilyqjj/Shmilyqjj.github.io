@@ -91,10 +91,62 @@ date: 2020-07-05 12:26:08
 ## Kudu架构原理
 
 ### Raft算法介绍
-&emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。
-&emsp;&emsp;Raft算法的基本原理：先选举出Leader，Leader完全负责副本的管理，Leader接收客户端请求并转发给Follower节点，Leader也会不断发送心跳给Follower节点来证明存活，如果Follower未收到Leader心跳，则Follower节点状态变为Candidate状态并开始选举新的Leader。
-&emsp;&emsp;详细了解：[一文搞懂Raft算法](https://www.cnblogs.com/xybaby/p/10124083.html)  
+&emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。而Raft是一个用于管理日志一致性的协议，它将分布式一致性分解为多个子问题：LeaderElection，LogReplication，Safety，LogCompaction等。
+
+&emsp;&emsp;<font size="3" color="red">Raft将系统中的角色分为Leader，Follower和Candidate。正常运行时只有Leader和Follower，选举时才会有Candidate。</font>
+&emsp;&emsp;<font size="3" color="red">Leader:</font>接受客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。
+&emsp;&emsp;<font size="3" color="red">Follower:</font>接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。
+&emsp;&emsp;<font size="3" color="red">Candidate:</font>Leader选举过程中的临时角色。
+
+**Leader选举**
+发生在**Follower接收不到Leader的HeartBeat导致ElectionTimeout超时**的情况下。
+①每个Follower都有一个时钟ElectionTimeout，是个随机值，表示Follower等待成为Leader的时间，谁的时钟先跑完则先发起Leader选举。（收到Leader心跳时会清零ElectionTimeout）
+
+②Follower将其任期(Term)加1然后转为Candidate状态，并且给自己投票，然后携Term_id和日志index给其他节点发起选举（RequestVote RPC）。有三种情况：①赢得半数以上选票，成为Leader②收到Leader消息，Leader被抢了，成为Follower③选举超时时，没有节点赢得多数选票，选举失败，Term_id自增1，进行下一轮选举
+
+③**Raft协议所有日志都只能从Leader写入Follower，Leader节点日志只会增加（index+1），不会删除和覆盖。**
+所以Leader必须包含全部日志，能被选举为Leader的节点一定包含了所有已经提交的日志。
+<font size="3" color="red">每个节点最多只能给一个候选人投票，先到先服务的原则。</font>
+选举胜出规则：节点Term_id越大越新则可能胜出，但可能有Term_id相同的情况，Term_id相同，比较日志Index越大越新则胜出。这一点很像Zookeeper选举的规则。
+
+**概括：**增加任期编号->给自己投票->重置ElectionTimeout->发送投票RPC给其他节点
+
+**日志复制**
+Raft同步日志由编号index、term_id和命令组成。=>有助于选举和根据term持久化
+日志永远只有一个流向Leader->Follower
+
+1.日志复制的保证：
+
+```text
+1.如果不同日志中的两个条目有着相同的索引和任期号，则它们所存储的命令是相同的（原因：leader 最多在一个任期里的一个日志索引位置创建一条日志条目，日志条目在日志的位置从来不会改变）。
+2.如果不同日志中的两个条目有着相同的索引和任期号，则它们之前的所有条目都是完全一样的（原因：每次 RPC 发送附加日志时，leader 会把这条日志条目的前面的日志的下标和任期号一起发送给 follower，如果 follower 发现和自己的日志不匹配，那么就拒绝接受这条日志，这个称之为一致性检查）。
+```
+2.网络故障或Leader崩溃时保证一致性：
+
+```text
+当Leader和Follower日志冲突的时候，Leader将校验Follower最后一条日志是否和Leader匹配，如果不匹配，将递减查询，直到匹配，匹配后，删除冲突的日志。这样就实现了主从日志的一致性。
+递减查询，直到匹配，强制覆盖 =>Leader会强制Follower复制它的日志，Leader会从最后的LogIndex从后往前试，直到找到日志一致的index，然后开始复制，覆盖该index之后的日志条目。
+```
+
+场景：
+发生了网络分区或者网络通信故障，使得Leader不能访问大多数Follwer了，那么Leader只能正常更新它能访问的那些Follower，而大多数的Follower因为没有了Leader，他们重新选出一个Leader，然后这个 Leader来接受客户端的请求，如果客户端要求其添加新的日志，这个新的Leader会通知大多数Follower。如果这时网络故障修复 了，那么原先的Leader就变成Follower，在失联阶段这个老Leader的任何更新都不能算commit，都回滚，接受新的Leader的新的更新（递减查询匹配日志）。
+
+**日志压缩**
+日志不能无限增长，否则会导致重播日志时耗时很长。所以对日志进行压缩，定量Snapshot。
+
+&emsp;&emsp;Raft参考：[Raft算法详解](https://blog.csdn.net/daaikuaichuan/article/details/98627822)  
 &emsp;&emsp;**Raft算法在Kudu中的应用：**多个TMaster之间通过Raft协议实现数据同步和高可用--Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。
+
+### Kudu的一致性模型
+相关资料不多，可以一起讨论  
+
+```text
+Kudu为用户提供了两种一致性模型(snapshot consistency和external consistency)。默认的一致性模型是snapshot consistency。这种一致性模型保证用户每次读取出来的都是一个可用的快照，但这种一致性模型只能保证单个client可以看到最新的数据，但不能保证多个client每次取出的都是最新的数据。另一种一致性模型external consistency可以在多个client之间保证每次取到的都是最新数据，但是Kudu没有提供默认的实现，需要用户做一些额外工作。
+为了实现external consistency，Kudu提供了两种方式：
+1.在client之间传播timestamp token。在一个client完成一次写入后，会得到一个timestamp token，然后这个client把这个token传播到其他client，这样其他client就可以通过token取到最新数据了。不过这个方式的复杂度很高，基于HybridTime方案，这也就是为什么Kudu高度依赖NTP。
+2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着Spanner的出现，未来几年内基于real-time clock的技术将会逐渐成熟。
+```
+
 ### LSM树
 <font size="3" color="blue">**LSM树(Log-Structured Merge Tree)**</font>
 &emsp;&emsp;Kudu与HBase在写的过程中都采用了LSM树的结构，LSM树的主要思想就是随机写转换为顺序写来提高写性能，随机读写需要磁盘的机械臂不断寻道，延迟较高，而转换为顺序写后机械臂不会频繁寻址，性能较好。  
