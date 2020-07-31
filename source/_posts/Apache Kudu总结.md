@@ -129,7 +129,7 @@ Raft同步日志由编号index、term_id和命令组成。=>有助于选举和�
 2.网络故障或Leader崩溃时保证一致性：
 
 ```text
-当Leader和Follower日志冲突的时候，Leader将校验Follower最后一条日志是否和Leader匹配，如果不匹配，将递减查询，直到匹配，匹配后，删除冲突的日志。这样就实现了主从日志的一致性。
+网络崩溃讲集群分为两拨，没有Leader存在的另一波会重新选主，这时网络恢复，会出现两个Leadr的情况，这是会产生冲突的，这时会根据任期Term_id将任期低的Leader自动降级为Follower，Leader和Follower日志有冲突的时候，Leader将校验Follower最后一条日志是否和Leader匹配，如果不匹配，将递减查询，直到匹配，匹配后，删除冲突的日志。这样就实现了主从日志的一致性。
 递减查询，直到匹配，强制覆盖 =>Leader会强制Follower复制它的日志，Leader会从最后的LogIndex从后往前试，直到找到日志一致的index，然后开始复制，覆盖该index之后的日志条目。
 ```
 
