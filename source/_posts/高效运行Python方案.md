@@ -10,8 +10,7 @@ categories:
   - 技术
 comments: true
 tags:
-  - 大数据
-  - xx技术/xx框架
+  - Python
 keywords: xx技术
 description: xxxx介绍
 photos: >-
