@@ -95,23 +95,28 @@ date: 2020-07-05 12:26:08
 
 &emsp;&emsp;<font size="3" color="red">Raft将系统中的角色分为Leader，Follower和Candidate。正常运行时只有Leader和Follower，选举时才会有Candidate。</font>
 &emsp;&emsp;<font size="3" color="red">Leader:</font>接受客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。
-&emsp;&emsp;<font size="3" color="red">Follower:</font>接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。
-&emsp;&emsp;<font size="3" color="red">Candidate:</font>Leader选举过程中的临时角色。
+&emsp;&emsp;<font size="3" color="red">Follower:</font>接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。响应Candidate的邀请投票请求。把客户端请求重定向到Leader。
+&emsp;&emsp;<font size="3" color="red">Candidate:</font>Leader选举过程中的临时角色，由于Follower转变而来。
 
 **Leader选举**
 发生在**Follower接收不到Leader的HeartBeat导致ElectionTimeout超时**的情况下。
-①每个Follower都有一个时钟ElectionTimeout，是个随机值，表示Follower等待成为Leader的时间，谁的时钟先跑完则先发起Leader选举。（收到Leader心跳时会清零ElectionTimeout）
-
-②Follower将其任期(Term)加1然后转为Candidate状态，并且给自己投票，然后携Term_id和日志index给其他节点发起选举（RequestVote RPC）。有三种情况：①赢得半数以上选票，成为Leader②收到Leader消息，Leader被抢了，成为Follower③选举超时时，没有节点赢得多数选票，选举失败，Term_id自增1，进行下一轮选举
+①每个Follower都有一个时钟**ElectionTimeout**，是个**随机值**，表示Follower等待成为Leader的时间，谁的时钟先跑完则先发起Leader选举。（收到Leader心跳时会清零ElectionTimeout）
+②Follower将其任期(Term)加1然后转为Candidate状态，并且给自己投票，然后携Term_id和日志index给其他节点发起选举（RequestVote RPC）。有三种情况：
+①赢得半数以上选票，成为Leader
+②收到Leader消息，Leader被抢了，成为Follower
+③选举超时时，没有节点赢得多数选票，选举失败，Term_id自增1，进行下一轮选举
 
 ③**Raft协议所有日志都只能从Leader写入Follower，Leader节点日志只会增加（index+1），不会删除和覆盖。**
 所以Leader必须包含全部日志，能被选举为Leader的节点一定包含了所有已经提交的日志。
 <font size="3" color="red">每个节点最多只能给一个候选人投票，先到先服务的原则。</font>
 选举胜出规则：节点Term_id越大越新则可能胜出，但可能有Term_id相同的情况，Term_id相同，比较日志Index越大越新则胜出。这一点很像Zookeeper选举的规则。
+详细过程：首先会有一个Candidate选自己然后发起投票->Follower收到邀票，如果这个Follower还没给其他节点投票(一个节点只能一票),且对比Term_id比自己大，就把票投给这个Candidate，如果Term_id比自己小且自己还没投票，就拒绝请求，给自己投票。
 
 **概括：**增加任期编号->给自己投票->重置ElectionTimeout->发送投票RPC给其他节点
 
 **日志复制**
+过程：Leader接收来自客户端的请求并将其以日志的形式复制到集群中的其它节点，并且强制要求其它节点的日志和自己保持一致。
+
 Raft同步日志由编号index、term_id和命令组成。=>有助于选举和根据term持久化
 日志永远只有一个流向Leader->Follower
 
@@ -141,10 +146,10 @@ Raft同步日志由编号index、term_id和命令组成。=>有助于选举和�
 相关资料不多，可以一起讨论  
 
 ```text
-Kudu为用户提供了两种一致性模型(snapshot consistency和external consistency)。默认的一致性模型是snapshot consistency。这种一致性模型保证用户每次读取出来的都是一个可用的快照，但这种一致性模型只能保证单个client可以看到最新的数据，但不能保证多个client每次取出的都是最新的数据。另一种一致性模型external consistency可以在多个client之间保证每次取到的都是最新数据，但是Kudu没有提供默认的实现，需要用户做一些额外工作。
+Kudu为用户提供了两种一致性模型(snapshot consistency和external consistency)。默认的一致性模型是snapshot consistency。这种一致性模型保证用户每次读取出来的都是一个可用的快照，但这种一致性模型只能保证单个client可以看到最新的数据，但不能保证多个client每次取出的都是最新的数据。另一种一致性模型external consistency(后开始的事务一定可以看到先提交的事务的修改。所有事务的读写都加锁可以解决这个问题，缺点是性能较差。)可以在多个client之间保证每次取到的都是最新数据，但是Kudu没有提供默认的实现，需要用户做一些额外工作。
 为了实现external consistency，Kudu提供了两种方式：
 1.在client之间传播timestamp token。在一个client完成一次写入后，会得到一个timestamp token，然后这个client把这个token传播到其他client，这样其他client就可以通过token取到最新数据了。不过这个方式的复杂度很高，基于HybridTime方案，这也就是为什么Kudu高度依赖NTP。
-2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着Spanner的出现，未来几年内基于real-time clock的技术将会逐渐成熟。
+2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着[分布式事务实现-Spanner](https://blog.csdn.net/weixin_30650039/article/details/94998723)的出现，未来几年内基于real-time clock的技术将会逐渐成熟。
 ```
 
 ### LSM树
