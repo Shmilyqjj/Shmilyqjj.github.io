@@ -5,6 +5,10 @@ https://www.liaoxuefeng.com
 https://home.apachecn.org/docs/
 https://github.com/apachecn
 
+
+##################################################
+技术类书籍下载：https://github.com/SummerJoan3/books
+
 ##################################################
 JVM相关
 OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8DJVM%E4%B8%ADOOM%E7%9A%848%E7%A7%8D%E7%B1%BB%E5%9E%8B/
@@ -1205,7 +1209,7 @@ HBase性能优化方法总结
 NAT模式：虚拟主机和真实主机网段不同，能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.101
 仅主机模式：虚拟主机和真实主机IP段不同且不能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.100
 
-美团技术：https://tech.meituan.com/
+
 
 分布式 CAP 的一致性
 
