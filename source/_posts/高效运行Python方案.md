@@ -11,8 +11,8 @@ categories:
 comments: true
 tags:
   - Python
-keywords: xx技术
-description: xxxx介绍
+keywords: Python效率
+description: 提高Python运行效率的方案集锦
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-cover.jpg
 abbrlink: 2ed52290
