@@ -547,7 +547,31 @@
 </tbody>
 </table>
 <p><strong>选择建议：</strong>考虑实时数仓方案以及SQL支持方面可选Kudu，数据湖方案及可回滚可选DeltaLake和Hudi，考虑兼容性高且应对读多写少读少写多都有很好的方案选Hudi，考虑并发写能力读多写少且与Spark紧密结合选DeltaLake。</p>
-<h2 id="Kudu架构原理"><a href="#Kudu架构原理" class="headerlink" title="Kudu架构原理"></a>Kudu架构原理</h2><h3 id="Raft算法介绍"><a href="#Raft算法介绍" class="headerlink" title="Raft算法介绍"></a>Raft算法介绍</h3><p>&emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。<br>&emsp;&emsp;Raft算法的基本原理：先选举出Leader，Leader完全负责副本的管理，Leader接收客户端请求并转发给Follower节点，Leader也会不断发送心跳给Follower节点来证明存活，如果Follower未收到Leader心跳，则Follower节点状态变为Candidate状态并开始选举新的Leader。<br>&emsp;&emsp;详细了解：<a href="https://www.cnblogs.com/xybaby/p/10124083.html" target="_blank" rel="noopener">一文搞懂Raft算法</a><br>&emsp;&emsp;<strong>Raft算法在Kudu中的应用：</strong>多个TMaster之间通过Raft协议实现数据同步和高可用–Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。</p>
+<h2 id="Kudu架构原理"><a href="#Kudu架构原理" class="headerlink" title="Kudu架构原理"></a>Kudu架构原理</h2><h3 id="Raft算法介绍"><a href="#Raft算法介绍" class="headerlink" title="Raft算法介绍"></a>Raft算法介绍</h3><p>&emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。而Raft是一个用于管理日志一致性的协议，它将分布式一致性分解为多个子问题：LeaderElection，LogReplication，Safety，LogCompaction等。</p>
+<p>&emsp;&emsp;<font size="3" color="red">Raft将系统中的角色分为Leader，Follower和Candidate。正常运行时只有Leader和Follower，选举时才会有Candidate。</font><br>&emsp;&emsp;<font size="3" color="red">Leader:</font>接受客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。<br>&emsp;&emsp;<font size="3" color="red">Follower:</font>接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。响应Candidate的邀请投票请求。把客户端请求重定向到Leader。<br>&emsp;&emsp;<font size="3" color="red">Candidate:</font>Leader选举过程中的临时角色，由于Follower转变而来。</p>
+<p><strong>Leader选举</strong><br>发生在<strong>Follower接收不到Leader的HeartBeat导致ElectionTimeout超时</strong>的情况下。<br>①每个Follower都有一个时钟<strong>ElectionTimeout</strong>，是个<strong>随机值</strong>，表示Follower等待成为Leader的时间，谁的时钟先跑完则先发起Leader选举。（收到Leader心跳时会清零ElectionTimeout）<br>②Follower将其任期(Term)加1然后转为Candidate状态，并且给自己投票，然后携Term_id和日志index给其他节点发起选举（RequestVote RPC）。有三种情况：<br>①赢得半数以上选票，成为Leader<br>②收到Leader消息，Leader被抢了，成为Follower<br>③选举超时时，没有节点赢得多数选票，选举失败，Term_id自增1，进行下一轮选举</p>
+<p>③<strong>Raft协议所有日志都只能从Leader写入Follower，Leader节点日志只会增加（index+1），不会删除和覆盖。</strong><br>所以Leader必须包含全部日志，能被选举为Leader的节点一定包含了所有已经提交的日志。</p>
+<p><font size="3" color="red">每个节点最多只能给一个候选人投票，先到先服务的原则。</font><br>选举胜出规则：节点Term_id越大越新则可能胜出，但可能有Term_id相同的情况，Term_id相同，比较日志Index越大越新则胜出。这一点很像Zookeeper选举的规则。<br>详细过程：首先会有一个Candidate选自己然后发起投票-&gt;Follower收到邀票，如果这个Follower还没给其他节点投票(一个节点只能一票),且对比Term_id比自己大，就把票投给这个Candidate，如果Term_id比自己小且自己还没投票，就拒绝请求，给自己投票。</p>
+<p><strong>概括：</strong>增加任期编号-&gt;给自己投票-&gt;重置ElectionTimeout-&gt;发送投票RPC给其他节点</p>
+<p><strong>日志复制</strong><br>过程：Leader接收来自客户端的请求并将其以日志的形式复制到集群中的其它节点，并且强制要求其它节点的日志和自己保持一致。</p>
+<p>Raft同步日志由编号index、term_id和命令组成。=&gt;有助于选举和根据term持久化<br>日志永远只有一个流向Leader-&gt;Follower</p>
+<p>1.日志复制的保证：</p>
+<pre><code class="text">1.如果不同日志中的两个条目有着相同的索引和任期号，则它们所存储的命令是相同的（原因：leader 最多在一个任期里的一个日志索引位置创建一条日志条目，日志条目在日志的位置从来不会改变）。
+2.如果不同日志中的两个条目有着相同的索引和任期号，则它们之前的所有条目都是完全一样的（原因：每次 RPC 发送附加日志时，leader 会把这条日志条目的前面的日志的下标和任期号一起发送给 follower，如果 follower 发现和自己的日志不匹配，那么就拒绝接受这条日志，这个称之为一致性检查）。
+</code></pre>
+<p>2.网络故障或Leader崩溃时保证一致性：</p>
+<pre><code class="text">网络崩溃讲集群分为两拨，没有Leader存在的另一波会重新选主，这时网络恢复，会出现两个Leadr的情况，这是会产生冲突的，这时会根据任期Term_id将任期低的Leader自动降级为Follower，Leader和Follower日志有冲突的时候，Leader将校验Follower最后一条日志是否和Leader匹配，如果不匹配，将递减查询，直到匹配，匹配后，删除冲突的日志。这样就实现了主从日志的一致性。
+递减查询，直到匹配，强制覆盖 =&gt;Leader会强制Follower复制它的日志，Leader会从最后的LogIndex从后往前试，直到找到日志一致的index，然后开始复制，覆盖该index之后的日志条目。
+</code></pre>
+<p>场景：<br>发生了网络分区或者网络通信故障，使得Leader不能访问大多数Follwer了，那么Leader只能正常更新它能访问的那些Follower，而大多数的Follower因为没有了Leader，他们重新选出一个Leader，然后这个 Leader来接受客户端的请求，如果客户端要求其添加新的日志，这个新的Leader会通知大多数Follower。如果这时网络故障修复 了，那么原先的Leader就变成Follower，在失联阶段这个老Leader的任何更新都不能算commit，都回滚，接受新的Leader的新的更新（递减查询匹配日志）。</p>
+<p><strong>日志压缩</strong><br>日志不能无限增长，否则会导致重播日志时耗时很长。所以对日志进行压缩，定量Snapshot。</p>
+<p>&emsp;&emsp;Raft参考：<a href="https://blog.csdn.net/daaikuaichuan/article/details/98627822" target="_blank" rel="noopener">Raft算法详解</a><br>&emsp;&emsp;<strong>Raft算法在Kudu中的应用：</strong>多个TMaster之间通过Raft协议实现数据同步和高可用–Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。</p>
+<h3 id="Kudu的一致性模型"><a href="#Kudu的一致性模型" class="headerlink" title="Kudu的一致性模型"></a>Kudu的一致性模型</h3><p>相关资料不多，可以一起讨论  </p>
+<pre><code class="text">Kudu为用户提供了两种一致性模型(snapshot consistency和external consistency)。默认的一致性模型是snapshot consistency。这种一致性模型保证用户每次读取出来的都是一个可用的快照，但这种一致性模型只能保证单个client可以看到最新的数据，但不能保证多个client每次取出的都是最新的数据。另一种一致性模型external consistency(后开始的事务一定可以看到先提交的事务的修改。所有事务的读写都加锁可以解决这个问题，缺点是性能较差。)可以在多个client之间保证每次取到的都是最新数据，但是Kudu没有提供默认的实现，需要用户做一些额外工作。
+为了实现external consistency，Kudu提供了两种方式：
+1.在client之间传播timestamp token。在一个client完成一次写入后，会得到一个timestamp token，然后这个client把这个token传播到其他client，这样其他client就可以通过token取到最新数据了。不过这个方式的复杂度很高，基于HybridTime方案，这也就是为什么Kudu高度依赖NTP。
+2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着[分布式事务实现-Spanner](https://blog.csdn.net/weixin_30650039/article/details/94998723)的出现，未来几年内基于real-time clock的技术将会逐渐成熟。
+</code></pre>
 <h3 id="LSM树"><a href="#LSM树" class="headerlink" title="LSM树"></a>LSM树</h3><p><font size="3" color="blue"><strong>LSM树(Log-Structured Merge Tree)</strong></font><br>&emsp;&emsp;Kudu与HBase在写的过程中都采用了LSM树的结构，LSM树的主要思想就是随机写转换为顺序写来提高写性能，随机读写需要磁盘的机械臂不断寻道，延迟较高，而转换为顺序写后机械臂不会频繁寻址，性能较好。<br>&emsp;&emsp;LSM树原理是把一棵大的树拆分成N棵小树，小树存在于内存中，随着更新和写入操作，小树存放数据达到一定大小后会写入磁盘，小树到了磁盘中，定期与磁盘中的大树做合并。<br>&emsp;&emsp;大家都知道HBase的MemStore，Kudu在写入方面的设计与之类似，Kudu先将对数据的修改保留在内存中，达到一定大小后将这些修改操作批量写入磁盘。但读取的时候稍微麻烦些，需要读取历史数据和内存中最近修改操作。所以写入性能大大提升，而读取时要先去内存读取，如果没命中，则会去磁盘读多个文件。</p>
 <h3 id="压缩和编码"><a href="#压缩和编码" class="headerlink" title="压缩和编码"></a>压缩和编码</h3><p>&emsp;&emsp;我们都知道列式存储的压缩效果很好，那么为什么列式存储比行存储压缩效果好呢？<br>&emsp;&emsp;比如一个列存的国家名，那只能包含“美国”，“日本”，“韩国”，“加拿大”等值，而这些值会存储在一起，而不是分散到包含很多不相关的其他列值之间。这样列式存储也就不需要将每个值都完完整整保存起来，所以压缩效果显著。<br>&emsp;&emsp;编码对于列式存储的优化更加明显，编码和压缩作用相同，比如上面的例子，编码会将数据的值转换为一种更小的表现形式，比如，“美国”编码为1，“日本”编码为2，“韩国”编码为3，“加拿大”编码为4…则Kudu只存储1，2，3，4…而不存储长字符串，占用空间大大减少。</p>
 <h3 id="Kudu一些概念"><a href="#Kudu一些概念" class="headerlink" title="Kudu一些概念"></a>Kudu一些概念</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png" alt="alt Kudu-03">   </p>

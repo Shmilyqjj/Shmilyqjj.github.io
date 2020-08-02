@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2020-07-26T16:49:04.716Z</updated>
+  <updated>2020-08-02T17:05:12.401Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -17,24 +17,46 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>高效运行Python方案</title>
-    <link href="https://shmily-qjj.top/2ed52290/"/>
-    <id>https://shmily-qjj.top/2ed52290/</id>
-    <published>2020-07-26T03:16:00.000Z</published>
-    <updated>2020-07-26T16:49:04.716Z</updated>
+    <title>使用PySpark优化Pandas</title>
+    <link href="https://shmily-qjj.top/de99f40d/"/>
+    <id>https://shmily-qjj.top/de99f40d/</id>
+    <published>2020-08-10T03:26:08.000Z</published>
+    <updated>2020-08-02T17:05:12.401Z</updated>
     
     <summary type="html">
     
-      xxxx介绍
+      使用PySpark解决Pandas在大数据下的瓶颈
     
     </summary>
     
       <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
     
     
-      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+      <category term="pandas" scheme="https://shmily-qjj.top/tags/pandas/"/>
     
-      <category term="xx技术/xx框架" scheme="https://shmily-qjj.top/tags/xx%E6%8A%80%E6%9C%AF-xx%E6%A1%86%E6%9E%B6/"/>
+      <category term="pyspark" scheme="https://shmily-qjj.top/tags/pyspark/"/>
+    
+      <category term="优化" scheme="https://shmily-qjj.top/tags/%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>高效运行Python方案</title>
+    <link href="https://shmily-qjj.top/2ed52290/"/>
+    <id>https://shmily-qjj.top/2ed52290/</id>
+    <published>2020-07-26T03:16:00.000Z</published>
+    <updated>2020-07-31T16:39:36.935Z</updated>
+    
+    <summary type="html">
+    
+      提高Python运行效率的方案集锦
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Python" scheme="https://shmily-qjj.top/tags/Python/"/>
     
   </entry>
   
@@ -43,7 +65,7 @@
     <link href="https://shmily-qjj.top/5f26355/"/>
     <id>https://shmily-qjj.top/5f26355/</id>
     <published>2020-07-05T04:26:08.000Z</published>
-    <updated>2020-07-25T12:47:44.039Z</updated>
+    <updated>2020-07-31T16:39:36.933Z</updated>
     
     <summary type="html">
     
@@ -417,26 +439,6 @@
       <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
     
       <category term="CDH6+CentOS7" scheme="https://shmily-qjj.top/tags/CDH6-CentOS7/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>记一次参加QCon全球软件开发大会</title>
-    <link href="https://shmily-qjj.top/39595/"/>
-    <id>https://shmily-qjj.top/39595/</id>
-    <published>2019-10-21T11:59:50.000Z</published>
-    <updated>2020-04-12T14:15:48.004Z</updated>
-    
-    <summary type="html">
-    
-      QCon全球软件开发大会10th 2019上海站
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="QCon全球软件开发大会" scheme="https://shmily-qjj.top/tags/QCon%E5%85%A8%E7%90%83%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%A4%A7%E4%BC%9A/"/>
     
   </entry>
   
