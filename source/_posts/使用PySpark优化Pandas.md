@@ -307,7 +307,7 @@ conf = {
 df = spark.read.format("jdbc").options(**conf).load()
 df1.rdd.getNumPartitions()  # 会得到5个分区
 ```
-该操作的目的是增加并行JDBC连接数，增加读取速度以及增加DataFrame的分区数从而增加计算的并发度。并发度即为Spark的Task数，这个数量一般根据总core数（executor_cores*num_executors）计算：Task数≈总core数*（2~3倍）
+该操作的目的是增加并行JDBC连接数，增加读取速度以及增加DataFrame的分区数从而增加计算的并发度。并发度即为Spark的Task数，这个数量一般根据总core数（executor_cores*num_executors）来计算：Task数≈总core数*（2~3倍）
 如果数据量较少，则不需要以这种方式读取，否则可能降低效率
 伪代码，帮助理解原理：
 ```text
@@ -327,6 +327,7 @@ delta = (upperBound - lowerBound) / numPartitions
 ...
 最后分区数据条件：partitionColumn > lowerBound + n*delta
 ```
+也就是说，需要合理设置numPartitions和upperBound和upperBound的值，避免某个分区数据量过大。
 
 ## 其他
 Python三方库：SparklingPandas
