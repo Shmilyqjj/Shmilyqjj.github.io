@@ -328,6 +328,7 @@ delta = (upperBound - lowerBound) / numPartitions
 最后分区数据条件：partitionColumn > lowerBound + n*delta
 ```
 也就是说，需要合理设置numPartitions和upperBound和upperBound的值，避免某个分区数据量过大。
+尽量使用范围基本确定且分区字段值分布相对均匀的Int类型字段做分区字段。
 
 ## 其他
 Python三方库：SparklingPandas
