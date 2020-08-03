@@ -160,6 +160,30 @@ df.filter('score>=60') 或 df.where('score>=60')
 df.filter('score>=60 and id>=5') 或 df.where('score>=60 and id>=5')
 ```
 
+## 数据去重
+* Pandas
+```python
+pd_df.drop_duplicates('col')
+```
+
+* PySpark
+```python
+df.drop_duplicates()  # data中一行元素全部相同时才去除
+df.drop_duplicates(['a','b'])  # data根据’a','b'组合列删除重复项，默认保留第一个出现的值组合。传入参数keep='last'则保留最后一个
+```
+
+## 取唯一值
+* Pandas
+```python
+pd_df['col'].unique()
+```
+
+* PySpark
+```python
+df.select('col').distinct().count()
+或df.drop_duplicates(['col']).count()
+```
+
 ## 分组聚合
 * Pandas
 ```python
@@ -209,7 +233,7 @@ Spark下有join方法即df.join()
 对应pd.apply(f)方法 即给df的每一列应用函数f
 * Pandas
 ```python
-pd_df.apply(f) 将df的每一列应用函数f
+pd_df.apply(f) # 将df的每一列应用函数f
 ```
 
 * PySpark
@@ -218,7 +242,7 @@ df.foreach(f) 或者 df.rdd.foreach(f) # 将df的每一列应用函数f
 df.foreachPartition(f) 或者 df.rdd.foreachPartition(f) # 将df的每一分区数据应用函数f
 ```
 
-## 数据处理
+## 空值处理
 * Pandas
 ```python
 # 对缺失数据自动添加NaNs
