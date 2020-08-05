@@ -108,6 +108,12 @@ vim ~/.pip/pip.conf
 [global]标签下添加
 log=~/.pip/pip.log
 
+pip依赖在不同机器克隆：
+pip freeze > requirements.txt  # 备份
+pip install -r requirements.txt  # 恢复
+requirements.txt记录了依赖包信息和精确版本号
+
+
 设计模式：https://www.cnblogs.com/wangjian941118/p/9289145.html
 
 打印调用栈
