@@ -79,7 +79,10 @@ date: 2020-08-15 12:19:00
 6.Swap交换内存是利用磁盘充当内存，当物理内存不够时，使用Swap存一些在内存中不被CPU常用的内容。
 7.以前建议Swap是物理内存的两倍，不过现在RAM都比较大了，Swap几个G就够了，不要太大。如果用到了Swap，那证明物理内存还是需要加。
 8.CentOS7下，安装完成后有/root/anaconda-ks.cfg文件，安装的依赖，root密码等都保存在里面，这个文件可以修改成自动安装脚本，用来安装相同规格参数的系统。使用KickStart。
-3.2.9
+9.安装Linux时一般会用到的内核参数acpi=off acpi_osi=! acpi_osi="Windows 2009" pci=noacpi等等
+10.chroot命令，在根目录下执行，修改根目录为一个新文件夹
+11.df -T可以看到linux目前使用的文件系统。CentOS7默认为xfs文件系统
+12.
 ```
 
 
