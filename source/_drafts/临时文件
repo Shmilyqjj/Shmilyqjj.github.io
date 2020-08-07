@@ -999,7 +999,19 @@ find  . -name "*.log" –mtime +30 –type f –size +100M |xargs rm –rf {} ;
 			-z打包同时压缩
 			-x解包.tar文件
 
-
+Linux中重要的C运行库glibc：
+    介绍：GNU发布的C运行库，glibc是linux系统中最底层的api，几乎其它任何运行库都会依赖于glibc。glibc除了封装linux操作系统所提供的系统服务外，它本身也提供了许多其它一些必要功能服务的实现。
+    问题：遇到GLIBC_XX的问题一般都是缺少版本或版本不兼容
+    升级：mkdir -p /lib64/new_glibc/  && cd /lib64/new_glibc/
+         wget http://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz 
+         tar -zxvf glibc-2.17.tar.gz
+         mkdir build
+         cd build
+         ../configure --perfix=/usr --disable-profile --enable-add-ons --with-headers=/usr/inculde --with-binutils=/usr/bin
+         make && make install 
+         ll /lib64/libc.so.6  发现已经链接到libc-2.17.so
+         ldd --version 
+         strings /lib64/libc.so.6 | grep GLIBC_
 
 
 
