@@ -611,9 +611,8 @@ ClockOffset的报警：
 集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：
 [集群NTP服务配置](https://blog.csdn.net/weixin_39158271/article/details/80207291) 中的 **配置内网NTP-Clients** 部分。
 
-### 五.功能扩展  
-1. [自定义告警脚本](https://cloud.tencent.com/developer/article/1544865)
-2. 集成官方Flink-1.9.0到CDH管理
+### 五.Flink集成  
+集成官方Flink-1.9.0到CDH管理
 下载相应的csd文件和parcels文件到本地：
 [csd下载地址](https://archive.cloudera.com/csa/1.0.0.0/csd/)
 [parcels下载地址](https://archive.cloudera.com/csa/1.0.0.0/parcels/)
@@ -636,7 +635,10 @@ manifest.json
 ![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
 好啦，Flink可以使用啦。
 
-总结坑点：  
+### 六.功能扩展 
+[自定义告警脚本](https://cloud.tencent.com/developer/article/1544865)
+
+### 七.坑点总结  
 1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
 3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
