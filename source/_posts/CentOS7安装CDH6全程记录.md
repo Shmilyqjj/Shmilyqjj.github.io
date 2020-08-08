@@ -627,12 +627,12 @@ manifest.json
 将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel和FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha放入/opt/cloudera/parcel-repo中
 然后重启Cloudera Manager Server服务：sudo systemctl restart cloudera-scm-server
 重启完成后进入页面，主机->Parcel->检查新Parcel->找到Flink->分配
-![alt CDH-27](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG)  
-![alt CDH-26](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG)  
+![alt CDH-27](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG)  
+![alt CDH-26](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG)  
 完成分配后开始添加服务：
-![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
-![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
-![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
+![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
+![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
+![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
 好啦，Flink可以使用啦。
 
 ### 六.功能扩展 
