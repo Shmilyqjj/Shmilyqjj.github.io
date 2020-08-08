@@ -772,6 +772,12 @@ select * from tmp_table;
 where 1=1 and xxx 有时候场景需要根据条件拼sql，如果拼接的字符串为空，那就要把where去掉，麻烦  所以 先 where 1=1，然后所有拼接的语句有直接加 “AND xx=xx” 方便，且where 1=1 始终为True。
 where 1=0同理始终为False 始终无结果
 update b set address = concat('1',address);  更新一个表中address字段让它每个前面都加上1
+EXISTS代替IN：
+IN流程：先查询IN的子查询，然后与外表做一个笛卡尔积，然后根据条件筛选,适合子查询数据少。select * from user where id in (select id from order) a;
+EXISTS流程：先遍历外表，检测是否存在于子查询结果，匹配上就放入结果集，适合子查询数据多。 select user.* from user where user.id exists (select order.id from order where user.id=order.id) a;
+in 是把外表和内表作hash连接，而exists是对外表作loop循环，每次loop循环再对内表进行查询。一直以来认为exists比in效率高的说法是不准确的。
+not in 和not exists：如果查询语句使用了not in 那么内外表都进行全表扫描，没有用到索引；而not extsts 的子查询依然能用到表上的索引。所以无论那个表大，用not exists都比not in要快。
+
 
 ##################################################
 
