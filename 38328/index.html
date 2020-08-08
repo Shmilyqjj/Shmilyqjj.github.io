@@ -826,34 +826,7 @@ chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
 <p>systemctl start cloudera-scm-server.service    # 启动CM服务<br>systemctl status cloudera-scm-server.service   # 查看启动状态<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg" alt="alt CDH-15">  </p>
 <p>等待几分钟后访问<strong><a href="http://cdh066:7180" target="_blank" rel="noopener">http://cdh066:7180</a></strong>，默认帐号密码都是<strong>admin</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg" alt="alt CDH-16">  </p>
 <p>这里选择免费版本<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-17.jpg" alt="alt CDH-17">  </p>
-<p>下面就是群集安装的步骤：<br>我的规划是：  </p>
-<table>
-<thead>
-<tr>
-<th>主机名称</th>
-<th>服务</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>CDH066</td>
-<td>—-</td>
-</tr>
-<tr>
-<td>CDH067</td>
-<td>—-</td>
-</tr>
-<tr>
-<td>CDH068</td>
-<td>—-</td>
-</tr>
-<tr>
-<td>CDH069</td>
-<td>—-</td>
-</tr>
-</tbody>
-</table>
-<p>主机名称填写cdh066,cdh067,cdh068,cdh069，然后点击搜索搜索<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG" alt="alt CDH-18"><br>这里搜到了67，68，69节点，但是66节点是灰色的，安装时，66节点不会被安装Agent，意味着后续安装的组件只能部署在67，68，69节点上运行，不过没有关系，可以在添加组件的步骤之前新开个页面将cdh066也加进去。  </p>
+<p>下面就是群集安装的步骤：<br>主机名称填写cdh066,cdh067,cdh068,cdh069，然后点击搜索搜索<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG" alt="alt CDH-18"><br>这里搜到了67，68，69节点，但是66节点是灰色的，安装时，66节点不会被安装Agent，意味着后续安装的组件只能部署在67，68，69节点上运行，不过没有关系，可以在添加组件的步骤之前新开个页面将cdh066也加进去。  </p>
 <p>这步使用我们搭建的本地源 <strong><a href="http://cdh066/cloudera-repos/" target="_blank" rel="noopener">http://cdh066/cloudera-repos/</a></strong>  如下设置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG" alt="alt CDH-19">  </p>
 <p>这步<strong>不要勾选</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.JPG" alt="alt CDH-20">  </p>
 <p>填入root用户的密码<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.JPG" alt="alt CDH-21">  </p>
@@ -861,10 +834,19 @@ chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.2.JPG" alt="alt CDH-22.2"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.25.JPG" alt="alt CDH-22.25">  </p>
 <p>这步勾选最后一项<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.3.JPG" alt="alt CDH-22.3">  </p>
 <p>开始安装服务 如图，选<strong>自定义服务</strong><br>根据集群环境和需求选择合适的服务和搭配。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.4.JPG" alt="alt CDH-22.4"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG" alt="alt CDH-22.5">   </p>
-<p>填上前建的数据库，选的服务不同要求也不同<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG" alt="alt CDH-22.6">  </p>
+<p>填上之前建的数据库，选的服务不同要求也不同<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG" alt="alt CDH-22.6">  </p>
 <p>最后部署成功，启动服务：<br>因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG" alt="alt CDH-24">  </p>
 <p>ClockOffset的报警：<br>集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：<br><a href="https://blog.csdn.net/weixin_39158271/article/details/80207291" target="_blank" rel="noopener">集群NTP服务配置</a> 中的 <strong>配置内网NTP-Clients</strong> 部分。</p>
-<p>CM功能扩展：<br><a href="https://cloud.tencent.com/developer/article/1544865" target="_blank" rel="noopener">自定义告警脚本</a></p>
+<p>CM功能扩展：  </p>
+<ol>
+<li><a href="https://cloud.tencent.com/developer/article/1544865" target="_blank" rel="noopener">自定义告警脚本</a></li>
+<li>集成官方Flink-1.9.0到CDH管理<br>下载相应的csd文件和parcels文件到本地：<br><a href="https://archive.cloudera.com/csa/1.0.0.0/csd/" target="_blank" rel="noopener">csd下载地址</a><br><a href="https://archive.cloudera.com/csa/1.0.0.0/parcels/" target="_blank" rel="noopener">parcels下载地址</a><br>下载后得到如下：<pre><code class="text">FLINK-1.9.0-csa1.0.0.0-cdh6.3.0.jar
+FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha
+FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel 
+manifest.json
+</code></pre>
+将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0.jar放入/opt/cloudera/csd中<br>将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel和FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha放入/opt/cloudera/parcel-repo中<br>然后重启Cloudera Manager Server服务：sudo systemctl restart cloudera-scm-server<br>重启完成后进入页面，主机-&gt;Parcel-&gt;检查新Parcel-&gt;找到Flink-&gt;分配<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG" alt="alt CDH-27"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG" alt="alt CDH-26"><br>完成分配后开始添加服务：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG" alt="alt CDH-28"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG" alt="alt CDH-29"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG" alt="alt CDH-30"><br>好啦，Flink可以使用啦。</li>
+</ol>
 <p>总结坑点：  </p>
 <ol>
 <li>如果遇到HDFS无法启动的问题，可能是因为<strong>/dfs/nn/</strong>,<strong>/dfs/dn/</strong>,<strong>/dfs/snn/</strong>这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为<strong>drwx—— 3 hdfs hadoop</strong>，即hdfs用户hadoop组，里面的current文件夹的权限为<strong>drwxr-xr-x 3 hdfs hdfs</strong>。  </li>
