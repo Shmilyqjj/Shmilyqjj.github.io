@@ -84,6 +84,14 @@ VMWare 15
 SecureCRT 8.1.4  
 FileZilla 3.40.0  
 CentOS 7  
+<font size="6" color="red">**以上是旧配置，后面再有更新均使用新的配置：**</font>
+物理机i7-9750h 64GB内存 2T HDD+2T SSD
+虚拟机四台 12个逻辑核心 内存分配分别是 20GB 14GB 14GB 10GB  
+Hyper-V虚拟机
+SecureCRT 8.5.3  
+FileZilla 3.40.0  
+CentOS 7  
+能够同时运行所有服务。
 
 ### 一.基础配置  
 **下载CentOS7:**  
@@ -596,12 +604,14 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 最后部署成功，启动服务：  
 因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。  
 ![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
+后续文章更新内容采用新电脑64GB内存i7-9750h物理机环境，能正常运行CDH服务：
+![alt CDH-31](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-31.jpg)  
 
 ClockOffset的报警：
 集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：
 [集群NTP服务配置](https://blog.csdn.net/weixin_39158271/article/details/80207291) 中的 **配置内网NTP-Clients** 部分。
 
-CM功能扩展：  
+### 五.功能扩展  
 1. [自定义告警脚本](https://cloud.tencent.com/developer/article/1544865)
 2. 集成官方Flink-1.9.0到CDH管理
 下载相应的csd文件和parcels文件到本地：
@@ -618,12 +628,12 @@ manifest.json
 将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel和FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha放入/opt/cloudera/parcel-repo中
 然后重启Cloudera Manager Server服务：sudo systemctl restart cloudera-scm-server
 重启完成后进入页面，主机->Parcel->检查新Parcel->找到Flink->分配
-![alt CDH-27](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG)  
-![alt CDH-26](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG)  
+![alt CDH-27](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG)  
+![alt CDH-26](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG)  
 完成分配后开始添加服务：
-![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
-![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
-![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
+![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
+![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
+![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
 好啦，Flink可以使用啦。
 
 总结坑点：  
