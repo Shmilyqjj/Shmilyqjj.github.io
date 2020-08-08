@@ -30,6 +30,7 @@ hexo deploy # 部署到仓库
 
 3.好用的CDN:
   首先图片所在的GitHub地址:https://github.com/Shmilyqjj/Shmily-Web
+  （jsdelivr不支持50M以上的存储库，故新开仓库：https://github.com/Shmilyqjj/BlogImages-0）
   jsdelivr https://www.jsdelivr.com/
   我是用 jsDelivr 来访问 github的资源，提高资源加载和访问速度
   - 首先需要创建GitHub仓库的releases
