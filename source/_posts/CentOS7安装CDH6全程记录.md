@@ -605,7 +605,7 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。  
 ![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
 后续文章更新内容采用新电脑64GB内存i7-9750h物理机环境，能正常运行CDH服务：
-![alt CDH-31](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-31.jpg)  
+![alt CDH-31](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-31.JPG)  
 
 ClockOffset的报警：
 集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：
