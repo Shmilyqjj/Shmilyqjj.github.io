@@ -38,6 +38,7 @@ date: 2020-08-10 11:26:08
 1. 需要对大量数据进行分析的场景下，在大数据处理的源头必须使用PySpark
 2. 数据经过一系列操作、聚合后数据量减少，且**迫不得已**用Pandas的情况下再使用Pandas(<font size="3" color="red">**用Pandas处理的数据尽量更少**</font>)
 3. 如果可以，尽量全程使用PySpark进行分析操作
+4. 需要对计算复杂且耗时的Sparkdataframe进行cache避免重算提高效率
 
 ## 数据创建  
 文中所有Spark Dataframe对象简称**df**,Pandas的Dataframe对象简称**pd_df**。
@@ -96,6 +97,8 @@ df.dtypes  # 查看字段和类型
 ## 数据显示   
 * Pandas
 ```python
+pd.set_option('max_rows',1024)  # 最多显示1024行不隐藏
+pd.set_option('max_columns',1024)  # 最多显示1024列不隐藏
 pd_df或print(pd_df)
 ```
 
@@ -103,7 +106,7 @@ pd_df或print(pd_df)
 ```python
 df.show()  # 打印前20行且每个字段打印不超过20字符
 df.show(30)  # 打印前30行且每个字段打印不超过20字符
-df.show(100,False)  # 打印前100行且每个字段打印字符数不限
+df.show(100,False)  # 打印前100行且每个字段打印字符数不限（不隐藏）
 ```
 
 ## 数据排序
@@ -204,12 +207,14 @@ df.groupBy('col').agg(functions.avg('score'), functions.min('score'), functions.
 ```python
 pd_df.count()  # 输出每一列的非空行数
 pd_df.describe()  # 描述某些列的count, mean, std, min, 25%, 50%, 75%, max
+pd_df['col'].value_counts()  # 统计某列的数据量
 ```
 
 * PySpark
 ```python
 df.count()  # 输出总行数
 df.describe().show()  # 描述某些列的count, mean, stddev, min, max
+df.select('col').filter('col is null').count()  # 统计某列的数据量
 ```
 
 ## 数据合并
