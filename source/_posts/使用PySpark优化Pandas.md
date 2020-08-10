@@ -152,6 +152,7 @@ df.head(2) 或 df.take(2)
 ```python
 pd_df[pd_df['score']>=60]
 pd_df[pd_df['score']>=60][pd_df['id']>=5]
+pd_df.query('score >= 60')
 ```
 
 * PySpark
