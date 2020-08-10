@@ -92,6 +92,7 @@ from pyspark.sql.functions import lit
 df = df.withColumn("col", lit(0))  # 列添加
 df = df.withColumn("col", lit(1))  # 列修改
 df.dtypes  # 查看字段和类型
+df.printSchema() # 打印字段和类型-树形
 ```
 
 ## 数据显示   
@@ -254,13 +255,18 @@ df.foreachPartition(f) 或者 df.rdd.foreachPartition(f) # 将df的每一分区�
 # 对缺失数据自动添加NaNs
 pd_df.fillna(1)  # fillna函数 将NaN的地方替换为1.0
 pd_df.dropna()  # dropna函数 将含有NaN的行删除
+pd_df['col']=np.where(pd.isnull(pd_df['col'], "unknown", pd_df['col']))  # 某个字段出现空时替换为unknown
+pd_df['col']=np.where(pd_df['col']=='', "unknown", pd_df['col'])  # 某个字段出现空字符串时替换为unknown
 ```
 
 * PySpark
 ```python
 不自动添加NaNs，且不抛出错误
 df.na.fill(1).show()  # fillna函数 将null的地方替换为1.0
-df.na.drop().show()  # dropna函数 将含有null的行删除
+df.na.drop().show()  # dropna函数 将含有null值字段的行删除
+df.dropna(subset=['col1', 'col2'])  # 扔掉col1或col2中任一一列包含null的行
+df=df.na.fill(subset='col', value='unknown') # 某个字段出现空时替换为unknown
+select if(col='','unknown',col) as col # 某个字段出现空字符串时替换为unknown
 ```
 
 ## SQL支持
@@ -367,3 +373,4 @@ Python三方库：SparklingPandas
 ## 参考 
 [pandas与pyspark对比](https://zhuanlan.zhihu.com/p/34901585)
 [Spark：使用partitionColumn选项读取数据库原理](https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight)
+[PySpark-DataFrame操作指南](https://blog.csdn.net/sinat_26917383/article/details/80500349)
