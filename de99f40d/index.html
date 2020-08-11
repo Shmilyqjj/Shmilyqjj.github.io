@@ -467,6 +467,7 @@
 <li>需要对大量数据进行分析的场景下，在大数据处理的源头必须使用PySpark</li>
 <li>数据经过一系列操作、聚合后数据量减少，且<strong>迫不得已</strong>用Pandas的情况下再使用Pandas(<font size="3" color="red"><strong>用Pandas处理的数据尽量更少</strong></font>)</li>
 <li>如果可以，尽量全程使用PySpark进行分析操作</li>
+<li>需要对计算复杂且耗时的Sparkdataframe进行cache避免重算提高效率</li>
 </ol>
 <h2 id="数据创建"><a href="#数据创建" class="headerlink" title="数据创建"></a>数据创建</h2><p>文中所有Spark Dataframe对象简称<strong>df</strong>,Pandas的Dataframe对象简称<strong>pd_df</strong>。</p>
 <ul>
@@ -504,6 +505,7 @@ df = spark.createDataFrame([(1,&#39;qjj&#39;),(2,&#39;zxw&#39;),(3,&#39;zzz&#39;
 <pre><code class="python">pd_df[&#39;col&#39;] = 0  # 列添加
 pd_df[&#39;col&#39;] = 1  # 列修改
 pd_df.dtypes  # 查看字段和类型
+pd_df.drop(columns=[&#39;col&#39;, &#39;name&#39;])  # 删除字段col
 </code></pre>
 </li>
 <li><p>PySpark<br>index索引：无<br>行结构：Row对象，属于Spark DataFrame<br>列结构：Column对象，属于Spark DataFrame</p>
@@ -511,24 +513,29 @@ pd_df.dtypes  # 查看字段和类型
 df = df.withColumn(&quot;col&quot;, lit(0))  # 列添加
 df = df.withColumn(&quot;col&quot;, lit(1))  # 列修改
 df.dtypes  # 查看字段和类型
+df.printSchema() # 打印字段和类型-树形
+df.drop(&#39;col&#39;, &#39;name&#39;)  # 删除字段col
 </code></pre>
 </li>
 </ul>
 <h2 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h2><ul>
 <li><p>Pandas</p>
-<pre><code class="python">pd_df或print(pd_df)
+<pre><code class="python">pd.set_option(&#39;max_rows&#39;,1024)  # 最多显示1024行不隐藏
+pd.set_option(&#39;max_columns&#39;,1024)  # 最多显示1024列不隐藏
+pd_df或print(pd_df)
 </code></pre>
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">df.show()  # 打印前20行且每个字段打印不超过20字符
 df.show(30)  # 打印前30行且每个字段打印不超过20字符
-df.show(100,False)  # 打印前100行且每个字段打印字符数不限
+df.show(100,False)  # 打印前100行且每个字段打印字符数不限（不隐藏）
 </code></pre>
 </li>
 </ul>
 <h2 id="数据排序"><a href="#数据排序" class="headerlink" title="数据排序"></a>数据排序</h2><ul>
 <li><p>Pandas</p>
 <pre><code class="python">pd_df.sort_index(by=&#39;score&#39;, ascending=False) # 按轴（字段score）进行倒序排序
+pd_df.sort_index(by=&#39;score&#39;, ascending=False).reset_index() # 按轴（字段score）进行倒序排序,排序后index会乱序，重设index为顺序
 pd_df.sort_values(by=&#39;score&#39;) # 在列中按值进行排序
 </code></pre>
 </li>
@@ -548,6 +555,9 @@ pd_df[[&#39;id&#39;,&#39;score&#39;]]
 pd_df.ix[0]
 # 4.取前两行
 pd_df.head(2)
+# 5.按条件取数据
+pd_df.loc[pd_df.name==&#39;qjj&#39;]  # 取pd_df的name字段值为qjj记录
+pd_df.loc[pd_df.name==&#39;qjj&#39;, &#39;col&#39;]  # 取pd_df的name字段值为qjj的记录中name字段和col字段的值
 </code></pre>
 </li>
 <li><p>PySpark</p>
@@ -562,6 +572,9 @@ df.select(df[&#39;id&#39;] + 20,df[&#39;score&#39;]).show()
 df.first()
 # 4.取前两行
 df.head(2) 或 df.take(2)
+# 5.按条件取数据
+df.filter(&quot;name=&#39;qjj&#39;&quot;) # 取df的name字段值为qjj记录
+df.filter(&quot;name=&#39;qjj&#39;&quot;).select(&#39;name&#39;, &#39;col&#39;) # 取df的name字段值为qjj的记录中name字段和col字段的值
 </code></pre>
 </li>
 </ul>
@@ -569,6 +582,7 @@ df.head(2) 或 df.take(2)
 <li><p>Pandas</p>
 <pre><code class="python">pd_df[pd_df[&#39;score&#39;]&gt;=60]
 pd_df[pd_df[&#39;score&#39;]&gt;=60][pd_df[&#39;id&#39;]&gt;=5]
+pd_df.query(&#39;score &gt;= 60&#39;)
 </code></pre>
 </li>
 <li><p>PySpark</p>
@@ -584,7 +598,7 @@ df.filter(&#39;score&gt;=60 and id&gt;=5&#39;) 或 df.where(&#39;score&gt;=60 an
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">df.drop_duplicates()  # data中一行元素全部相同时才去除
-df.drop_duplicates([&#39;a&#39;,&#39;b&#39;])  # data根据’a&#39;,&#39;b&#39;组合列删除重复项，默认保留第一个出现的值组合。传入参数keep=&#39;last&#39;则保留最后一个
+df.drop_duplicates([&#39;a&#39;,&#39;b&#39;])  # data根据’a&#39;,&#39;b&#39;组合列删除重复项，默认保留第一个出现的值组合（first）。
 </code></pre>
 </li>
 </ul>
@@ -616,11 +630,13 @@ df.groupBy(&#39;col&#39;).agg(functions.avg(&#39;score&#39;), functions.min(&#39
 <li><p>Pandas</p>
 <pre><code class="python">pd_df.count()  # 输出每一列的非空行数
 pd_df.describe()  # 描述某些列的count, mean, std, min, 25%, 50%, 75%, max
+pd_df[&#39;col&#39;].value_counts()  # 统计某列的数据量
 </code></pre>
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">df.count()  # 输出总行数
 df.describe().show()  # 描述某些列的count, mean, stddev, min, max
+df.select(&#39;col&#39;).filter(&#39;col is null&#39;).count()  # 统计某列的数据量
 </code></pre>
 </li>
 </ul>
@@ -658,12 +674,17 @@ df.foreachPartition(f) 或者 df.rdd.foreachPartition(f) # 将df的每一分区�
 <pre><code class="python"># 对缺失数据自动添加NaNs
 pd_df.fillna(1)  # fillna函数 将NaN的地方替换为1.0
 pd_df.dropna()  # dropna函数 将含有NaN的行删除
+pd_df[&#39;col&#39;]=np.where(pd.isnull(pd_df[&#39;col&#39;], &quot;unknown&quot;, pd_df[&#39;col&#39;]))  # 某个字段出现空时替换为unknown
+pd_df[&#39;col&#39;]=np.where(pd_df[&#39;col&#39;]==&#39;&#39;, &quot;unknown&quot;, pd_df[&#39;col&#39;])  # 某个字段出现空字符串时替换为unknown
 </code></pre>
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">不自动添加NaNs，且不抛出错误
 df.na.fill(1).show()  # fillna函数 将null的地方替换为1.0
-df.na.drop().show()  # dropna函数 将含有null的行删除
+df.na.drop().show()  # dropna函数 将含有null值字段的行删除
+df.dropna(subset=[&#39;col1&#39;, &#39;col2&#39;])  # 扔掉col1或col2中任一一列包含null的行
+df=df.na.fill(subset=&#39;col&#39;, value=&#39;unknown&#39;) # 某个字段出现空时替换为unknown
+select if(col=&#39;&#39;,&#39;unknown&#39;,col) as col # 某个字段出现空字符串时替换为unknown
 </code></pre>
 </li>
 </ul>
@@ -752,7 +773,7 @@ delta = (upperBound - lowerBound) / numPartitions
 </li>
 </ul>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>Python三方库：SparklingPandas<br><a href="http://sparklingpandas.com/" target="_blank" rel="noopener">SparklingPandas</a></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://zhuanlan.zhihu.com/p/34901585" target="_blank" rel="noopener">pandas与pyspark对比</a><br><a href="https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">Spark：使用partitionColumn选项读取数据库原理</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://zhuanlan.zhihu.com/p/34901585" target="_blank" rel="noopener">pandas与pyspark对比</a><br><a href="https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">Spark：使用partitionColumn选项读取数据库原理</a><br><a href="https://blog.csdn.net/sinat_26917383/article/details/80500349" target="_blank" rel="noopener">PySpark-DataFrame操作指南</a></p>
 
         </div>
         <!-- .entry-content -->
