@@ -183,7 +183,7 @@ pd_df.drop_duplicates('col')
 * PySpark
 ```python
 df.drop_duplicates()  # data中一行元素全部相同时才去除
-df.drop_duplicates(['a','b'])  # data根据’a','b'组合列删除重复项，默认保留第一个出现的值组合。传入参数keep='last'则保留最后一个
+df.drop_duplicates(['a','b'])  # data根据’a','b'组合列删除重复项，默认保留第一个出现的值组合（first）。
 ```
 
 ## 取唯一值
