@@ -81,6 +81,7 @@ index索引：自动创建
 pd_df['col'] = 0  # 列添加
 pd_df['col'] = 1  # 列修改
 pd_df.dtypes  # 查看字段和类型
+pd_df.drop(columns=['col', 'name'])  # 删除字段col
 ```
 
 * PySpark
@@ -93,6 +94,7 @@ df = df.withColumn("col", lit(0))  # 列添加
 df = df.withColumn("col", lit(1))  # 列修改
 df.dtypes  # 查看字段和类型
 df.printSchema() # 打印字段和类型-树形
+df.drop('col', 'name')  # 删除字段col
 ```
 
 ## 数据显示   
@@ -114,6 +116,7 @@ df.show(100,False)  # 打印前100行且每个字段打印字符数不限（不�
 * Pandas
 ```python
 pd_df.sort_index(by='score', ascending=False) # 按轴（字段score）进行倒序排序
+pd_df.sort_index(by='score', ascending=False).reset_index() # 按轴（字段score）进行倒序排序,排序后index会乱序，重设index为顺序
 pd_df.sort_values(by='score') # 在列中按值进行排序
 ```
 
@@ -134,6 +137,9 @@ pd_df[['id','score']]
 pd_df.ix[0]
 # 4.取前两行
 pd_df.head(2)
+# 5.按条件取数据
+pd_df.loc[pd_df.name=='qjj']  # 取pd_df的name字段值为qjj记录
+pd_df.loc[pd_df.name=='qjj', 'col']  # 取pd_df的name字段值为qjj的记录中name字段和col字段的值
 ```
 
 * PySpark
@@ -149,6 +155,9 @@ df.select(df['id'] + 20,df['score']).show()
 df.first()
 # 4.取前两行
 df.head(2) 或 df.take(2)
+# 5.按条件取数据
+df.filter("name='qjj'") # 取df的name字段值为qjj记录
+df.filter("name='qjj'").select('name', 'col') # 取df的name字段值为qjj的记录中name字段和col字段的值
 ```
 
 ## 数据过滤
