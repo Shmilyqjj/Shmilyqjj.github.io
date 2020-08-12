@@ -238,7 +238,7 @@ df.select('col').filter('col is null').count()  # 统计某列的数据量
 TODO:待完善测试
 * Pandas
 ```python
-Pandas下有concat方法，支持轴向合并
+pd.concat([pd_df,pd_df1], axis=0)  # 数据横向合并axis=0  纵向合并axis=1
 Pandas下有merge方法，支持多列合并
 同名列自动添加后缀，对应键仅保留一份副本
 pd_df.join() 支持多列合并
@@ -247,9 +247,14 @@ pd_df.append() 支持多行合并
 
 * PySpark
 ```python
-可以使用sql实现concat、merge功能
-Spark下有join方法即df.join()
-同名列不自动添加后缀，只有键值完全匹配才保留一份副本
+df.withColumn(新列名，df[列名]**2)  # 数据简单操作后横向合并
+df.union(df1)  # 数据纵向合并-自动去除重复数据
+df.unionAll(df1)  # 数据纵向合并-不去除重复数据
+# 可以使用sql实现concat、merge功能
+df.join(df1,df,id==df1.id)  # inner join
+df.join(df1,df,id==df1.id, 'left')  # left join
+df.join(df1,df,id==df1.id, 'left')  # right join
+df.join(df1,df,id==df1.id, 'outer')  # full outer join 任何一边不存在填充null
 ```
 
 ## 数据应用
@@ -298,12 +303,17 @@ pd_df = pd.read_sql(sql_cmd, con)
 ```python
 # sql操作
 df.registerTempTable('score_table')  # 将已有数据注册成临时表（关闭SparkSession这个表就会消失）
+df.createOrReplaceTempView('score_table')  # 与registerTempTable功能相同，是较新的API
+df.createOrReplaceGlobalTempView('score_table')  # 上面两个是创建SparkSession级别的临时表 这个是Application级别的临时表
 spark.sql("desc score_table").show()
 spark.sql("""select count(1) as count from score_table""").show()
 # UDF高级功能函数注册操作
 from pyspark.sql.types import StringType  # 引入返回值类型
 spark.udf.register("get_length", lambda x: len(x), StringType())  # 注册UDF函数
 spark.sql("select get_length('name') from score_table").show()   # 使用UDF函数
+# 对特征进行操作
+df.selectExpr("a*2+b as a","b*3 as b")  # a字段值改为原始值*2加b字段值 可以有多个运算操作
+df = df.selectExpr("*","b*3 as b_3")  # 原始字段不变，新增b_3字段值为b字段*3
 ```
 
 ## 互相转换
