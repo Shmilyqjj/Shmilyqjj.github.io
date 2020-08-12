@@ -80,6 +80,8 @@ index索引：自动创建
 ```python
 pd_df['col'] = 0  # 列添加
 pd_df['col'] = 1  # 列修改
+pd_df.rename(columns={'col':'new_col','xx':'xxx'})  # 重命名列名
+pd_df.columns=['col1','col2','col3']  # 重命名列名
 pd_df.dtypes  # 查看字段和类型
 pd_df.drop(columns=['col', 'name'])  # 删除字段col
 ```
@@ -92,6 +94,7 @@ index索引：无
 from pyspark.sql.functions import lit
 df = df.withColumn("col", lit(0))  # 列添加
 df = df.withColumn("col", lit(1))  # 列修改
+df = df.withColumnRenamed('col', 'new_col').withColumnRenamed('col1', 'new_col1')  # 重命名列名
 df.dtypes  # 查看字段和类型
 df.printSchema() # 打印字段和类型-树形
 df.drop('col', 'name')  # 删除字段col
@@ -140,6 +143,8 @@ pd_df.head(2)
 # 5.按条件取数据
 pd_df.loc[pd_df.name=='qjj']  # 取pd_df的name字段值为qjj记录
 pd_df.loc[pd_df.name=='qjj', 'col']  # 取pd_df的name字段值为qjj的记录中name字段和col字段的值
+# 6.数据随机抽样
+pd_df.sample(n=None, frac=None, replace=False, weights=None, random_state=None, axis=None) # n行数 frac抽取比例 replace=False无放回  ...
 ```
 
 * PySpark
@@ -158,6 +163,8 @@ df.head(2) 或 df.take(2)
 # 5.按条件取数据
 df.filter("name='qjj'") # 取df的name字段值为qjj记录
 df.filter("name='qjj'").select('name', 'col') # 取df的name字段值为qjj的记录中name字段和col字段的值
+# 6.数据随机抽样
+df=df.sample(withReplacement=False, fraction=0.01) # withReplacement为False抽出数据不放回，fraction为抽取比例范围0-1，seed参数为随机数种子，默认即可
 ```
 
 ## 数据过滤
@@ -303,11 +310,13 @@ spark.sql("select get_length('name') from score_table").show()   # 使用UDF函�
 * Pandas
 ```python
 df = spark.createDataFrame(pandas_df)  # Pandas转Spark df
+df = spark.createDataFrame(pandas_df[['col1', 'col2']])  # Pandas某几个字段的df转Spark df
 ```
 
 * PySpark
 ```python
 pandas_df = spark_df.toPandas()  # Spark转Pandas df
+pandas_df = spark_df.select('col1', 'col2').toPandas()  # Spark某几个字段的df转Pandas df
 ```
 <font size="3" color="red">**注：Spark转Pandas df会将Spark df全部数据拉到Driver端单机单节点运行，性能差且网络IO占用高，尽量避免将大量数据转成Pandas DataFrame。**</font>
 
