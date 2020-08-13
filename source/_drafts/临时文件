@@ -408,7 +408,36 @@ reduceByKey(_+_)按照key进行reduce，并将value累加
 saveAsTextFile("hdfs:// master01:9000/out")将结果写入到hdfs中
 
 
-
+Spark On Yarn资源分配：
+spark.driver.memory
+spark.executor.memory
+spark.yarn.am.memory
+spark.executor.memoryOverhead：值为executorMemory * 0.07, with minimum of 384
+spark.yarn.driver.memoryOverhead：值为driverMemory * 0.07, with minimum of 384
+spark.yarn.am.memoryOverhead：值为AM memory * 0.07, with minimum of 384
+分配Container时：
+Container分配的内存大小是通过spark.executor.memory+spark.executor.memoryOverhead计算出来的且为yarn.scheduler.minimum-allocation-mb的整数倍且不大于yarn.scheduler.maximum-allocation-mb
+spark.executor.memory+spark.executor.memoryOverhead <= yarn.scheduler.maximum-allocation-mb  如果大于就会申请失败  设置Container最大容器内存时并不知道机器实际剩余内存多少，可能配8G但机器只剩4G这时申请Container超过4G资源也失败
+AM对应的Container内存由spark.yarn.am.memory加上spark.yarn.am.memoryOverhead来确定
+一个Container就是一个进程=内存隔离，对应Spark的一个进程（driver或Executor）
+由这六个参数决定
+storage memory在Spark WebUI上的值怎么来的？
+  我记得Spark内存模型中有UserMemory，StorageMemory，ExecutionMemory和ReservedMemory，期中缓存内存和执行内存可互相借用。
+  StorageMemory内存区域总大小由spark.storage.memoryFraction决定默认是0.6，而为了避免OOM这个StorageMemory只用其区域的90%（由spark.storage.safetyFraction默认0.9决定）
+  所以如果Executor堆内存为x，则storage memory大致可以计算：x*0.9*0.6=0.54x
+  因为互相借用，所以可以得到近似值，而不是准确值。因为内存被借用后不会立即归还，而是等其中一个区域不够才会去另一个区域拿。
+每个NM能分配的Container数？
+  1.yarn.nodemanager.resource.memory-mb 控制每个节点上的容器使用的最大内存总和。
+  2.yarn.nodemanager.resource.cpu-vcores 控制每个节点上的容器使用的最大内核总数。
+  3.yarn.sheduler.maximum-allocation-vcores
+  一般就设置成4个，cloudera公司做过性能测试，如果CPU大于等于5之后，CPU的利用率反而不是很好。这个参数可以根据生成服务器决定，比如公司服务器很富裕，那就直接设置成1:1；设置成32，如果不是很富裕，可以直接设置成1:2。我们以1:2来计算。
+  4.yarn.scheduler.minimum-allocation-vcores
+  如果设置vcoure = 1，那么最大可以跑64/1=64个container，如果设置成这样，最小container是64/4=16个。
+  5.yarn.scheduler.minmum-allocation-mb
+  如果设置成2G，那么90/2=45最多可以跑45个container，如果设置成4G，那么最多可以跑24个；vcore有些浪费。
+  6.yarn.scheduler.maximum-allocation-mb
+  这个要根据自己公司的业务设定，如果有大任务，需要5-6G内存，那就设置为8G，那么最大可以跑11个container。
+  可分配Container数由1,2,4,5决定
 
 spark加JVM日志打印
 "spark.driver.extraJavaOptions":"-XX:+PrintGCDetails -XX:+PrintGCTimeStamps",

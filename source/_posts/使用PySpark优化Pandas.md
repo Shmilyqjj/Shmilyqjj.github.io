@@ -70,6 +70,8 @@ df = spark.read.format("jdbc").options(**conf).load()
 # 5.从list，set，dict创建dataftame
 df = spark.createDataFrame(pd.DataFrame({"id":[1,2,3,4],"name":['qjj','zxw','zzz','abc']}))  或
 df = spark.createDataFrame([(1,'qjj'),(2,'zxw'),(3,'zzz'),(4,'abc')], ['id', 'name'])
+# 6.从Parquet创建数据
+spark.read.parquet("...")
 ```
 
 ## 数据结构  
@@ -251,10 +253,10 @@ df.withColumn(新列名，df[列名]**2)  # 数据简单操作后横向合并
 df.union(df1)  # 数据纵向合并-自动去除重复数据
 df.unionAll(df1)  # 数据纵向合并-不去除重复数据
 # 可以使用sql实现concat、merge功能
-df.join(df1,df,id==df1.id)  # inner join
-df.join(df1,df,id==df1.id, 'left')  # left join
-df.join(df1,df,id==df1.id, 'left')  # right join
-df.join(df1,df,id==df1.id, 'outer')  # full outer join 任何一边不存在填充null
+df.join(df1,df.id==df1.id)  # inner join
+df.join(df1,df.id==df1.id, 'left')  # left join
+df.join(df1,df.id==df1.id, 'left')  # right join
+df.join(df1,df.id==df1.id, 'outer')  # full outer join 任何一边不存在填充null
 ```
 
 ## 数据应用
@@ -340,6 +342,9 @@ pd_df.diff()  # diff函数是用来将数据进行某种移动之后与原数据
 ```python
 没有diff操作（Spark的上下行是相互独立，分布式存储的）
 ```
+
+## 数据保存
+
 
 ## 高级用法（优化）
 * PySpark连续编写转换函数
