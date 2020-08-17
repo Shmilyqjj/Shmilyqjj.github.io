@@ -131,6 +131,21 @@ df.sort('score', ascending=False) # 按列（score字段）倒序排序
 df.orderBy('score') # 按列（score字段）顺序排序
 ```
 
+## 交集并集差集
+* Pandas
+```python
+pd.merge(pd_df1, pd_df2, on=['col1', 'col2', 'col3'])  # 交集
+pd.merge(pd_df1,pd_df2,on=['col1', 'col2', 'col3'], how='outer')  # 并集
+pd_df1=pd_df1.append(pd_df2);pd_df1=pd_df1.drop_duplicates(subset=['col1','col2','col3'],keep=False);pd_df1  # 差集
+```
+
+* PySpark
+```python
+df = df1.intersect(df2)   # 交集
+df = df1.union(df2) # 并集
+df = df1.subtract(df2) # 差集
+```
+
 ## 数据选择或切片
 * Pandas
 ```python
@@ -245,6 +260,7 @@ Pandas下有merge方法，支持多列合并
 同名列自动添加后缀，对应键仅保留一份副本
 pd_df.join() 支持多列合并
 pd_df.append() 支持多行合并
+# 根据一定计算规则计算得到新增列  
 ```
 
 * PySpark
@@ -257,6 +273,13 @@ df.join(df1,df.id==df1.id)  # inner join
 df.join(df1,df.id==df1.id, 'left')  # left join
 df.join(df1,df.id==df1.id, 'left')  # right join
 df.join(df1,df.id==df1.id, 'outer')  # full outer join 任何一边不存在填充null
+# 根据UDF计算得到新增列 udf+withColumn+闭包
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType
+l = ['a', 'b', 'c', 'd'] 
+for i in l:
+    my_udf = udf(lambda x: x.count(i) if x else 0, IntegerType())
+    df = df.withColumn('col_' + i, my_udf('array_type_col'))
 ```
 
 ## 数据应用
@@ -332,6 +355,28 @@ pandas_df = spark_df.select('col1', 'col2').toPandas()  # Spark某几个字段�
 ```
 <font size="3" color="red">**注：Spark转Pandas df会将Spark df全部数据拉到Driver端单机单节点运行，性能差且网络IO占用高，尽量避免将大量数据转成Pandas DataFrame。**</font>
 
+## 透视表
+透视表与逆透视表：
+![alt pyspark-pandas-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-01.png) 
+透视Pivot：
+按不需要转换的字段分组（groupBy） -> pivot函数进行透视，可选第二个参数指定输出字段数据项 -> 聚合汇总数据项得到结果
+逆透视unpivot：列形式且无重复值的数据转成行形式且有重复值得数据
+
+* Pandas
+```python
+l = ['a', 'b', 'c', 'd', 'e']
+for tag in l:
+    pivot_table = pd.pivot_table(pd_df, index=['col1', 'col2'], values='list_type_col', aggfunc=lambda x: sum(tag==j for i in x for j in i))  # 统计数组值等于tag计数True个数
+    pivot_table.columns=[tag]
+```
+
+* PySpark
+```python
+# 注意：pivot只能跟在groupBy之后
+l = ['a', 'b', 'c', 'd', 'e']
+pivot_table = df.selectExpr('*', 'explode(list_type_col)', '1 as tmp').groupBy('col1', 'col2').pivot("list_type_col", l).sum("tmp").fillna(0)   # 注意：不指定pivot的第二个参数所需字段会降低效率
+```
+
 ## diff操作
 * Pandas
 ```python
@@ -399,11 +444,15 @@ delta = (upperBound - lowerBound) / numPartitions
 也就是说，需要合理设置numPartitions和upperBound和upperBound的值，避免某个分区数据量过大。
 尽量使用范围基本确定且分区字段值分布相对均匀的Int类型字段做分区字段。
 
+* 多个UDF作用于同一列数据
+Demo:[multi_udf_one_col.py](https://github.com/Shmilyqjj/Shmily-py/blob/master/BigData/learn_and_tests/Spark/udf/multi_udf_one_col.py)
+
 ## 其他
 Python三方库：SparklingPandas
 [SparklingPandas](http://sparklingpandas.com/)
 
 ## 参考 
+[PySpark.sql module](http://spark.apache.org/docs/2.4.4/api/python/pyspark.sql.html#pyspark.sql.DataFrame)
 [pandas与pyspark对比](https://zhuanlan.zhihu.com/p/34901585)
 [Spark：使用partitionColumn选项读取数据库原理](https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight)
 [PySpark-DataFrame操作指南](https://blog.csdn.net/sinat_26917383/article/details/80500349)
