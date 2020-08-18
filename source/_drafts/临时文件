@@ -1078,6 +1078,8 @@ Linux中重要的C运行库glibc：
          ldd --version 
          strings /lib64/libc.so.6 | grep GLIBC_
 
+环境变量 ~/.bash_profile
+    PROMPT_COMMAND="one command"  终端任何命令执行都先执行这个设置的命令
 
 
 
