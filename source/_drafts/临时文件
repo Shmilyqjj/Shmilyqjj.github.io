@@ -1081,6 +1081,21 @@ Linux中重要的C运行库glibc：
 环境变量 ~/.bash_profile
     PROMPT_COMMAND="one command"  终端任何命令执行都先执行这个设置的命令
 
+理清shell环境变量加载顺序（6个文件）：
+  echo "export aaaa=0" >> /etc/profile  全局env
+  echo "export aaaa=1" >>  ~/.bash_profile  用户env
+  echo "export aaaa=2" >> ~/.bashrc  shell会话env(启动单个session时运行)
+  source  ...
+  echo $aaaa 得到 1
+  解释：/etc/profile是全局环境变量，被加载的变量全局有效，~/.bash_profile和~/.bashrc都是用户环境变量
+    可以看到~/.bash_profile执行判断如果~/.bashrc文件存在则执行  但执行后才export aaaa=1 
+    所以：
+    加载顺序为 /etc/profile > ~/.bash_profile > ~/.bashrc
+    aaaa顺序为     0  ------>       2   ------>     1
+  此外还有：
+    ~/.bash_history 用户shell环境  按时间戳记录history命令（盲猜history就是读取它）
+    ~/.bash_logout  用户shell环境  退出shell时执行，可以自定义一些清理工作
+    /etc/bashrc     全局shell环境  主要用于指定umask权限，指定全局alias，指定[root@hadoop01 ~]#格式（叫PS1）
 
 
 
