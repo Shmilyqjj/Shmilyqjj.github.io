@@ -87,8 +87,20 @@ date: 2020-08-15 12:19:00
 ## 第四章 首次登入与在线求助
 ```
 1.文件、文件夹名只要以小数点开头即为隐藏文件，ls看不到需要ls -a
-2.
-看到4.1.3
+2.Linux分为6个操作接口环境tty1-tty6 切换方式CTRL+ALT+[F1~F6] 切换到文字接口后按CTRL+ALT+F1切换回图形界面
+3.一行命令太长可以用"\"切到下一行继续输入
+4.显示隐藏文件ls -al或ls -a或ll -a或ls -a -l
+5.控制台有乱码，先locale查看目前支持的语系，两条命令LANG="en_US.UTF-8"和export LC_ALL="en_US.UTF-8"解决本次登陆出现的乱码问题
+6.基础指令学习：
+  date +%Y/%m/%d  年月日
+  date +%H:%M:%S  时分秒
+  date +%s        时间戳
+  cal                 日历
+  cal [month] [year]  某年某月的日历
+  bc 计算器用于加减乘除指余 quit离开计算器
+7.CTRL+C关闭正在运行的指令  CTRL+D有EOF(END OF FILE)和End of Input的意思
+8.SHIFT+PAGE UP/PAGE DOWN 翻页
+看到4.3
 ```
 
 
