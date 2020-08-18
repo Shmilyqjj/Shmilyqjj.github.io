@@ -47,6 +47,7 @@ Hadoop相关
 1.数据存储分层，冷数据定期转移到廉价机器
 2.定期清理
 
+hadoop checknative 查看当前支持的雅俗格式
 
 NFS挂载（不如HDFS Fuse挂载性能好）
 NFS挂载hdfs到本地目录 开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
