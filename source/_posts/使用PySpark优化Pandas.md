@@ -51,6 +51,8 @@ pd_df = spark.sql("select * from table").to_pandas # 3.读Hive整个表
 pd_df = pd.read_sql('select * from table', con=pymysql.connect(host="localhost",user=username,passwd=password,db=database_name,charset="utf8"))
 # 5.从list，set，dict创建dataftame
 pd.DataFrame({"id":[1,2,3,4],"name":['qjj','zxw','zzz','abc']})
+# 6.读json
+pd_df = pd.read_json('/datas/root/csv_data/json_file')
 ```
 
 * PySpark
@@ -70,8 +72,16 @@ df = spark.read.format("jdbc").options(**conf).load()
 # 5.从list，set，dict创建dataftame
 df = spark.createDataFrame(pd.DataFrame({"id":[1,2,3,4],"name":['qjj','zxw','zzz','abc']}))  或
 df = spark.createDataFrame([(1,'qjj'),(2,'zxw'),(3,'zzz'),(4,'abc')], ['id', 'name'])
-# 6.从Parquet创建数据
-spark.read.parquet("...")
+# 6.读json文件
+df = spark.read.json('/datas/root/csv_data/json_file')
+
+# 7.从Parquet创建数据
+df = spark.read.parquet("...")
+df = spark.read.format('parquet').load('parquet_file'),opt...)
+# 8.从ORC创建数据
+df = spark.read.orc('...')
+# 9.从text创建数据
+df = spark.read.text('...')
 ```
 
 ## 数据结构  
