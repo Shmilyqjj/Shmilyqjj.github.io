@@ -103,12 +103,20 @@ date: 2020-08-15 12:19:00
 9.man command获取命令的帮助信息- 命令的介绍和使用  空格和PAGEDOWN下翻页 PAGEUP上翻页  man可以用/和n搜索（像vim一样）
 10.man命令不仅局限于看命令的介绍和使用，还可以看linux系统文件的说明，还有其他很多类型，具体看man man
 11.man命令的配置文件/ect/man_db.conf数据文件/usr/share/man/
-12.
-该4.3.3
+12.info命令与man差不多，也是用来查询命令用法和文件格式，但信息拆分多个节点显示。默认数据路径在/usr/share/info。N下一个P上一个U上一层节点。
+13.LInux说明文档路径/usr/share/doc
+14.动态查看当前网络连接状态信息netstat -a
+15.查看当前谁在线who或w
+16.Linux关机前sync命令是必要的。Linux为了加快读取速度，默认已经加载到内存中的数据不会写回磁盘，我们的改动不会持久化，所以关机前多执行几次sync将数据同步到磁盘。
+17.虽然目前shutdown/reboot/halt都在关机前执行sync，但手动sync更放心。非root帐号sync只同步自己的数据，root帐号sync同步全局数据。
+18.shutdown很多功能，可以用man shutdown多了解。功能如定时关机。
+19.重启：sync;sync;sync;reboot
 ```
 
-
-
+## 第五章 LInux的文件权限与目录配置
+```
+5.1 待看
+```
 
 
 
