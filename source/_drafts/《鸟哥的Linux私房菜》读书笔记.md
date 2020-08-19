@@ -100,7 +100,11 @@ date: 2020-08-15 12:19:00
   bc 计算器用于加减乘除指余 quit离开计算器
 7.CTRL+C关闭正在运行的指令  CTRL+D有EOF(END OF FILE)和End of Input的意思
 8.SHIFT+PAGE UP/PAGE DOWN 翻页
-看到4.3
+9.man command获取命令的帮助信息- 命令的介绍和使用  空格和PAGEDOWN下翻页 PAGEUP上翻页  man可以用/和n搜索（像vim一样）
+10.man命令不仅局限于看命令的介绍和使用，还可以看linux系统文件的说明，还有其他很多类型，具体看man man
+11.man命令的配置文件/ect/man_db.conf数据文件/usr/share/man/
+12.
+该4.3.3
 ```
 
 
