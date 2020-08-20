@@ -17,7 +17,7 @@ keywords: Pandas、PySpark
 description: 使用PySpark解决Pandas在大数据下的瓶颈
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-cover.jpg
-abbrlink: de99f40d
+abbrlink: pyspark_pandas
 date: 2020-08-10 11:26:08
 ---
 
