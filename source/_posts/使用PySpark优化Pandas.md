@@ -244,6 +244,8 @@ df.groupBy('col').mean().show()
 df.groupBy('col').avg('score').show()
 from pyspark.sql import functions
 df.groupBy('col').agg(functions.avg('score'), functions.min('score'), functions.max('score')).show()
+# 使用SQL分组聚合
+spark.sql("select name,first(col) as col,sum(score) from table group by name").show()
 ```
 
 ## 数据统计
@@ -385,6 +387,7 @@ for tag in l:
 # 注意：pivot只能跟在groupBy之后
 l = ['a', 'b', 'c', 'd', 'e']
 pivot_table = df.selectExpr('*', 'explode(list_type_col)', '1 as tmp').groupBy('col1', 'col2').pivot("list_type_col", l).sum("tmp").fillna(0)   # 注意：不指定pivot的第二个参数所需字段会降低效率
+# 相关逻辑可以直接使用spark sql编写
 ```
 
 ## diff操作
