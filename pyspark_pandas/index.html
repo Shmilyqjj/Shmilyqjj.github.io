@@ -479,39 +479,37 @@ pd_df = spark.sql(&quot;select * from table&quot;).to_pandas # 3.读Hive整个�
 pd_df = pd.read_sql(&#39;select * from table&#39;, con=pymysql.connect(host=&quot;localhost&quot;,user=username,passwd=password,db=database_name,charset=&quot;utf8&quot;))
 # 5.从list，set，dict创建dataftame
 pd.DataFrame({&quot;id&quot;:[1,2,3,4],&quot;name&quot;:[&#39;qjj&#39;,&#39;zxw&#39;,&#39;zzz&#39;,&#39;abc&#39;]})
+# 6.读json
+pd_df = pd.read_json(&#39;/datas/root/csv_data/json_file&#39;)
 </code></pre>
 </li>
-<li><p>PySpark</p>
-<pre><code class="python">df = spark.read.option(&#39;inferSchema&#39;,&quot;true&quot;).option(&quot;header&quot;, &quot;true&quot;).csv(&#39;/data/data_test/csv_file.csv&#39;)   # 1.读csv数据源
-df = spark.sql(&quot;select col1,col2 from table&quot;) # 2.读Hive数据源
-df = spark.table(&#39;table&#39;) # 3.读Hive整个表
-# 4.读MySQL表数据 
-conf = {
-  &quot;driver&quot;: &quot;com.mysql.jdbc.Driver&quot;,
-  &quot;url&quot;: &quot;jdbc:mysql://cdh101:3306/&quot;,
-  &quot;dbtable&quot;: &#39;test.a&#39;,
-  &quot;user&quot;: &#39;root&#39;,
-  &quot;password&quot;: &#39;123456&#39;,
-}
-df = spark.read.format(&quot;jdbc&quot;).options(**conf).load()
-# 5.从list，set，dict创建dataftame
-df = spark.createDataFrame(pd.DataFrame({&quot;id&quot;:[1,2,3,4],&quot;name&quot;:[&#39;qjj&#39;,&#39;zxw&#39;,&#39;zzz&#39;,&#39;abc&#39;]}))  或
-df = spark.createDataFrame([(1,&#39;qjj&#39;),(2,&#39;zxw&#39;),(3,&#39;zzz&#39;),(4,&#39;abc&#39;)], [&#39;id&#39;, &#39;name&#39;])
-</code></pre>
+<li><p>PySpark<br><code>`</code>python<br>df = spark.read.option(‘inferSchema’,”true”).option(“header”, “true”).csv(‘/data/data_test/csv_file.csv’)   # 1.读csv数据源<br>df = spark.sql(“select col1,col2 from table”) # 2.读Hive数据源<br>df = spark.table(‘table’) # 3.读Hive整个表</p>
+<h1 id="4-读MySQL表数据"><a href="#4-读MySQL表数据" class="headerlink" title="4.读MySQL表数据"></a>4.读MySQL表数据</h1><p>conf = {<br>  “driver”: “com.mysql.jdbc.Driver”,<br>  “url”: “jdbc:mysql://cdh101:3306/“,<br>  “dbtable”: ‘test.a’,<br>  “user”: ‘root’,<br>  “password”: ‘123456’,<br>}<br>df = spark.read.format(“jdbc”).options(**conf).load()</p>
+<h1 id="5-从list，set，dict创建dataftame"><a href="#5-从list，set，dict创建dataftame" class="headerlink" title="5.从list，set，dict创建dataftame"></a>5.从list，set，dict创建dataftame</h1><p>df = spark.createDataFrame(pd.DataFrame({“id”:[1,2,3,4],”name”:[‘qjj’,’zxw’,’zzz’,’abc’]}))  或<br>df = spark.createDataFrame([(1,’qjj’),(2,’zxw’),(3,’zzz’),(4,’abc’)], [‘id’, ‘name’])</p>
+<h1 id="6-读json文件"><a href="#6-读json文件" class="headerlink" title="6.读json文件"></a>6.读json文件</h1><p>df = spark.read.json(‘/datas/root/csv_data/json_file’)</p>
 </li>
 </ul>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><ul>
-<li><p>Pandas<br>index索引：自动创建<br>行结构：Series结构，属于Pandas DataFrame<br>列结构：Series结构，属于Pandas DataFrame</p>
-<pre><code class="python">pd_df[&#39;col&#39;] = 0  # 列添加
+<h1 id="7-从Parquet创建数据"><a href="#7-从Parquet创建数据" class="headerlink" title="7.从Parquet创建数据"></a>7.从Parquet创建数据</h1><p>df = spark.read.parquet(“…”)<br>df = spark.read.format(‘parquet’).load(‘parquet_file’),opt…)</p>
+<h1 id="8-从ORC创建数据"><a href="#8-从ORC创建数据" class="headerlink" title="8.从ORC创建数据"></a>8.从ORC创建数据</h1><p>df = spark.read.orc(‘…’)</p>
+<h1 id="9-从text创建数据"><a href="#9-从text创建数据" class="headerlink" title="9.从text创建数据"></a>9.从text创建数据</h1><p>df = spark.read.text(‘…’)</p>
+<pre><code>
+## 数据结构  
+* Pandas
+index索引：自动创建
+行结构：Series结构，属于Pandas DataFrame
+列结构：Series结构，属于Pandas DataFrame
+```python
+pd_df[&#39;col&#39;] = 0  # 列添加
 pd_df[&#39;col&#39;] = 1  # 列修改
+pd_df.rename(columns={&#39;col&#39;:&#39;new_col&#39;,&#39;xx&#39;:&#39;xxx&#39;})  # 重命名列名
+pd_df.columns=[&#39;col1&#39;,&#39;col2&#39;,&#39;col3&#39;]  # 重命名列名
 pd_df.dtypes  # 查看字段和类型
 pd_df.drop(columns=[&#39;col&#39;, &#39;name&#39;])  # 删除字段col
-</code></pre>
-</li>
-<li><p>PySpark<br>index索引：无<br>行结构：Row对象，属于Spark DataFrame<br>列结构：Column对象，属于Spark DataFrame</p>
-<pre><code class="python">from pyspark.sql.functions import lit
+</code></pre><ul>
+<li>PySpark<br>index索引：无<br>行结构：Row对象，属于Spark DataFrame<br>列结构：Column对象，属于Spark DataFrame<pre><code class="python">from pyspark.sql.functions import lit
 df = df.withColumn(&quot;col&quot;, lit(0))  # 列添加
 df = df.withColumn(&quot;col&quot;, lit(1))  # 列修改
+df = df.withColumnRenamed(&#39;col&#39;, &#39;new_col&#39;).withColumnRenamed(&#39;col1&#39;, &#39;new_col1&#39;)  # 重命名列名
 df.dtypes  # 查看字段和类型
 df.printSchema() # 打印字段和类型-树形
 df.drop(&#39;col&#39;, &#39;name&#39;)  # 删除字段col
@@ -545,6 +543,20 @@ df.orderBy(&#39;score&#39;) # 按列（score字段）顺序排序
 </code></pre>
 </li>
 </ul>
+<h2 id="交集并集差集"><a href="#交集并集差集" class="headerlink" title="交集并集差集"></a>交集并集差集</h2><ul>
+<li><p>Pandas</p>
+<pre><code class="python">pd.merge(pd_df1, pd_df2, on=[&#39;col1&#39;, &#39;col2&#39;, &#39;col3&#39;])  # 交集
+pd.merge(pd_df1,pd_df2,on=[&#39;col1&#39;, &#39;col2&#39;, &#39;col3&#39;], how=&#39;outer&#39;)  # 并集
+pd_df1=pd_df1.append(pd_df2);pd_df1=pd_df1.drop_duplicates(subset=[&#39;col1&#39;,&#39;col2&#39;,&#39;col3&#39;],keep=False);pd_df1  # 差集
+</code></pre>
+</li>
+<li><p>PySpark</p>
+<pre><code class="python">df = df1.intersect(df2)   # 交集
+df = df1.union(df2) # 并集
+df = df1.subtract(df2) # 差集
+</code></pre>
+</li>
+</ul>
 <h2 id="数据选择或切片"><a href="#数据选择或切片" class="headerlink" title="数据选择或切片"></a>数据选择或切片</h2><ul>
 <li><p>Pandas</p>
 <pre><code class="python"># 1.取一列
@@ -558,6 +570,8 @@ pd_df.head(2)
 # 5.按条件取数据
 pd_df.loc[pd_df.name==&#39;qjj&#39;]  # 取pd_df的name字段值为qjj记录
 pd_df.loc[pd_df.name==&#39;qjj&#39;, &#39;col&#39;]  # 取pd_df的name字段值为qjj的记录中name字段和col字段的值
+# 6.数据随机抽样
+pd_df.sample(n=None, frac=None, replace=False, weights=None, random_state=None, axis=None) # n行数 frac抽取比例 replace=False无放回  ...
 </code></pre>
 </li>
 <li><p>PySpark</p>
@@ -575,6 +589,8 @@ df.head(2) 或 df.take(2)
 # 5.按条件取数据
 df.filter(&quot;name=&#39;qjj&#39;&quot;) # 取df的name字段值为qjj记录
 df.filter(&quot;name=&#39;qjj&#39;&quot;).select(&#39;name&#39;, &#39;col&#39;) # 取df的name字段值为qjj的记录中name字段和col字段的值
+# 6.数据随机抽样
+df=df.sample(withReplacement=False, fraction=0.01) # withReplacement为False抽出数据不放回，fraction为抽取比例范围0-1，seed参数为随机数种子，默认即可
 </code></pre>
 </li>
 </ul>
@@ -643,17 +659,30 @@ df.select(&#39;col&#39;).filter(&#39;col is null&#39;).count()  # 统计某列�
 <h2 id="数据合并"><a href="#数据合并" class="headerlink" title="数据合并"></a>数据合并</h2><p>TODO:待完善测试</p>
 <ul>
 <li><p>Pandas</p>
-<pre><code class="python">Pandas下有concat方法，支持轴向合并
+<pre><code class="python">pd.concat([pd_df,pd_df1], axis=0)  # 数据横向合并axis=0  纵向合并axis=1
 Pandas下有merge方法，支持多列合并
 同名列自动添加后缀，对应键仅保留一份副本
 pd_df.join() 支持多列合并
 pd_df.append() 支持多行合并
+# 根据一定计算规则计算得到新增列  
 </code></pre>
 </li>
 <li><p>PySpark</p>
-<pre><code class="python">可以使用sql实现concat、merge功能
-Spark下有join方法即df.join()
-同名列不自动添加后缀，只有键值完全匹配才保留一份副本
+<pre><code class="python">df.withColumn(新列名，df[列名]**2)  # 数据简单操作后横向合并
+df.union(df1)  # 数据纵向合并-自动去除重复数据
+df.unionAll(df1)  # 数据纵向合并-不去除重复数据
+# 可以使用sql实现concat、merge功能
+df.join(df1,df.id==df1.id)  # inner join
+df.join(df1,df.id==df1.id, &#39;left&#39;)  # left join
+df.join(df1,df.id==df1.id, &#39;left&#39;)  # right join
+df.join(df1,df.id==df1.id, &#39;outer&#39;)  # full outer join 任何一边不存在填充null
+# 根据UDF计算得到新增列 udf+withColumn+闭包
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType
+l = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;] 
+for i in l:
+  my_udf = udf(lambda x: x.count(i) if x else 0, IntegerType())
+  df = df.withColumn(&#39;col_&#39; + i, my_udf(&#39;array_type_col&#39;))
 </code></pre>
 </li>
 </ul>
@@ -699,25 +728,48 @@ pd_df = pd.read_sql(sql_cmd, con)
 <li><p>PySpark</p>
 <pre><code class="python"># sql操作
 df.registerTempTable(&#39;score_table&#39;)  # 将已有数据注册成临时表（关闭SparkSession这个表就会消失）
+df.createOrReplaceTempView(&#39;score_table&#39;)  # 与registerTempTable功能相同，是较新的API
+df.createOrReplaceGlobalTempView(&#39;score_table&#39;)  # 上面两个是创建SparkSession级别的临时表 这个是Application级别的临时表
 spark.sql(&quot;desc score_table&quot;).show()
 spark.sql(&quot;&quot;&quot;select count(1) as count from score_table&quot;&quot;&quot;).show()
 # UDF高级功能函数注册操作
 from pyspark.sql.types import StringType  # 引入返回值类型
 spark.udf.register(&quot;get_length&quot;, lambda x: len(x), StringType())  # 注册UDF函数
 spark.sql(&quot;select get_length(&#39;name&#39;) from score_table&quot;).show()   # 使用UDF函数
+# 对特征进行操作
+df.selectExpr(&quot;a*2+b as a&quot;,&quot;b*3 as b&quot;)  # a字段值改为原始值*2加b字段值 可以有多个运算操作
+df = df.selectExpr(&quot;*&quot;,&quot;b*3 as b_3&quot;)  # 原始字段不变，新增b_3字段值为b字段*3
 </code></pre>
 </li>
 </ul>
 <h2 id="互相转换"><a href="#互相转换" class="headerlink" title="互相转换"></a>互相转换</h2><ul>
 <li><p>Pandas</p>
 <pre><code class="python">df = spark.createDataFrame(pandas_df)  # Pandas转Spark df
+df = spark.createDataFrame(pandas_df[[&#39;col1&#39;, &#39;col2&#39;]])  # Pandas某几个字段的df转Spark df
 </code></pre>
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">pandas_df = spark_df.toPandas()  # Spark转Pandas df
+pandas_df = spark_df.select(&#39;col1&#39;, &#39;col2&#39;).toPandas()  # Spark某几个字段的df转Pandas df
 </code></pre>
 <font size="3" color="red"><strong>注：Spark转Pandas df会将Spark df全部数据拉到Driver端单机单节点运行，性能差且网络IO占用高，尽量避免将大量数据转成Pandas DataFrame。</strong></font>
 
+</li>
+</ul>
+<h2 id="透视表"><a href="#透视表" class="headerlink" title="透视表"></a>透视表</h2><p>透视表与逆透视表：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-01.png" alt="alt pyspark-pandas-01"><br>透视Pivot：<br>按不需要转换的字段分组（groupBy） -&gt; pivot函数进行透视，可选第二个参数指定输出字段数据项 -&gt; 聚合汇总数据项得到结果<br>逆透视unpivot：列形式且无重复值的数据转成行形式且有重复值得数据</p>
+<ul>
+<li><p>Pandas</p>
+<pre><code class="python">l = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;]
+for tag in l:
+  pivot_table = pd.pivot_table(pd_df, index=[&#39;col1&#39;, &#39;col2&#39;], values=&#39;list_type_col&#39;, aggfunc=lambda x: sum(tag==j for i in x for j in i))  # 统计数组值等于tag计数True个数
+  pivot_table.columns=[tag]
+</code></pre>
+</li>
+<li><p>PySpark</p>
+<pre><code class="python"># 注意：pivot只能跟在groupBy之后
+l = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;]
+pivot_table = df.selectExpr(&#39;*&#39;, &#39;explode(list_type_col)&#39;, &#39;1 as tmp&#39;).groupBy(&#39;col1&#39;, &#39;col2&#39;).pivot(&quot;list_type_col&quot;, l).sum(&quot;tmp&quot;).fillna(0)   # 注意：不指定pivot的第二个参数所需字段会降低效率
+</code></pre>
 </li>
 </ul>
 <h2 id="diff操作"><a href="#diff操作" class="headerlink" title="diff操作"></a>diff操作</h2><ul>
@@ -727,6 +779,13 @@ spark.sql(&quot;select get_length(&#39;name&#39;) from score_table&quot;).show()
 </li>
 <li><p>PySpark</p>
 <pre><code class="python">没有diff操作（Spark的上下行是相互独立，分布式存储的）
+</code></pre>
+</li>
+</ul>
+<h2 id="数据保存"><a href="#数据保存" class="headerlink" title="数据保存"></a>数据保存</h2><pre><code class="python">...
+</code></pre>
+<ul>
+<li>PySpark<pre><code class="python">...
 </code></pre>
 </li>
 </ul>
@@ -771,9 +830,11 @@ delta = (upperBound - lowerBound) / numPartitions
 </code></pre>
 <p>也就是说，需要合理设置numPartitions和upperBound和upperBound的值，避免某个分区数据量过大。<br>尽量使用范围基本确定且分区字段值分布相对均匀的Int类型字段做分区字段。</p>
 </li>
+<li><p>多个UDF作用于同一列数据<br>Demo:<a href="https://github.com/Shmilyqjj/Shmily-py/blob/master/BigData/learn_and_tests/Spark/udf/multi_udf_one_col.py" target="_blank" rel="noopener">multi_udf_one_col.py</a></p>
+</li>
 </ul>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>Python三方库：SparklingPandas<br><a href="http://sparklingpandas.com/" target="_blank" rel="noopener">SparklingPandas</a></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://zhuanlan.zhihu.com/p/34901585" target="_blank" rel="noopener">pandas与pyspark对比</a><br><a href="https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">Spark：使用partitionColumn选项读取数据库原理</a><br><a href="https://blog.csdn.net/sinat_26917383/article/details/80500349" target="_blank" rel="noopener">PySpark-DataFrame操作指南</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://spark.apache.org/docs/2.4.4/api/python/pyspark.sql.html#pyspark.sql.DataFrame" target="_blank" rel="noopener">PySpark.sql module</a><br><a href="https://zhuanlan.zhihu.com/p/34901585" target="_blank" rel="noopener">pandas与pyspark对比</a><br><a href="https://blog.csdn.net/xuejianbest/article/details/85993767?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">Spark：使用partitionColumn选项读取数据库原理</a><br><a href="https://blog.csdn.net/sinat_26917383/article/details/80500349" target="_blank" rel="noopener">PySpark-DataFrame操作指南</a></p>
 
         </div>
         <!-- .entry-content -->
