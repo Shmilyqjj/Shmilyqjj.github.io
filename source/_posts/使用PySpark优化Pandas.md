@@ -298,7 +298,8 @@ for i in l:
 对应pd.apply(f)方法 即给df的每一列应用函数f
 * Pandas
 ```python
-pd_df.apply(f) # 将df的每一列应用函数f
+pd_df.apply(f) # 可作用于Series或整个Dataframe，并对每个元素应用函数f
+pd_df.apply(f, axis=1)  # axis=0 表示按列，axis=1 表示按行
 ```
 
 * PySpark
