@@ -17,10 +17,11 @@ description: 每天与Linux打交道，要熟悉呦！
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kafka/Kafka-Cover.jpg
 abbrlink: c8fda62b
-date: 2020-08-15 12:19:00
+date: 2020-08-22 12:19:00
 ---
 # 前言
-  《鸟哥的Linux私房菜》是一本非常经典的Linux学习书籍，在业界比较有地位，而每天的工作都要与它打交道，无论是服务部署运行，还是性能优化都与Linux息息相关，这就需要对Linux有深入的了解，才能更快地定位问题并从底层解决问题。当然写这篇也是为了汲取书中精华，并方便后面回看，同时也希望能给大家带来帮助。
+&emsp;&emsp;**《鸟哥的Linux私房菜》**是一本非常经典的Linux学习书籍，作为数据平台开发从业者，每天的工作都要与它打交道，无论是服务部署运行，性能优化还是问题排查都与Linux息息相关，这就需要对Linux有深入的了解，才能更快地定位问题并从底层解决问题。好记性不如烂笔头，写这篇也是为了汲取书中精华，做一个读书笔记，方便后面回看加深印象，同时也希望能给大家带来帮助。
+&emsp;&emsp;Tips:我尽量挑选必要的部分做笔记，一些过于基础的东西就不记啦，当然有些需要明确且重要的基础知识还是会记录的。点代码框上的TEXT可全屏放大看呦！
 ## 序章
 序章主要讲计算机各个组件组成及操作系统相关概念。
 ```
@@ -130,50 +131,190 @@ date: 2020-08-15 12:19:00
 9.chgrp改变群组 chown改变所有者 chmod改变权限  chown root:root -R /xx/xx改变xx目录及里面所有文件的用户为root组为root
 10.chmod [u\g\o\a] [+-=] [r\w\x] /path/file  u用户 g群组 o其他人 a全部 +增加权限 -去除权限  =设定权限   例：chomd u=rwx,go=rx /path/a  例：chmod a+w /path/a
 11.Linux下文件是否可执行只与x权限有关，与扩展名无关
-12.对于文件的w权限，只是写入、修改、增加等权限，并不是指有删除权限，例子：
-      -rw-r--r-- 1 root   root     0  8月 21 21:43 aaa  
+12.对于文件的w权限，只是写入、修改、增加等权限，并不是指有删除权限，
+     例子1：
+     -rw-r--r-- 1 root   root     0  8月 21 21:43 aaa  
      [shmily@shmily ~]$ rm aaa
      rm：是否删除有写保护的普通空文件 'aaa'？y
-     [shmily@shmily ~]$ 
-     注意：aaa虽然是其他用户，只有r权限，不能编辑和执行，但由于aaa在shmily的家目录，shmily对家目录有完全的rwx权限，所以可删。
-     类比：别人把名为aaa的密封文件袋放在你抽屉里，你没法打开文件袋查看和修改，但因为在你抽屉里，你可以直接扔垃圾桶。
-13.对于文件夹的w权限，有w则可以删除更新新建其下任何文件
+     例子2：
+     -rwxrwxrwx 1 root   root     0  8月 21 21:45 bbb 
+     [shmily@shmily root]$ rm aaa
+     rm: cannot remove ‘aaa’: Permission denied
+     注意：
+     aaa虽然是其他用户，只有r权限，不能编辑和执行，但由于aaa在shmily的家目录，shmily对自己家目录有完全的rwx权限，所以可删。
+     bbb虽然是777权限，但因为在root的家目录，shmily用户对root目录没有任何权限，所以不能删除root目录下的bbb文件
+     -rwxrwxrwx权限：该文件任何人都可以读取修改编辑和执行，但不一定能删除
+13.对于文件夹的w权限，有w则可以删除更新新建其下任何文件 开放目录给其他用户浏览时给r和x权限，w权限不可轻易给
 14.b代表块设备文件 ll /dev/sda可看.块设备就是存储数据的接口设备，如硬盘，ssd
 15.c字符设备 ll /dev/tty可看到 一般是输入设备如键盘鼠标等
 16.s套接字文件，资料接口文件sockets，常在/run和/tmp看到
 17.p命名管道文件，数据传送文件FIFO Pipe
 18./usr与软件安装执行有关，/var与系统运作过程有关
 19.根目录的意义与内容
-    看到5.3
-    
-    
-    
-20.
-21.
-22.
-23.
+    /bin -> usr/bin 存放一些可以被root和其他用户使用的命令如cat chmod mv cp date mkdir bash等
+    /boot 主要存放开机使用到的文件包括Linux Kernel、EFI、grub等（Kernel文件是vmlinuz）
+    /dev 任何装置和接口设备都是文件形式存在这个目录
+    /etc 系统主要的配置文件 其他用户可查看，只有root用户可修改
+    /lib 依赖函数库存放路径 一些/bin /sbin下的指令依赖
+    /media 存放可移除装置
+    /mnt 挂载路径
+    /opt 第三方软件存放位置
+    /run 存放运行时相关文件 df命令可以看到/run是tmpfs，也就是/run基于内存和交换空间的，速度快
+    /sbin 存放开机过程需要的包括了开机、修复、还原系统所需命令(包括fdisk、fsck、ifconfig、mkfs) /sbin -> /usr/sbin
+    /srv service的缩写，一些网络服务WWW\FTP等需要读取的数据目录。
+    /tmp 一般用户或正在执行程序存放临时文件的目录，任何人都可存取
+    /home 家目录 等同于~ 里面存放多个用户的用户目录  ~代表当前用户家目录 ~shmily用户shmily的家目录 -代表前一个工作目录(cd -)
+    /lib64 存放于/lib不同的二进制函数库
+    /root root的家目录
+    /lost+found ext2/3/4才有 存放系统错误时产生的片段
+    /proc 本身是一个虚拟文件系统，存在内存中，存放当前系统核心、进程、装置状态及网络状态等信息
+    /sys 也是一个虚拟文件系统，记录核心和硬件相关信息，包括已加载的核心模块和核心侦测到的硬件装置信息
+20./usr usr(Unix Software Resource) 这个目录很重要
+    /usr/bin 即/bin
+    /usr/lib 即/lib
+    /usr/local root用户安装的软件或同一软件不同版本可安装在这
+    /usr/sbin 即/sbin
+    /usr/share 只读数据文件和共享文件
+    /usr/games 游戏相关数据
+    /usr/include c/c++头文件header和include存放位置
+    /usr/libexec 不被普通用户使用的执行脚本或命令
+    /usr/lib64 即/lib64
+    /usr/src 放置源码
+21./var 主要存放常常变动的文件
+    /var/cache 存放程序运行时暂存文件
+    /var/lib 程序执行时存放数据文件的目录，各个程序所需数据在下面都有单独目录如/var/lib/mysql
+    /var/lock 锁文件 某些程序同时只能被一个用户调用
+    /var/log 重要 登陆日志和程序日志
+    /var/mail 同/var/spool/mail 存放邮件
+    /var/run 同/run
+    /var/spool 存放一些队列数据即排队等待其他程序使用的数据，类似于中间件消费，被使用后则删除消息。系统收到新信息放在/var/spool/mail如果没被查看则到/var/spool/mqueue，crontab调度产生的信息放在/var/spool/cron
+22.经常看到./xxx.sh执行脚本./代表本目录，当前目录
+23.uname -r查看系统内核版本 uname -a显示uname的所有信息
 ```
 
+## 第六章
+```
+1.pwd -P在link目录下显示真实路径而非链接路径  pwd全称：print working directory打印当前工作目录
+2.mkdir -m 766 dir 创建目录并直接指定权限，而非a=rwx-umask  umask是预设权限，在命令行输入umask可看到0022默认值，新建目录默认a=rwx-umask=777-022=755
+3.ls命令支持各种其他参数比如按时间排序，按大小排序，显示隐藏文件，带完整时间，排序结果倒序列出inode号等，具体man ls或ls --help查看
+4.cp命令常用的参数
+   -d 若原文件是链接则复制链接而非文件本身，不加-d则拷贝文件本身
+   -r 递归复制
+   -i 如果已存在目标，覆盖前询问
+   -p 复制时连同文件属性一起复制，而非使用默认属性
+   --preserve=all 除了-p权限外还SELinux属性，链接，xattr属性也复制了，如果复制多个目标，最后目标路径必须为目录
+   -a 等价于 -dr --preserve=all
+   -s 复制为符号链接
+   -l 复制为硬链接而非文件本身
+   cp到当前目录  cp /xx/xx/a.txt .
+5.rm命令常用参数
+   -f 忽略一切错误，强制，不弹出错误
+   -i 互动模式，询问是否删除
+   -r 递归删除
+6.创建-开头的文件并删除 touch ./-aaa-  rm ./-aaa-或touch -- -aaa-  rm -- -aaa-
+7.mv命令常用参数 mv -f强制  -i询问  -u源目录比目标目录文件新才会覆盖更新
+8.basename和dirname命令：basename取得最后的文件名，dirname取得文件所在目录名 所以文件的绝对路径即echo $(dirname $FILE)/$(basename $FILE)
+9.文件内容查阅[重要] 查日志必备
+   cat从第一行开始显示
+    
+   tac从最后一行开始显示
+ 
+   nl显示时顺便输出行号
 
+   more一页一页显示文件内容
 
+   less与more相似但可以往前翻页
+   
+   head只看头几行
 
+   tail只看尾几行
 
-* 字体
-*斜体文本*
-_斜体文本_
-**粗体文本**
-__粗体文本__
-***粗斜体文本***
-___粗斜体文本___
-<u>带下划线文本</u>
+   od以二进制方式读文件
+  
+10. 
+看到6.3.1
+```
 
+## 第七章
+```
+```
+
+## 第八章
+```
+```
+
+## 第九章
+```
+```
+
+## 第十章
+```
+```
+
+## 第十一章
+```
+```
+
+## 第十二章
+```
+```
+
+## 第十三章
+```
+```
+
+## 第十四章
+```
+```
+
+## 第十五章
+```
+```
+
+## 第十六章
+```
+```
+
+## 第十七章
+```
+```
+
+## 第十八章
+```
+```
+
+## 第十九章
+```
+```
+
+## 第二十章
+```
+```
+
+## 第二十一章
+```
+```
+
+## 第二十二章
+```
+```
+
+## 第二十三章
+```
+```
+
+## 第二十四章
+```
+```
+
+## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>
 <font size="2" color="blue">This is some text!</font>
 <font face="verdana" color="green"  size="3">This is some text!</font>
 
 
+
 ## 参考资料  
-[Kafka史上最详细原理总结](https://blog.csdn.net/u013573133/article/details/48142677)
-[Apache Kafka](http://kafka.apache.org/)
+《鸟哥的Linux私房菜》
 
