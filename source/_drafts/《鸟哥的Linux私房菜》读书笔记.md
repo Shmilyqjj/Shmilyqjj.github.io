@@ -215,24 +215,16 @@ date: 2020-08-22 12:19:00
 7.mv命令常用参数 mv -f强制  -i询问  -u源目录比目标目录文件新才会覆盖更新
 8.basename和dirname命令：basename取得最后的文件名，dirname取得文件所在目录名 所以文件的绝对路径即echo $(dirname $FILE)/$(basename $FILE)
 9.文件内容查阅[重要] 查日志必备
-   cat从第一行开始显示
-    
-   tac从最后一行开始显示
- 
-   nl显示时顺便输出行号
-
-   more一页一页显示文件内容
-
-   less与more相似但可以往前翻页
-   
-   head只看头几行
-
-   tail只看尾几行
-
-   od以二进制方式读文件
-  
+   cat从第一行开始显示 -n打印行号 -b打印非空行行号 -E打印出换行符 -T显示Tab -v列出看不到的特殊字符 -A等于-vET显示特殊字符
+   tac从最后一行开始显示，显示最后一行到第一行
+   nl显示时顺便输出行号 -ba等于cat -n，-bt等于cat -b，-n ln行号显示最左边
+   more一页一页显示文件内容 空格向下翻页，Enter向下一行，/搜索，:f显示文件名和行数，q离开，b向前翻页
+   less与more相似但可以往前翻页 PAGEDOWN或空格向下翻页，PAGEUP向上翻页，/或?搜索n正向搜索N反向搜索，g去第一行G去最后一行，q离开
+   head只看头几行-n 20看头20行，-n -20除了后20行都看
+   tail只看尾几行-n 20看后20行，-f持续侦测变动，取11-20行：head -20 /xx/a.log | tail -n 10,取11-20行且输出行号cat -n /xx/a.log | head -n 20 | tail -n 10
+   od以二进制方式读文件 od -t指定输出类型（a默认，c用ASCII，d[size]十进制，f[size]浮点数，o[size]八进制,x[size]十六进制，-oCc八进制列出值和ASCII对照表）
 10. 
-看到6.3.1
+看到6.3.5
 ```
 
 ## 第七章
