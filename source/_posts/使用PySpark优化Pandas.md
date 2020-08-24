@@ -86,6 +86,10 @@ df = spark.read.orc('...')
 df = spark.read.text('...')
 # 10.创建指定shape的带0的dataframe
 df = spark.createDataFrame([[0 for i in range(3)] for i in range(5)])  #5 行 3 列
+# 创建数据并制定字段名(Schema)
+from pyspark.sql.types import *
+schema = StructType().add('col1', StringType()).add('col2', IntegerType())
+df = spark.createDataFrame([('aaa', 1),('bbb', 2)], schema=schema)
 ```
 
 ## 数据结构  
