@@ -96,7 +96,7 @@ df = spark.createDataFrame([('aaa', 1),('bbb', 2)], schema=schema)
 * Pandas
 index索引：自动创建
 行结构：Series结构，属于Pandas DataFrame
-列结构：Series结构，属于Pandas DataFrame
+列结构：Column结构，属于Pandas DataFrame
 ```python
 pd_df['col'] = 0  # 列添加
 pd_df['col'] = 1  # 列修改
