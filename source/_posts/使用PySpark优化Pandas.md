@@ -88,7 +88,7 @@ df = spark.read.text('...')
 df = spark.createDataFrame([[0 for i in range(3)] for i in range(5)])  #5 行 3 列
 # 创建数据并制定字段名(Schema)
 from pyspark.sql.types import *
-schema = StructType().add('col1', StringType()).add('col2', IntegerType())
+schema = StructType().add('col1', StringType(), True).add('col2', IntegerType())  # True是否可以为空
 df = spark.createDataFrame([('aaa', 1),('bbb', 2)], schema=schema)
 ```
 
