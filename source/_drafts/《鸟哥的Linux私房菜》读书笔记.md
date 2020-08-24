@@ -223,8 +223,11 @@ date: 2020-08-22 12:19:00
    head只看头几行-n 20看头20行，-n -20除了后20行都看
    tail只看尾几行-n 20看后20行，-f持续侦测变动，取11-20行：head -20 /xx/a.log | tail -n 10,取11-20行且输出行号cat -n /xx/a.log | head -n 20 | tail -n 10
    od以二进制方式读文件 od -t指定输出类型（a默认，c用ASCII，d[size]十进制，f[size]浮点数，o[size]八进制,x[size]十六进制，-oCc八进制列出值和ASCII对照表）
-10. 
-看到6.3.5
+10. Linux文件mtime文件内容变更时间(非属性权限变更)  ctime权限被修改的时间  atime内容被读取访问的时间(如cat后)  查看方式date;ll aaa;ll aaa --time=atime;ll aaa --time=ctime默认输出mtime，然后依次输出atime和ctime
+11.touch -a/c/d/m/t 可以修改文件的时间
+12.Linux隐藏权限   可通过chattr设定，通过lsattr查看
+    文件预设权限umask 创建一个文件或目录的默认权限与之有关 查看: umask或umask -S  设置umask:umask 002全局umask设置在/etc/bashrc 注:0022第一个0就是特殊权限用的
+    看到6.4.2
 ```
 
 ## 第七章
