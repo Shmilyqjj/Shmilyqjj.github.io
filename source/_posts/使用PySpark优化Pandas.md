@@ -39,6 +39,7 @@ date: 2020-08-10 11:26:08
 2. 数据经过一系列操作、聚合后数据量减少，且**迫不得已**用Pandas的情况下再使用Pandas(<font size="3" color="red">**用Pandas处理的数据尽量更少**</font>)
 3. 如果可以，尽量全程使用PySpark进行分析操作
 4. 需要对计算复杂且耗时的Sparkdataframe进行cache避免重算提高效率
+5. 尽可能将一段处理逻辑写到一段SQL中，而非得到多个Dataframe然后进行join
 
 ## 数据创建  
 文中所有Spark Dataframe对象简称**df**,Pandas的Dataframe对象简称**pd_df**。
@@ -50,9 +51,11 @@ pd_df = spark.sql("select * from table").to_pandas # 3.读Hive整个表
 # 4.读MySQL表数据
 pd_df = pd.read_sql('select * from table', con=pymysql.connect(host="localhost",user=username,passwd=password,db=database_name,charset="utf8"))
 # 5.从list，set，dict创建dataftame
-pd.DataFrame({"id":[1,2,3,4],"name":['qjj','zxw','zzz','abc']})
+pd_df = pd.DataFrame({"id":[1,2,3,4,5],"name":['qjj','zxw','zzz','abc',np.nan]})
 # 6.读json
 pd_df = pd.read_json('/datas/root/csv_data/json_file')
+# zeros创建指定shape的带0的ndarray
+pd_df = np.zeros((5,3), dtype='int64')  #5 行 3 列
 ```
 
 * PySpark
@@ -70,11 +73,10 @@ conf = {
 }
 df = spark.read.format("jdbc").options(**conf).load()
 # 5.从list，set，dict创建dataftame
-df = spark.createDataFrame(pd.DataFrame({"id":[1,2,3,4],"name":['qjj','zxw','zzz','abc']}))  或
+df = spark.createDataFrame(pd.DataFrame({"id":[1,2,3,4,5],"name":['qjj','zxw','zzz','abc',None]}))  或
 df = spark.createDataFrame([(1,'qjj'),(2,'zxw'),(3,'zzz'),(4,'abc')], ['id', 'name'])
 # 6.读json文件
 df = spark.read.json('/datas/root/csv_data/json_file')
-
 # 7.从Parquet创建数据
 df = spark.read.parquet("...")
 df = spark.read.format('parquet').load('parquet_file'),opt...)
@@ -82,6 +84,8 @@ df = spark.read.format('parquet').load('parquet_file'),opt...)
 df = spark.read.orc('...')
 # 9.从text创建数据
 df = spark.read.text('...')
+# 10.创建指定shape的带0的dataframe
+df = spark.createDataFrame([[0 for i in range(3)] for i in range(5)])  #5 行 3 列
 ```
 
 ## 数据结构  
@@ -294,19 +298,22 @@ for i in l:
     df = df.withColumn('col_' + i, my_udf('array_type_col'))
 ```
 
-## 数据应用
+## 数据修改
 对应pd.apply(f)方法 即给df的每一列应用函数f
 * Pandas
 ```python
 pd_df.apply(f) # 可作用于Series或整个Dataframe，并对每个元素应用函数f
 pd_df.apply(f, axis=1)  # axis=0 表示按列，axis=1 表示按行
+pd_df.replace({1:10, 2:20})  # 将dataframe中值为1的都替换成10,2替换成20 pandas支持替换为不同类型
 ```
 
 * PySpark
 ```python
 df.foreach(f) 或者 df.rdd.foreach(f) # 将df的每一列应用函数f
 df.foreachPartition(f) 或者 df.rdd.foreachPartition(f) # 将df的每一分区数据应用函数f
+pd_df.replace({1:10, 2:20})  # 将dataframe中值为1的都替换成10,2替换成20 spark不支持替换为不同类型
 ```
+注意：Spark的apply方法会触发全量数据Shuffle，如果数据量过大会有shuffle异常和ExecutorOOM等错误，任务失败概率会增加，而且需要消耗更多计算资源
 
 ## 空值处理
 * Pandas
@@ -316,6 +323,7 @@ pd_df.fillna(1)  # fillna函数 将NaN的地方替换为1.0
 pd_df.dropna()  # dropna函数 将含有NaN的行删除
 pd_df['col']=np.where(pd.isnull(pd_df['col'], "unknown", pd_df['col']))  # 某个字段出现空时替换为unknown
 pd_df['col']=np.where(pd_df['col']=='', "unknown", pd_df['col'])  # 某个字段出现空字符串时替换为unknown
+pd_df.isna()  # 非空值变为False，有空值变为True
 ```
 
 * PySpark
@@ -326,6 +334,8 @@ df.na.drop().show()  # dropna函数 将含有null值字段的行删除
 df.dropna(subset=['col1', 'col2'])  # 扔掉col1或col2中任一一列包含null的行
 df=df.na.fill(subset='col', value='unknown') # 某个字段出现空时替换为unknown
 select if(col='','unknown',col) as col # 某个字段出现空字符串时替换为unknown
+df.fillna('True')  # 有空值变为True
+还可使用case when或if处理空值
 ```
 
 ## SQL支持
