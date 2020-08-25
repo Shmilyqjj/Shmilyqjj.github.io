@@ -225,9 +225,28 @@ date: 2020-08-22 12:19:00
    od以二进制方式读文件 od -t指定输出类型（a默认，c用ASCII，d[size]十进制，f[size]浮点数，o[size]八进制,x[size]十六进制，-oCc八进制列出值和ASCII对照表）
 10. Linux文件mtime文件内容变更时间(非属性权限变更)  ctime权限被修改的时间  atime内容被读取访问的时间(如cat后)  查看方式date;ll aaa;ll aaa --time=atime;ll aaa --time=ctime默认输出mtime，然后依次输出atime和ctime
 11.touch -a/c/d/m/t 可以修改文件的时间
-12.Linux隐藏权限   可通过chattr设定，通过lsattr查看
-    文件预设权限umask 创建一个文件或目录的默认权限与之有关 查看: umask或umask -S  设置umask:umask 002全局umask设置在/etc/bashrc 注:0022第一个0就是特殊权限用的
-    看到6.4.2
+12.文件预设权限umask 创建一个文件或目录的默认权限与之有关 查看: umask或umask -S  设置umask:umask 002全局umask设置在/etc/bashrc 注:0022第一个0就是特殊权限用的
+13.Linux隐藏权限   可通过chattr设定，通过lsattr查看  [ext2/3/4才有完整支持chattr]
+    chattr [+-=] [ASacdisu] pathOrFile
+    A 存取不会更新atime 降低IO负载
+    S 一般更新存储文件是异步的，加这个属性会同步写
+    a 只有root才能设定的属性 作用：这个文件只能增加数据，不能删除和修改
+    c 自动压缩这个文件，使用时自动解压--对大文件和不常用log很有用
+    d 避免dump程序备份这个文件
+    i 让一个文件不能更新删除写入和链接 只有root能设置
+    s 删除时彻底删除，完全救不回来
+    u 与s相反，如果被删除，数据内容还留在磁盘，可以恢复
+14.文件特殊权限SUID、SGID、SBIT
+    -rwsr-xr-x 1 root root 63640  7月 16 04:15 /usr/bin/passwd
+    drwxrwxrwt  21 root root  1040  8月 25 21:16 /tmp
+    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:仅对二进制文件有效，对目录和非二进制文件无效
+    SGID：与SUID相似，支持对目录设定
+    SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
+    设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
+15.
+16.
+17.
+看到6.4.4
 ```
 
 ## 第七章
