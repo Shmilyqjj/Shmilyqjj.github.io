@@ -23,6 +23,7 @@ date: 2020-08-10 11:26:08
 
 # 前言  
 &emsp;&emsp;Pandas一直是非常受欢迎的数据分析利器，它基于Numpy，专为解决数据分析任务。因其基于Python，只能单节点单核心运行，所以在大数据分析场景下，瓶颈很明显。PySpark是基于Spark JavaClient的上层接口，可以结合Python语言以及Spark分布式运行的特点，来解决Pandas在大数据下的瓶颈。本篇文章主要对比Pandas API与PySparkAPI，总结一些Pandas应用场景下使用PySpark提高效率的方案。
+&emsp;&emsp;本篇主要是对比Pandas和PySpark的API使用，但不能对它们众多API做一一对比介绍，所以对于PySpark的更多API使用请参考：**[pyspark.sql官方使用文档](http://spark.apache.org/docs/2.4.4/api/python/pyspark.sql.html)**
 
 ## 对比
 | 特点 | Pandas | PySpark | 
@@ -45,7 +46,7 @@ date: 2020-08-10 11:26:08
 文中所有Spark Dataframe对象简称**df**,Pandas的Dataframe对象简称**pd_df**。
 * Pandas
 ```python
-pd_df = pd.read_csv('/datas/root/csv_data/csv_file.csv')   # 1.读csv数据源
+pd_df = pd.read_csv('/datas/root/csv_data/csv_file.csv')   # 1.读本地csv数据源
 pd_df = spark.sql("select col1,col2 from table").to_pandas # 2.读Hive数据源
 pd_df = spark.sql("select * from table").to_pandas # 3.读Hive整个表
 # 4.读MySQL表数据
@@ -60,7 +61,8 @@ pd_df = np.zeros((5,3), dtype='int64')  #5 行 3 列
 
 * PySpark
 ```python
-df = spark.read.option('inferSchema',"true").option("header", "true").csv('/data/data_test/csv_file.csv')   # 1.读csv数据源
+df = spark.read.option('inferSchema',"true").option("header", "true").csv('/data/data_test/csv_file.csv')   # 1.读HDFS上csv数据源
+df = spark.read.csv("file:///a.csv") # 读本地csv 路径/a.csv 
 df = spark.sql("select col1,col2 from table") # 2.读Hive数据源
 df = spark.table('table') # 3.读Hive整个表
 # 4.读MySQL表数据 
@@ -86,7 +88,7 @@ df = spark.read.orc('...')
 df = spark.read.text('...')
 # 10.创建指定shape的带0的dataframe
 df = spark.createDataFrame([[0 for i in range(3)] for i in range(5)])  #5 行 3 列
-# 创建数据并制定字段名(Schema)
+# 创建数据并指定字段名(Schema)
 from pyspark.sql.types import *
 schema = StructType().add('col1', StringType(), True).add('col2', IntegerType())  # True是否可以为空
 df = spark.createDataFrame([('aaa', 1),('bbb', 2)], schema=schema)
@@ -256,6 +258,18 @@ df.groupBy('col').agg(functions.avg('score'), functions.min('score'), functions.
 spark.sql("select name,first(col) as col,sum(score) from table group by name").show()
 ```
 
+## 数据计算
+* Pandas
+```python
+pd_df['col'].apply(lambda x: round(math.log(7,2),2))  # 计算2为底7的log，精确小数点后2位
+pd_df['col'].apply(lambda x: sum(x))   # 求和
+```
+* PySpark
+```python
+spark.sql("select round(log(2,7),2) as r").show()  # 计算2为底7的log，精确小数点后2位
+spark.sql("select sum(col) from df").show()  # 求和
+```
+
 ## 数据统计
 * Pandas
 ```python
@@ -418,13 +432,23 @@ pd_df.diff()  # diff函数是用来将数据进行某种移动之后与原数据
 
 ## 数据保存
 ```python
-...
+pd_df.to_csv("/data/path_to_file")   # 写本地csv文件
 ```
 
 * PySpark
 ```python
-...
+df.write.csv("file:///data/path")    # 数据写本地csv，可能写多个文件
+df.coalesce(1).write.csv("file:///data/path")   # 数据写本地，写1个csv文件
+df.coalesce(1).mode("overwrite").option(header=True).csv('/data/hdfs_path',sep='\t')  # 写一个csv文件到hdfs，带header，默认覆盖，分隔符为\t
+df.write.insertInto('exist_hive_table')  # 追加写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
+df.write.insertInto('exist_hive_table', overwrite=True)  # 覆盖写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
+df.write.jdbc(url="jdbc:mysql://xxx.xxx.xxx.xxx:3306/db_name", table="table_name", mode="overwrite", properties={"user": "root", "password": "123456"})  # 将数据overwrite到mysql  注意数据量不能太大且并行度不能太高，可能会把mysql搞垮，建议并行度不超过10==>coalesce(10)  
+df.write.saveAsTable("hive_table", mode="append")  # 直接写数据到hive表 无论表是否已经存在都可以 还有options，partitionBy，format等参数影响表结构
+df.write.format('parquet').bucketBy(100,'year','month').sortBy('day').mode('overwrite').saveAsTable('sorted_bucketed_table')  # 数据排序分区存储成parquet
+df.coalesce(1).write.save(path,format,mode,partitionBy,**Options)  # 存储数据
+df.coalesce(1).write.json("file:///data/path",mode='overwrite',)  # 写数据到单个json文件
 ```
+注：文件写到hdfs也不要紧，可以通过挂载NFS或者FUSE等方式将hdfs目录挂载到本地，同样方便后续处理
 
 ## 高级用法（优化）
 * PySpark连续编写转换函数
