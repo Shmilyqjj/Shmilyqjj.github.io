@@ -239,14 +239,14 @@ date: 2020-08-22 12:19:00
 14.文件特殊权限SUID、SGID、SBIT
     -rwsr-xr-x 1 root root 63640  7月 16 04:15 /usr/bin/passwd
     drwxrwxrwt  21 root root  1040  8月 25 21:16 /tmp
-    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:仅对二进制文件有效，对目录和非二进制文件无效
+    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:权限仅对二进制文件有效，对目录和非二进制文件无效
     SGID：与SUID相似，支持对目录设定
     SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
     设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
-15.
-16.
+15.file命令可查看文件类型  file file_name
+16.搜索
 17.
-看到6.4.4
+看到6.5.1
 ```
 
 ## 第七章
