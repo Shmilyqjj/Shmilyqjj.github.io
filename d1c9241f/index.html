@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.9.0">
+<head>
   <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
   <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
   <meta charset="utf-8">
@@ -61,8 +61,8 @@
   </style>
   <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
   </style>
-</head>
-</html>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
 <body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
   <div class="scrollbar" id="bar">
   </div>
@@ -213,35 +213,35 @@
                   <ul class="sub-menu">
                     
                       <li>
-                        <a href="/categories/技术/">
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
                           <i class="fa fa-code" aria-hidden="true"></i>
                           技术
                         </a>
                       </li>
                     
                       <li>
-                        <a href="/categories/生活/">
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
                           <i class="fa fa-file-text-o" aria-hidden="true"></i>
                           生活
                         </a>
                       </li>
                     
                       <li>
-                        <a href="/categories/音乐/">
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
                           <i class="fa fa-music" aria-hidden="true"></i>
                           音乐
                         </a>
                       </li>
                     
                       <li>
-                        <a href="/categories/随想/">
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
                           <i class="fa fa-commenting-o" aria-hidden="true"></i>
                           随想
                         </a>
                       </li>
                     
                       <li>
-                        <a href="/categories/其他/">
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
                           <i class="fa fa-book" aria-hidden="true"></i>
                           其他
                         </a>
@@ -341,7 +341,7 @@
                       </li>
                     
                       <li>
-                        <a href="http://tech.shmily-qjj.top/">
+                        <a target="_blank" rel="noopener" href="http://tech.shmily-qjj.top/">
                           <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
                           技术
                         </a>
@@ -422,98 +422,87 @@
         
         <div class="entry-content">
           <h2 id="程序猿是怎么表白的"><a href="#程序猿是怎么表白的" class="headerlink" title="程序猿是怎么表白的"></a>程序猿是怎么表白的</h2><p>Hi Dear,要看看我的代码吗？不看怎么知道我爱你！<br>程序猿是怎么表白的？当然也离不开敲代码啦！<br>就缺个懂代码的女朋友了。。。</p>
+<h3 id="零-一行代码输出一个心"><a href="#零-一行代码输出一个心" class="headerlink" title="零.一行代码输出一个心"></a>零.一行代码输出一个心</h3><pre><code class="python">print(&#39;\n&#39;.join([&#39;&#39;.join([(&#39;Love&#39;[(x-y) % len(&#39;Love&#39;)] if ((x*0.05)**2+(y*0.1)**2-1)**3-(x*0.05)**2*(y*0.1)**3 &lt;= 0 else &#39; &#39;) for x in range(-30, 30)]) for y in range(30, -30, -1)]))</code></pre>
+<pre><code class="shell">python -c &quot;print(&#39;\033[35m&#39;+&#39;\n&#39;.join([&#39;&#39;.join([(&#39;Love&#39;[(x-y) % len(&#39;Love&#39;)] if ((x*0.05)**2+(y*0.1)**2-1)**3-(x*0.05)**2*(y*0.1)**3 &lt;= 0 else &#39; &#39;) for x in range(-30, 30)]) for y in range(30, -30, -1)])+&#39;\033[0m&#39;)&quot;</code></pre>
 <h3 id="一-我的世界只有太阳、月亮和你"><a href="#一-我的世界只有太阳、月亮和你" class="headerlink" title="一.我的世界只有太阳、月亮和你"></a>一.我的世界只有太阳、月亮和你</h3><pre><code class="code">/**
 * I love three things in this world.Sun, moon and you. Sun for morning, moon for night, and you forever.
 */
 class LoveThreeThings extends Me
-{
+&#123;
     const loveFirstThings  = &#39;Sun&#39;;
     const loveSecondThings = &#39;Moon&#39;;
     const loveThirdThings  = &#39;You&#39;;
     public function MyLove()
-    {
+    &#123;
         return &#39;I Love&#39; . self::loveThirdThings . &#39;forever. Never change!&#39;;
-    }
-}
-</code></pre>
+    &#125;
+&#125;</code></pre>
 <h3 id="二-百年好合"><a href="#二-百年好合" class="headerlink" title="二.百年好合"></a>二.百年好合</h3><pre><code class="code">while(&#39;ILoveyou&#39;):
     for IBeWithYou in range(0,50*365):
         time.sleep(60*60*24)
 //程序能一直执行，执行完50年，若我们还有50年，余生继续。
 //从前的日色变得很慢
 //车马邮件都慢
-//一生只够爱一人
-</code></pre>
+//一生只够爱一人</code></pre>
 <h3 id="三-谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔"><a href="#三-谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔" class="headerlink" title="三.谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔"></a>三.谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔</h3><pre><code class="code">   world.controlledBy(NoOne)
-    withMyGentle() {
+    withMyGentle() &#123;
         you.control(me).equals(true)
-    }
-    //谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔
-</code></pre>
-<h3 id="四-若爱，请深爱"><a href="#四-若爱，请深爱" class="headerlink" title="四.若爱，请深爱"></a>四.若爱，请深爱</h3><pre><code class="code"> if(love ==1)  {
-    while(1) {
+    &#125;
+    //谁都不能掌控全世界，但你至少可以掌控我，这是我的温柔</code></pre>
+<h3 id="四-若爱，请深爱"><a href="#四-若爱，请深爱" class="headerlink" title="四.若爱，请深爱"></a>四.若爱，请深爱</h3><pre><code class="code"> if(love ==1)  &#123;
+    while(1) &#123;
         love_depth ++;
-    }
- }
-</code></pre>
+    &#125;
+ &#125;</code></pre>
 <h3 id="五-将我手上的温度全部给予你，换取你幸福的脸庞"><a href="#五-将我手上的温度全部给予你，换取你幸福的脸庞" class="headerlink" title="五.将我手上的温度全部给予你，换取你幸福的脸庞"></a>五.将我手上的温度全部给予你，换取你幸福的脸庞</h3><pre><code class="code">if(you.hand==cold&amp;&amp;weather==winter):    //如果冬天里你的手是冰冷的
     giveyoulove(myhand.temp,yourhand.temp);    //将我手上的温度全部给予你
-    return you.happyface;     //换取你幸福的脸庞
-</code></pre>
-<h3 id="六-我一直在找你，当我找到你，也就找到了整个世界"><a href="#六-我一直在找你，当我找到你，也就找到了整个世界" class="headerlink" title="六.我一直在找你，当我找到你，也就找到了整个世界"></a>六.我一直在找你，当我找到你，也就找到了整个世界</h3><pre><code class="code">while (i.findYou()) {
-      if (i.get() == you) {
+    return you.happyface;     //换取你幸福的脸庞</code></pre>
+<h3 id="六-我一直在找你，当我找到你，也就找到了整个世界"><a href="#六-我一直在找你，当我找到你，也就找到了整个世界" class="headerlink" title="六.我一直在找你，当我找到你，也就找到了整个世界"></a>六.我一直在找你，当我找到你，也就找到了整个世界</h3><pre><code class="code">while (i.findYou()) &#123;
+      if (i.get() == you) &#123;
           System.out.print(&quot;Hello,Word!&quot;);
-      }
- }
-</code></pre>
-<h3 id="七-如果彼此相爱，那就白头偕老"><a href="#七-如果彼此相爱，那就白头偕老" class="headerlink" title="七.如果彼此相爱，那就白头偕老"></a>七.如果彼此相爱，那就白头偕老</h3><pre><code class="code">if(you.love(me) &amp;&amp; I.love(you)){ // 如果彼此相爱
+      &#125;
+ &#125;</code></pre>
+<h3 id="七-如果彼此相爱，那就白头偕老"><a href="#七-如果彼此相爱，那就白头偕老" class="headerlink" title="七.如果彼此相爱，那就白头偕老"></a>七.如果彼此相爱，那就白头偕老</h3><pre><code class="code">if(you.love(me) &amp;&amp; I.love(you))&#123; // 如果彼此相爱
    this.liveToOld();// 那就白头偕老
-}else{// 否则
+&#125;else&#123;// 否则
    this.bestWishesToYou(); // 祝你一切安好
-}
-</code></pre>
+&#125;</code></pre>
 <h3 id="八-陪伴是最长情的告白"><a href="#八-陪伴是最长情的告白" class="headerlink" title="八.陪伴是最长情的告白"></a>八.陪伴是最长情的告白</h3><pre><code class="code">StringBuilder love = newStringBuilder(&quot;&quot;);
 for(;;)｛
     love.append(Math.random()&gt;0.5?1:0);
 ｝
-
 </code></pre>
 <h3 id="九-自从遇见你，就不停地想你"><a href="#九-自从遇见你，就不停地想你" class="headerlink" title="九.自从遇见你，就不停地想你"></a>九.自从遇见你，就不停地想你</h3><pre><code class="code">public void missing_you(meet_you)
     int time = 0
     for（time=meet_you;;time++）｛
         missing_you();
-    ｝
-</code></pre>
-<h3 id="十-你若不来，我便不弃"><a href="#十-你若不来，我便不弃" class="headerlink" title="十.你若不来，我便不弃"></a>十.你若不来，我便不弃</h3><pre><code class="code">public Me waitYou(){
-    if(!appear){
+    ｝</code></pre>
+<h3 id="十-你若不来，我便不弃"><a href="#十-你若不来，我便不弃" class="headerlink" title="十.你若不来，我便不弃"></a>十.你若不来，我便不弃</h3><pre><code class="code">public Me waitYou()&#123;
+    if(!appear)&#123;
         this.waitYou();
-    }else{
+    &#125;else&#123;
         this.waitYou();
-    }
-}
-</code></pre>
-<h3 id="十一-听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母"><a href="#十一-听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母" class="headerlink" title="十一.听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母"></a>十一.听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母</h3><pre><code class="code">public void hearYouLeave(){
+    &#125;
+&#125;</code></pre>
+<h3 id="十一-听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母"><a href="#十一-听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母" class="headerlink" title="十一.听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母"></a>十一.听说你要走，站在雨里，任凭身体被水珠撕裂成一个个没有意义的字母</h3><pre><code class="code">public void hearYouLeave()&#123;
     String body = myself.toString();
     body.split(&quot;.&quot;);
-}
-</code></pre>
-<h3 id="十二-每一世，我都会在这等你！就算容颜变迁，就算时光流转"><a href="#十二-每一世，我都会在这等你！就算容颜变迁，就算时光流转" class="headerlink" title="十二.每一世，我都会在这等你！就算容颜变迁，就算时光流转"></a>十二.每一世，我都会在这等你！就算容颜变迁，就算时光流转</h3><pre><code class="code">public Me findYou(){
-    for(int age = 0;age &lt;= 120; age++){
-        try{
+&#125;</code></pre>
+<h3 id="十二-每一世，我都会在这等你！就算容颜变迁，就算时光流转"><a href="#十二-每一世，我都会在这等你！就算容颜变迁，就算时光流转" class="headerlink" title="十二.每一世，我都会在这等你！就算容颜变迁，就算时光流转"></a>十二.每一世，我都会在这等你！就算容颜变迁，就算时光流转</h3><pre><code class="code">public Me findYou()&#123;
+    for(int age = 0;age &lt;= 120; age++)&#123;
+        try&#123;
             Thread.sleep(60);
-            if(this.waitMyLove() != null){
+            if(this.waitMyLove() != null)&#123;
                 return this.waitMyLove();
-            }cache(InterruptedException e){
+            &#125;cache(InterruptedException e)&#123;
                 System.out.println(&quot;Time is nothing...&quot;);
-            }
-    }
+            &#125;
+    &#125;
     return null;
-}
-</code></pre>
-<h3 id="十三-待更新"><a href="#十三-待更新" class="headerlink" title="十三.待更新"></a>十三.待更新</h3><pre><code class="code">待更新...
-</code></pre>
+&#125;</code></pre>
+<h3 id="十三-待更新"><a href="#十三-待更新" class="headerlink" title="十三.待更新"></a>十三.待更新</h3><pre><code class="code">待更新...</code></pre>
 <ul>
-<li>参考资料：<br><a href="https://www.zhihu.com/question/311135945/answer/590117427?utm_source=qq&amp;utm_medium=social&amp;utm_oi=978620948336885760" target="_blank" rel="noopener">如何用你的专业来表白？</a></li>
+<li>参考资料：<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/311135945/answer/590117427?utm_source=qq&utm_medium=social&utm_oi=978620948336885760">如何用你的专业来表白？</a></li>
 </ul>
 
         </div>
@@ -781,35 +770,35 @@ $(document).ready(function() {
           <ul class="sub-menu">
             
               <li>
-                <a href="/categories/技术/">
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
                   <i class="fa fa-code" aria-hidden="true"></i>
                   技术
                 </a>
               </li>
             
               <li>
-                <a href="/categories/生活/">
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
                   <i class="fa fa-file-text-o" aria-hidden="true"></i>
                   生活
                 </a>
               </li>
             
               <li>
-                <a href="/categories/音乐/">
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
                   <i class="fa fa-music" aria-hidden="true"></i>
                   音乐
                 </a>
               </li>
             
               <li>
-                <a href="/categories/随想/">
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
                   <i class="fa fa-commenting-o" aria-hidden="true"></i>
                   随想
                 </a>
               </li>
             
               <li>
-                <a href="/categories/其他/">
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
                   <i class="fa fa-book" aria-hidden="true"></i>
                   其他
                 </a>
@@ -909,7 +898,7 @@ $(document).ready(function() {
               </li>
             
               <li>
-                <a href="http://tech.shmily-qjj.top/">
+                <a target="_blank" rel="noopener" href="http://tech.shmily-qjj.top/">
                   <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
                   技术
                 </a>
