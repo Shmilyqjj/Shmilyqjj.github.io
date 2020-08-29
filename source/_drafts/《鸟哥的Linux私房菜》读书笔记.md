@@ -244,9 +244,32 @@ date: 2020-08-22 12:19:00
     SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
     设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
 15.file命令可查看文件类型  file file_name
-16.搜索
+16.搜索:which寻找PATH中相关指令位置；找文件先用whereis和locate检查，找不到再用find
+   whereis -l指定到哪个目录查询 -b只找binary文件 -m找说明文件 -s只找source -u找其他类型 （用whereis有些文件找不到因为它只搜索/bin /sbin /usr/share/man等几个指定目录位置，所以有些文件找不到） whereis -l查看它都查哪些路径
+   locate -i忽略大小写 -c只输出数量 -l n只输出n行 -S输出locate记录的数据库文件地址文件夹文件数信息 该命令将元数据信息存放在/var/lib/mlocate/mlocate.db然后定期更新，所以查询快，但有时不准需要更新数据库，可用updatedb命令，更新时会读/etc/updatedb.conf中的设定去磁盘找并更新数据库 
+   find [PATH] [OPT] [Action]命令：
+      可加时间常数，以-mtime为例：
+         -mtime  n：找 n 天之前的那天发生修改的文件 
+         -mtime +n：列出n天前(不含第n天)发生修改的文件
+         -mtime -n：列出n天内(不含第n天)发生修改的文件
+         -newer file：列出比这个已存在的file还新的文件
+         -user name：找属于用户name的文件  --group name：找属于name组的文件
+         -nouser：找拥有者不在/etc/passwd的文件  -nogroup：找不存在于/etc/group记录的组的文件
+         -uid n：找UID相关，UID在/etc/passwd记录  -gid n：找GID相关，GID在/etc/group记录
+         -name filename：过滤文件名并查找
+         -size +50k找比50k大的文件  -size -10k找比10k小的文件
+         -type [fbcdlsp] 只找xx类型的文件：f普通文件，b装置文件，c装置文件，d目录，l链接，sSocket，p管道
+         -perm 0600：找0600权限的文件
+         -exec command：执行一条指令来处理搜索结果
+      常用示例：
+         find /opt -mtime 0   24小时内发生修改的文件（0替换为3就是3天前的那天24小时内）
+         find /opt -mtime -3  3天内发生修改的文件
+         find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
+         find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
+         find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
+         find /opt -user shmily -name *.conf  找opt目录下shmily用户的conf后缀文件
 17.
-看到6.5.1
+看到6.6
 ```
 
 ## 第七章
