@@ -90,7 +90,7 @@ date: 2020-08-22 12:19:00
 1.文件、文件夹名只要以小数点开头即为隐藏文件，ls看不到需要ls -a
 2.Linux分为6个操作接口环境tty1-tty6 切换方式CTRL+ALT+[F1~F6] 切换到文字接口后按CTRL+ALT+F1切换回图形界面
 3.一行命令太长可以用"\"切到下一行继续输入
-4.显示隐藏文件ls -al或ls -a或ll -a或ls -a -l
+4.显示隐藏文件ls -al或ls -a或ll -a或ls -a -l    常用:ls -l -trh按修改时间逆序友好输出
 5.控制台有乱码，先locale查看目前支持的语系，两条命令LANG="en_US.UTF-8"和export LC_ALL="en_US.UTF-8"解决本次登陆出现的乱码问题
 6.基础指令学习：
   date +%Y/%m/%d  年月日
@@ -190,9 +190,10 @@ date: 2020-08-22 12:19:00
     /var/spool 存放一些队列数据即排队等待其他程序使用的数据，类似于中间件消费，被使用后则删除消息。系统收到新信息放在/var/spool/mail如果没被查看则到/var/spool/mqueue，crontab调度产生的信息放在/var/spool/cron
 22.经常看到./xxx.sh执行脚本./代表本目录，当前目录
 23.uname -r查看系统内核版本 uname -a显示uname的所有信息
+24.groupadd guest添加一个guest组，useradd -G guest guest创建guest用户支持guest组，useradd -g guest guest1创建guest1并将它加入guest组，id guest查看guest用户属性
 ```
 
-## 第六章
+## 第六章 Linux文件与目录管理
 ```
 1.pwd -P在link目录下显示真实路径而非链接路径  pwd全称：print working directory打印当前工作目录
 2.mkdir -m 766 dir 创建目录并直接指定权限，而非a=rwx-umask  umask是预设权限，在命令行输入umask可看到0022默认值，新建目录默认a=rwx-umask=777-022=755
@@ -239,8 +240,8 @@ date: 2020-08-22 12:19:00
 14.文件特殊权限SUID、SGID、SBIT
     -rwsr-xr-x 1 root root 63640  7月 16 04:15 /usr/bin/passwd
     drwxrwxrwt  21 root root  1040  8月 25 21:16 /tmp
-    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:权限仅对二进制文件有效，对目录和非二进制文件无效
-    SGID：与SUID相似，支持对目录设定
+    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限 用户执行该binary程序过程中暂时拥有该程序所有者的权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:权限仅对二进制文件有效，对目录和非二进制文件无效
+    SGID：对目录设定，在该目录建立的文件的组名都与这个目录组名相同
     SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
     设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
 15.file命令可查看文件类型  file file_name
@@ -259,7 +260,7 @@ date: 2020-08-22 12:19:00
          -name filename：过滤文件名并查找
          -size +50k找比50k大的文件  -size -10k找比10k小的文件
          -type [fbcdlsp] 只找xx类型的文件：f普通文件，b装置文件，c装置文件，d目录，l链接，sSocket，p管道
-         -perm 0600：找0600权限的文件
+         -perm 0600：找0600权限的文件  -perm +4000找SUID权限文件
          -exec command：执行一条指令来处理搜索结果
       常用示例：
          find /opt -mtime 0   24小时内发生修改的文件（0替换为3就是3天前的那天24小时内）
@@ -268,12 +269,17 @@ date: 2020-08-22 12:19:00
          find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
          find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
          find /opt -user shmily -name *.conf  找opt目录下shmily用户的conf后缀文件
-17.
-看到6.6
+         find /opt -user shmily -name *.conf -exec ls -lh {} \;  找opt目录下shmily用户的conf后缀文件并执行ll列出完整信息
+         find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
+         find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
+         find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
+17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
+18.在目录下创建一个文件需要的权限：对该目录有wx权限
 ```
 
-## 第七章
+## 第七章 Linux磁盘与文件系统管理
 ```
+1.
 ```
 
 ## 第八章
