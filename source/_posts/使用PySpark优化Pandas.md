@@ -442,7 +442,8 @@ df.coalesce(1).write.csv("file:///data/path")   # 数据写本地，写1个csv�
 df.coalesce(1).mode("overwrite").option(header=True).csv('/data/hdfs_path',sep='\t')  # 写一个csv文件到hdfs，带header，默认覆盖，分隔符为\t
 df.write.insertInto('exist_hive_table')  # 追加写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
 df.write.insertInto('exist_hive_table', overwrite=True)  # 覆盖写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
-df.write.jdbc(url="jdbc:mysql://xxx.xxx.xxx.xxx:3306/db_name", table="table_name", mode="overwrite", properties={"user": "root", "password": "123456"})  # 将数据overwrite到mysql  注意数据量不能太大且并行度不能太高，可能会把mysql搞垮，建议并行度不超过10==>coalesce(10)  
+df.write.jdbc(url="jdbc:mysql://xxx.xxx.xxx.xxx:3306/db_name", table="table_name", mode="overwrite", properties={"user": "root", "password": "123456"})  # 将数据overwrite到mysql  注意数据量不能太大且并行度不能太高，可能会把mysql搞垮，建议并行度不超过10==>NumExecutors*ExecutorCores <= 10 写表时观察mysql端的负载和压力:show status;和show processlist;
+
 df.write.saveAsTable("hive_table", mode="append")  # 直接写数据到hive表 无论表是否已经存在都可以 还有options，partitionBy，format等参数影响表结构
 df.write.format('parquet').bucketBy(100,'year','month').sortBy('day').mode('overwrite').saveAsTable('sorted_bucketed_table')  # 数据排序分区存储成parquet
 df.coalesce(1).write.save(path,format,mode,partitionBy,**Options)  # 存储数据
