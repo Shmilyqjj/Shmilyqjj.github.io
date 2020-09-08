@@ -177,6 +177,22 @@ Spark相关
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
 
+spark动态资源分配，没用到Executor时回收资源
+val sparkConf = new SparkConf()
+    .set("spark.shuffle.service.enabled", "true")
+    .set("spark.dynamicAllocation.enabled", "true")
+    .set("spark.dynamicAllocation.minExecutors", "1") //最少占用1个Executor
+    .set("spark.dynamicAllocation.initialExecutors", "1") //默认初始化一个Executor
+    .set("spark.dynamicAllocation.maxExecutors", "6") //最多占用6个Executor
+    .set("spark.dynamicAllocation.executorIdleTimeout", "60") //executor闲置时间
+    .set("spark.dynamicAllocation.cachedExecutorIdleTimeout", "60") //cache闲置时间 如果spark计算当中使用了rdd.cache，不加下面的配置，动态资源不会释放
+    .set("spark.executor.cores", "3")  //使用的executor core
+    .setMaster("yarn")
+    .setAppName("Spark DynamicRelease")
+  val spark: SparkSession = SparkSession
+    .builder
+    .config(sparkConf)
+    .getOrCreate()
 
 groupByKey(11)将Shuffle并行度调整为11
 计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
