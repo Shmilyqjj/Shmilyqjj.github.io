@@ -647,6 +647,14 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 ###################################################
 Hive相关
 
+hivevar与hiveconf等预设变量：
+命名空间    使用权限    详细描述
+hivevar       rw    用户自定义变量
+hiveconf      rw    hive相关配置属性
+system        rw    java定义的配置属性
+env           r    Shell环境属性
+用法: set aa = '1';  select ${hiveconf:aa};
+
 HQL:
 1.in/exists的优化方案：
   select a.id,a.name from a where a.id in (selecr b.id from b);
@@ -718,6 +726,64 @@ Hive表数据转移-表迁移：
 ##################################################
 Mysql相关
 
+查看状态和负载
+查看并发线程数
+show status like 'Threads%';
+show status 下面有一些参数可以参考 https://www.cnblogs.com/zuxing/articles/7761262.html 和  https://blog.csdn.net/sdhymllc/article/details/88052704
+select * from information_schema.processlist where user='root';与show processlist类似，能进行筛选想看的信息。
+查看库的信息/机器IP
+show slave status\G;
+命令：show status like '%下面变量%'; 
+Aborted_clients 由于客户没有正确关闭连接已经死掉，已经放弃的连接数量。 
+Aborted_connects 尝试已经失败的MySQL服务器的连接的次数。 
+Connections 试图连接MySQL服务器的次数。 
+Created_tmp_tables 当执行语句时，已经被创造了的隐含临时表的数量。 
+Delayed_insert_threads 正在使用的延迟插入处理器线程的数量。 
+Delayed_writes 用INSERT DELAYED写入的行数。 
+Delayed_errors 用INSERT DELAYED写入的发生某些错误(可能重复键值)的行数。 
+Flush_commands 执行FLUSH命令的次数。 
+Handler_delete 请求从一张表中删除行的次数。 
+Handler_read_first 请求读入表中第一行的次数。 
+Handler_read_key 请求数字基于键读行。 
+Handler_read_next 请求读入基于一个键的一行的次数。 
+Handler_read_rnd 请求读入基于一个固定位置的一行的次数。 
+Handler_update 请求更新表中一行的次数。 
+Handler_write 请求向表中插入一行的次数。 
+Key_blocks_used 用于关键字缓存的块的数量。 
+Key_read_requests 请求从缓存读入一个键值的次数。 
+Key_reads 从磁盘物理读入一个键值的次数。 
+Key_write_requests 请求将一个关键字块写入缓存次数。 
+Key_writes 将一个键值块物理写入磁盘的次数。 
+Max_used_connections 同时使用的连接的最大数目。 
+Not_flushed_key_blocks 在键缓存中已经改变但是还没被清空到磁盘上的键块。 
+Not_flushed_delayed_rows 在INSERT DELAY队列中等待写入的行的数量。 
+Open_tables 打开表的数量。 
+Open_files 打开文件的数量。 
+Open_streams 打开流的数量(主要用于日志记载） 
+Opened_tables 已经打开的表的数量。 
+Questions 发往服务器的查询的数量。 
+Slow_queries 要花超过long_query_time时间的查询数量。 
+Threads_connected 当前打开的连接的数量。 
+Threads_running 不在睡眠的线程数量。 
+Uptime 服务器工作了多少秒。
+查看什么命令使用最多：SHOW GLOBAL STATUS LIKE 'COM_%';
+查看innode存储引擎状态：SHOW GLOBAL STATUS LIKE 'Innodb_%';
+查看表锁状态show status like 'table%';
+查看行锁状态：show global status like 'innodb_row_lock%';
+查看mysql当前设置的参数show variables;
+查看当前会话状态show status;
+查看全局状态show global status;
+查看缓存数量：show status like 'Qcache%';
+
+
+MySQL出现Waiting for table metadata lock的原因以及解决方法:
+出现场景https://www.cnblogs.com/digdeep/p/4892953.html
+show processlist ；显示的数据里有个id字段，就是sessionid，执行 kill id就可
+还可以调整超时锁的时间阈值  默认阈值1年。。。 下面改为1800s
+set session lock_wait_timeout = 1800;
+set global lock_wait_timeout = 1800;
+
+
 三大范式：
 1NF：表的每个列都有原子性(所有字段都是不可分割的原子值) - 提高数据库性能
 2NF：表的每个列都与主键相关(一个表只能保存一种数据，不可以把多种数据保存在同一张表) - 减少数据冗余
@@ -747,6 +813,8 @@ key: 真实使用的索引
 key_len: 使用到的索引长度
 rows：扫描的行数
 extra：包含MySQL为了解决查询的详细信息
+使用PROCEDURE ANALYSE()分析优化表数据类型select * from table PROCEDURE ANALYSE();
+
 
 没数据则插入 有数据则修改
 REPLACE INTO d_bigdata.system_state(name,state,info) VALUES('$2','$3','$4');
@@ -757,11 +825,6 @@ select DATE_SUB(start_time,Interval 2 DAY) from table;
 select DATE_SUB(now(),Interval 60 MINUTE);
 select datediff(DATE_SUB(now(),Interval 2 DAY), now()) as diff;
 
-查看并发线程数
-show status like 'Threads%';
-show status 下面有一些参数可以参考 https://www.cnblogs.com/zuxing/articles/7761262.html 和  https://blog.csdn.net/sdhymllc/article/details/88052704
-
-select * from information_schema.processlist where user='root';与show processlist类似，能进行筛选想看的信息。
 
 # 无论什么的cursor（mysql、 hive），多次execute后，fetch只能fetch到最后一次的execute数据
 查看hive表的注释 SHOW TBLPROPERTIES table_name ('comment');
@@ -776,15 +839,7 @@ info_dicts = df.to_dict()
 col_comment_in_hive = reduce(lambda x, y: dict(x, **y), map(lambda x: {(x[0], x[2]): x[1]}, zip \
 (info_dicts['col_name'].values(), info_dicts['comment'].values(), info_dicts['data_type'].values())))
 
-查看库的信息/机器IP
-show slave status\G;
 
-MySQL出现Waiting for table metadata lock的原因以及解决方法:
-出现场景https://www.cnblogs.com/digdeep/p/4892953.html
-show processlist ；显示的数据里有个id字段，就是sessionid，执行 kill id就可
-还可以调整超时锁的时间阈值  默认阈值1年。。。 下面改为1800s
-set session lock_wait_timeout = 1800;
-set global lock_wait_timeout = 1800;
 
 with xx as语法 可以实现一个或多个别名（貌似sqlserver语法，mysql不支持）
 在Mysql中用临时表：  语法：create temporary table aaa select * from student; 这样就创建了aaa临时表
