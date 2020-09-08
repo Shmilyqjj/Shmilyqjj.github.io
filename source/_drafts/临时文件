@@ -175,6 +175,9 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
+
+
 groupByKey(11)将Shuffle并行度调整为11
 计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
 虽然两个函数都能得出正确的结果， 但reduceByKey函数更适合使用在大数据集上。
