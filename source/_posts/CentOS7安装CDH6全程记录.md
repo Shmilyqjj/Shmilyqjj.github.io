@@ -647,3 +647,25 @@ manifest.json
 1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
 3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
+
+### 升级Python版本为3.8
+```shell
+cd /opt/software
+wget https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tgz
+tar -zxvf Python-3.8.5.tgz
+xsync或scp -r Python-3.8.5拷贝到其他节点，并对所有节点如下操作
+cd Python-3.8.5
+yum update -y
+yum groupinstall -y 'Development Tools'
+yum install -y gcc openssl-devel bzip2-devel libffi-devel
+./configure prefix=/usr/local/python3
+make && make install
+ls -la /usr/bin/python*
+vim /usr/bin/yum  #!/usr/bin/python 改为 #!/usr/bin/python2
+vim /usr/libexec/urlgrabber-ext-down  #!/usr/bin/python 改为 #!/usr/bin/python2
+mv /usr/bin/python /usr/bin/python_bak
+ln -s /usr/local/python3/bin/python3.8 /usr/bin/python
+mv /usr/bin/pip /usr/bin/pip_bak
+ln -s /usr/local/python3/bin/pip3.8 /usr/bin/pip
+python -V && pip -V
+```
