@@ -794,19 +794,20 @@ df.coalesce(1).write.csv(&quot;file:///data/path&quot;)   # 数据写本地，�
 df.coalesce(1).mode(&quot;overwrite&quot;).option(header=True).csv(&#39;/data/hdfs_path&#39;,sep=&#39;\t&#39;)  # 写一个csv文件到hdfs，带header，默认覆盖，分隔符为\t
 df.write.insertInto(&#39;exist_hive_table&#39;)  # 追加写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
 df.write.insertInto(&#39;exist_hive_table&#39;, overwrite=True)  # 覆盖写数据到已存在的hive表  字段与df中字段名称顺序类型要对应
-df.write.jdbc(url=&quot;jdbc:mysql://xxx.xxx.xxx.xxx:3306/db_name&quot;, table=&quot;table_name&quot;, mode=&quot;overwrite&quot;, properties=&#123;&quot;user&quot;: &quot;root&quot;, &quot;password&quot;: &quot;123456&quot;&#125;)  # 将数据overwrite到mysql  注意数据量不能太大且并行度不能太高，可能会把mysql搞垮，建议并行度不超过10==&gt;coalesce(10)  
-df.write.saveAsTable(&quot;hive_table&quot;, mode=&quot;append&quot;)  # 直接写数据到hive表 无论表是否已经存在都可以 还有options，partitionBy，format等参数影响表结构
-df.write.format(&#39;parquet&#39;).bucketBy(100,&#39;year&#39;,&#39;month&#39;).sortBy(&#39;day&#39;).mode(&#39;overwrite&#39;).saveAsTable(&#39;sorted_bucketed_table&#39;)  # 数据排序分区存储成parquet
-df.coalesce(1).write.save(path,format,mode,partitionBy,**Options)  # 存储数据
-df.coalesce(1).write.json(&quot;file:///data/path&quot;,mode=&#39;overwrite&#39;,)  # 写数据到单个json文件</code></pre>
-注：文件写到hdfs也不要紧，可以通过挂载NFS或者FUSE等方式将hdfs目录挂载到本地，同样方便后续处理</li>
-</ul>
-<h2 id="高级用法（优化）"><a href="#高级用法（优化）" class="headerlink" title="高级用法（优化）"></a>高级用法（优化）</h2><ul>
-<li><p>PySpark连续编写转换函数</p>
-<pre><code class="python">spark.table(&#39;ods_test.test&#39;).filter(&#39;age=22&#39;).where(&#39;dt=&quot;20200524&quot;&#39;).groupBy(&#39;id&#39;).avg(&#39;age&#39;).registerTempTable(&#39;tmp&#39;)
-for i in spark.sql(&quot;select id,&#39;avg(age)&#39; as avg_age from tmp&quot;).collect():
-  print(i[0], i[1])</code></pre>
+df.write.jdbc(url=&quot;jdbc:mysql://xxx.xxx.xxx.xxx:3306/db_name&quot;, table=&quot;table_name&quot;, mode=&quot;overwrite&quot;, properties=&#123;&quot;user&quot;: &quot;root&quot;, &quot;password&quot;: &quot;123456&quot;&#125;)  # 将数据overwrite到mysql  注意数据量不能太大且并行度不能太高，可能会把mysql搞垮，建议并行度不超过10==&gt;NumExecutors*ExecutorCores &lt;= 10 写表时观察mysql端的负载和压力:show status;和show processlist;
+</code></pre>
 </li>
+</ul>
+<p>df.write.saveAsTable(“hive_table”, mode=”append”)  # 直接写数据到hive表 无论表是否已经存在都可以 还有options，partitionBy，format等参数影响表结构<br>df.write.format(‘parquet’).bucketBy(100,’year’,’month’).sortBy(‘day’).mode(‘overwrite’).saveAsTable(‘sorted_bucketed_table’)  # 数据排序分区存储成parquet<br>df.coalesce(1).write.save(path,format,mode,partitionBy,**Options)  # 存储数据<br>df.coalesce(1).write.json(“file:///data/path”,mode=’overwrite’,)  # 写数据到单个json文件</p>
+<pre><code>注：文件写到hdfs也不要紧，可以通过挂载NFS或者FUSE等方式将hdfs目录挂载到本地，同样方便后续处理
+
+## 高级用法（优化）
+* PySpark连续编写转换函数
+```python
+spark.table(&#39;ods_test.test&#39;).filter(&#39;age=22&#39;).where(&#39;dt=&quot;20200524&quot;&#39;).groupBy(&#39;id&#39;).avg(&#39;age&#39;).registerTempTable(&#39;tmp&#39;)
+for i in spark.sql(&quot;select id,&#39;avg(age)&#39; as avg_age from tmp&quot;).collect():
+    print(i[0], i[1])</code></pre>
+<ul>
 <li><p>读取MySQL大表优化<br>partitionColumn：分区字段，需要是数值类的（partitionColumn must be a numeric column from the table in question.），经测试，除整型外，float、double、decimal都是可以的<br>lowerBound：下界，必须为整数，不能大于upperBound否则报错<br>upperBound：上界，必须为整数，与lowerBound一起确定分区数据量步长，lowerBound和upperBound并不会过滤数据。<br>numPartitions：最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1；并不一定是最终的分区数量，例如“upperBound - lowerBound&lt; numPartitions”时，实际的分区数量是“upperBound - lowerBound”；<br>以上四个参数必须同时制定否则报错。<br>在分区结果中，分区是连续的，虽然查看每条记录的分区，不是顺序的，但是将rdd保存为文件后，可以看出是顺序的。</p>
 <pre><code class="python">conf = &#123;
   &quot;driver&quot;: &quot;com.mysql.jdbc.Driver&quot;,
