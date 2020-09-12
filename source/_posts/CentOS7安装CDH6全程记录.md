@@ -121,7 +121,7 @@ CentOS 7
 ![alt CDH-05.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.5.jpg)  
 
 ===2020更新===
-推荐使用Hyper-V  win10自带不说，轻量级的检查点超好用，就算崩了还能从检查点恢复。感觉甩VMWare一百条街。
+推荐使用Hyper-V 
 配置方法大体相同，要注意网络那块
 在Hyper-V管理器中的虚拟交换机管理器新建内部网络，然后如果要指定IP，需要去电脑的网络设置IPV4，然后设置把Wifi网络共享给这个网卡。
 IPV4：192.168.x.1  (x均替换为你喜欢的值 1-254)
@@ -132,7 +132,12 @@ NETMASK=255.255.255.0
 DNS1=192.168.x.1
 DNS2=192.168.x.2
 ........
-很方便
+最终我的设置如图：
+![alt CDH-05.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.6.JPG)  
+![alt CDH-05.7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.7.JPG)  
+![alt CDH-05.8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.8.JPG)  
+![alt CDH-05.9](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.9.JPG)  
+
 
 安装完成后Reboot，按步骤进行如下配置  
 ```shell
