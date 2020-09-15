@@ -13,8 +13,9 @@ GRUB_CFG_BACKUP="$GRUB_CFG"_bak
 echo "Backup path: $GRUB_CFG_BACKUP"
 cp $GRUB_CFG $GRUB_CFG_BACKUP
 
+# 防止不能加载显卡不能进桌面
 sed -i 's/quiet/quiet acpi_osi=! acpi_osi="Windows 2009"/g' $GRUB_CFG
-
+# 开机等待界面超时时间设为3s
 sed -i 's/timeout=10/timeout=3/g' $GRUB_CFG
 
 echo "Result:"
