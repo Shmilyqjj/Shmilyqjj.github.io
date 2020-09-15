@@ -403,6 +403,17 @@ Spark问题：
     SortShuffle分两种：普通机制(reduceByKey),Bypass机制(sortByKey,repartition) 原理：maptask数据先写内存(默认5M)，如果写入内存大小超5M就尝试申请更多内存(5.01*2-5)，如果申请成功则不溢写磁盘，否则会溢写磁盘，可能会溢写多个磁盘文件，再合并为一个大磁盘文件，且生成一个索引文件。reduce去map端拉取数据时先解析索引文件，再根据Offset获取到对应数据。
         ByPass机制触发条件：Shuffle reduce task 数量小于spark.shuffle .sort.bypassMerge Threadshold参数的值，小于200，不开启，溢写磁盘不需要排序，小于等于的时候是开启的。
         优化机制产生的磁盘小文件的个数：C*R    Hash shuffle：产生的磁盘小文件：M*R       Sort shuffle产生的磁盘小文件的个数为：2*M      Bypass机制产生的磁盘小文件的个数为:2*M
+16.动态资源自适应调节 没使用executor时节约资源
+    val sparkConf = new SparkConf()
+    .set("spark.shuffle.service.enabled", "true")
+    .set("spark.dynamicAllocation.enabled", "true")
+    .set("spark.dynamicAllocation.minExecutors", "1")   //最少1个Executor
+    .set("spark.dynamicAllocation.initialExecutors", "1")  //默认初始化一个Executor
+    .set("spark.dynamicAllocation.maxExecutors", "6")   //最多开6个Executor
+    .set("spark.dynamicAllocation.executorIdleTimeout", "60")  //executor闲置时间
+    .set("spark.dynamicAllocation.cachedExecutorIdleTimeout", "60")  //cache闲置时间 如果代码用了cache，不加这个会不释放动态资源
+    .set("spark.executor.cores", "3") ...
+
 
 
 
@@ -1369,7 +1380,18 @@ HBase性能优化方法总结
 
     Bloom Filter通过空间换时间,提高读操作性能。Hbase利用Bloomfilter 来提高随机读（Get）的性能,对于顺序读（Scan）而言,设置BloomFilter是没有作用的.
 
+-----------------------------------------------------------------------------
+Java相关
 
+
+@PostConstruct：被@PostConstruct修饰的方法会在服务器加载Servlet的时候运行，并且只会被服务器执行一次，可以使用@PostConstruct注解一个方法来完成初始化，@PostConstruct注解的方法将会在依赖注入完成后被自动调用
+  用法：
+  @PostConstruct
+  private void init() {
+      logger.info("@PostConstruct运行一次，也是唯一一次运行");
+  }
+
+thread.start()可以单开个线程后台执行一些定时任务
 
 
 
