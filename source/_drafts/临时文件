@@ -1393,7 +1393,11 @@ Java相关
 
 thread.start()可以单开个线程后台执行一些定时任务
 
-
+查看Java运行情况：
+  jmap -heap pid 查看内存使用情况
+  jstat -gcutil pid 查看GC情况 
+  jstat -gc pid 查看GC情况
+  jstack -l pid 查看JVM进程中线程运行情况
 
 
 
