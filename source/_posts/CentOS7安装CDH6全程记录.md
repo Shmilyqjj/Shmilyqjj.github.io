@@ -666,6 +666,6 @@ vim /usr/libexec/urlgrabber-ext-down  #!/usr/bin/python 改为 #!/usr/bin/python
 mv /usr/bin/python /usr/bin/python_bak
 ln -s /usr/local/python3/bin/python3.8 /usr/bin/python
 mv /usr/bin/pip /usr/bin/pip_bak
-ln -s /usr/local/python3/bin/pip3.8 /usr/bin/pip
-python -V && pip -V
+ln -s /usr/local/python3/bin/pip3.8 /usr/bin/pip3
+python -V && pip3 -V
 ```
