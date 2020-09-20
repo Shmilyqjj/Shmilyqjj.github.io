@@ -2,7 +2,7 @@
 title: 《鸟哥的Linux私房菜》读书笔记
 author: 佳境
 avatar: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Linux/Linux-ng-cover.jpg
 authorLink: shmily-qjj.top
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
