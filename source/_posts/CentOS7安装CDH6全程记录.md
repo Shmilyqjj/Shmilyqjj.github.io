@@ -665,7 +665,13 @@ vim /usr/bin/yum  #!/usr/bin/python 改为 #!/usr/bin/python2
 vim /usr/libexec/urlgrabber-ext-down  #!/usr/bin/python 改为 #!/usr/bin/python2
 mv /usr/bin/python /usr/bin/python_bak
 ln -s /usr/local/python3/bin/python3.8 /usr/bin/python
+ln -s /usr/local/python3/bin/python3.8 /usr/bin/python3
 mv /usr/bin/pip /usr/bin/pip_bak
 ln -s /usr/local/python3/bin/pip3.8 /usr/bin/pip3
 python -V && pip3 -V
+---------------后续操作----------------
+/usr/local/python3/bin/python3.8 -m pip install --upgrade pip -i https://pypi.doubanio.com/simple
+pip3 install pyspark -i https://pypi.doubanio.com/simple
+spark-env增加export PYSPARK_PYTHON=/usr/local/python3/bin/python3.8
+pip3 install koalas -i https://pypi.doubanio.com/simple
 ```
