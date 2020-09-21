@@ -103,7 +103,52 @@ ps -ef | grep orientdb可以看到已启动
 ```  
 
 ### 控制台命令
+创建库
+CREATE DATABASE PLOCAL:/opt/orientdb/databses/demo
 
+创建CLASS
+CREATE CLASS tablelineage
+
+创建属性
+CREATE PROPERTY tablelineage.tablename STRING
+CREATE PROPERTY tablelineage.lastaccesstime date
+CREATE PROPERTY tablelineage.accesstimes integer
+CREATE PROPERTY tablelineage.lastaccessuser STRING
+
+连接数据库
+CONNECT PLOCAL:/opt/orientdb/databses/demo admin admin
+
+断开数据库
+DISCONNECT
+
+写入数据到CLASS
+INSERT INTO tablelineage VALUES ('QJJ','2020-09-21 10:38:41')
+
+新增VERTEX顶点
+CREATE VERTEX V 
+CREATE VERTEX V SET name="user01",sex="M",age="25";
+CREATE VERTEX V SET name="user02",sex="F",age="23";
+
+删除VERTEX顶点
+DELETE VERTEX V WHERE name="user01";
+
+新增Edge边
+CREATE EDGE E FROM #1:1 TO #1:2 SET name="friend";
+
+删除Edge边
+DELETE EDGE E WHERE name="friend";
+
+创建新的顶点类型
+CREATE CLASS V1 EXTENDS V
+
+移动顶点
+MOVE VERTEX #13:1 TO CLASS:V1
+
+创建新的边类型
+CREATE CLASS E1 EXTENDS E
+
+应用新的边类型到两个结点
+CREATE EDGE E1 FROM #10:3 TO #11:4
 
 ### WebUI使用
 
