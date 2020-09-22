@@ -111,9 +111,10 @@ CREATE CLASS tablelineage
 
 创建属性
 CREATE PROPERTY tablelineage.tablename STRING
-CREATE PROPERTY tablelineage.lastaccesstime date
+CREATE PROPERTY tablelineage.lastaccesstime datetime
 CREATE PROPERTY tablelineage.accesstimes integer
 CREATE PROPERTY tablelineage.lastaccessuser STRING
+CREATE PROPERTY tablelineage.create_time date 
 
 连接数据库
 CONNECT PLOCAL:/opt/orientdb/databses/demo admin admin
@@ -150,11 +151,24 @@ CREATE CLASS E1 EXTENDS E
 应用新的边类型到两个结点
 CREATE EDGE E1 FROM #10:3 TO #11:4
 
+获取当前时间
+SELECT SYSDATE()
+
+查询一个CLASS
+SELECT FROM class_name
+SELECT * FROM class_name
+SELECT * FROM class_name where name = "qjj"
+
+更新CLASS
+UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in IN (SELECT FROM class_name WHERE name = "abc")  (通过条件更新，用IN代替=)
+UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in = #43:0     (通过RecordID更新)
+
+
 ### WebUI使用
 
 
 
-### 经典案例实现
+### 经典案例实践
 https://www.cnblogs.com/lexiaofei/p/6672778.html
 
 
