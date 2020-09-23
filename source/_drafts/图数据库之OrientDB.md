@@ -103,78 +103,122 @@ ps -ef | grep orientdb可以看到已启动
 ```  
 
 ### 控制台命令
+```OrientDB
 创建库
 CREATE DATABASE PLOCAL:/opt/orientdb/databses/demo
-
 创建CLASS
 CREATE CLASS tablelineage
-
 创建属性
 CREATE PROPERTY tablelineage.tablename STRING
 CREATE PROPERTY tablelineage.lastaccesstime datetime
 CREATE PROPERTY tablelineage.accesstimes integer
 CREATE PROPERTY tablelineage.lastaccessuser STRING
 CREATE PROPERTY tablelineage.create_time date 
-
 连接数据库
 CONNECT PLOCAL:/opt/orientdb/databses/demo admin admin
-
 断开数据库
 DISCONNECT
-
 写入数据到CLASS
 INSERT INTO tablelineage VALUES ('QJJ','2020-09-21 10:38:41')
-
 新增VERTEX顶点
 CREATE VERTEX V 
 CREATE VERTEX V SET name="user01",sex="M",age="25";
 CREATE VERTEX V SET name="user02",sex="F",age="23";
-
 删除VERTEX顶点
 DELETE VERTEX V WHERE name="user01";
-
 新增Edge边
 CREATE EDGE E FROM #1:1 TO #1:2 SET name="friend";
-
 删除Edge边
 DELETE EDGE E WHERE name="friend";
-
 创建新的顶点类型
 CREATE CLASS V1 EXTENDS V
-
 移动顶点
 MOVE VERTEX #13:1 TO CLASS:V1
-
 创建新的边类型
 CREATE CLASS E1 EXTENDS E
-
 应用新的边类型到两个结点
 CREATE EDGE E1 FROM #10:3 TO #11:4
-
 获取当前时间
 SELECT SYSDATE()
-
 查询一个CLASS
 SELECT FROM class_name
 SELECT * FROM class_name
 SELECT * FROM class_name where name = "qjj"
-
 更新CLASS
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in IN (SELECT FROM class_name WHERE name = "abc")  (通过条件更新，用IN代替=)
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in = #43:0     (通过RecordID更新)
-
+```
 
 ### WebUI使用
 
 
 
 ### 经典案例实践
-https://www.cnblogs.com/lexiaofei/p/6672778.html
-
-
-
+```sql
+-- 小朱25岁，出生在教师家庭并且有个姐姐小田，他现在奋斗在帝都。 
+CREATE VERTEX V SET name="小朱",sex="男",age="25";
+CREATE VERTEX V SET name="小田",sex="女",age="27";
+CREATE EDGE E FROM #9:0 TO #10:0 SET name="sisiter";
+CREATE EDGE E FROM #10:0 TO #9:0 SET name="brother";
+Select from V where name in ['小朱',"小田"];  -- select 在 Graph 页面查询会自动渲染出关系结果
+-- 小朱还有一个可爱的女盆友叫小刘
+CREATE VERTEX V SET name="小刘",sex="女",age="23";
+CREATE EDGE E FROM #9:0 TO #11:0 SET name="lover";
+CREATE EDGE E FROM #11:0 TO #9:0 SET name="lover";
+-- 小朱目前工作在企业ABC，他有一堆同事小马、小龚、小微...
+CREATE VERTEX V SET name="ABC";
+CREATE VERTEX V SET name="小马",sex="男",age="29",company="ABC";
+CREATE VERTEX V SET name="小龚",sex="男",age="28",company="ABC";
+CREATE VERTEX V SET name="小微",sex="女",age="24",company="ABC";
+UPDATE V SET company = 'ABC' WHERE name='小朱'
+CREATE EDGE E FROM (select from V where company='ABC') TO (select from V where name ='ABC') SET name="employee";
+-- 小朱目前跟不同同事合作完成了如下项目：PROJECT-1,PROJECT-2,PROJECT-3…..
+CREATE VERTEX V SET name="PROJECT-1",type='JAVA',starttime='2016/01/01';
+CREATE VERTEX V SET name="PROJECT-2",type='JAVA',starttime='2016/01/01';
+CREATE VERTEX V SET name="PROJECT-3",type='JAVA',starttime='2016/01/01';
+CREATE EDGE E FROM (select from V where name in ['小朱','小马','小微']) TO (select from v where name='PROJECT-1') SET name="work";
+CREATE EDGE E FROM (select from V where name in ['小朱','小马','小微','小龚']) TO (select from v where name='PROJECT-2') SET name="work";
+CREATE EDGE E FROM (select from V where name in ['小朱','小马','小龚']) TO (select from v where name='PROJECT-3') SET name="work";
+-- 以上描述中，所有点和边缘均直接继承了祖先V、E对象，不能方便的通过语句进行筛选，不推荐直接创建V、E记录。
+-- 所以用CLASS改造上面的场景==>用不同的关系对象表示
+-- 上面场景产生了这些点和边：V{Company,Preson,Project}，E{Lover,sisiter,brother,employee,work}
+-- 改进：
+CREATE CLASS Company EXTENDS V;
+CREATE CLASS Project EXTENDS V;
+CREATE CLASS Preson EXTENDS V;
+CREATE CLASS Lover EXTENDS E;
+CREATE CLASS Sisiter EXTENDS E;
+CREATE CLASS Brother EXTENDS E;
+CREATE CLASS Employee EXTENDS E;
+CREATE CLASS Work EXTENDS E;
+CREATE VERTEX Preson SET name="小朱",sex="男",age="25",company="Lianjia";
+CREATE VERTEX Preson SET name="小刘",sex="女",age="23";
+CREATE VERTEX Preson SET name="小田",sex="女",age="27";
+CREATE VERTEX Company SET name="Lianjia";
+CREATE VERTEX Preson SET name="小马",sex="男",age="29",company="Lianjia";
+CREATE VERTEX Preson SET name="小龚",sex="男",age="28",company="Lianjia";
+CREATE VERTEX Preson SET name="小微",sex="女",age="24",company="Lianjia";
+CREATE VERTEX Project SET name="PROJECT-1",type='JAVA',starttime='2016/01/01';
+CREATE VERTEX Project SET name="PROJECT-2",type='JAVA',starttime='2016/01/01';
+CREATE VERTEX Project SET name="PROJECT-3",type='JAVA',starttime='2016/01/01';
+-- 创建情侣关系
+CREATE EDGE Lover FROM (select from Preson where name='小朱') TO (select from Preson where name='小刘');
+CREATE EDGE Lover FROM (select from Preson where name='小刘') TO (select from Preson where name='小朱');
+-- 创建姐弟关系
+CREATE EDGE Sisiter FROM (select from Preson where name='小朱') TO (select from Preson where name='小田');
+CREATE EDGE Brother FROM (select from Preson where name='小田') TO (select from Preson where name='小朱');
+-- 创建雇佣关系
+CREATE EDGE Employee FROM (select from Preson where company='Lianjia') TO (select from Company where name ='Lianjia');
+-- 创建项目关系
+CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小微']) TO (select from Project where name='PROJECT-1');
+CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小微','小龚']) TO (select from Project where name='PROJECT-2');
+CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小龚']) TO (select from Project where name='PROJECT-3');
+```
 
 ### 连接工具类
+```pom
+
+```
 ```java
 
 ```
@@ -183,4 +227,4 @@ https://www.cnblogs.com/lexiaofei/p/6672778.html
 [越来越火的图数据库究竟是什么](https://www.cnblogs.com/mantoudev/p/10414495.html)
 [聊聊何为图数据库和图数据库的小知识](https://zhuanlan.zhihu.com/p/79484631)
 [图数据库OrientDB-基础篇](https://blog.csdn.net/jinnee/article/details/70224512)
-
+[图数据库orientDB（1-2）例子](https://www.cnblogs.com/lexiaofei/p/6672778.html)
