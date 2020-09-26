@@ -48,21 +48,22 @@ Gremlin:一种图遍历语言
 ## OrientDB
 ### 特性
 &emsp;&emsp;OrientDB使用Java语言实现，运行在JVM上。
-* 支持多种数据模型包括K-V，Object，Document和Graph。
+* 支持多种数据模型包括K-V，BLOB，Document和Graph(包括CLASS、Vertex顶点、Edge边缘)。
 * 支持多Master备份，每个节点都是Master，都包含完整数据，其中一个Master中数据发生变更数据会同步其他Master。
 * 支持大部分标准的SQL，同时在标准的SQL之上扩展了部分功能以方便图的操作
 * 定义数据结构的Class符合OOP面向对象理念，支持继承和多态。
 
 ### 基本概念
-Classes:用于定义数据结构模型，类比关系型数据库中的Table，类比文档数据库中的Document
+Classes:用于定义数据结构模型，类比关系型数据库中的Table，类比文档数据库中的Document，每个类都有自己的集群（数据文件），非抽象类至少有一个集群，一个类可以有多个集群，类支持继承，创建新类时OrientDB将创建与该类同名的新的持久性群集，默认OrientDB为每个类创建的群集与主机具有的内核（超线程数）一样多。例子：类Person，OrientDB将创建集群person，person_1，person_2...
 Record:OrientDB中最小的加载和存储单位，分四种类型(Document,RecordBytes,Vertex,Edge)
-Document:OrientDB中最灵活的Record形式，可通过create class来定义，Document支持schema-less,schemal-full,schema-mixed，即可以在定义数据结构的时候指定属性及约定条件，也可以不指定。
-Vertex:在Graph数据结构下的结点(顶点)，每个Vertex也是一个Document。
-Edge:在Graph数据结构下连接两个Vertex的边，它是有向性的。
-Clusters:用于存储Record。每个数据库最多有32767个Cluster。每个Class都必须至少有一个对应的Cluster。默认情况下OrientDB会自动为每个Class创建与当前cpu核数相同的Cluster，其中有一个默认的Cluster。
-ClusterSelection:当新增加一条Reocrd时OrientDB会根据ClusterSection为这条记录选择一个Cluster。ClusterSelection有四种类型(detault、round-robin、balanced、local)。
-RecordID:每个record都有一个RecordID，格式：#<cluster-id>:<cluster-position>。
-Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而是每个Record中定义的关系类型属性来维护关系，这个关系属性实际存储的是RecordID。
+Document:OrientDB中最灵活的Record形式，可通过create class来定义，Document支持schema-less,schemal-full,schema-mixed，即可以在定义数据结构的时候指定属性及约定条件，也可以不指定
+Vertex:在Graph数据结构下的结点(顶点)，每个Vertex也是一个Document
+Edge:在Graph数据结构下连接两个Vertex的边，它是有向性的
+Clusters:用于存储Record。每个数据库最多有32767个Cluster。每个Class都必须至少有一个对应的Cluster。默认情况下OrientDB会自动为每个Class创建与当前cpu核数相同的Cluster，其中有一个默认的Cluster
+ClusterSelection:当新增加一条Reocrd时OrientDB会根据ClusterSection为这条记录选择一个Cluster。ClusterSelection有四种类型(detault、round-robin、balanced、local)
+RecordID:即@rid，每个record都有一个RecordID，格式：#<cluster-id>:<cluster-position>，cluster-id是指所属群集，正数为持久记录，负数为临时记录
+VersionID:即@version，每次更新都会自动+1，乐观事务中，OrientDB会检查这个版本，避免提交发生冲突
+Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而是每个Record中定义的关系类型属性来维护关系，这个关系属性实际存储的是RecordID
 
 
 
@@ -105,31 +106,49 @@ ps -ef | grep orientdb可以看到已启动
 ### 控制台命令
 ```OrientDB
 创建库
-CREATE DATABASE PLOCAL:/opt/orientdb/databses/demo
-创建CLASS
-CREATE CLASS tablelineage
-创建属性
-CREATE PROPERTY tablelineage.tablename STRING
-CREATE PROPERTY tablelineage.lastaccesstime datetime
-CREATE PROPERTY tablelineage.accesstimes integer
-CREATE PROPERTY tablelineage.lastaccessuser STRING
-CREATE PROPERTY tablelineage.create_time date 
+CREATE DATABASE PLOCAL:/opt/orientdb/databses/demo 创建写入文件系统以存储数据的数据库
+CREATE DATABASE memory:demo   创建存储在内存的数据库
+CREATE DATABASE remote:localhost/demo 存储通过远程网络连接打开，多个客户端共享的数据库
 连接数据库
 CONNECT PLOCAL:/opt/orientdb/databses/demo admin admin
 断开数据库
 DISCONNECT
+创建CLASS
+CREATE CLASS hivetable  普通CLASS
+CREATE CLASS hivetable_v EXTENDS V;  顶点CLASS
+CREATE CLASS hivetable_source_e EXTENDS E;  边CLASS
+创建属性
+CREATE PROPERTY hivetable_v.db_name String   创建顶点的属性
+CREATE PROPERTY hivetable_v.table_name String 
+CREATE PROPERTY hivetable_v.last_references_datetime datetime
+CREATE PROPERTY hivetable_v.refer_num INTEGER
+CREATE PROPERTY hivetable_v.creator String
+CREATE PROPERTY hivetable_v.create_datetime datetime
+CREATE PROPERTY hivetable_v.update_datetime datetime
+CREATE PROPERTY hivetable_source_e.link_num INTEGER  创建边的属性
+CREATE PROPERTY hivetable_source_e.create_datetime datetime
+CREATE PROPERTY hivetable_source_e.update_datetime datetime
 写入数据到CLASS
-INSERT INTO tablelineage VALUES ('QJJ','2020-09-21 10:38:41')
+INSERT INTO hivetable VALUES ('xx','xx'...)
 新增VERTEX顶点
 CREATE VERTEX V 
 CREATE VERTEX V SET name="user01",sex="M",age="25";
 CREATE VERTEX V SET name="user02",sex="F",age="23";
+新增hivetable_v类型的顶点
+CREATE VERTEX hivetable_v SET db_name="test",table_name="source_table",last_references_datetime="2020-09-21 10:20:20",refer_num=1,creator="qjj",create_datetime="2020-09-20 10:15:15",update_datetime="2020-09-20 11:10:15";
+CREATE VERTEX hivetable_v SET db_name="test",table_name="target_table",last_references_datetime="2020-09-21 10:20:25",refer_num=1,creator="qjj",create_datetime="2020-09-25 10:15:15",update_datetime="2020-09-25 11:10:15";
 删除VERTEX顶点
 DELETE VERTEX V WHERE name="user01";
+删除hivetable_v类型的顶点
+DELETE VERTEX hivetable_v where table_name = 'source_table';
 新增Edge边
 CREATE EDGE E FROM #1:1 TO #1:2 SET name="friend";
+新增hivetable_source_e类型的边连接两个hivetable_v类型的顶点
+CREATE EDGE hivetable_source_e FROM (select from hivetable_v where db_name='test' and table_name="target_table") TO (select from hivetable_v where db_name='test' and table_name="source_table");
 删除Edge边
 DELETE EDGE E WHERE name="friend";
+DELETE EDGE hivetable_source_e WHERE in = "#11:10" AND out = "#12:10";
+DELETE EDGE hivetable_source_e WHERE in IN (select from hivetable_v where db_name='test' and table_name="target_table") AND out IN (select from hivetable_v where db_name='test' and table_name="source_table");
 创建新的顶点类型
 CREATE CLASS V1 EXTENDS V
 移动顶点
@@ -144,9 +163,27 @@ SELECT SYSDATE()
 SELECT FROM class_name
 SELECT * FROM class_name
 SELECT * FROM class_name where name = "qjj"
+SELECT FROM CLUSTER_NAME:class_name   指定cluster，有点类似于查Hive分区表，通过缩小查询结果集来优化查询效率
 更新CLASS
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in IN (SELECT FROM class_name WHERE name = "abc")  (通过条件更新，用IN代替=)
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in = #43:0     (通过RecordID更新)
+UPDATE class_name INCREMENT age = 1 where @rid = '#21:10'; 在原有数据上更新 要确保原有数据存在
+UPDATE hivetable_source_e INCREMENT link_num = 1 where in IN (select from hivetable_v where db_name='test' and table_name="source_table") and out IN (select from hivetable_v where db_name='test' and table_name="target_table");  更新边属性link_num自增1
+删除CLASS
+DROP CLASS hivetable
+查询顶点所有入边
+select inE() from hivetable_v
+查询顶点的所有出边
+select outE() from hivetable_v
+查询顶点的所有入点
+select in() from hivetable_v
+查询顶点的所有出点
+select out() from hivetable_v
+查询所有入边入点出边出点的详细信息包含属性信息
+select expand(inE()) from hivetable_v
+select expand(outE()) from hivetable_v
+select expand(in()) from hivetable_v
+select expand(out()) from hivetable_v
 ```
 
 ### WebUI使用
