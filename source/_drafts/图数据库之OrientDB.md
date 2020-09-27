@@ -185,10 +185,10 @@ select expand(outE()) from hivetable_v
 select expand(in()) from hivetable_v
 select expand(out()) from hivetable_v
 ```
+以上只是基础用法，更多高级用法以及SQL支持语法见:[OrientDB SQL Reference](http://www.orientdb.org/docs/3.0.x/sql/)
 
-### WebUI使用
-
-
+### WebUI
+OrientDB的WebUI可以运行查询数据、将点边依赖关系图形化显示、管理点边属性Schema、管理权限、管理函数和管理库表等功能。
 
 ### 经典案例实践
 ```sql
@@ -251,6 +251,10 @@ CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小�
 CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小微','小龚']) TO (select from Project where name='PROJECT-2');
 CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小龚']) TO (select from Project where name='PROJECT-3');
 ```
+
+### 性能调优与压测
+官方给出的调优方案：[Performance-Tuning](http://www.orientdb.org/docs/3.0.x/tuning/Performance-Tuning.html)
+官方给出的压测方案：[Stress-Test-Tool](http://www.orientdb.org/docs/3.0.x/misc/Stress-Test-Tool.html)
 
 ### 连接工具类
 ```pom
