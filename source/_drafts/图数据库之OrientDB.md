@@ -168,7 +168,8 @@ SELECT FROM CLUSTER_NAME:class_name   指定cluster，有点类似于查Hive分�
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in IN (SELECT FROM class_name WHERE name = "abc")  (通过条件更新，用IN代替=)
 UPDATE class_name SET name = "qjj",update_time = SYSDATE() WHERE in = #43:0     (通过RecordID更新)
 UPDATE class_name INCREMENT age = 1 where @rid = '#21:10'; 在原有数据上更新 要确保原有数据存在
-UPDATE hivetable_source_e INCREMENT link_num = 1 where in IN (select from hivetable_v where db_name='test' and table_name="source_table") and out IN (select from hivetable_v where db_name='test' and table_name="target_table");  更新边属性link_num自增1
+UPDATE hivetable_source_e INCREMENT link_num = 1 where in IN (select from hivetable_v where db_name='test' and table_name="source_table") and out IN (select from hivetable_v where db_name='test' and table_name="target_table");  更新边属性link_num自增1(OrientDB 2.x)
+UPDATE hivetable_source_e SET link_num = link_num + 1 where in = #377:0 and out = #378:0  (OrientDB 3.x支持，除了+还支持-*/%>><<>>><<<&|^||)
 删除CLASS
 DROP CLASS hivetable
 查询顶点所有入边
@@ -184,13 +185,21 @@ select expand(inE()) from hivetable_v
 select expand(outE()) from hivetable_v
 select expand(in()) from hivetable_v
 select expand(out()) from hivetable_v
+查询所有与点#378:0相关的点
+SELECT both() FROM #378:0
+查询所有与点#378:0相关的边
+SELECT bothE() FROM #378:0
+查询所有与边#387:0相关的点
+SELECT bothV() FROM #387:0
+查询边#387:0的in、out点
+SELECT inV() FROM #387:0
+SELECT outV() FROM #387:0
 ```
 以上只是基础用法，更多高级用法以及SQL支持语法见:[OrientDB SQL Reference](http://www.orientdb.org/docs/3.0.x/sql/)
 
-### WebUI
-OrientDB的WebUI可以运行查询数据、将点边依赖关系图形化显示、管理点边属性Schema、管理权限、管理函数和管理库表等功能。
-
 ### 经典案例实践
+通过案例熟悉图数据库中顶点和边如何设计,也方便理解点、边、属性、类等相关概念。
+**案例1：人际关系网**
 ```sql
 -- 小朱25岁，出生在教师家庭并且有个姐姐小田，他现在奋斗在帝都。 
 CREATE VERTEX V SET name="小朱",sex="男",age="25";
@@ -252,12 +261,51 @@ CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小�
 CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小龚']) TO (select from Project where name='PROJECT-3');
 ```
 
+**案例2：Hive表血缘关系**
+```sql
+-- CLASS设计：
+CREATE CLASS hivetable_source_e EXTENDS E;
+CREATE CLASS hivetable_v EXTENDS V;
+-- PROPERTY设计：
+  -- 点的属性设计：
+ CREATE PROPERTY hivetable_v.db_name String 
+ CREATE PROPERTY hivetable_v.table_name String 
+ CREATE PROPERTY hivetable_v.last_references_datetime datetime
+ CREATE PROPERTY hivetable_v.refer_num INTEGER
+ CREATE PROPERTY hivetable_v.creator String
+ CREATE PROPERTY hivetable_v.create_datetime datetime
+ CREATE PROPERTY hivetable_v.update_datetime datetime
+  -- 边的属性设计：
+ CREATE PROPERTY hivetable_source_e.link_num INTEGER
+ CREATE PROPERTY hivetable_source_e.create_datetime datetime
+ CREATE PROPERTY hivetable_source_e.update_datetime datetime
+-- VERTEX设计：
+CREATE VERTEX hivetable_v SET db_name="test_db",table_name="source_table",last_references_datetime="2020-09-21 10:20:20",refer_num=1,creator="qjj",create_datetime="2020-09-20 10:15:15",update_datetime="2020-09-20 11:10:15";
+CREATE VERTEX hivetable_v SET db_name="test_db",table_name="target_table",last_references_datetime="2020-09-21 10:20:20",refer_num=1,creator="qjj",create_datetime="2020-09-20 10:15:15",update_datetime="2020-09-20 11:10:15";
+-- EDGE设计：
+CREATE EDGE hivetable_source_e FROM (select from hivetable_v where db_name='test_db' and table_name="target_table") TO (select from hivetable_v where db_name='test_db' and table_name="source_table");
+-- 更新边连接次数：(用in代替=；=不能查出结果)
+UPDATE hivetable_source_e INCREMENT link_num = 1 where in IN (select from hivetable_v where db_name='test_db' and table_name="target_table") and out IN (select from hivetable_v where db_name='test_db' and table_name="source_table");
+```
+
+### OrientDB索引
+http://www.orientdb.org/docs/3.0.x/indexing/Indexes.html
+
+### 优化数据库
+https://www.w3cschool.cn/orientdb/orientdb_optimize_database.html
+
+### WebUI
+OrientDB的WebUI可以运行查询数据、将点边依赖关系图形化显示、管理点边属性Schema、管理权限、管理函数和管理库表等功能。
+
 ### 性能调优与压测
 官方给出的调优方案：[Performance-Tuning](http://www.orientdb.org/docs/3.0.x/tuning/Performance-Tuning.html)
+参考调优方案：[OrientDB性能调优](https://www.w3cschool.cn/orientdb/orientdb_performance_tuning.html)
 官方给出的压测方案：[Stress-Test-Tool](http://www.orientdb.org/docs/3.0.x/misc/Stress-Test-Tool.html)
 
 ## 参考
+[OrientDB Manual 3.0.x](http://www.orientdb.org/docs/3.0.x/)
 [越来越火的图数据库究竟是什么](https://www.cnblogs.com/mantoudev/p/10414495.html)
 [聊聊何为图数据库和图数据库的小知识](https://zhuanlan.zhihu.com/p/79484631)
 [图数据库OrientDB-基础篇](https://blog.csdn.net/jinnee/article/details/70224512)
 [图数据库orientDB（1-2）例子](https://www.cnblogs.com/lexiaofei/p/6672778.html)
+[OrientDB 教程](https://www.w3cschool.cn/orientdb/)
