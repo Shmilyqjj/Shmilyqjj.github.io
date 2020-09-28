@@ -256,14 +256,6 @@ CREATE EDGE Work FROM (select from Preson where name in ['小朱','小马','小�
 官方给出的调优方案：[Performance-Tuning](http://www.orientdb.org/docs/3.0.x/tuning/Performance-Tuning.html)
 官方给出的压测方案：[Stress-Test-Tool](http://www.orientdb.org/docs/3.0.x/misc/Stress-Test-Tool.html)
 
-### 连接工具类
-```pom
-
-```
-```java
-
-```
-
 ## 参考
 [越来越火的图数据库究竟是什么](https://www.cnblogs.com/mantoudev/p/10414495.html)
 [聊聊何为图数据库和图数据库的小知识](https://zhuanlan.zhihu.com/p/79484631)
