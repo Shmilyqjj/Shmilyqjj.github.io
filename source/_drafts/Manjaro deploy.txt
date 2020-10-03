@@ -1,0 +1,85 @@
+安装前 给内核传参   按e在quiet后加：
+acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
+根分区，home分区，var分区选择xfs文件系统  var给10G
+
+安装各种源
+ https://blog.csdn.net/weixin_43968923/article/details/86349914
+ 
+ sudo pacman -S acpi 
+ 
+ sudo pacman -R hardcode-fixer 
+ 
+  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+ https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
+开机加acpi_osi参数,开机再次修改grub.cfg
+ sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+ 
+ 安装google输入法https://blog.csdn.net/ning19941128/article/details/88763772
+ # 备选方案安装fcitx-rime拼音输入法：https://www.jianshu.com/p/7311e41a2f07
+ # 切记不要安装搜狗输入法
+
+ DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
+ 
+ WPS：sudo pacman -S wps-office-cn  sudo pacman -S wps-office-mui-zh-cn   sudo pacman -S ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+ 
+ Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
+ 
+软件仓库安装：GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
+
+
+安装KVM ：https://www.jianshu.com/p/392ae8181dc3
+
+安装yaourt
+sudo pacman -S yaourt
+
+安装docker
+sudo pacman -S docker
+
+Python源
+sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
+ pip install pyOpenSSL
+ pip install certifi
+ 
+Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
+
+
+Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
+激活码：
+----- BEGIN LICENSE -----
+Member J2TeaM
+Single User License
+EA7E-1011316
+D7DA350E 1B8B0760 972F8B60 F3E64036
+B9B4E234 F356F38F 0AD1E3B7 0E9C5FAD
+FA0A2ABE 25F65BD8 D51458E5 3923CE80
+87428428 79079A01 AA69F319 A1AF29A4
+A684C2DC 0B1583D4 19CBD290 217618CD
+5653E0A0 BACE3948 BB2EE45E 422D2C87
+DD9AF44B 99C49590 D2DBDEE1 75860FD2
+8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
+------ END LICENSE ------​
+ 
+ 系统压测工具：sudo pacman -S stress
+ 
+Ramfs: 创建一个最大大小为8G的RAMFS
+mkdir -p /ramfs
+mount -t ramfs none /ramfs -o maxsize=8388608
+实际测试超过8G也会存，可能导致系统内存占满崩溃
+所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
+mkdir -p /tmpfs
+mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+ls -l命令简写ll
+sudo vim /etc/profile和~/.bashrc
+alias ls='ls --color'
+alias ll='ls -l --color'
+
+vim /etc/sudoers
+shmily ALL=(ALL)  ALL
+
+如果微信不能截图发图：
+yay -S deepin-wine5
+sudo vim /opt/deepinwine/apps/Deepin-WeChat/run.sh将WINE_CMD改成 WINE_CMD="deepin-wine5"
+
+
