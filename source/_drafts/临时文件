@@ -1436,7 +1436,27 @@ https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
     海量数据问题的最优解决方案
     技术栈：Hash+BitMap+BloomFilter+堆排序/快速排序/归并排序+Trie树+HashMap+HashSet+TreeMap+按位计算+MapReduce+Spark
 
-
+QCON笔记：
+Ray，批流无缝，框架
+RDMA
+HDFS Cache 在HDFS3.3.0功能类似alluxio，利用dn的空余内存
+基于HDFS CACHE会争抢ram资源的缺点，傲腾DC持久化内存可以解决，帮助cache更多数据来加速大数据应用。
+两种模式
+可以当做内存，也可以当做快速持久化存储
+持久化内存不能脱离DRAM
+可以节省DRAM给workload，提高内存使用效率
+bandwidth
+hadoop streaming
+hadoop task为进程模型，spark为线程模型
+ad hoc查询
+OAP加速组件
+spark秉持计算与存储分离
+python pandas 单机版数据分析
+spark出现koalas，pip install koalas
+delta，高性能的spark存储格式。format(parquet)
+直接改成format(delta)
+Apache Arrow-Based Spark Native SQL Engine
+apache arrow是一个标准数据格式，多种使用dataframe的计算框架都通用
 
 
 
