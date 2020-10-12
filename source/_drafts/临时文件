@@ -848,7 +848,7 @@ extra：包含MySQL为了解决查询的详细信息
 
 没数据则插入 有数据则修改
 REPLACE INTO d_bigdata.system_state(name,state,info) VALUES('$2','$3','$4');
-
+INSERT INTO dss_table_meta(table_name,create_time,update_time) VALUES ('%s','%s','%s') ON DUPLICATE KEY UPDATE create_time='%s',update_time='%s';
 
 查询多久时间之前的时间
 select DATE_SUB(start_time,Interval 2 DAY) from table;
