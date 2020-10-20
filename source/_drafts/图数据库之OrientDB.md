@@ -279,6 +279,8 @@ CREATE CLASS hivetable_v EXTENDS V;
  CREATE PROPERTY hivetable_source_e.link_num INTEGER
  CREATE PROPERTY hivetable_source_e.create_datetime datetime
  CREATE PROPERTY hivetable_source_e.update_datetime datetime
+-- INDEX设计:
+CREATE INDEX hivetable_v.db_table ON hivetable_v (db_name,table_name) UNIQUE
 -- VERTEX设计：
 CREATE VERTEX hivetable_v SET db_name="test_db",table_name="source_table",last_references_datetime="2020-09-21 10:20:20",refer_num=1,creator="qjj",create_datetime="2020-09-20 10:15:15",update_datetime="2020-09-20 11:10:15";
 CREATE VERTEX hivetable_v SET db_name="test_db",table_name="target_table",last_references_datetime="2020-09-21 10:20:20",refer_num=1,creator="qjj",create_datetime="2020-09-20 10:15:15",update_datetime="2020-09-20 11:10:15";
