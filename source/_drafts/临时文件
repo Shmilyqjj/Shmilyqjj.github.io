@@ -1183,7 +1183,7 @@ Linux中重要的C运行库glibc：
     ~/.bash_logout  用户shell环境  退出shell时执行，可以自定义一些清理工作
     /etc/bashrc     全局shell环境  主要用于指定umask权限，指定全局alias，指定[root@hadoop01 ~]#格式（叫PS1）
 
-
+rz命令上传文件 sz命令下载文件
 
 
 
