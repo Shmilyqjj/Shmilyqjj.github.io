@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2020-09-05T02:33:11.404Z</updated>
+  <updated>2020-10-25T07:47:32.887Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>大数据脱敏方案调研</title>
+    <link href="https://shmily-qjj.top/f5da73a2/"/>
+    <id>https://shmily-qjj.top/f5da73a2/</id>
+    <published>2020-10-20T05:19:00.000Z</published>
+    <updated>2020-10-25T07:47:32.887Z</updated>
+    
+    <summary type="html">
+    
+      数据安全之大数据脱敏方案调研
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="数据脱敏" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E8%84%B1%E6%95%8F/"/>
+    
+      <category term="数据安全" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>使用PySpark优化Pandas</title>
@@ -417,28 +439,6 @@
       <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
     
       <category term="Sqoop工具" scheme="https://shmily-qjj.top/tags/Sqoop%E5%B7%A5%E5%85%B7/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>CentOS7安装CDH6安装与排坑</title>
-    <link href="https://shmily-qjj.top/38328/"/>
-    <id>https://shmily-qjj.top/38328/</id>
-    <published>2019-10-29T02:50:40.000Z</published>
-    <updated>2020-09-20T09:15:46.604Z</updated>
-    
-    <summary type="html">
-    
-      CDH6+CentOS7安装过程与排坑
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
-    
-      <category term="CDH6+CentOS7" scheme="https://shmily-qjj.top/tags/CDH6-CentOS7/"/>
     
   </entry>
   
