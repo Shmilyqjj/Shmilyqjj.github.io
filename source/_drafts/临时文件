@@ -939,6 +939,8 @@ find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
 find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
 https://www.cnblogs.com/barfoo/p/3999882.html
 
+看端口：netstat -antp | grep 9000 查看9000端口哪个进程号在占用
+
 cat /etc/group查看组信息
 
 内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
