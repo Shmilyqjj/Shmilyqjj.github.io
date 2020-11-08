@@ -27,22 +27,14 @@ date: 2020-10-31 21:12:00
 ### 编译安装
 Windows编译坑点太多，暂时不写了，下面是使用Linux编译Atlas-2.1.0步骤
 到[ApacheAtlas-Downloads](http://atlas.apache.org/#/Downloads)下载最新（目前2.1.0的源码包）
+或到[apache/atlas-Github](https://github.com/apache/atlas)下载master分支zip包
 ```shell
 tar -zxvf apache-atlas-2.1.0-sources.tar.gz
 cd apache-atlas-sources-2.1.0/
-vim pom.xml  修改相关组件版本，修改Hadoop、Hive、Zookeeper等版本
-我的环境是CDH-6.3.1，各个组件版本修改后如下：
-<hadoop.version>3.0.0</hadoop.version>
-<hbase.version>2.1.0</hbase.version>
-<solr.version>7.4.0</solr.version>
-<hive.version>2.1.1</hive.version>
-<kafka.version>2.2.1</kafka.version>
-<kafka.scala.binary.version>2.12</kafka.scala.binary.version>
-<zookeeper.version>3.4.5</zookeeper.version>
-<sqoop.version>1.4.7</sqoop.version>
-然后编译：
+编译：
 export MAVEN_OPTS="-Xms2g -Xmx6g"
 mvn clean -DskipTests install
+mvn clean package -DskipTests  -Pdist
 遇到的问题1：
 [ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:1.4:install-node-and-npm (install node and npm) on project atlas-dashboardv2: Could not download Node.js: Could not download https://nodejs.org/dist/v12.16.0/node-v12.16.0-linux-x64.tar.gz: Remote host closed connection during handshake: SSL peer shut down incorrectly -> [Help 1]
 解决：手动下载node-v12.16.0-linux-x64.tar.gz然后放到指定位置/usr/share/maven/localRepo/com/github/eirslett/node/12.16.0/
@@ -65,17 +57,32 @@ mvn clean -DskipTests install
 遇到的问题5：
 Connect to repo.spring.io:443 [repo.spring.io/xx.xx.xx.xx]
 网络原因，重新import即可
-遇到的问题6：
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.7.0:compile (default-compile) on project hive-bridge-shim: Compilation failure
-[ERROR] /opt/software/atlas-2.1.0/apache-atlas-sources-2.1.0/addons/hive-bridge-shim/src/main/java/org/apache/atlas/hive/hook/HiveMetastoreHook.java:[170,33] cannot find symbol
-[ERROR]   symbol:   class AlterDatabaseEvent
-[ERROR]   location: class org.apache.atlas.hive.hook.HiveMetastoreHook
-mvn clean -DskipTests package -Pdist
-解决：将hadoop.version改回3.1.1或2.x
+最终编译成功，生成的包在/opt/software/atlas-2.1.0/apache-atlas-sources-2.1.0/distro/target
 ```
 
 
+
+
+修改HBase配置
+cd $ATLAS_HOME/conf/hbase
+cp hbase-site.xml.template hbase-site.xml
+vim hbase-site.xml修改hbase.rootdir和hbase.zookeeper.property.dataDir为file:///xx/xx形式(本地存储)
+修改Solr配置
+cd $ATLAS_HOME/conf/hbase
+vim solrconfig.xml 修改dataDir
+修改zookeeper配置
+cd $ATLAS_HOME/conf/zookeeper
+cp zoo.cfg.template zoo.cfg
+vim zoo.cfg修改dataDir和clientPort
+
 ## SparkAtlasConnector  
+**[Spark-Atlas-Connector](https://github.com/hortonworks-spark/spark-atlas-connector)**简称SAC，是用于连接Spark和Atlas，帮助Atlas收集Spark任务血缘的组件，它通过SparkListener来监听Spark程序发生的所有操作，SparkListener返回一个EventQueue包含了Spark程序执行的各个阶段的事件，SAC从EventQueue中获取到关心的DDL、DML等事件并解析成血缘，在Atlas中建立SparkModel，并通过Kafka将血缘信息异步发送到Atlas。
+编译过程：
+```
+
+```
+
+原理：
 
 
 ## 总结 
