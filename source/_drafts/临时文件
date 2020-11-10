@@ -943,6 +943,12 @@ find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键�
 https://www.cnblogs.com/barfoo/p/3999882.html
 
 
+nohup sh xx.sh & 不间断(nohup)后台(&)运行,标准输出1默认写入nohup.out
+nohup sh xx.sh > /dev/null 2>&1 &  不间断(nohup)后台(&)运行,标准输出stdout($1)和异常输出stderr(2)信息都永久丢失(> /dev/null)
+nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台(&)运行,标准输出($1)和异常输出(2)信息都写入指定路径以日期命名的日志文件
+0 表示stdin标准输入，用户键盘输入的内容
+1 表示stdout标准输出，输出到显示屏的内容
+2 表示stderr标准错误，报错内容
 
 cat /etc/group查看组信息
 
