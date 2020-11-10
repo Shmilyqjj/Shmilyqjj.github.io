@@ -1451,6 +1451,14 @@ Maven打jar插件依赖打入jar
         </plugins>
     </build>
 
+-----------------------------------------------------------------------------
+Git相关
+【本地代码库回滚】：
+git reset --hard commit-id :回滚到commit-id，讲commit-id之后提交的commit都去除
+git reset --hard HEAD~3：将最近3次的提交回滚
+【远程代码库回滚】：
+git reset --hard HEAD~1 本地代码回滚到上一版本（或者指定版本）
+git push -f origin master  加入-f参数，强制提交，远程端将强制更新到reset版本
 
 
 
