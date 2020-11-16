@@ -1090,6 +1090,7 @@ find  . -name "*.log" –mtime +30 –type f –size +100M |xargs rm –rf {} ;
 /var/log/sa/ — 包含每日由sysstat软件包收集的sar文件。
 /var/log/sssd/ – 用于守护进程安全服务。
 
+sed -i 's/\r//g' *.sh  替换文件中/r/n中的/r为空
 
 
 不管是重启系统还是关闭系统，首先要运行sync命令，把内存中的数据写到磁盘中。 保证数据不丢失。有些数据可能存在缓存中还未写到磁盘。
