@@ -194,6 +194,13 @@ val sparkConf = new SparkConf()
     .config(sparkConf)
     .getOrCreate()
 
+spark-sql优化：
+1.join on和where条件先后顺序无所谓，可以被spark优化器优化
+2.对于广播表有两种方式自动、手动 自动：spark.sql.autoBroadcastJoinThreshold=1048576设置表自动广播阈值  手动：cache table xxx;手动API：from pyspark.sql.functions import broadcast;broadcast(spark.table("b")).join(spark.table("a"), "id").show()
+3.字段很多的表尽量select有用的字段而非select *，可以减少FileScan
+4.报错Futures timed out after [10000 milliseconds]，可能资源紧张导致请求Yarn AppMaster超时，设置spark.yarn.am.waitTime=60s
+
+
 groupByKey(11)将Shuffle并行度调整为11
 计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
 虽然两个函数都能得出正确的结果， 但reduceByKey函数更适合使用在大数据集上。
