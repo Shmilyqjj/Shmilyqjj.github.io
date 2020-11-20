@@ -61,26 +61,31 @@ Connect to repo.spring.io:443 [repo.spring.io/xx.xx.xx.xx]
 ```
 
 
-
-
-修改HBase配置
-cd $ATLAS_HOME/conf/hbase
-cp hbase-site.xml.template hbase-site.xml
-vim hbase-site.xml修改hbase.rootdir和hbase.zookeeper.property.dataDir为file:///xx/xx形式(本地存储)
-修改Solr配置
-cd $ATLAS_HOME/conf/hbase
-vim solrconfig.xml 修改dataDir
-修改zookeeper配置
-cd $ATLAS_HOME/conf/zookeeper
-cp zoo.cfg.template zoo.cfg
-vim zoo.cfg修改dataDir和clientPort
-
 ## SparkAtlasConnector  
 **[Spark-Atlas-Connector](https://github.com/hortonworks-spark/spark-atlas-connector)**简称SAC，是用于连接Spark和Atlas，帮助Atlas收集Spark任务血缘的组件，它通过SparkListener来监听Spark程序发生的所有操作，SparkListener返回一个EventQueue包含了Spark程序执行的各个阶段的事件，SAC从EventQueue中获取到关心的DDL、DML等事件并解析成血缘，在Atlas中建立SparkModel，并通过Kafka将血缘信息异步发送到Atlas。
 编译过程：
 ```
-
+修改pom.xml
+    <atlas.version>2.1.0</atlas.version>   
+    <maven.version>3.6.3</maven.version>
+    <scala.version>2.11.8</scala.version>
+    <kafka.version>2.2.1</kafka.version>
+    <!-- 如果用Windows编译 注释掉下面的部分 -->
+    <!--            <requireOS>-->
+    <!--              <family>unix</family>-->
+    <!--            </requireOS>-->
+开始编译：
+mvn package -DskipTests
+最终生成的包在spark-atlas-connector-assembly/target/
 ```
+使用：
+spark应用提交时加
+--jars spark-atlas-connector_2.11-0.1.0-SNAPSHOT.jar \
+--conf spark.extraListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker \
+--conf spark.sql.queryExecutionListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker \
+--conf spark.sql.streaming.streamingQueryListeners=com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker \
+--files atlas-application.properties \
+确保atlas-application.properties在Driver的Classpath下，如放入<SPARK_HOME>/conf
 
 原理：
 
