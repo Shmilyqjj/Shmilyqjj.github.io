@@ -61,7 +61,7 @@ cd /opt/modules/antlr4
 wget https://www.antlr.org/download/antlr-4.7-complete.jar
 vim /etc/profile
 CLASSPATH=$CLASSPATH:/opt/modules/antlr4/antlr-4.7-complete.jar
-alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.5-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
+alias antlr4='java -Xmx500M -cp "/opt/modules/antlr4/antlr-4.7-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
 alias grun='java org.antlr.v4.runtime.misc.TestRig'
 source /etc/profile
 ```
@@ -75,7 +75,7 @@ CLASSPATH添加;%ANTLR_HOME%\antlr-4.7-complete.jar
 PATH添加%ANTLR_HOME%
 ```
 IDEA配置：Plugins中下载ANTLR v4 grammar plugin
-
+注：为什么下载4.7版本而不是用4.8+ 因为目前的现有语法本都是基于4.8前的版本，4.8版本对语法本写法做了改动，已有开源的语法本不能正常使用。
 ### 使用Antlr4解析SQL  
 
 
