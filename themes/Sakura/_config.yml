@@ -34,7 +34,7 @@ menus:
   赞赏: { path: /donate/, fa: fa-heart faa-pulse }
   关于: { path: /, fa: fa-leaf faa-wrench , submenus: { 
     我？: {path: /about/, fa: fa-meetup}, 
-    技术: {path: http://tech.shmily-qjj.top/, fa: iconfont icon-sakura },
+    技术: {path: https://tech.shmily-qjj.top/, fa: iconfont icon-sakura },
     Lab: {path: /lab/, fa: fa-cogs },
   } }
   客户端: { path: /client/, fa: fa-android faa-vertical }
@@ -67,7 +67,7 @@ bgclass: filter-dot
 
 # 三张图的位置 url, title, desc img
 startdash: 
-  - {url: http://tech.shmily-qjj.top/, title: 技术分享, desc: 技术在这里成长, img: /img/startdash/tech.jpg}
+  - {url: https://tech.shmily-qjj.top/, title: 技术分享, desc: 技术在这里成长, img: /img/startdash/tech.jpg}
   - {url: /music/, title: 音乐小屋, desc: 音符在这里跳动, img: /img/startdash/music.jpg}
   - {url: http://space.bilibili.com/, title: 哔哩哔哩, desc: 画面在这里浮现, img: /img/startdash/bilibili.JPG}
 
