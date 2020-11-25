@@ -202,6 +202,8 @@ spark-sql优化：
 3.字段很多的表尽量select有用的字段而非select *，可以减少FileScan
 4.报错Futures timed out after [10000 milliseconds]，可能资源紧张导致请求Yarn AppMaster超时，设置spark.yarn.am.waitTime=60s
 
+Win开发环境
+错误：Could not locate executable null\bin\winutils.exe in the Hadoop binaries  解决将winutils.exe放在HADOOP_HOME\bin下，然后代码里System.setProperty("hadoop.home.dir", "D:\\Programming\\Env\\Hadoop\\hadoop-2.7.2\\")或设置环境变量HADOOP_HOME和PATH后重启电脑
 
 groupByKey(11)将Shuffle并行度调整为11
 计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
