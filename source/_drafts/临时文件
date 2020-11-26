@@ -175,6 +175,14 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+ANALYZE TABLE命令分析表、列信息
+分析表信息->主要得到行数和表数据占用空间大小
+ANALYZE TABLE xh_result_all COMPUTE STATISTICS noscan
+desc formatted或DESCRIBE EXTENDED查看表详细信息
+分析列信息->主要得到某个列的min、max、num_nulls、distinct_count、avg_col_len、max_col_len等信息，有助于了解数据，粗略判断数据质量
+ANALYZE TABLE xh_result_all COMPUTE STATISTICS FOR COLUMNS cust_no, prob, group, dt;
+DESCRIBE EXTENDED xh_result_all cust_no;
+
 sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sqlString) 得到一条sql的logicalPlan
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
