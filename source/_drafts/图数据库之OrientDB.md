@@ -43,12 +43,14 @@ Label(标签):用于将节点分组，一个节点可以有多个标签，可以
 * 强连通分支算法与网络流：Ford-Fulkerson等
 * 深度学习： GNN
 
-Gremlin:一种图遍历语言
+图遍历语言:
+* [Gremlin](http://orientdb.com/docs/3.0.x/gremlin/Gremlin.html)
 
 ## OrientDB
 ### 特性
 &emsp;&emsp;OrientDB使用Java语言实现，运行在JVM上。
 * 支持多种数据模型包括K-V，BLOB，Document和Graph(包括CLASS、Vertex顶点、Edge边缘)。
+* 支持多种数据类型：[数据类型列表](https://www.w3cschool.cn/orientdb/orientdb_data_types.html)
 * 支持多Master备份，每个节点都是Master，都包含完整数据，其中一个Master中数据发生变更数据会同步其他Master。
 * 支持大部分标准的SQL，同时在标准的SQL之上扩展了部分功能以方便图的操作
 * 定义数据结构的Class符合OOP面向对象理念，支持继承和多态。
@@ -61,29 +63,17 @@ Vertex:在Graph数据结构下的结点(顶点)，每个Vertex也是一个Docume
 Edge:在Graph数据结构下连接两个Vertex的边，它是有向性的
 Clusters:用于存储Record。每个数据库最多有32767个Cluster。每个Class都必须至少有一个对应的Cluster。默认情况下OrientDB会自动为每个Class创建与当前cpu核数相同的Cluster，其中有一个默认的Cluster
 ClusterSelection:当新增加一条Reocrd时OrientDB会根据ClusterSection为这条记录选择一个Cluster。ClusterSelection有四种类型(detault、round-robin、balanced、local)
-RecordID:即@rid，每个record都有一个RecordID，格式：#<cluster-id>:<cluster-position>，cluster-id是指所属群集，正数为持久记录，负数为临时记录
+RecordID:即@rid，每个record都有一个RecordID，格式：#<cluster-id>:<cluster-position>，cluster-id是指所属群集，正数为持久记录，负数为临时记录,rid代表集群中记录的绝对位置
 VersionID:即@version，每次更新都会自动+1，乐观事务中，OrientDB会检查这个版本，避免提交发生冲突
 Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而是每个Record中定义的关系类型属性来维护关系，这个关系属性实际存储的是RecordID
 
-
-
-https://www.w3cschool.cn/orientdb/orientdb_basic_concepts.html
-https://blog.csdn.net/clj198606061111/article/details/82314459
-http://www.orientdb.org/docs/3.0.x/
-
 ### 优点
-
 
 ### 缺点
 
 ## OrientDB原理
-
+![alt OrientDB-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/OrientDB/OrientDB-01.png)  
 https://www.cnblogs.com/jpfss/p/11412176.html
-
-SB-Tree Index：从其他索引类型中获得的特性的良好组合，默认索引
-Hash Index：
-Auto Sharding Index：提供一个DHT实现；不支持范围查询
-Lucene Spatial Index：持久化，支持事物，范围查询
 
 ## OrientDB使用  
 
@@ -130,6 +120,7 @@ CREATE PROPERTY hivetable_source_e.create_datetime datetime
 CREATE PROPERTY hivetable_source_e.update_datetime datetime
 写入数据到CLASS
 INSERT INTO hivetable VALUES ('xx','xx'...)
+CREATE VERTEX hivetable CONTENT {"db_name" : "default", "table_name" : "qjj","last_references_datetime":"2020-12-02",........}
 新增VERTEX顶点
 CREATE VERTEX V 
 CREATE VERTEX V SET name="user01",sex="M",age="25";
@@ -196,6 +187,12 @@ SELECT inV() FROM #387:0
 SELECT outV() FROM #387:0
 ```
 以上只是基础用法，更多高级用法以及SQL支持语法见:[OrientDB SQL Reference](http://www.orientdb.org/docs/3.0.x/sql/)
+
+### 图遍历SQL之TRAVERSE语法
+TRAVERSE主要用于对图进行遍历。基于深度搜索算法或者广度搜索算法对图进行有限制的盲目搜索。它返回一个符合遍历条件的子图。具体使用可以参考：**[OrientDB图遍历SQL之TRAVERSE](https://cloud.tencent.com/developer/article/1528017)**
+
+### 图遍历SQL之Match语法
+Match语法基于OrientDB3.x版本，具体使用可以参考：**[OrientDB图遍历SQL之MATCH](https://cloud.tencent.com/developer/article/1528023)**
 
 ### 经典案例实践
 通过案例熟悉图数据库中顶点和边如何设计,也方便理解点、边、属性、类等相关概念。
@@ -290,8 +287,16 @@ CREATE EDGE hivetable_source_e FROM (select from hivetable_v where db_name='test
 UPDATE hivetable_source_e INCREMENT link_num = 1 where in IN (select from hivetable_v where db_name='test_db' and table_name="target_table") and out IN (select from hivetable_v where db_name='test_db' and table_name="source_table");
 ```
 
+**案例3：商场销售场景下的图数据库应用实践**
+[商场销售场景下的图数据库应用实践](https://blog.csdn.net/clj198606061111/article/details/82314459)
+
 ### OrientDB索引
-http://www.orientdb.org/docs/3.0.x/indexing/Indexes.html
+SB-Tree Index：从其他索引类型中获得的特性的良好组合，持久的，支持事务，支持范围查询，默认索引
+Hash Index：类似HashMap，消耗资源少，查询速度快，持久的，支持事务，不支持范围查询
+Auto Sharding Index：提供一个DHT实现；不支持范围查询
+Lucene Full Text Index：全文索引，不能索引其他类型，持久的，支持事务，支持范围查询
+Lucene Spatial Index：空间索引，不能索引其他类型，持久的，支持事物，支持范围查询
+OridenDB索引使用参考了官方文档**[OrientDB-Indexes](http://www.orientdb.org/docs/3.0.x/indexing/Indexes.html)**
 
 ### 优化数据库
 https://www.w3cschool.cn/orientdb/orientdb_optimize_database.html
