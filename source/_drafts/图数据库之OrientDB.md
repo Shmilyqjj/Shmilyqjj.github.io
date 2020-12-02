@@ -71,13 +71,12 @@ RecordID:即@rid，每个record都有一个RecordID，格式：#<cluster-id>:<cl
 VersionID:即@version，每次更新都会自动+1，乐观事务中，OrientDB会检查这个版本，避免提交发生冲突
 Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而是每个Record中定义的关系类型属性来维护关系，这个关系属性实际存储的是RecordID
 
-### 优点
+<!-- ### 优点 -->
 
-### 缺点
+<!-- ### 缺点 -->
 
 ## OrientDB原理
 ![alt OrientDB-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/OrientDB/OrientDB-01.png)  
-
 
 ## OrientDB使用  
 
