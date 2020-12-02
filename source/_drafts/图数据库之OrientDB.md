@@ -46,6 +46,10 @@ Label(标签):用于将节点分组，一个节点可以有多个标签，可以
 图遍历语言:
 * [Gremlin](http://orientdb.com/docs/3.0.x/gremlin/Gremlin.html)
 
+#  主流图数据库对比
+[主流图数据库Neo4J、ArangoDB、OrientDB综合对比-架构分析](https://www.cnblogs.com/jpfss/p/11412176.html)
+<!-- 看不到我看不到我 -->
+
 ## OrientDB
 ### 特性
 &emsp;&emsp;OrientDB使用Java语言实现，运行在JVM上。
@@ -73,7 +77,7 @@ Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而�
 
 ## OrientDB原理
 ![alt OrientDB-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/OrientDB/OrientDB-01.png)  
-https://www.cnblogs.com/jpfss/p/11412176.html
+
 
 ## OrientDB使用  
 
