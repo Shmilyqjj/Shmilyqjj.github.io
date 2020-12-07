@@ -705,13 +705,21 @@ env           r    Shell环境属性
 用法: set aa = '1';  select ${hiveconf:aa};
 
 HQL:
+EXISTS在SQL中的作用是：检验查询是否返回数据。当 where 后面的条件成立，则列出数据，否则为空.
+
 1.in/exists的优化方案：
   select a.id,a.name from a where a.id in (selecr b.id from b);
   select a.id,a.name from a where a.id exists (selecr b.id from b where a.id = b.id);
   优化为 select a.id,a.name from a left semi join b on a.id = b.id;
+  LEFT SEMI JOIN:左半连接，会返回左边表的记录，前提是其记录对于右边表满足ON语句中的判定条件。对待右表中重复key的处理方式差异：因为 left semi join 是 in(keySet) 的关系，遇到右表重复记录，左表会跳过，而 join on 则会一直遍历。
+left semi join 中最后 select 的结果只许出现左表，因为右表只有 join key 参与关联计算了，而 join on 默认是整个关系模型都参与计算了。
 2.not in优化
-  left join on where b.col is null 
-  select * from  A where (select count(1) as num from B where A.ID = B.ID) = 0
+  原SQL：select col from t1 where a not in (select col from t2)
+  替换1：select col from t1 a left join t2 b on a.col = b.col where b.col is null;
+  替换2：select col from t1 where (select count(1) as num from t2 where t1.col = t2.col) = 0;
+  替换3：select col from t1 where not exists (select col from t2 where t1.col=t2.col);(not in会把null当false，not exists会把null当true，所以如果字段有空值，注意判断)
+  替换4：select col from t1 a left anti join t2 b on a.col = b.col;
+  
 
 数据去重的三种方法：
 distinct,group by与ROW_Number()
