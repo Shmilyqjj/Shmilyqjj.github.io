@@ -3,7 +3,7 @@ acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
 根分区，home分区，var分区选择xfs文件系统  var给10G
 
 安装各种源
- https://blog.csdn.net/weixin_43968923/article/details/86349914
+https://blog.csdn.net/weixin_43968923/article/details/86349914
  
  sudo pacman -S acpi 
  
@@ -13,7 +13,14 @@ acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
  https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
 开机加acpi_osi参数,开机再次修改grub.cfg
  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
- 
+
+ 输入法首选安装:
+sunpinyin 和词库
+sunpinyin
+sunpinyin-data
+fcitx-sunpinyin
+ibus-sunpinyin
+
  安装google输入法https://blog.csdn.net/ning19941128/article/details/88763772
  # 备选方案安装fcitx-rime拼音输入法：https://www.jianshu.com/p/7311e41a2f07
  # 切记不要安装搜狗输入法
@@ -24,8 +31,8 @@ acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
  
  Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
  
-软件仓库安装：GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
-
+软件仓库安装：Typora,GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
+软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
@@ -35,11 +42,15 @@ sudo pacman -S yaourt
 安装docker
 sudo pacman -S docker
 
+安装常用工具
+pacman -S net-tools dnsutils inetutils iproute2 neofetch
+
 Python源
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
- pip install pyOpenSSL
- pip install certifi
+pip install pyOpenSSL
+pip install certifi
+pip install koalas
  
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
@@ -82,4 +93,5 @@ shmily ALL=(ALL)  ALL
 yay -S deepin-wine5
 sudo vim /opt/deepinwine/apps/Deepin-WeChat/run.sh将WINE_CMD改成 WINE_CMD="deepin-wine5"
 
+清理内存 echo 1 > /proc/sys/vm/drop_caches
 
