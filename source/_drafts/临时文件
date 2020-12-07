@@ -696,6 +696,18 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 ###################################################
 Hive相关
 
+Python连接Hive
+1.pyspark 
+2.pyhive 
+3.jdbc 
+from impala.dbapi import connect
+conn = connect(host='host',port=10000,database='default',auth_mechanism='PLAIN',user='abcd',password='123456')
+cur = conn.cursor() 
+或
+import jaydebeapi
+conn = jaydebeapi.connect("org.apache.hive.jdbc.HiveDriver","jdbc:hive2://HOST:10000/default",["root", "123456"],"D:\Programming\Env\Java\ExternalJars\hive-jdbc-1.1.0.jar")
+curs = conn.cursor()
+
 hivevar与hiveconf等预设变量：
 命名空间    使用权限    详细描述
 hivevar       rw    用户自定义变量
