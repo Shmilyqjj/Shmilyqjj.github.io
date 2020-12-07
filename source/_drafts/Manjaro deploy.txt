@@ -32,7 +32,7 @@ ibus-sunpinyin
  Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
  
 软件仓库安装：Typora,GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
-软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut
+软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut,timeshift
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
