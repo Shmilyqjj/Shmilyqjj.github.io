@@ -706,6 +706,8 @@ env           r    Shell环境属性
 
 HQL:
 EXISTS在SQL中的作用是：检验查询是否返回数据。当 where 后面的条件成立，则列出数据，否则为空.
+LEFT JOIN等价于LEFT OUTER JOIN.
+
 
 1.in/exists的优化方案：
   select a.id,a.name from a where a.id in (selecr b.id from b);
@@ -718,7 +720,7 @@ left semi join 中最后 select 的结果只许出现左表，因为右表只有
   替换1：select col from t1 a left join t2 b on a.col = b.col where b.col is null;
   替换2：select col from t1 where (select count(1) as num from t2 where t1.col = t2.col) = 0;
   替换3：select col from t1 where not exists (select col from t2 where t1.col=t2.col);(not in会把null当false，not exists会把null当true，所以如果字段有空值，注意判断)
-  替换4：select col from t1 a left anti join t2 b on a.col = b.col;
+  替换4：select col from t1 a left anti join t2 b on a.col = b.col;(反连接，相当于not exists)
   
 
 数据去重的三种方法：
