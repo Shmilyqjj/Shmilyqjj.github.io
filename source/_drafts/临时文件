@@ -183,7 +183,14 @@ desc formatted或DESCRIBE EXTENDED查看表详细信息
 ANALYZE TABLE xh_result_all COMPUTE STATISTICS FOR COLUMNS cust_no, prob, group, dt;
 DESCRIBE EXTENDED xh_result_all cust_no;
 
-sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sqlString) 得到一条sql的logicalPlan
+sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sqlString) 得到一条sql的ParsedLogicalPlan(UnresolvedLogicalPlan) 单纯根据语法树解析SQL后得到的逻辑计划，没有关联catalog，即没有获取底层存储元数据信息，简单来说，select *不会从该逻辑计划中得到实际查询的字段。
+sqlContext.sparkSession.sql("select ...").queryExecution.toString() 可以得到所有的逻辑计划和物理计划（包括ParsedLogicalPlan、AnalyzedLogicalPlan1、AnalyzedLogicalPlan2、OptimizedLogicalPlan、PhysicalPlan），可以看到具体字段的是AnalyzedLogicalPlan2、OptimizedLogicalPlan、PhysicalPlan
+sqlContext.sparkSession.sql("select ...").queryExecution.executedPlan.toString()   得到物理计划
+sqlContext.sparkSession.sql("select ...").queryExecution.logical.toString()    得到AnalyzedLogicalPlan1
+sqlContext.sparkSession.sql("select ...").queryExecution.analyzed.toString()   得到AnalyzedLogicalPlan2 可看字段映射信息
+sqlContext.sparkSession.sql("select ...").queryExecution.optimizedPlan.toString()   得到optimizedLogicalPlan2
+sqlContext.sparkSession.sql("select ...").queryExecution.sparkPlan.toString()   得到物理计划
+
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
 
