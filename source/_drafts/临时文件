@@ -190,6 +190,7 @@ sqlContext.sparkSession.sql("select ...").queryExecution.logical.toString()    �
 sqlContext.sparkSession.sql("select ...").queryExecution.analyzed.toString()   得到AnalyzedLogicalPlan2 可看字段映射信息
 sqlContext.sparkSession.sql("select ...").queryExecution.optimizedPlan.toString()   得到optimizedLogicalPlan2
 sqlContext.sparkSession.sql("select ...").queryExecution.sparkPlan.toString()   得到物理计划
+以上toString只能大致浏览计划，如果用于分析请使用plan的api而非toString
 
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
@@ -316,6 +317,7 @@ spark数据倾斜及解决：
          4.rdd.reduceByKey或sparksql的group by预聚合
          5.reduce join转map join。存在小表join大表的场景。可以将小表进行广播从而避免shuffle。
          6.sample采样倾斜key单独进行join
+         7.Spark-SQL distribute by col(字段尽量分布均匀无重复key，如果没有分布均匀的字段可以distribute by col,rand() distribute by 关键字控制map输出结果的分发,相同字段的map输出会发到一个reduce节点处理，如果字段是rand()一个随机数，能能保证每个分区的数量基本一致)
 map、foreach、mapPartitions和foreachPartition区别：
     map：用于遍历RDD,将函数f应用于每一个元素，返回新的RDD(transformation算子)。
     foreach:用于遍历RDD,将函数f应用于每一个元素，无返回值(action算子)。
@@ -699,6 +701,10 @@ spark.sql("""
 native_all 是存量hive数据
 delete_data = native_all.join(primary_key_df,primary,"left_anti")  # delete_data是hive存量数据 join sparkjdbc主键和增量字段获取的primary_key_df
 all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回左df也就是all_full的数据 实现去除mysql删除数据
+
+###################################################
+Scala相关
+获取一个变量的类型：  变量.getClass.getSimpleName
 
 ###################################################
 Hive相关
