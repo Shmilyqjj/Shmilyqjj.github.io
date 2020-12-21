@@ -733,6 +733,10 @@ HQL:
 EXISTS在SQL中的作用是：检验查询是否返回数据。当 where 后面的条件成立，则列出数据，否则为空.
 LEFT JOIN等价于LEFT OUTER JOIN.
 
+建表指定压缩格式和存储格式
+STORED AS parquet tblproperties ('parquet.compression'='snappy');
+stored as orc tblproperties ('orc.compress'='snappy');
+stored as parquet tblproperties ('parquet.compression'='lzo');
 
 1.in/exists的优化方案：
   select a.id,a.name from a where a.id in (selecr b.id from b);
