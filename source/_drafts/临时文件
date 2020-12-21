@@ -34,6 +34,8 @@ https://cloud.tencent.com/developer/article/1544865
 ##################################################
 Hadoop相关
 
+hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
+
 小文件产生情况：
 1.流作业
 2.过高并发度
