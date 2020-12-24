@@ -194,6 +194,7 @@ sqlContext.sparkSession.sql("select ...").queryExecution.optimizedPlan.toString(
 sqlContext.sparkSession.sql("select ...").queryExecution.sparkPlan.toString()   得到物理计划
 以上toString只能大致浏览计划，如果用于分析请使用plan的api而非toString
 
+spark.sessionState.conf.getAllConfs.foreach(println) 获取SparkSession当前的配置参数
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
 
@@ -1464,6 +1465,11 @@ Java相关
   }
 
 thread.start()可以单开个线程后台执行一些定时任务
+
+java进程堆转储Dump  jmap -dump:format=b,file=heap.hprof [pid]  生成.hprof快照文件
+JVM参数设置发生OOM自动生成Dump转储文件 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${目录}
+生成.hprof文件后使用JProfiler或VisualVM工具分析，也可以使用Java自带JVisualVM分析
+VisualVM在IDEA可以结合VisualVM Launcher插件使用
 
 查看Java运行情况：
   jmap -heap pid 查看内存使用情况
