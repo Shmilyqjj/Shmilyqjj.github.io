@@ -986,6 +986,7 @@ netstat -tunlp | grep 2181  查看端口
 看端口：netstat -antp | grep 9000 查看9000端口哪个进程号在占用
 lsof -i:8080 查看端口占用PID，USER等
 查看目录树 yum -y install tree   tree /data/test
+查进程pid  pid=$(ps -ef|grep 'keyword' |grep -v grep|awk '{print $2}')
 
 mkdir test
 chmod 1777 test
