@@ -41,4 +41,8 @@ links:
       img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/zhangjie.jpg
       name: ZhngJie
       desc: 张杰的博客
+    - url: http://www.8sec.cc/
+      img: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/links/suntao.jpg
+      name: 裤衩哥的小屋
+      desc: 裤衩哥的主页
 ---
