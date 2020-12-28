@@ -675,3 +675,12 @@ pip3 install pyspark -i https://pypi.doubanio.com/simple
 spark-env增加export PYSPARK_PYTHON=/usr/local/python3/bin/python3.8
 pip3 install koalas -i https://pypi.doubanio.com/simple
 ```
+
+### HiveMetastoreServer异常解决
+去HMS机器找/var/log/hive看到如下Error日志：
+Failed to sync requested HMS notifications up to the event ID xxxxx
+查看sentry 异常CounterWait源码发现传递的id比 currentid 大导致一直等待超时，超时时间为200s。
+CDH可以启用Sentry同步ACL权限，启动后HDFS、Sentry、HMS三者间权限同步的消息处理，突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压就会报Failed to sync requested HMS notifications up to the event ID: xxxxx，该错误不会导致HMS不可用但会导致响应速度很慢。
+解决：
+1. sentry_hms_notification_id表插入最大的ID，重启Sentry忽略掉之前积压的消息
+2. 设置Sentry参数sentry.notification.sync.timeout.ms（默认200s）参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉
