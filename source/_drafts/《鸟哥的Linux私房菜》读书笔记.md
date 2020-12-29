@@ -96,6 +96,7 @@ date: 2020-08-22 12:19:00
   date +%Y/%m/%d  年月日
   date +%H:%M:%S  时分秒
   date +%s        时间戳
+  date "+%Y-%m-%d %H:%M:%S"
   cal                 日历
   cal [month] [year]  某年某月的日历
   bc 计算器用于加减乘除指余 quit离开计算器
