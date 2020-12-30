@@ -712,6 +712,9 @@ Scala相关
 ###################################################
 Hive相关
 
+异常解决：
+Unexpected end-of-input: was expecting closing  创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而插入该表的时候会读元数据，但因为元数据不完整而报错。解决：分多次建表、改varchar(4000)为longtext然后重建表。
+
 Python连接Hive
 1.pyspark 
 2.pyhive 
