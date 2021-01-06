@@ -177,6 +177,22 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+Spark的temporary view
+Spark的四种视图创建方法：
+df.createGlobalTempView 创建全局临时视图 多个SparkSession共享，不支持跨Application 等价于 create global temporary view view_name(col1,col2...) as select (col1,col2...) from table_name;
+df.createOrReplaceGlobalTempView 
+df.createOrReplaceTempView  等价于 create or replace global temporary view view_name(col1,col2...) as select (col1,col2...) from table_name;
+df.createTempView  创建Session级别的临时视图 多个SparkSession不共享
+replace不存在则直接创建，存在则替换
+通过SQL创建视图时会有几种异常：
+It is not allowed to define a TEMPORARY view with IF NOT EXISTS. 创建视图不支持if not exists
+It is not allowed to add database prefix `test` for the TEMPORARY view name. 创建视图不支持库名前缀
+Not allowed to create a permanent view by referencing a temporary function.  创建永久视图不支持用临时UDF
+视图删除：
+spark.catalog.dropTempView('view_name')
+spark.catalog.dropGlobalTempView('global_view_name')
+
+
 ANALYZE TABLE命令分析表、列信息
 分析表信息->主要得到行数和表数据占用空间大小
 ANALYZE TABLE xh_result_all COMPUTE STATISTICS noscan
