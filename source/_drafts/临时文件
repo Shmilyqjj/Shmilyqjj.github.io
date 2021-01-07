@@ -177,6 +177,36 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+Spark访问多个不同nameservice的HDFS集群
+1.使用配置文件
+val conf = new SparkConf().setAppName("Spark Word Count") 
+val sc = new SparkContext()
+// 先将hadoop config配置为cluster1集群
+sc.hadoopConfiguration.addResource("cluster1/core-site.xml")
+sc.hadoopConfiguration.addResource("cluster1/hdfs-site.xml")
+// 操作数据 比如load data ....
+// 再将hadoop config设为cluster2集群
+sc.hadoopConfiguration.addResource("cluster2/core-site.xml") 
+sc.hadoopConfiguration.addResource("cluster2/hdfs-site.xml") 
+2.使用配置项
+val conf = new SparkConf().setAppName("Spark Word Count")
+val sc = new SparkContext()
+// 先将hadoop config配置为cluster1集群
+sc.hadoopConfiguration.set("fs.defaultFS", "hdfs://cluster1");
+sc.hadoopConfiguration.set("dfs.nameservices", "cluster1");
+sc.hadoopConfiguration.set("dfs.ha.namenodes.cluster1", "nn1,nn2");
+sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster1.nn1", "namenode001:8020");
+sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster1.nn2", "namenode002:8020");
+sc.hadoopConfiguration.set("dfs.client.failover.proxy.provider.cluster1", "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
+// 操作数据 比如load data ....
+// 再将hadoop config设为cluster2集群
+sc.hadoopConfiguration.set("fs.defaultFS", "hdfs://cluster2");
+sc.hadoopConfiguration.set("dfs.nameservices", "cluster2");
+sc.hadoopConfiguration.set("dfs.ha.namenodes.cluster2", "nn3,nn4");
+sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster2.nn3", "namenode003:8020");
+sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster2.nn4", "namenode004:8020");
+sc.hadoopConfiguration.set("dfs.client.failover.proxy.provider.cluster2", "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
+
 Spark的temporary view
 Spark的四种视图创建方法：
 df.createGlobalTempView 创建全局临时视图 多个SparkSession共享，不支持跨Application 等价于 create global temporary view view_name(col1,col2...) as select (col1,col2...) from table_name;
