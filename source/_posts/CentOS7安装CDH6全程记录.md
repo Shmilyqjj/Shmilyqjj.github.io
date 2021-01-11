@@ -684,3 +684,29 @@ CDH可以启用Sentry同步ACL权限，启动后HDFS、Sentry、HMS三者间权�
 解决：
 1. sentry_hms_notification_id表插入最大的ID，重启Sentry忽略掉之前积压的消息
 2. 设置Sentry参数sentry.notification.sync.timeout.ms（默认200s）参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉
+
+### CDH添加外部HDFS集群的nameservice
+现在添加对外部HDFS集群nameservice-test的支持。
+在配置项hdfs-site.xml 的 HDFS 客户端高级配置代码段（安全阀）中添加配置
+```xml
+<property>
+    <name>dfs.nameservices</name>
+    <value>nameservice-dev,nameservice-test</value>
+</property>
+<property>
+    <name>dfs.ha.namenodes.nameservice-test</name>
+    <value>nn1,nn2</value>
+</property>
+<property>
+    <name>dfs.namenode.rpc-address.nameservice-test.nn1</name>
+    <value>test1:8020</value>
+</property>
+<property>
+    <name>dfs.namenode.rpc-address.nameservice-test.nn2</name>
+    <value>test2:8020</value>
+</property>
+<property>
+    <name>dfs.client.failover.proxy.provider.nameservice-test</name>
+    <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+</property>
+```
