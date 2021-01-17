@@ -97,7 +97,7 @@ Impalad包含三种角色：
 ## 在CDH使用Impala
 Impala相关进程：
 ![alt Impala-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG)  
-注意：这样部署不科学，考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信
+注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信
 
 在StateStore的WEBUI http://cdh101:25010/ 可以查看Impala集群监控状态和配置信息：
 ![alt Impala-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-03.JPG)  
