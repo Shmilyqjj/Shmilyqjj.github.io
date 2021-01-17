@@ -83,7 +83,7 @@ Impalad包含三种角色：
 &emsp;&emsp;Statestored进程，状态管理进程（类似ZK），定时检查Impala Daemon的健康状况，协调各个运行Impalad进程之间的信息，Impala通过这些信息去定位查询请求所要的数据，如果Impala节点下线，StateStore会通知其他节点，避免查询任务分发到不可用的节点上。
 
 ### Impala Catalog Service
-&emsp;&emsp;Catalogd进程，元数据管理服务，将数据表变化的信息分发给各个进程。接收来自StateStore的所有请求，每个Impala节点在本地缓存所有元数据。**当表创建、数据更新或Schema发生变化时，其他Impala后台进程必须更新元数据缓存，才能查询**。
+&emsp;&emsp;Catalogd进程，元数据管理服务，收集Hive等系统的元数据，将数据表变化的信息分发给各个进程。接收来自StateStore的所有请求，每个Impala节点在本地缓存所有元数据。**当表创建、数据更新或Schema发生变化时，其他Impala后台进程必须更新元数据缓存，才能查询**。
 * Schema变化时（Hive操作create table/drop table/alter table add columns）使用：
  invalidate metadata  //重新加载所有库中的所有表（不推荐，还不如重启Catalogd进程）
  invalidate metadata [table]  //重新加载指定的某个表
@@ -97,6 +97,7 @@ Impalad包含三种角色：
 ## 在CDH使用Impala
 Impala相关进程：
 ![alt Impala-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG)  
+注意：这样部署不科学，考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信
 
 在StateStore的WEBUI http://cdh101:25010/ 可以查看Impala集群监控状态和配置信息：
 ![alt Impala-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-03.JPG)  
