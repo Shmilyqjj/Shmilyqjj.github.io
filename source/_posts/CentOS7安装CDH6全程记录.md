@@ -710,3 +710,13 @@ CDH可以启用Sentry同步ACL权限，启动后HDFS、Sentry、HMS三者间权�
     <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
 </property>
 ```
+
+### impala-shell脚本报错
+升级Python版本后，Impala-shell报语法错误
+原python命令是python2.7，现python命令是python3.8，而/opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell脚本没考虑环境变量，直接用python命令执行，故出现语法兼容性问题。
+解决：vim /opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell
+将最后一行exec python...替换为exec python2.7
+```python
+PYTHONPATH="${EGG_PATH}${SHELL_HOME}/gen-py:${SHELL_HOME}/lib:${PYTHONPATH}" \
+  exec python2.7 ${SHELL_HOME}/impala_shell.py "$@"
+```
