@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">我的2020年度总结博客 | 佳境的小本本</title>
+  <title itemprop="name">Impala-基于内存的高效SQL交互查询引擎 | 佳境的小本本</title>
   
     <link rel="shortcut icon" href="/images/favicon.ico">
   
@@ -391,23 +391,23 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      我的2020年度总结博客</h1>
+      Impala-基于内存的高效SQL交互查询引擎</h1>
       <p class="entry-census">
         <span>
-          <a href="/">
-            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/img/custom/avatar.jpg">
           </a>
         </span>
         <span>
-          <a href="/">佳境</a>
+          <a href="shmily-qjj.top">佳境</a>
         </span>
         <span class="bull">
         ·</span>
-        2021-1-1<span class="bull">
+        2021-1-17<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -421,71 +421,140 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="我的2020年度总结"><a href="#我的2020年度总结" class="headerlink" title="我的2020年度总结"></a>我的2020年度总结</h1><p>2020是很特别的一年，独立完成了毕业设计，真正从大学毕业了，来到了离家很远的深圳工作，而且又认识了一群新的伙(dou)伴(bi)，如果说去年头发是少了几根，那今年就是少了几撮了吧…当然2020还是有些许的遗憾与不足…<br><a href="https://shmily-qjj.top/2019Summary/">我的2019年度总结博客</a>中有写到对自己2020年的一些期望，而2020真正做到了哪些，又有哪些没做到呢？<br><font color="green"  size="3">(吃瓜群众:好像好多你都没做到吧!!!)</font><br>不管做到多少，没做到多少，都要感谢2020，让我认清自己，更加成熟。2020有着很多值得回忆和记录的事，而2021又有很多新的期待，让我们一起看看吧。<br>还有，今年佳境终于是有人陪跨年的佳境了，感谢康富同学，陪我一起跨年，做海鲜大餐给我吃！康老板666！套路老板发红包，还是你强！<br><u><strong>主持人</strong></u></p>
-<h2 id="回顾2020"><a href="#回顾2020" class="headerlink" title="回顾2020"></a>回顾2020</h2><p><u><strong>主持人</strong></u>：欢迎来到《回顾2020》节目的现场，佳境同学！你还记得我吗？去年我们在《回顾2019》节目中见过。<br><u><strong>我</strong></u>：我记得你！<br><u><strong>主持人</strong></u>：2020你一定吃得很好吧？<br><u><strong>我</strong></u>：我怀疑你在说我变月半了！<br><u><strong>主持人</strong></u>：一个词简单总结下2020吧。<br><u><strong>我</strong></u>：Emmm，用跌宕起伏来形容比较合适。<br><u><strong>主持人</strong></u>：你说2020是跌宕起伏的一年，那讲一下你都经历了什么吧。<br><u><strong>我</strong></u>：<br><font size="3" color="red">三月</font>，辞掉了实习工作，想找个更好的机会，但疫情下找工作很不方便，只能通过远程…找工作的过程中发现了自己的薄弱项，也算是好事吧。但裸辞真的还挺难受的，感觉会瞬间陷入迷茫，尤其是疫情之下，更加迷茫。<br><font size="3" color="red">四月</font>，面试，毕业设计，双线程执行，那段时间有压力，但是爸妈给了我很多鼓励，才让我在重压下心情也能得到放松，感谢他们！买了一万多块钱的笔记本电脑，肉疼啊…<br><font size="3" color="red">五月</font>，学习之余，陪爸妈看电视剧，一起出去溜达，去店里帮忙，一起做饭…想到很快要去工作了，陪他们的时间越来越少，虽然在家有时会跟他们吵，发脾气，但离开了又后悔让他们生气。人都是这样矛盾吧。这个月末，毕业设计也拉下了帷幕，我的毕设还被欢哥（毕设导师）评为优秀等级，学校还偷偷地奖励了400块钱，这是我学校工行卡的最后一笔入账，一开始钱看来自哈理工，都懵了，学校何时如此大方，后来才知道是毕设奖励…<br><font size="3" color="red">六月</font>，可能是这一年中最清闲的一个月了，想到要离开家去那么远的深圳，抓紧时间再跟小伙伴们聚一聚，聚，无外乎就是恰饭、电影、KTV、溜达和打游戏，有点小遗憾就是没珍惜这段时间来一次说走就走的毕业旅行，但更大的遗憾是因为疫情，直到毕业也没能回到大学校园，跟那几个狐朋狗友再聚一下，去年曾约好回去后要踩着啤酒箱子喝，你们说要把我堵在宿舍门口喝完再让进去，但最后宿舍是老师收拾的，个人物品也是老师邮寄的，我们谁都没能回去，下次再相聚不知道有多难。20号，坐绿皮火车来深圳，29个小时的硬卧，还好是妈妈送我来的，一路上有陪伴，还有带了爸爸做的烤肉。这段漫长的旅途上，除了静静躺下思考人生和看车窗外的风景，更多的是离家的不舍，要知道我之前的二十二年都是从北方度过的，随着绿皮车咚咚声越来越远的，是家门口那条大凌河，是不眠的夜窗外的雪，是海河路那条破烂的大街，是那一群狐朋狗友…<br><font size="3" color="red">七月</font>，对深圳很陌生，感觉在这边很难找到以前的玩伴了，没想到好几个大学同学和大学校友在这边，可以一起去玩，还参加了哈理工校友聚会活动，而且入职后发现公司里也有老乡，顿时觉得心里踏实多了。刚入职新公司不久，对公司业务和各个技术部门组成都不熟悉，也有些迷茫，好在阿杜和杰哥看好我，我觉得自己挺幸运的。第一次团建在公司附近吃的，也熟悉了新同事。就是没想到后面几次团建都是吃烧烤…哈哈哈！这个月，学习了Kudu并在团队内部分享，对一致性算法Raft有了更深的理解，给对接你部门培训了高效Python代码的方案，统一数据分析平台Linkis分布式部署、调优和解决了些BUG。<br><font size="3" color="red">八月</font>，好像是很平平淡淡的一个月哦，想不起来可以说啥。<br><font size="3" color="red">九月</font>，做了自己之前未尝做过的领域，数据治理和血缘关系，从0到1实现了一个血缘收集项目并上线了，对血缘收集、图数据库有了一定的了解和实践经验，对数据治理也有了一些自己的认识。<br><font size="3" color="red">十月</font>，十一黄金周，请妈妈去三亚玩（三亚是她一直很想去的地方），打卡蜈支洲岛，三亚千古情，玫瑰谷，槟榔谷，天涯海角，大小洞天，在鹿回头看鹿城全貌，吃海鲜，喝最好喝的奶椰汁，还有清补凉，海南四大名粉…太开心了，没见过这么美的景色，而且是带着很重要的人–妈妈一起，妈妈也很开心，只是这一趟旅途中，我明显感觉妈妈真的老了，好想多带爸妈出去旅游，他们为我操劳太多，付出太多，一直在老家那边，没时间出来看看外面的世界，这个明年要搞起来！送妈妈回老家，回去也是坐了绿皮车，也是29小时，只是这趟没人陪了，送她到车站的路上两个人都沉默不语，但送她刷脸进站，看到弱小的背影慢慢消失在茫茫人海，我内心很沉重，我到家，灯黑着，很安静，眼眶就湿润了，妈妈让我看看枕头底下有她留的字条，都是鼓励的话，还是没忍住哭了一下，还好没人看到……部门来了个新总监，华哥，我觉得他人挺好的，给整个部门带来了巨大的改变，他很重视对员工的培养，希望我们能更专注于一些技术，学到一些新东西。华哥也挺器重我的，让我做了一些技术含量比较高的工作，这个月就是做了BadSQL的拦截，对Spark二次开发，对Spark的logicalPlan有了更深的认识；还做了Atlas部署和源码修改，对Atlas的工作原理和SparkListener有了一些了解。虽然这类工作很有挑战性，但可以挑战它不香吗？！<br><font size="3" color="red">十一月</font>，参加了微众银行Dss有奖征文活动，拿到了最受欢迎征文奖，感谢所有投票给我文章的人，可是奖品大礼包到现在还没邮到，坐等。今年的双十一，花了有史以来最多的钱，1.1w，肉疼，买手机占一大笔，抢Mate40Pro抢到心累。转正评级A+，挺开心，感谢杰哥！<br><font size="3" color="red">十二月</font>，又是在工作上有挑战的一个月，又是完全陌生的方向，做数据脱敏，华哥和磊哥指导下，从方案调研，到设计，评审再到实现，每一步都充满坎坷。这个过程让我熟悉了Spark任务执行流程，逻辑计划生成和转换，Parquet读写，RangerHivePlugin原理，设计思路也更加开阔了，虽然实现上有些小漏洞，但后面会一步一步完善的。说到这里，还是要感谢华哥器重，让我明年做数据平台组组长，我感觉我离当组长的能力还差得远，这也是一种激励吧，想担起这个重任就要先刻苦充实自己的知识水平和能力，新的一年给自己加油打气！华哥还给我面试他人的机会，才发现面试有好多学问，而且面试不仅是考察面试者的知识水平和能力，更考验面试官的能力、技巧，面试别人的过程中，遇到优秀的人，会发现自己的不足，自己需要加强的地方太多了。这个月参加了公司信息技术条线的2021工作规划讨论，跟大佬们一起讨论才觉得自己思路和眼界都比较窄。跟老乡干饭去，碰见个户外直播，问谁会唱歌，被老乡推出去了，蹭了主播热度唱了首《告白气球》，想问主播那几分钟掉了多少粉丝？跟同事几个人一起去爬了梧桐山，拍了很好看的照片，一会给大家分享下哈！很伤心的是我们部门唯一东北话贼溜的老乡离职了(我是东北话不行)，希望她后面一帆风顺把。圣诞节玩游戏拿了好多礼物，也是很开心！跨年晚上抢了老板的大红包，很巴适！元旦假期计划了跟张宇和康富去广州三日游，终于朋友圈有得写了，哈哈！<br><u><strong>主持人</strong></u>：经历过分别，面对过压力，遇到过困难，也受到过鼓励，2020年对你来说果然是跌宕起伏啊！那你觉得2020年你最大的变化是什么呢？<br><u><strong>我</strong></u>：学会做饭了，还挺好吃的（自我感觉良好，其实不咋的），更加独立了，更重要的是渐渐意识到该找个对象了，哈哈！<br><u><strong>主持人</strong></u>：会做饭了，确实进步很大啊。有找对象的意识很好，希望2020你能找到对的人吧。还记得去年的对自己的小目标吗，讲讲实现了哪些？<br><u><strong>我</strong></u>：框架底层原理深入了一点点，代码能力也有提高，写博客也在坚持，只是今年写的文章比较少。交到了几个好朋友。没实现的我也讲一下吧，不熬夜这个没实现，去年的总结，问大家有没有互相监督熬夜的在评论区留言，没人留言，没有监督，明年尽量少熬夜吧，能减少就行！网易云(说错了是网抑云)作品质量比原来强了，当然只出了很少几个作品：<a target="_blank" rel="noopener" href="http://5sing.kugou.com/fc/17562644.html">《吹梦到西洲》</a>、<a target="_blank" rel="noopener" href="https://music.163.com/#/song?id=1456428360">《有幸》</a>👈点击可以听哈哈哈，今年认为质量最好的翻唱作品就是这首<a target="_blank" rel="noopener" href="http://5sing.kugou.com/fc/17562644.html">《吹梦到西洲》</a>了。<br><u><strong>主持人</strong></u>：那生活方面和做事方面呢？<br><u><strong>我</strong></u>：生活方面，感觉生活质量比实习时候更好了，毕竟挣钱比实习时多了，深圳挣钱深圳花嘛，不过我比较节约，还是攒了一些的。啊，我的心里只有一件事，就是搞钱。我觉得做事情比以前更稳重了，但有时还是会浮躁，已经改善很多了。<br><u><strong>主持人</strong></u>：此时此刻，你有什么想对朋友和亲人说的？<br><u><strong>我</strong></u>：对好朋友说，多数人都是匆匆过客，而你却留了下来，即使很久不联系，有事情也能随叫随到，有什么话都可以讲给你，认识你是我的幸运，2021继续有你，谢谢你的陪伴！对爸妈说，虽然离你们很远，过年我还是会回去的，没有团圆的年是不完整的，很快就会相见了！我不在时你们要多注意身体，加强锻炼，明年带你们一起去旅游！2021，我尽量少熬夜哈！不用担心我。<br><u><strong>主持人</strong></u>：你的朋友和亲人此刻应该也收到了你说的话。你的2021，充满希望和挑战，加油吧，你一定能行！<br><u><strong>我</strong></u>：谢谢您！<br><u><strong>主持人</strong></u>：刚才你提到了要给大家分享一些照片是吧？<br><u><strong>我</strong></u>：嗯，那下面我把2020的精彩瞬间分享给大家！  </p>
+          <h1 id="Impala-基于内存的高效SQL交互查询引擎"><a href="#Impala-基于内存的高效SQL交互查询引擎" class="headerlink" title="Impala-基于内存的高效SQL交互查询引擎"></a>Impala-基于内存的高效SQL交互查询引擎</h1><h2 id="Impala简介"><a href="#Impala简介" class="headerlink" title="Impala简介"></a>Impala简介</h2><p>&emsp;&emsp;Impala是Cloudera提供的一款高效率的SQL实时查询工具，官方测试性能比Hive快10到100倍，SQL查询性能甚至比SparkSQL还更加高效。Impala是基于Hive的大数据分析查询引擎，直接使用Hive的元数据库，意味着Impala元数据都存储在Hive的元数据库当中。Impala兼容绝大多数HiveQL语法。</p>
+<pre><code class="text">Impala基于MPP（Massively Parallel Processing）[大规模并行处理]理念的查询引擎，什么是MPP？
+MPP是一种海量数据实时分析架构,MPP理念是将任务并行的分散到多个服务器和节点上，在每个节点上计算完成后，将各自部分的结果汇总在一起得到最终的结果
+特点：
+● Shared Nothing架构（每一个节点都是独立的，自给的，在系统中不存在单点竞争，没有共享数据），私有资源
+● 任务分布式并行执行（数据无共享，无IO冲突，无锁资源竞争，计算速度快）
+● 数据分布式存储(本地化)
+● 横向扩展（易扩容）;
+● 单个节点查询效率慢会影响整个查询（倾斜）
+附：
+Shared Everthing：完全透明共享 CPU/Memory/IO，并行处理能力是最差的
+Shared Storage：各个处理单元使用自己的私有CPU//Memory，但共享磁盘系统
+Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO</code></pre>
+<p><strong>基于SQL的计算引擎对比</strong></p>
 <table>
 <thead>
 <tr>
-<th></th>
-<th></th>
+<th align="center">引擎</th>
+<th align="center">开发语言</th>
+<th align="center">执行机制</th>
+<th align="center">资源调度</th>
+<th align="center">内存分配</th>
+<th align="center">容错</th>
+<th align="center">场景</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary01.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary02.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
+<td align="center">Hive(MR)</td>
+<td align="center">Java</td>
+<td align="center">SQL-&gt;MR-&gt;Yarn-&gt;HDFS</td>
+<td align="center">Yarn调度</td>
+<td align="center">内存不够则用磁盘</td>
+<td align="center">Hadoop容错机制包括重试和推测执行</td>
+<td align="center">离线分析和跑批任务</td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary03.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary04.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
+<td align="center">Spark</td>
+<td align="center">Scala</td>
+<td align="center">SQL-&gt;计划-&gt;Yarn-&gt;HDFS</td>
+<td align="center">支持多种调度</td>
+<td align="center">优先使用内存不够则用磁盘，可手动</td>
+<td align="center">Lineage+Checkpoint+失败重试</td>
+<td align="center">兼容多种场景</td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary05.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary06.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
+<td align="center">Presto</td>
+<td align="center">Java</td>
+<td align="center">SQL-&gt;计划-&gt;Workers-&gt;HDFS</td>
+<td align="center">自身</td>
+<td align="center">纯内存计算</td>
+<td align="center">无容错设计</td>
+<td align="center">交互式分析查询</td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary07.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary08.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
+<td align="center">ClickHouse</td>
+<td align="center">C++</td>
+<td align="center">SQL-&gt;计划-&gt;读存储引擎数据向量化执行</td>
+<td align="center">自身</td>
+<td align="center">内存+连续IO</td>
+<td align="center">多主机跨数据中心异步复制，不怕节点宕机</td>
+<td align="center">存储数据库+OLAP分析的场景</td>
 </tr>
 <tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary09.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary10.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
-</tr>
-<tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary11.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary12.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
-</tr>
-<tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary13.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary14.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
-</tr>
-<tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary15.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary16.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
-</tr>
-<tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary17.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary18.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
-</tr>
-<tr>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary19.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=left alt="2020"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary20.jpg" width=100% style="border:solid 3px #CCFFFF" title="2020" align=right alt="2020"></td>
+<td align="center">Impala</td>
+<td align="center">C++</td>
+<td align="center">SQL-&gt;计划-&gt;HDFS</td>
+<td align="center">自身</td>
+<td align="center">纯内存计算</td>
+<td align="center">无容错设计</td>
+<td align="center">交互式分析查询</td>
 </tr>
 </tbody></table>
-<h2 id="展望2021"><a href="#展望2021" class="headerlink" title="展望2021"></a>展望2021</h2><p><strong>挥手告别2020，2021我来啦！2021也要奥利给呀！</strong></p>
-<h3 id="小目标"><a href="#小目标" class="headerlink" title="小目标"></a>小目标</h3><ol>
-<li>数据治理、数据湖、实时计算等方面要掌握，技术要紧跟潮流，不能落伍</li>
-<li>提高开发效率，能快速精确定位问题</li>
-<li>学习时更专心，不浮躁</li>
-<li>减少熬夜，有必要健身</li>
-<li>找到女朋友</li>
+<h2 id="Impala优缺点"><a href="#Impala优缺点" class="headerlink" title="Impala优缺点"></a>Impala优缺点</h2><p>优点：</p>
+<ol>
+<li>基于内存计算，低延迟，高吞吐，查询速度快，适用于秒级响应的OLAP交互式分析查询</li>
+<li>提供窗口函数（聚合 OVER PARTITION, RANK, LEAD, LAG, NTILE等等）以支持高级分析功能</li>
+<li>支持PB级数据量的实时分析</li>
+<li>支持map、struct、array类型上的复杂嵌套查询，支持UDF和UDAF</li>
+<li>可以使用Impala插入或更新HBase（类似Phoenix）</li>
+<li>支持Parquet、Avro、Text、RCFile、SequenceFile、HFile等多种文件格式，支持Snappy（有效平衡压缩率和解压缩速度）、Gzip（最高压缩率的归档数据压缩）、Deflate（不支持文本文件）、Bzip2、LZO（只支持文本文件）等多种压缩编码格式</li>
+<li>支持存储在HDFS、HBase、S3、Kudu上的数据操作</li>
+<li>与CDH深度整合，支持查看查询任务的各项指标</li>
+<li>支持Sentry和Kerberos</li>
 </ol>
-<h3 id="小愿望"><a href="#小愿望" class="headerlink" title="小愿望"></a>小愿望</h3><ol>
-<li>家人、朋友和自己都要身体健康！</li>
-<li>能担当起平台组组长的重任</li>
-<li>找到女朋友</li>
-<li>正在看我博客的你每天都开心<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2019Summary/2019Summary21.jpeg" alt="alt 2019Summary21"></li>
+<p>局限性：</p>
+<ol>
+<li>不适用于跑批</li>
+<li>查询时占用大量内存</li>
+<li>不支持ORC</li>
+<li>“AnalysisException: Impala does not support modifying a non-Kudu table” 不支持非Kudu表的Update、delete操作</li>
+<li>不支持Date数据类型</li>
 </ol>
-<h3 id="小想法"><a href="#小想法" class="headerlink" title="小想法"></a>小想法</h3><p>第一，还是跟去年一样，有没有互相监督不熬夜的！评论区留言！<br>第二，可以给我介绍女朋友，哈哈哈！  </p>
+<h2 id="Impala原理"><a href="#Impala原理" class="headerlink" title="Impala原理"></a>Impala原理</h2><p><strong>Impala架构图</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-01.png" alt="alt Impala-01">  </p>
+<h3 id="Impala-Daemon"><a href="#Impala-Daemon" class="headerlink" title="Impala Daemon"></a>Impala Daemon</h3><p>&emsp;&emsp;Impala的核心进程Impalad，部署在所有的数据节点上，接收客户端的查询请求，读写数据，并行执行来自集群中其他节点的查询请求，将中间结果返回给调度节点。调用节点将结果返回给客户端。Impalad进程通过持续与StateStore通信来确认自己所在的节点是否健康以及是否可以接受新的任务请求。</p>
+<p>Impalad包含三种角色：</p>
+<ul>
+<li><font size="3" color="red">Query Coordinator</font>：用户在Impala集群上的某个节点提交数据处理请求（例如impala-shell提交SQL），则该Impalad节点称为Coordinator Node（协调节点）,负责定位数据位置，拆分请求（Fragment），将任务分解为多个可并行执行的小请求，发送这些请求到多个Query Executor，接收Query Executor处理后返回的数据并构建最终结果返回给用户。</li>
+<li><font size="3" color="red">Query Planner</font>：Java编写的，解析SQL生成QueryPlanTree执行计划树。</li>
+<li><font size="3" color="red">Query Executor</font>：执行数据计算，比如scan，Aggregation，Merge等，返回数据。</li>
+</ul>
+<h3 id="Impala-StateStore"><a href="#Impala-StateStore" class="headerlink" title="Impala StateStore"></a>Impala StateStore</h3><p>&emsp;&emsp;Statestored进程，状态管理进程（类似ZK），定时检查Impala Daemon的健康状况，协调各个运行Impalad进程之间的信息，Impala通过这些信息去定位查询请求所要的数据，如果Impala节点下线，StateStore会通知其他节点，避免查询任务分发到不可用的节点上。</p>
+<h3 id="Impala-Catalog-Service"><a href="#Impala-Catalog-Service" class="headerlink" title="Impala Catalog Service"></a>Impala Catalog Service</h3><p>&emsp;&emsp;Catalogd进程，元数据管理服务，将数据表变化的信息分发给各个进程。接收来自StateStore的所有请求，每个Impala节点在本地缓存所有元数据。<strong>当表创建、数据更新或Schema发生变化时，其他Impala后台进程必须更新元数据缓存，才能查询</strong>。</p>
+<ul>
+<li>Schema变化时（Hive操作create table/drop table/alter table add columns）使用：<br>invalidate metadata  //重新加载所有库中的所有表（不推荐，还不如重启Catalogd进程）<br>invalidate metadata [table]  //重新加载指定的某个表</li>
+<li>数据变化时（Hive操作insert into、load data、alter table add partition、Alter table drop partition或HDFS增删重命名文件）使用：<br>refresh [table]   //刷新某个表<br>refresh [table] partition [partition] //刷新某个表的某个分区</li>
+<li><font size="3" color="red">注意：invalidate会清除表的缓存并从MetaStore重新同步元数据，代价较大；refresh会重用之前的元数据，仅仅执行文件刷新操作，它能够检测到表中分区的增加和减少，代价相对小些</font></li>
+</ul>
+<!-- 负载均衡：采用Round Robin轮询调度算法（依次将一个域名解析到多个IP地址的调度不同服务器的计算方法）来实现负载均衡,将任务提交到不同的节点上 -->
+
+<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG" alt="alt Impala-02">  </p>
+<p>在StateStore的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25010/">http://cdh101:25010/</a> 可以查看Impala集群监控状态和配置信息：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-03.JPG" alt="alt Impala-03">  </p>
+<p>在Catalog的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25020/">http://cdh101:25020/</a> 可以看到各个库表元数据信息、Schema及占用内存大小<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-04.JPG" alt="alt Impala-04">  </p>
+<p>在Impala Daemon的WEBUI <a target="_blank" rel="noopener" href="http://cdh102:25000/">http://cdh102:25000/</a> 可以看到该进程信息  在<a target="_blank" rel="noopener" href="http://cdh102:25000/queries">http://cdh102:25000/queries</a> 可以查看该节点执行SQL的详情<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-07.JPG" alt="alt Impala-07"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-08.JPG" alt="alt Impala-08">  </p>
+<p>在CDH Impala组件中可以查看执行SQL任务的详细信息<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-05.JPG" alt="alt Impala-05"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-06.JPG" alt="alt Impala-06"> </p>
+<p>一些重要的常用的impala-shell使用命令</p>
+<pre><code class="shell">impala-shell -i host指定Coordinator
+-d 指定连接到哪个库
+-q &quot;select ...&quot; 不进入impala-shell直接查询某语句返回结果到命令行
+-f file 执行文件中的sql
+-p 获取执行计划
+-o 保存执行结果到文件
+-h 帮助
+进入Impala-shell后：
+shell &lt;shell&gt;  不退出impala-shell执行系统命令
+profile 分析Query执行，以便于性能调优（比-p更多的信息）</code></pre>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>文件格式推荐parquet，查询效率高<br>避免碎片文件，注意文件的大小<br>根据实际的文件大小和个数选择分区的粒度<br>分区字段最好使用小的存储格式<br>使用compute stats进行性能分析，提高join效率<br>最小化返回数据量<br>使用explain确认执行计划是否高效<br>使用summary确认硬件消耗<br>使用profile进行性能调优<br>使用hdfs缓存提升查询性能<br>使用profile查看是否有hdfs块倾斜，合理分配block大小</p>
+<p>总结：</p>
+<ol>
+<li>Impala是典型的MPP架构实时查询分析引擎，类似的引擎还有ClickHouse</li>
+<li>Impala非常适合即时报表展示的场景</li>
+<li>使用Impala一定要注意元数据缓存问题以及所查询的表文件个数、倾斜问题，否则会严重拖慢效率</li>
+<li>多参考以上最佳实践部分</li>
+</ol>
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><p><a target="_blank" rel="noopener" href="http://impala.apache.org/docs/build/impala-3.4.pdf">Impala-3.4 PDF Document</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38483094/article/details/95797505">Impala介绍以及优劣</a><br><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/IMPALA/Impala+Home">Cloudera Impala Wiki</a><br><a target="_blank" rel="noopener" href="https://github.com/cloudera/Impala">Impala Github repository</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39478115/article/details/77506322">Impala架构</a></p>
 
         </div>
         <!-- .entry-content -->
@@ -513,36 +582,19 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/1ae37d82/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                Impala-基于内存的高效SQL交互查询引擎</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/f5da73a2/" rel="next">
+            <a href="/2020Summary/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                大数据脱敏方案调研</h3>
+                我的2020年度总结博客</h3>
                 <hr>
               </div>
             </a>
@@ -566,16 +618,16 @@
 
       <section class="author-profile">
         <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-          <a href="/" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
           <div class="meta">
             <span class="title">Author</span>
             <h3 itemprop="name">
-            <a href="/" itemprop="url" rel="author">佳境</a>
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
             </h3>
           </div>
         </div>
         <hr>
-        <p><i class="iconfont icon-write"></i>起伏，坎坷，都会化为过往，化为内心的淡定与宁静</p>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
       </section>
     </main><!-- #main -->
   </div><!-- #primary -->

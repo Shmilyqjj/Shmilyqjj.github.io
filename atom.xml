@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2021-01-10T11:40:58.181Z</updated>
+  <updated>2021-01-17T09:59:02.787Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Impala-基于内存的高效SQL交互查询引擎</title>
+    <link href="https://shmily-qjj.top/1ae37d82/"/>
+    <id>https://shmily-qjj.top/1ae37d82/</id>
+    <published>2021-01-17T02:18:30.000Z</published>
+    <updated>2021-01-17T09:59:02.787Z</updated>
+    
+    <summary type="html">
+    
+      了解高效SQL分析引擎Impala
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="实时SQL查询引擎" scheme="https://shmily-qjj.top/tags/%E5%AE%9E%E6%97%B6SQL%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E/"/>
+    
+  </entry>
   
   <entry>
     <title>我的2020年度总结博客</title>
@@ -419,26 +441,6 @@
     
     
       <category term="SQL" scheme="https://shmily-qjj.top/tags/SQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>王者荣耀-元歌教学</title>
-    <link href="https://shmily-qjj.top/26e6fc90/"/>
-    <id>https://shmily-qjj.top/26e6fc90/</id>
-    <published>2019-11-03T15:05:06.000Z</published>
-    <updated>2020-04-12T14:15:48.002Z</updated>
-    
-    <summary type="html">
-    
-      王者荣耀-元歌深度解析
-    
-    </summary>
-    
-      <category term="其他" scheme="https://shmily-qjj.top/categories/%E5%85%B6%E4%BB%96/"/>
-    
-    
-      <category term="王者荣耀" scheme="https://shmily-qjj.top/tags/%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80/"/>
     
   </entry>
   

@@ -863,6 +863,30 @@ pip3 install koalas -i https://pypi.doubanio.com/simple</code></pre>
 <li>sentry_hms_notification_id表插入最大的ID，重启Sentry忽略掉之前积压的消息</li>
 <li>设置Sentry参数sentry.notification.sync.timeout.ms（默认200s）参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉</li>
 </ol>
+<h3 id="CDH添加外部HDFS集群的nameservice"><a href="#CDH添加外部HDFS集群的nameservice" class="headerlink" title="CDH添加外部HDFS集群的nameservice"></a>CDH添加外部HDFS集群的nameservice</h3><p>现在添加对外部HDFS集群nameservice-test的支持。<br>在配置项hdfs-site.xml 的 HDFS 客户端高级配置代码段（安全阀）中添加配置</p>
+<pre><code class="xml">&lt;property&gt;
+    &lt;name&gt;dfs.nameservices&lt;/name&gt;
+    &lt;value&gt;nameservice-dev,nameservice-test&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;dfs.ha.namenodes.nameservice-test&lt;/name&gt;
+    &lt;value&gt;nn1,nn2&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;dfs.namenode.rpc-address.nameservice-test.nn1&lt;/name&gt;
+    &lt;value&gt;test1:8020&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;dfs.namenode.rpc-address.nameservice-test.nn2&lt;/name&gt;
+    &lt;value&gt;test2:8020&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;dfs.client.failover.proxy.provider.nameservice-test&lt;/name&gt;
+    &lt;value&gt;org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+<h3 id="impala-shell脚本报错"><a href="#impala-shell脚本报错" class="headerlink" title="impala-shell脚本报错"></a>impala-shell脚本报错</h3><p>升级Python版本后，Impala-shell报语法错误<br>原python命令是python2.7，现python命令是python3.8，而/opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell脚本没考虑环境变量，直接用python命令执行，故出现语法兼容性问题。<br>解决：vim /opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell<br>将最后一行exec python…替换为exec python2.7</p>
+<pre><code class="python">PYTHONPATH=&quot;$&#123;EGG_PATH&#125;$&#123;SHELL_HOME&#125;/gen-py:$&#123;SHELL_HOME&#125;/lib:$&#123;PYTHONPATH&#125;&quot; \
+  exec python2.7 $&#123;SHELL_HOME&#125;/impala_shell.py &quot;$@&quot;</code></pre>
 
         </div>
         <!-- .entry-content -->
