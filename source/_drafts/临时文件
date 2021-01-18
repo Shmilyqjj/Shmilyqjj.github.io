@@ -527,6 +527,9 @@ spark.yarn.am.memoryOverhead：值为AM memory * 0.07, with minimum of 384
 分配Container时：
 Container分配的内存大小是通过spark.executor.memory+spark.executor.memoryOverhead计算出来的且为yarn.scheduler.minimum-allocation-mb的整数倍且不大于yarn.scheduler.maximum-allocation-mb
 spark.executor.memory+spark.executor.memoryOverhead <= yarn.scheduler.maximum-allocation-mb  如果大于就会申请失败  设置Container最大容器内存时并不知道机器实际剩余内存多少，可能配8G但机器只剩4G这时申请Container超过4G资源也失败
+一个driver和10个executor其内存都没超过yarn.scheduler.maximum-allocation-mb，则一共分配11个container
+10个NodeManager，30个SparkExecutor，则每个NM节点启动3个Executor
+
 AM对应的Container内存由spark.yarn.am.memory加上spark.yarn.am.memoryOverhead来确定
 一个Container就是一个进程=内存隔离，对应Spark的一个进程（driver或Executor）
 由这六个参数决定
