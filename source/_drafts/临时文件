@@ -177,6 +177,18 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+Stage详情页Locality Level数据本地性级别分五种：
+PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
+NODE_LOCAL: data is on the same node. Examples might be in HDFS on the same node, or in another executor on the same node. This is a little slower than PROCESS_LOCAL because the data has to travel between processes
+NO_PREF: data is accessed equally quickly from anywhere and has no locality preference
+RACK_LOCAL: data is on the same rack of servers. Data is on a different server on the same rack so needs to be sent over the network, typically through a single switch
+ANY: data is elsewhere on the network and not in the same rack
+效率PROCESS_LOCAL > NODE_LOCAL > NO_PREF > RACK_LOCAL
+如果调度任务较多，查看到任务的本地性级别不太好，可以适当调大spark.locality.wait (默认3s)
+相关源码解析：https://blog.csdn.net/high2011/article/details/80705393
+调优策略：尽量保证数据在同一个JVM进程，即PROCESS_LOCAL级别，如果无缓存，则一定不能是PROCESS_LOCAL，最好也只能是NODE_LOCAL
+
+
 Spark访问多个不同nameservice的HDFS集群
 1.使用配置文件
 val conf = new SparkConf().setAppName("Spark Word Count") 
@@ -245,14 +257,32 @@ spark.sessionState.conf.getAllConfs.foreach(println) 获取SparkSession当前的
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle 阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
 
 spark动态资源分配，没用到Executor时回收资源
+开启动态资源调整需要（on yarn情况下）
+1.将spark.dynamicAllocation.enabled设置为true。意思就是启动动态资源功能
+2.将spark.shuffle.service.enabled设置为true。 在每个nodeManager上设置外部shuffle服务
+　　2.1 将spark-<version>-yarn-shuffle.jar拷贝到每台nodeManager的${HADOOP_HOME}/share/hadoop/yarn/lib/下。
+　　2.2 配置yarn-site.xml
+　　　　<property>
+　　　　　　<name>yarn.nodemanager.aux-services</name>
+　　　　　　<value>mapreduce_shuffle,spark_shuffle</value>
+　　　　</property>
+　　　　<property>
+　　　　　　<name>yarn.nodemanager.aux-services.spark_shuffle.class</name>
+　　　　　　<value>org.apache.spark.network.yarn.YarnShuffleService</value>
+　　　　</property>
+　　　　<property>
+　　　　　　<name>spark.shuffle.service.port</name>
+　　　　　　<value>7337</value>
+　　　　</property>
+　　　2.3 重启所有nodeManager
 val sparkConf = new SparkConf()
     .set("spark.shuffle.service.enabled", "true")
     .set("spark.dynamicAllocation.enabled", "true")
-    .set("spark.dynamicAllocation.minExecutors", "1") //最少占用1个Executor
-    .set("spark.dynamicAllocation.initialExecutors", "1") //默认初始化一个Executor
-    .set("spark.dynamicAllocation.maxExecutors", "6") //最多占用6个Executor
-    .set("spark.dynamicAllocation.executorIdleTimeout", "60") //executor闲置时间
-    .set("spark.dynamicAllocation.cachedExecutorIdleTimeout", "60") //cache闲置时间 如果spark计算当中使用了rdd.cache，不加下面的配置，动态资源不会释放
+    .set("spark.dynamicAllocation.minExecutors", "1") //最少占用1个Executor，下限，默认0个
+        .set("spark.dynamicAllocation.maxExecutors", "6") //最多占用6个Executor，上限，不配的话默认是无限的
+    .set("spark.dynamicAllocation.initialExecutors", "1") //初始executor数为1，默认初始化一个Executor，如果--num-executors更大则用--num-executors的值
+    .set("spark.dynamicAllocation.executorIdleTimeout", "60") //executor闲置时间，如果某executor空闲超过60s，则remove此executor
+    .set("spark.dynamicAllocation.cachedExecutorIdleTimeout", "600") //cache闲置时间 如果spark计算当中使用了rdd.cache，不加下面的配置，动态资源不会释放（默认无限制）,也就是含有cache的executor不会被remove
     .set("spark.executor.cores", "3")  //使用的executor core
     .setMaster("yarn")
     .setAppName("Spark DynamicRelease")
@@ -260,6 +290,25 @@ val sparkConf = new SparkConf()
     .builder
     .config(sparkConf)
     .getOrCreate()
+  动态分配资源的executor申请策略：当有被挂起的任务（Pending task）时，也就表示当前的executor数量还不足够所有的task并行运行，这时候spark会申请增加资源，但是并不是出现pending task就立刻请求增加executor。由下面两个参数决定：
+  1.spark.dynamicAllocation.schedulerBacklogTimeout：如果有pending task并且等待了一段时间(默认1秒)，则申请增加executor
+  2.spark.dynamicAllocation.sustainedSchedulerBacklogTimeout：随后每隔N秒(默认1秒)，再检测pending task，如果仍然存在，则申请增加executor（此外每轮请求的executor数量是指数增长的，第一次1，第二次2，第三次4个，8，16，32以此类推）
+动态资源分配的spark-thriftserver启动参数例子：
+$SPARK_HOME/sbin/start-thriftserver.sh
+--executor-memory 10g --executor-cores 5 --driver-memory 10g --driver-cores 5 \
+--conf spark.dynamicAllocation.enabled=true \
+--conf spark.shuffle.service.enabled=true \
+--conf spark.dynamicAllocation.initialExecutors=20 \
+--conf spark.dynamicAllocation.minExecutors=20 \
+--conf spark.dynamicAllocation.maxExecutors=400 \
+--conf spark.dynamicAllocation.executorIdleTimeout=300s \
+--conf spark.dynamicAllocation.schedulerBacklogTimeout=10s \
+--conf spark.dynamicAllocation.cachedExecutorIdleTimeout=600s \
+需要考虑的问题：Shuffle问题，如果需要移除的Executor包含了Shuffle Write相关数据该怎么办？需要和Yarn集成，需要配置yarn.nodemanager.aux-services，这样executor就不用保存shuffle状态了
+注意：1.executor core不要太大(最好≤3)，避免executor数下降时，等不及新申请的executor，已有executor就因为任务过重挂了 2.合理的Shuffle并行数，避免杀掉过多executors 3.对于每个Stage持续时间很短的应用，其实不适合这套机制。这样会频繁增加和杀掉Executors，造成系统颠簸。而Yarn对资源的申请处理速度并不快。
+参考：[dynamic-resource-allocation](http://spark.apache.org/docs/2.3.1/job-scheduling.html#dynamic-resource-allocation)
+[configuring-the-external-shuffle-service](http://spark.apache.org/docs/2.3.1/running-on-yarn.html#configuring-the-external-shuffle-service)
+
 
 spark-sql优化：
 1.join on和where条件先后顺序无所谓，可以被spark优化器优化
