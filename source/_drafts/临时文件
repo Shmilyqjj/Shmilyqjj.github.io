@@ -189,6 +189,9 @@ shuffle read的时候数据的分区数则是由spark提供的一些参数控制
 ②提高spark.executor.memory
 ③map side join或是broadcast join来规避shuffle的产生 
 ④分析数据倾斜 解决数据倾斜
+⑤增加失败的重试次数和重试的时间间隔
+通过spark.shuffle.io.maxRetries控制重试次数，默认是3，可适当增加，例如10。
+通过spark.shuffle.io.retryWait控制重试的时间间隔，默认是5s，可适当增加，例如10s。
 
 Stage详情页Locality Level数据本地性级别分五种：
 PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
