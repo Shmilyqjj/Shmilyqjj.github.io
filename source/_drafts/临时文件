@@ -177,6 +177,19 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+Spark异常解决总结
+1. org.apache.spark.shuffle.MetadataFetchFailedException: Missing an output location for shuffle 1
+原因：
+shuffle分为shuffle write和shuffle read两部分。
+shuffle write的分区数由上一阶段的RDD分区数控制，shuffle read的分区数则是由Spark提供的一些参数控制。
+shuffle write可以简单理解为类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则临时放到各个executor所在的本地磁盘上。
+shuffle read的时候数据的分区数则是由spark提供的一些参数控制。可以想到的是，如果这个参数值设置的很小，同时shuffle read的量很大，那么将会导致一个task需要处理的数据非常大。结果导致JVM crash，从而导致取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。有时候即使不会导致JVM crash也会造成长时间的gc。
+解决思路：减少shuffle的数据量和增加处理shuffle数据的分区数
+①spark.sql.shuffle.partitions控制分区数，默认为200，根据shuffle的量以及计算的复杂度提高这个值 shuffle并行度 
+②提高spark.executor.memory
+③map side join或是broadcast join来规避shuffle的产生 
+④分析数据倾斜 解决数据倾斜
+
 Stage详情页Locality Level数据本地性级别分五种：
 PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
 NODE_LOCAL: data is on the same node. Examples might be in HDFS on the same node, or in another executor on the same node. This is a little slower than PROCESS_LOCAL because the data has to travel between processes
