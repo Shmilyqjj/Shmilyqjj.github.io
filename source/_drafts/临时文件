@@ -34,6 +34,23 @@ https://cloud.tencent.com/developer/article/1544865
 ##################################################
 Hadoop相关
 
+异常解决：
+1.Retrying connect to server 0.0.0.0  
+原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确
+解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml 
+<property>
+    <name>yarn.resourcemanager.address</name>
+    <value>master:8032</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.address</name>
+    <value>master:8030</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.resource-tracker.address</name>
+    <value>master:8031</value>
+  </property>
+
 hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
 
 小文件产生情况：
