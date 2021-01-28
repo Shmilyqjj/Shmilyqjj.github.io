@@ -94,6 +94,37 @@ Impalad包含三种角色：
 
 <!-- 负载均衡：采用Round Robin轮询调度算法（依次将一个域名解析到多个IP地址的调度不同服务器的计算方法）来实现负载均衡,将任务提交到不同的节点上 -->
 
+### Impala join算法
+1.HashJoin，等值Join采用Hash算法进行Join，具体分为Broadcast Hash Join和Shuffle Hash Join。Boradcast Join适合右表是小表的情景，Impala会广播小表到各个节点，再关联。Shuffle Join适合大表与大表Join的情景，Impala会将大表划分成多块，然后分别进行Hash Join。
+2.Nested Loop Join，非等值Join使用，非等值Join效率低，不支持Hint。
+
+### Impala Query Hint
+语法：
+```SQL
+SELECT STRAIGHT_JOIN select_list FROM
+join_left_hand_table
+  JOIN [{ /* +BROADCAST */ | /* +SHUFFLE */ }]
+join_right_hand_table
+remainder_of_query;
+-- --------------------------------------
+INSERT insert_clauses
+  [{ /* +SHUFFLE */ | /* +NOSHUFFLE */ }]
+  [/* +CLUSTERED */]
+  SELECT remainder_of_query;
+-- --------------------------------------
+SELECT select_list FROM
+table_ref
+  /* +{SCHEDULE_CACHE_LOCAL | SCHEDULE_DISK_LOCAL | SCHEDULE_REMOTE}
+    [,RANDOM_REPLICA] */
+remainder_of_query;
+```
+Hint会改变SQL的执行计划，使用Hint注意事项：
+1. 有两个地方需要加上hint关键字，select后面加上STRAIGHT_JOIN；join后面加上[shuffle]或者/* +shuffle */
+2. 如果是多层嵌套的join方式，也需要在每一层加上STRAIGHT_JOIN和[shuffle]或者/* +shuffle */
+3. 外层的hint对于内层的join子语句是不起作用的
+4. 如果select后面跟distinct之类的关键字，STRAIGHT_JOIN需要跟在关键字后面
+不同Hint标签的具体含义和场景见文档:**[impala_hints](https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/impala_hints.html)**
+
 ## 在CDH使用Impala
 Impala相关进程：
 ![alt Impala-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG)  
@@ -128,17 +159,22 @@ profile 分析Query执行，以便于性能调优（比-p更多的信息）
 ```
 
 ## 最佳实践
-文件格式推荐parquet，查询效率高
-避免碎片文件，注意文件的大小
-根据实际的文件大小和个数选择分区的粒度
-分区字段最好使用小的存储格式
-使用compute stats进行性能分析，提高join效率
-最小化返回数据量
-使用explain确认执行计划是否高效
-使用summary确认硬件消耗
-使用profile进行性能调优
-使用hdfs缓存提升查询性能
-使用profile查看是否有hdfs块倾斜，合理分配block大小
+1. 文件格式推荐parquet，查询效率高
+2. 避免碎片文件，注意文件的大小
+3. 根据实际的文件大小和个数选择分区的粒度
+4. 分区key选择最小的整数类型代替字符串类型，降低元数据占用内存大小
+5. 使用COMPUTE STATS命令进行表、分区的性能分析（收集统计信息），提高表的查询效率
+```SQL
+COMPUTE STATS [db_name.]table_name
+COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]
+```
+6. 最小化返回Client端的数据量
+7. 使用explain+SQL命令确认执行计划是否高效
+8. 执行查询后使用summary命令确认硬件消耗（物理性能特性），输出的信息包括哪个阶段耗时最多，以及每一阶段估算的内存消耗、行数与实际的差异
+9. 执行查询后使用profile命令显示详细性能信息，输出的信息包括内存、CPU、I/O以及网络消耗的详细信息，可根据该信息进行调优
+10. 使用profile查看是否有hdfs块倾斜，合理分配block大小
+11. 充分利用Impala Query Hint优化查询效率
+12. Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下
 
 总结：
 1. Impala是典型的MPP架构实时查询分析引擎，类似的引擎还有ClickHouse
