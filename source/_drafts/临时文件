@@ -213,7 +213,12 @@ shuffle read的时候数据的分区数则是由spark提供的一些参数控制
 2.org.apache.spark.SparkException: Exception thrown in awaitResult
 原因：广播数据超时 
 解决：spark.sql.broadcastTimeout=1200 默认大小300
-3.
+3.[Hive On Spark]连接hiveserver2报不同的错误：
+FAILED：SemanticException Failed to get a spark session: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to create spark client.
+Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+原因：以上报错证明初始化Spark失败，而以前不会失败，所以大概率是资源问题而不是代码问题，查看Yarn队列发现所提交的队列已满且已超过能申请资源的上限（虚线部分），故任务启动失败
+解决：CM界面->群集->动态资源池配置->提高队列的资源权重（上限也会响应提高）->刷新动态资源池配置
+
 
 Stage详情页Locality Level数据本地性级别分五种：
 PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
