@@ -192,6 +192,9 @@ date: 2020-08-22 12:19:00
 22.经常看到./xxx.sh执行脚本./代表本目录，当前目录
 23.uname -r查看系统内核版本 uname -a显示uname的所有信息
 24.groupadd guest添加一个guest组，useradd -G guest guest创建guest用户支持guest组，useradd -g guest guest1创建guest1并将它加入guest组，id guest查看guest用户属性
+25.Linux非root用户home目录指定与迁移（home目录很多场景放在系统盘，但系统盘空间有限，用户多了容易把系统盘打满，所以需要指定或迁移用户目录到数据盘避免影响系统正常运行）：
+    ①创建qjj用户，指定家目录到data盘 useradd qjj -d /data/home/qjj 此时可观察到qjj用户的家目录权限为750且ll -a看到默认会多三个文件：.bash_logout .bash_profile和.bashrc
+    ②迁移qjj用户家目录 mkdir -p -m 1777 /data/home;mv /home/qjj /data/home/  vim /etc/passwd改用户家目录地址  （短暂的时间不可用）
 ```
 
 ## 第六章 Linux文件与目录管理
@@ -274,6 +277,7 @@ date: 2020-08-22 12:19:00
          find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
          find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
          find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
+         rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
 17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
 18.在目录下创建一个文件需要的权限：对该目录有wx权限
 ```
