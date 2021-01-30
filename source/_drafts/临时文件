@@ -34,28 +34,6 @@ https://cloud.tencent.com/developer/article/1544865
 ##################################################
 Hadoop相关
 
-异常解决：
-1.Retrying connect to server 0.0.0.0  
-原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确
-解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml 
-  <property>
-    <name>yarn.resourcemanager.address</name>
-    <value>master:8032</value>
-  </property>
-  <property>
-    <name>yarn.resourcemanager.scheduler.address</name>
-    <value>master:8030</value>
-  </property>
-  <property>
-    <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value>master:8031</value>
-  </property>
-2.HDFS块丢失且无法修复
-背景：
-待整理
-
-
-
 hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
 
 小文件产生情况：
@@ -72,7 +50,7 @@ hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数�
 1.数据存储分层，冷数据定期转移到廉价机器
 2.定期清理
 
-hadoop checknative 查看当前支持的雅俗格式
+hadoop checknative 查看当前支持压缩格式
 
 NFS挂载（不如HDFS Fuse挂载性能好）
 NFS挂载hdfs到本地目录 开启NFS Gateway后 mount -t nfs -o vers=3,proto=tcp,nolock,sync,rsize=1048576,wsize=1048576 nfs_ip:/ /data/hdfs_nfs
@@ -198,32 +176,6 @@ python import是将py文件(模块)中的元素（类，方法）加载到内存
 python编译cython => .so
 ###################################################
 Spark相关
-
-Spark异常解决总结
-1. org.apache.spark.shuffle.MetadataFetchFailedException: Missing an output location for shuffle 1
-原因：
-shuffle分为shuffle write和shuffle read两部分。
-shuffle write的分区数由上一阶段的RDD分区数控制，shuffle read的分区数则是由Spark提供的一些参数控制。
-shuffle write可以简单理解为类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则临时放到各个executor所在的本地磁盘上。
-shuffle read的时候数据的分区数则是由spark提供的一些参数控制。可以想到的是，如果这个参数值设置的很小，同时shuffle read的量很大，那么将会导致一个task需要处理的数据非常大。结果导致JVM crash，从而导致取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。有时候即使不会导致JVM crash也会造成长时间的gc。
-解决思路：减少shuffle的数据量和增加处理shuffle数据的分区数
-①spark.sql.shuffle.partitions控制分区数，默认为200，根据shuffle的量以及计算的复杂度提高这个值 shuffle并行度 
-②提高spark.executor.memory
-③map side join或是broadcast join来规避shuffle的产生 
-④分析数据倾斜 解决数据倾斜
-⑤增加失败的重试次数和重试的时间间隔
-通过spark.shuffle.io.maxRetries控制重试次数，默认是3，可适当增加，例如10。
-通过spark.shuffle.io.retryWait控制重试的时间间隔，默认是5s，可适当增加，例如10s。
-⑥类似RemoteShuffleService的服务，解决Shuffle单台机器IO瓶颈，记录Shuffle状态，大批量提升Shuffle效率和稳定性。
-2.org.apache.spark.SparkException: Exception thrown in awaitResult
-原因：广播数据超时 
-解决：spark.sql.broadcastTimeout=1200 默认大小300
-3.[Hive On Spark]连接hiveserver2报不同的错误：
-FAILED：SemanticException Failed to get a spark session: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to create spark client.
-Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
-原因：以上报错证明初始化Spark失败，而以前不会失败，所以大概率是资源问题而不是代码问题，查看Yarn队列发现所提交的队列已满且已超过能申请资源的上限（虚线部分），故任务启动失败
-解决：CM界面->群集->动态资源池配置->提高队列的资源权重（上限也会响应提高）->刷新动态资源池配置
-
 
 Stage详情页Locality Level数据本地性级别分五种：
 PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
@@ -364,8 +316,6 @@ spark-sql优化：
 3.字段很多的表尽量select有用的字段而非select *，可以减少FileScan
 4.报错Futures timed out after [10000 milliseconds]，可能资源紧张导致请求Yarn AppMaster超时，设置spark.yarn.am.waitTime=60s
 
-Win开发环境
-错误：Could not locate executable null\bin\winutils.exe in the Hadoop binaries  解决将winutils.exe放在HADOOP_HOME\bin下，然后代码里System.setProperty("hadoop.home.dir", "D:\\Programming\\Env\\Hadoop\\hadoop-2.7.2\\")或设置环境变量HADOOP_HOME和PATH后重启电脑
 
 groupByKey(11)将Shuffle并行度调整为11
 计算单词的个数，第一种方式使用reduceByKey ；另外一种方式使用groupByKey
@@ -807,9 +757,6 @@ info_df.select('col_name', 'comment').collect()))   # 获取到df每个字段的
     else:
         logger.info("表的字段注释无需修改")
 
-可能Driver内存不足：
-Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.
-Dump of the process-tree for container_e23_1574819880505_43157_01_000001
 
 spark.driver.maxResultSize worker发送给driver的最大结果大小，超过限制会报错，如果不限制，会无限占用driver内存，可能将Driver内存耗尽
 
@@ -858,8 +805,7 @@ Scala相关
 ###################################################
 Hive相关
 
-异常解决：
-Unexpected end-of-input: was expecting closing  创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而插入该表的时候会读元数据，但因为元数据不完整而报错。解决：分多次建表、改varchar(4000)为longtext然后重建表。
+
 
 Python连接Hive
 1.pyspark 
@@ -1471,10 +1417,6 @@ OLAP数据量大，DML少，数仓  OLTP数据量少，DML频繁，并行事务�
 
 -----------------------------------------------------------------------------
 HBase相关
-异常解决：
-1.HBase新增RS节点，导致另一台RS节点异常退出
-待整理 
-
 
 为何行存储比列存储效率更高速度更快？适用场景？
 - 对于行存储，这个查询需要两次IO将全部数据放入内存后，进行页间数据的跳读（类随机读取)
@@ -1707,7 +1649,7 @@ $ git pull
 NAT模式：虚拟主机和真实主机网段不同，能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.101
 仅主机模式：虚拟主机和真实主机IP段不同且不能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.100
 
-
+Apache Ranger Data Masking：https://cwiki.apache.org/confluence/display/RANGER/Row-level+filtering+and+column-masking+using+Apache+Ranger+policies+in+Apache+Hive
 
 分布式 CAP 的一致性
 
