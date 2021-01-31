@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">实现基于Spark的数据脱敏 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-Cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-Cover.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      实现基于Spark的数据脱敏</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2020-12-11<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="实现基于Spark的数据脱敏"><a href="#实现基于Spark的数据脱敏" class="headerlink" title="实现基于Spark的数据脱敏"></a>实现基于Spark的数据脱敏</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>&emsp;&emsp;Spark是当前大数据领域不可替代的重要组件，拥有成熟的生态、强大的性能和广泛的应用场景，但在数据安全越来越重要的今天，Spark在对数据权限的管控能力方面仍然没有进展。<br>&emsp;&emsp;不仅仅是Spark，大多数大数据生态圈中的组件都缺乏对数据安全的管控，于是很多硬件资源较充裕的公司会将数据全量脱敏后分别存放，牺牲存储空间来达到数据脱敏的目的；而有些公司选择<a target="_blank" rel="noopener" href="http://ranger.apache.org/">Apache Ranger</a>作为权限管控组件，但Ranger(目前版本2.2)在设计上对各个大数据组件版本有着严格的依赖，且暂时不支持对Spark的权限管控。<br>&emsp;&emsp;经过阅读Ranger源码，以及在测试环境试用后，确定了Ranger方案不可行，我决定在Spark基础上二次开发来实现数据脱敏功能。</p>
+<h2 id="知识准备"><a href="#知识准备" class="headerlink" title="知识准备"></a>知识准备</h2><ol>
+<li>SparkSQL执行过程：SQL-&gt;Parser(Antlr)-&gt;AST-&gt;Catalyst-&gt;UnresolvedLogicalPlan-&gt;Analyzer-&gt;Optimizer-&gt;PhysicalPlan-&gt;执行计算和IO</li>
+<li>以上过程直到物理计划都是继承自LogicalPlan，共四种：<br><font size="3" color="red">UnresolvedLogicalPlan</font>: 也叫ParsedLogicalPlan，是根据语法树解析SQL后得到的逻辑计划，没有关联catalog，没有获取底层存储的元数据信息，也就是说SELECT *在这个阶段不会被解析为具体字段（AnalyzedLogicalPlan、OptimizedLogicalPlan、PhysicalPlan可看到具体字段）。<br><font size="3" color="red">AnalyzedLogicalPlan</font>: 结合表的Catalog，绑定元数据，resolve化LogicalPlan，替换掉UnresolvedLogicalPlan，这里会检查表是否存在以及Schema完整性。绑定元数据是否成功主要有两点：1.子节点是否是resolved 2.输入的数据类型是否满足要求，具体可参考类：Expression，Analyzer类。<br><font size="3" color="red">OptimizedLogicalPlan</font>:对AnalyzedLogicalPlan进行优化，有很多RuleExecutor，如谓词下推，Filter裁剪，WholeStageCodegen(大量类型转换和虚函数调用转为即时编译)，RemoveLiteralFromGroupExpressions移除group下的常量，RemoveRepetitionFromGroupExpressions移除重复的group表达式等…<br><font size="3" color="red">PhysicalPlan</font>:将OptimizedLogicalPlan转换为实际执行的步骤，具体可参考SparkPlanner类。  <pre><code class="scala">// 拿到四种执行计划的方法
+val sql:String = &quot;select * from qjj&quot;
+// 单独获取UnresolvedLogicalPlan，不用读元数据，效率最高
+val unresolvedLogicalPlan:LogicalPlan = sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sql)
+// 获取QueryExecution
+val qe:org.apache.spark.sql.execution.QueryExecution = sqlContext.sparkSession.sql(sql).queryExecution 
+// 通过QueryExecution获取所有计划包括ParsedLogicalPlan，AnalyzedLogicalPlan，OptimizedLogicalPlan和PhysicalPlan 
+val parsedLogicalPlan:LogicalPlan = qe.logical
+val analyzedLogicalPlan:LogicalPlan = qe.analyzed
+val optimizedLogicalPlan:LogicalPlan = qe.optimizedPlan
+val physicalPlan:LogicalPlan = qe.executedPlan
+val physicalPlan:LogicalPlan = qe.sparkPlan</code></pre>
+</li>
+<li>LogicalPlan包含三种子类型UnaryNode,BinaryNode和LeafNode，没种子类型下又有多种子类型，子类型下又包含子类型如：Project,GlobalLimit,LocalLimit,CreateTable,Distinct,SubqueryAlias,InsertIntoTable,Join,Aggregate,Union,Filter等。</li>
+<li>Dataset和DataFrame的区别与联系：<br>联系：<br> 1.API统一，使用上没差别<br> 2.DataFrame算是特殊类型的Dataset，是每个元素都为ROW类型的Dataset（DataFrame = Dataset[Row]）<br>区别：<br> 1.Dataset是强类型，编译时检查类型，DataFrame是弱类型，执行时才检查类型<br> 2.Dataset是通过Encoder进行序列化，支持动态的生成代码，直接在bytes的层面进行排序过滤等的操作；而DataFrame是采用可选的java的标准序列化或是kyro进行序列化</li>
+<li>Spark的TemporaryView：<br>Spark的四种视图创建方法：<br> ①df.createGlobalTempView(df.createOrReplaceGlobalTempView) 创建全局临时视图，多个SparkSession共享 SparkSQL写法：create global temporary view view_name(col1,col2…) as select (col1,col2…) from table_name;<br> ②df.createTempView(df.createOrReplaceTempView) 创建Session级别的临时视图,多个SparkSession不共享 SparkSQL写法：create temporary view view_name(col1,col2…) as select (col1,col2…) from table_name;<br>通过SQL创建视图时会有几种异常：<br>It is not allowed to define a TEMPORARY view with IF NOT EXISTS. （创建视图不支持if not exists）<br>It is not allowed to add database prefix <code>test</code> for the TEMPORARY view name. （创建视图不支持库名前缀）<br>Not allowed to create a permanent view by referencing a temporary function. （不支持用带临时UDF的逻辑创建永久视图）<br>视图删除：<br>spark.catalog.dropTempView(‘view_name’)<br>spark.catalog.dropGlobalTempView(‘global_view_name’)<br>全局视图调用：<br>spark.sql(“select * from global_temp.view_name”)  需要加global_temp前缀</li>
+<li>从一条SQL到ThriftServer上的一个Job，如何生成：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-04.png" alt="alt"><br>（该图引自<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45723348/article/details/107392903">SparkSQL并行执行多个Job的探索</a>，文章不错，推荐有空看看）</li>
+</ol>
+<h2 id="基于SparkThriftServer的数据脱敏"><a href="#基于SparkThriftServer的数据脱敏" class="headerlink" title="基于SparkThriftServer的数据脱敏"></a>基于SparkThriftServer的数据脱敏</h2><h3 id="工作原理流程"><a href="#工作原理流程" class="headerlink" title="工作原理流程"></a>工作原理流程</h3><p>流程：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-01.jpg" alt="alt"><br>原理：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-02.jpg" alt="alt">  </p>
+<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><p>数据库建表：</p>
+<pre><code class="sql">-- 脱敏规则表
+create table desensitization_rules(
+rule_name varchar(100) not null primary key comment &quot;脱敏规则名称&quot;,
+rule_type varchar(100) not null comment &quot;类型-可逆、不可逆、加密、解密&quot;,
+encrypt_column_type varchar(100) not null comment &quot;可加密的敏感数据分类如phone_num、id_card、bank_account、cust_name&quot;,
+encrypt_udf_name varchar(100) comment &quot;对应脱敏UDF名称&quot;,
+decrypt_udf_name varchar(100) comment &quot;解密UDF名称&quot;,
+create_datetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment &quot;规则创建时间&quot;
+)ENGINE=Innodb comment=&#39;脱敏规则库-用于配置脱敏规则与对应的加密UDF、解密UDF和加密数据类型的映射关系&#39;;
+-- 脱敏配置表
+create table desensitization_conf(
+db_table varchar(255) comment &quot;库名.表名，为*代表对所有表都生效&quot;,
+column_name varchar(255) not null comment &quot;单个敏感字段名&quot;,
+column_type varchar(100) not null comment &quot;敏感字段数据分类&quot;,
+rule_name varchar(100) not null comment &quot;脱敏规则名称&quot;,
+create_datetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment &quot;创建时间&quot;,
+PRIMARY KEY (db_table,column_name)
+)ENGINE=Innodb comment=&#39;脱敏配置表-具体到字段的脱敏配置，该表决定如何脱敏，未配置的 默认是白名单&#39;;
+-- 角色权限表
+create table desensitization_role_permissions(
+role varchar(100) not null primary key comment &quot;角色&quot;,
+authorized_dbs varchar(1000) NOT NULL comment &quot;有查敏感信息权限的库，逗号隔开，all表示全部库&quot;,
+authorized_tables text NOT NULL comment &quot;有查敏感信息权限的表，逗号隔开-库名.表名，all表示全部表&quot;,
+authorized_data_type varchar(1000) NOT NULL comment &quot;有权限的敏感数据类型如phone_num、id_card、account_num、cust_name，all表示数据类型&quot;,
+authorized_columns text NOT NULL comment &quot;有权限的字段名，多个字段逗号隔开，all表示全部字段&quot;,
+create_datetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment &quot;角色创建时间&quot;
+)ENGINE=Innodb comment=&#39;角色权限表-用于配置每个角色的权限&#39;;
+-- 用户权限表
+create table desensitization_user_role(
+user varchar(100) not null primary key comment &quot;用户名&quot;,
+role varchar(255) not null comment &quot;角色，多个角色逗号隔开&quot;,
+create_datetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment &quot;添加时间&quot;
+)ENGINE=Innodb comment=&#39;用户角色映射关系表-默认无查询敏感数据的权限&#39;;
+-- ----------配置数据----------
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;phone_num&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;phone&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;phone_number&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;mobile&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;mobile_phone&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;mobile_no&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;phone_no&quot;,&quot;phone_num&quot;,&quot;HideLast4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;cust_name&quot;,&quot;cust_name&quot;,&quot;HideUserName&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;*&quot;,&quot;bank_card_no&quot;,&quot;bank_account&quot;,&quot;HideBankCardNumber&quot;); 
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;test_pn&quot;,&quot;phone_num&quot;,&quot;phone_num&quot;,&quot;HideMid4PhoneNumber&quot;);
+insert into desensitization_conf(db_table,column_name,column_type,rule_name) values (&quot;test_pn&quot;,&quot;phone&quot;,&quot;phone_num&quot;,&quot;HideMid4PhoneNumber&quot;);
+insert into desensitization_role_permissions(role,authorized_dbs,authorized_tables,authorized_data_type,authorized_columns) values (&quot;admin&quot;,&quot;all&quot;,&quot;all&quot;,&quot;all&quot;,&quot;&quot;);
+insert into desensitization_role_permissions(role,authorized_dbs,authorized_tables,authorized_data_type,authorized_columns) values (&quot;d_bd&quot;,&quot;d_bd&quot;,&quot;&quot;,&quot;&quot;,&quot;cust_name&quot;);
+insert into desensitization_role_permissions(role,authorized_dbs,authorized_tables,authorized_data_type,authorized_columns) values (&quot;d_qjj&quot;,&quot;&quot;,&quot;d_bd.test_qjj&quot;,&quot;&quot;,&quot;cust_name&quot;);
+insert into desensitization_user_role(user,role) values (&quot;admin&quot;,&quot;d_bd,d_qjj&quot;);  
+insert into desensitization_user_role(user,role) values (&quot;bd_admin&quot;,&quot;admin&quot;);  </code></pre>
+<p>这样设计权限考虑的点：<br>  1.用户权限按角色管理<br>  2.用户可以有多个角色<br>  3.可以方便用户临时申请权限<br>  4.敏感数据的字段可以支持默认脱敏配置<br>  5.可以细粒度地指定某个用户查询某个表某个字段时如何脱敏<br>  6.对数据进行敏感信息分类，方便按敏感数据类型控制权限（表设计了但实际没实现这块）</p>
+<p>代码实现<br>SQLAnalyzer类，工具类，主要是匹配SQL中的表以及判断SQL类型，下面列举主要方法</p>
+<pre><code class="scala">  /**
+   * Get all tables in a select sql
+   * @param sql
+   * @return List(table1,table2) or List()
+   */
+  def getTablesInSelect(sql:String):List[String] = &quot;(?i)(?:from|join)\\s+[a-zA-Z0-9_.]+&quot;
+    .r.findAllIn(sql)
+    .map(x =&gt; x.replaceFirst(&quot;(?i)(?:from|join)\\s+&quot;, &quot;&quot;))
+    .toList
+
+  /**
+   * Determines SQL is a select statement or not.
+   * @param sql
+   * @return boolean
+   */
+  def isSelectSQL(sql:String):Boolean =
+    !StringUtils.isBlank(sql) &amp;&amp;
+      sql.trim.replaceAll(&quot;\r|\n|\r\n&quot;,&quot; &quot;).matches(&quot;(?i)\\s*select.*&quot;)
+
+  /**
+   * Determines SQL is a Data transfer statement or not.
+   * @param sql
+   * @return boolean
+   */
+  def isSelectInsertSQL(sql:String):Boolean =
+    !StringUtils.isBlank(sql) &amp;&amp;
+      sql.trim.replaceAll(&quot;\r|\n|\r\n&quot;,&quot; &quot;).matches(&quot;(?i)\\s*insert.*select.*&quot;)</code></pre>
+<p>DesensitizationModule类，脱敏模块，实现了：读取并缓存脱敏配置；用户权限聚合，鉴权，创建临时视图并应用脱敏规则，替换SQL生成真正执行的SQL，其中getDesensitizedSQL是这个类提供给外部的方法，返回的是实际执行的SQL，用于替换原来的逻辑计划。loadDesensitizationMeta也是提供给外部的方法，用于加载脱敏配置和用户权限信息。</p>
+<pre><code class="scala">package org.apache.spark.sql.hive.thriftserver.desensitization
+
+import com.smy.exceptions.DesensitizationException
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.hive.thriftserver.xxxxx.getDF  // 连接mysql，查询脱敏配置得到dataframe的方法
+import org.apache.spark.sql.&#123;SQLContext, SparkSession&#125;
+import org.apache.spark.sql.hive.thriftserver.desensitization.SQLAnalyzer._
+import scala.tools.scalap.scalax.util.StringUtil
+
+private[hive] object DesensitizationModule extends Logging&#123;
+  // entities
+  case class DesensitizationConf(columnName: String, columnType: String, ruleName:String)
+  case class Permission(role: String, authorizedDBs: String, authorizedTables:String, authorizedDataTypes:String, authorizedColumns:String)
+
+  object DesensitizationMeta &#123;
+    var RULE_UDF_MAP: Map[String, String] = _  //desensitization_rules
+    var DBTABLE_DESENSITIZATION_CONF_MAP: Map[String, Set[DesensitizationConf]] = _ //desensitization_conf
+    var USER_PERMISSION_MAP: Map[String, Permission] = _ //desensitization_user_permissions
+    var ROLE_PERMISSION_MAP: Map[String, Permission] = _ //desensitization_role_permissions
+    var DEFAULT_COLUMN_UDF_MAPPING: Map[String,String] = _
+  &#125;
+
+  private def getMergedParas(para1: String, para2: String, isRolePara: Boolean=false): String = &#123;
+    if(isRolePara &amp;&amp; (para1.split(&quot;,&quot;).contains(&quot;admin&quot;) || para2.split(&quot;,&quot;).contains(&quot;admin&quot;))) return &quot;admin&quot;
+    if (para1 != null &amp;&amp; para1.nonEmpty &amp;&amp; para2 != null &amp;&amp; para2.nonEmpty) &#123;
+      if(para1.split(&quot;,&quot;).contains(&quot;all&quot;) || para2.split(&quot;,&quot;).contains(&quot;all&quot;)) return &quot;all&quot;
+      s&quot;$para1,$para2&quot;
+    &#125; else if (para1 != null &amp;&amp; para1.nonEmpty) &#123;
+      if(para1.split(&quot;,&quot;).contains(&quot;all&quot;)) return &quot;all&quot;
+      para1
+    &#125; else if (para2 != null &amp;&amp; para2.nonEmpty)&#123;
+      if(para1.split(&quot;,&quot;).contains(&quot;all&quot;)) return &quot;all&quot;
+      para2
+    &#125;else&#123;
+      &quot;&quot;
+    &#125;
+  &#125;
+  private def permissionReduce(p1: Permission, p2: Permission): Permission = Permission(
+    getMergedParas(p1.role,p2.role,true),
+    getMergedParas(p1.authorizedDBs, p2.authorizedDBs),
+    getMergedParas(p1.authorizedTables, p2.authorizedTables),
+    getMergedParas(p1.authorizedDataTypes, p2.authorizedDataTypes),
+    getMergedParas(p1.authorizedColumns, p2.authorizedColumns))
+
+  private def getFullTableName(tableName:String):String = if (tableName.isEmpty || tableName.equals(&quot;*&quot;)) &quot;*&quot; else if(tableName.contains(&quot;.&quot;)) tableName else s&quot;default.$tableName&quot;
+
+  /**
+   * Load desensitization metadata
+   * @param sqlContext
+   * @return true-&gt;succeed false-&gt;failed
+   */
+  def loadDesensitizationMeta(sqlContext: SQLContext):Boolean = &#123;
+    logWarning(&quot;Loading desensitization meta.&quot;)
+    try &#123;
+      // load RULE_UDF_MAP
+      DesensitizationMeta.RULE_UDF_MAP = getDF(sqlContext, &quot;select rule_name,encrypt_udf_name from desensitization_rules&quot;)
+        .collect()
+        .map(x =&gt; (x.get(&quot;rule_name&quot;), x.get(&quot;encrypt_udf_name&quot;))).toMap
+
+      // load DBTABLE_DESENSITIZATION_CONF_MAP
+      val desensitizationConfMap = scala.collection.mutable.Map[String,scala.collection.mutable.MutableList[DesensitizationConf]]()
+      getDF(sqlContext,&quot;select db_table,column_name,column_type,rule_name from desensitization_conf&quot;)
+        .collect()
+        .foreach&#123;x =&gt;
+          val desensitizationConf = DesensitizationConf(x.get(&quot;column_name&quot;), x.get(&quot;column_type&quot;), x.get(&quot;rule_name&quot;))
+          if(desensitizationConfMap.get(x.get(&quot;db_table&quot;)).orNull==null)&#123;
+            desensitizationConfMap.put(x.get(&quot;db_table&quot;),scala.collection.mutable.MutableList(desensitizationConf))
+          &#125;else&#123;
+            desensitizationConfMap(x.get(&quot;db_table&quot;)) += desensitizationConf
+          &#125;
+      &#125;
+      DesensitizationMeta.DBTABLE_DESENSITIZATION_CONF_MAP = desensitizationConfMap.map(x =&gt; (getFullTableName(x._1),x._2.toSet)).toMap
+
+      // load USER_PERMISSION_MAP and ROLE_PERMISSION_MAP
+      DesensitizationMeta.ROLE_PERMISSION_MAP = getDF(sqlContext, &quot;select role,authorized_dbs,authorized_tables,authorized_data_type,authorized_columns from desensitization_role_permissions&quot;)
+        .collect()
+        .map &#123;x =&gt;
+          (x.get(&quot;role&quot;), Permission(x.get(&quot;role&quot;),
+            x.getOrDefault(&quot;authorized_dbs&quot;,&quot;&quot;),
+            x.getOrDefault(&quot;authorized_tables&quot;,&quot;&quot;),
+            x.getOrDefault(&quot;authorized_data_type&quot;,&quot;&quot;),
+            x.getOrDefault(&quot;authorized_columns&quot;,&quot;&quot;)))
+        &#125;.toMap
+      DesensitizationMeta.USER_PERMISSION_MAP = getDF(sqlContext, &quot;select user,role from desensitization_user_role where user != &#39;&#39; and role != &#39;&#39;&quot;)
+        .collect()
+        .map&#123; x =&gt; (x.get(&quot;user&quot;),
+          x.get(&quot;role&quot;)
+            .split(&quot;,&quot;)
+            .map(role =&gt; DesensitizationMeta.ROLE_PERMISSION_MAP.getOrElse(role,null))
+            .filter(x =&gt; x != null)
+            .reduce(permissionReduce)
+          )
+        &#125;.toMap
+
+      // load DEFAULT_COLUMN_UDF_MAPPING  (db_table is * means default global column desensitization configuration.)
+      DesensitizationMeta.DEFAULT_COLUMN_UDF_MAPPING = DesensitizationMeta.DBTABLE_DESENSITIZATION_CONF_MAP.getOrElse(&quot;*&quot;,Set())
+        .map &#123; ddc =&gt;
+          val udfName = DesensitizationMeta.RULE_UDF_MAP.getOrElse(ddc.ruleName,null)
+          if (udfName == null) &#123;
+            throw new DesensitizationException(s&quot;The mask rule $&#123;ddc.ruleName&#125; on column $&#123;ddc.columnName&#125; is not right or no Configured UDF.Please check desensitization_conf.&quot;)
+          &#125;
+          (ddc.columnName, udfName)
+        &#125;.toMap
+
+      logWarning(s&quot;## RULE_UDF_MAP ==&gt; $&#123;DesensitizationMeta.RULE_UDF_MAP&#125;&quot;)
+      logWarning(s&quot;## DBTABLE_DESENSITIZATION_CONF_MAP ==&gt; $&#123;DesensitizationMeta.DBTABLE_DESENSITIZATION_CONF_MAP&#125;&quot;)
+      logWarning(s&quot;## USER_PERMISSION_MAP ==&gt; $&#123;DesensitizationMeta.USER_PERMISSION_MAP&#125;&quot;)
+      logWarning(s&quot;## DEFAULT_COLUMN_UDF_MAPPING ==&gt; $&#123;DesensitizationMeta.DEFAULT_COLUMN_UDF_MAPPING&#125;&quot;)
+      true
+    &#125;catch &#123;
+      case e:Exception =&gt;
+        throw new DesensitizationException(&quot;Exception when reloadAuth&quot;,e)
+        false
+    &#125;
+  &#125;
+
+/**
+   * create temporary view and get the view name.
+   * The temporary view will clear when spark session exited.
+   * @param spark SQLContext
+   * @param tableName Full tableName with database prefix.
+   * @param userName
+   */
+  def createAndGetTempViewName(spark:SQLContext,userName:String,tableName:String):String=&#123;
+    val columns = spark.table(tableName).columns
+    val sourceCols = columns.mkString(&quot;,&quot;)
+    val newViewName = tableName.replace(&quot;.&quot;,&quot;_&quot;) + &quot;_&quot; + System.currentTimeMillis()
+    try&#123;
+      val colUDFMap:Map[String,String] = getTableColUDFMapping(tableName, userName, columns)
+      if(colUDFMap.isEmpty) return tableName
+      logWarning(s&quot;### Desensitization table:$tableName user:$userName columnUDFMapping:$colUDFMap&quot;)
+      val viewCols = columns.map &#123; col =&gt;
+        if (!colUDFMap.contains(col)) &#123;
+          col
+        &#125; else &#123;
+          colUDFMap(col) + s&quot;($col)&quot;
+        &#125;
+      &#125;.mkString(&quot;,&quot;)
+
+      spark.sql(s&quot;create temporary view $newViewName($sourceCols) as select $viewCols from $tableName&quot;)
+      newViewName
+    &#125;catch &#123;
+      case e:Exception =&gt;
+        logError(s&quot;Failed to create a masked temporary view on table $tableName.&quot;,e)
+      // If there is an exception, return the source table name.
+      tableName
+    &#125;
+  &#125;
+
+  /**
+   * Determine whether the user has access to the table and get the desensitization strategy of table columns.
+   * @param tableName  FullTableName with database prefix
+   * @param userName  userName
+   * @param tableColumns  表的所有字段
+   * @return columnUDFMap
+   */
+  def getTableColUDFMapping(tableName:String,userName:String,tableColumns:Array[String]):Map[String,String] = &#123;
+    logInfo(s&quot;Begin to get table($tableName) user($userName) auth and col-udf mapping.&quot;)
+    // Judge User permission.
+    val userPermission = DesensitizationMeta.USER_PERMISSION_MAP.getOrElse(userName,Permission(&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;))
+    if(userPermission.role.equals(&quot;admin&quot;))&#123;
+      // user role is admin.
+      return Map()
+    &#125;else if(&quot;all&quot;.equals(userPermission.authorizedDBs) || userPermission.authorizedDBs.split(&quot;,&quot;).contains(tableName.split(&quot;\\.&quot;)(0))) &#123;
+      //User has permissions for this database.
+      return Map()
+    &#125;else if(&quot;all&quot;.equals(userPermission.authorizedTables) || userPermission.authorizedTables.split(&quot;,&quot;).map(getFullTableName).contains(tableName)) &#123;
+      //User has permissions for this table.
+      return Map()
+    &#125;else if(&quot;all&quot;.equals(userPermission.authorizedDataTypes))&#123;
+      return Map()
+    &#125;else if(&quot;all&quot;.equals(userPermission.authorizedColumns))&#123;
+      // User has permissions for all fields.
+      return Map()
+    &#125;
+
+    val result:scala.collection.mutable.Map[String,String] = scala.collection.mutable.Map[String,String]()
+    // Apply specified desensitization conf.
+    // TODO: User has access to one dataType?
+    val authorizedCols:Set[String] = userPermission.authorizedColumns.split(&quot;,&quot;).toSet
+    val unauthorizedCols:Set[String] = DesensitizationMeta.DEFAULT_COLUMN_UDF_MAPPING.keySet -- authorizedCols
+    val tableSpecificDesensitizationConf:Set[DesensitizationConf] = DesensitizationMeta.DBTABLE_DESENSITIZATION_CONF_MAP.getOrElse(tableName,Set())
+    if(tableSpecificDesensitizationConf.nonEmpty) &#123;
+      logWarning(s&quot;Table $tableName has specific desensitization rules.&quot;)
+      tableSpecificDesensitizationConf.foreach&#123; tsdc =&gt;
+        val udfName = DesensitizationMeta.RULE_UDF_MAP.get(tsdc.ruleName).orNull
+        if (udfName == null) &#123;
+          throw new DesensitizationException(s&quot;The mask rule $&#123;tsdc.ruleName&#125; on table $tableName column $&#123;tsdc.columnName&#125; is not right or no Configured UDF.Please check desensitization_conf.&quot;)
+        &#125;
+        logInfo(s&quot;Apply specific desensitization udf: $&#123;tsdc.columnName&#125; =&gt; $udfName .&quot;)
+        result.put(tsdc.columnName,udfName)
+      &#125;
+    &#125;else&#123;
+      logInfo(s&quot;There is no specific desensitization conf in table $tableName.Use default desensitization conf.&quot;)
+    &#125;
+    // Apply default desensitization conf.
+    unauthorizedCols.foreach&#123; uc =&gt;
+      if(tableColumns.contains(uc) &amp;&amp; !result.contains(uc)) &#123;
+        val udfName = DesensitizationMeta.DEFAULT_COLUMN_UDF_MAPPING.get(uc).orNull
+//        if (udfName == null) &#123;
+//          throw new DesensitizationException(s&quot;There is no desensitization UDF associated with column $uc ,Please check desensitization_conf where db_table=&#39;*&#39;.&quot;)
+//        &#125;
+        logInfo(s&quot;Apply default desensitization udf: $uc =&gt; $udfName .&quot;)
+        result.put(uc,udfName)
+      &#125;
+    &#125;
+    result.toMap
+  &#125;
+
+  /**
+   * Main method to generate desensitized sql.
+   * @param spark sparkSession
+   * @param userName request user of this sql
+   * @param sql
+   * @return Desensitized sql
+   */
+  def getDesensitizedSQL(spark:SQLContext,userName:String,sql:String):String = &#123;
+    if(isSelectSQL(sql))&#123;
+      val tableList = getTablesInSelect(sql)
+      if(tableList.isEmpty)&#123;
+        return sql
+      &#125;
+      var outputSQL:String = sql
+      tableList
+        .foreach &#123; table =&gt;
+          val viewName = createAndGetTempViewName(spark, userName,getFullTableName(table))
+          logInfo(s&quot;tableName: $table =&gt; viewName: $viewName&quot;)
+          outputSQL = outputSQL.replace(table, viewName)
+        &#125;
+      outputSQL
+    &#125;else if(isSelectInsertSQL(sql))&#123;
+      //TODO: There is a vulnerability in the export of sensitive data.
+      // &#39;insert select&#39; operation and &#39;create table as select&#39; operation.
+      sql
+    &#125;else&#123;
+      sql
+    &#125;
+  &#125;
+&#125;</code></pre>
+<p><strong>寻找修改切入点</strong><br>org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation类，是ThriftServer提供服务的入口，其中我们只需要将执行时的逻辑计划替换掉即可，该类中execute方法中可以找到源码：</p>
+<pre><code class="scala">      // Always set the session state classloader to `executionHiveClassLoader` even for sync mode
+      if (!runInBackground) &#123;
+        parentSession.getSessionState.getConf.setClassLoader(executionHiveClassLoader)
+      &#125;
+
+      sqlContext.sparkContext.setJobGroup(statementId, substitutorStatement, forceCancel)
+      result = sqlContext.sql(statement)
+      logDebug(result.queryExecution.toString())
+      HiveThriftServer2.eventManager.onStatementParsed(statementId,
+        result.queryExecution.toString())
+      iter = if (sqlContext.getConf(SQLConf.THRIFTSERVER_INCREMENTAL_COLLECT.key).toBoolean) &#123;
+        new IterableFetchIterator[SparkRow](new Iterable[SparkRow] &#123;
+          override def iterator: Iterator[SparkRow] = result.toLocalIterator.asScala
+        &#125;)
+      &#125; else &#123;
+        new ArrayFetchIterator[SparkRow](result.collect())
+      &#125;</code></pre>
+<p>我们可以明确的是statement是用户提交运行的SQL，后面触发计算操作时调用了result.collect()，则result就是这条SQL的结果集，我们需要修改的就是result这个dataframe对象。<br>修改方法很简单，用我们脱敏后的SQL重新生成ParsedLogicalPlan，再用Dataset.ofRows得到新的Dataset：</p>
+<pre><code class="scala">var logicalPlan = sqlContext.sparkSession.sessionState.sqlParser.parsePlan(statement)
+// Desensitization
+var sqlAfterDesensitization:String = statement
+try&#123;
+  sqlAfterDesensitization = DesensitizationModule.getDesensitizedSQL(sqlContext, parentSession.getUserName, sql)
+  if(!sqlAfterDesensitization.equals(statement))&#123;
+    logWarning(s&quot;### SQL has changed after Desensitization Module. outputSQL: $sqlAfterDesensitization ###&quot;)
+    logicalPlan = sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sqlAfterDesensitization)
+  &#125;else&#123;
+    logInfo(s&quot;###经过脱敏模块处理后的SQL为: $statement 未发生改变###&quot;)
+  &#125;
+&#125;catch &#123;
+  case e:Exception =&gt;
+    logError(&quot;***There may be some errors in DesensitizationModule.getDesensitizedSQL ***&quot;, e)
+  //          throw new DesensitizationException(&quot;Desensitization failed.&quot;,e)  // Table not found and sql syntax error also throw this.
+&#125;
+
+result=Dataset.ofRows(sqlContext.sparkSession, logicalPlan)</code></pre>
+<p>这样在需要脱敏时逻辑计划就可以被替换并执行后续的操作了，返回给用户的数据也是脱敏后的数据。</p>
+<p><strong>UDF编写和注册</strong><br>DesensitizationUDFs类，注册脱敏UDF的统一入口，在org.apache.spark.sql.hive.thriftserver.SparkSQLSessionManager的<strong>OpenSession</strong>方法中调用：DesensitizationUDFs.register(ctx,username)，为正在登陆的用户调用注册UDF，保证UDF可用。</p>
+<pre><code class="scala">package org.apache.spark.sql.hive.thriftserver.desensitization
+
+import org.apache.commons.lang.StringUtils
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hive.thriftserver.UDFUtil
+
+/**
+ * Desensitization UDF
+ * Created by Shmily on 2020/11/23.
+ */
+object DesensitizationUDFs extends Serializable with Logging&#123;
+//  private val logger: Logger = LoggerFactory.getLogger(Desensitization.getClass)
+
+  /**
+   * [Irreversible] Hide the mid 4 digits of mobile phone number
+   * @param phoneNumber
+   * @return Encrypted phoneNumber
+   */
+  def HideMid4PhoneNumber(phoneNumber:String): String = &#123;
+    if(phoneNumber==null)&#123;
+      return phoneNumber
+    &#125;
+    if(StringUtils.isBlank(phoneNumber))&#123;
+      return &quot;&quot;
+    &#125;
+    phoneNumber.length match &#123;
+      case 11 =&gt; phoneNumber.replaceAll(&quot;(\\w&#123;3&#125;)\\w*(\\w&#123;4&#125;)&quot;, &quot;$1****$2&quot;)
+      case 7 =&gt; phoneNumber.replaceAll(&quot;(\\w&#123;3&#125;)\\w*&quot;, &quot;$1****&quot;)
+      case _ =&gt; phoneNumber
+    &#125;
+  &#125;
+
+  /**
+   * [Irreversible] Hide the last 4 digits of mobile phone number
+   * @param phoneNumber
+   * @return Encrypted phoneNumber
+   */
+  def HideLast4PhoneNumber(phoneNumber:String): String = &#123;
+    if(phoneNumber==null)&#123;
+      return phoneNumber
+    &#125;
+    if(StringUtils.isBlank(phoneNumber))&#123;
+      return &quot;&quot;
+    &#125;
+    phoneNumber.length match &#123;
+      case 11 =&gt; phoneNumber.replaceAll(&quot;(\\w&#123;7&#125;)\\w*&quot;, &quot;$1****&quot;)
+      case 7 =&gt; phoneNumber.replaceAll(&quot;(\\w&#123;3&#125;)\\w*&quot;, &quot;$1****&quot;)
+      case _ =&gt; phoneNumber
+    &#125;
+  &#125;
+
+  /**
+   * [Irreversible] Keep first char only.
+   * @param name
+   * @return Encrypted Name
+   */
+  def HideUserName(name:String): String = &#123;
+    if(name==null)&#123;
+      return name
+    &#125;
+    if(StringUtils.isBlank(name))&#123;
+      return &quot;&quot;
+    &#125;
+    val length = name.length
+    name.substring(0,1).concat(&quot;*&quot; * (length-1))
+  &#125;
+
+  /**
+   * [Irreversible] ID Card keep 1-6 and last 3 digits.
+   * @param id
+   * @return Encrypted id
+   */
+  def HideIDCard(id:String): String = &#123;
+    if(id==null)&#123;
+      return id
+    &#125;
+    if(StringUtils.isBlank(id))&#123;
+      return &quot;&quot;
+    &#125;
+    id.length match &#123;
+      case 15 =&gt; id.replaceAll(&quot;(\\w&#123;6&#125;)\\w*(\\w&#123;3&#125;)&quot;, &quot;$1******$2&quot;)
+      case 18 =&gt; id.replaceAll(&quot;(\\w&#123;6&#125;)\\w*(\\w&#123;3&#125;)&quot;, &quot;$1*********$2&quot;)
+      case _ =&gt; id
+    &#125;
+  &#125;
+
+  /**
+   * [Irreversible] ID Card keep 1-6 and last 3 digits.
+   * @param bankCardId
+   * @return Encrypted bankCardId
+   */
+  def HideBankCardNumber(bankCardId:String): String = &#123;
+    if(bankCardId==null)&#123;
+      return bankCardId
+    &#125;
+    if(StringUtils.isBlank(bankCardId))&#123;
+      return &quot;&quot;
+    &#125;
+    bankCardId.length match &#123;
+      case 16 =&gt; bankCardId.replaceAll(&quot;(\\w&#123;6&#125;)\\w*(\\w&#123;3&#125;)&quot;, &quot;$1*******$2&quot;)
+      case 17 =&gt; bankCardId.replaceAll(&quot;(\\w&#123;6&#125;)\\w*(\\w&#123;3&#125;)&quot;, &quot;$1********$2&quot;)
+      case 19 =&gt; bankCardId.replaceAll(&quot;(\\w&#123;6&#125;)\\w*(\\w&#123;3&#125;)&quot;, &quot;$1**********$2&quot;)
+      case _ =&gt; bankCardId
+    &#125;
+  &#125;
+
+  /**
+   * register all desensitization udf
+   * @param ctx SQLContext
+   */
+  def register(ctx:SQLContext,username:String):Unit = &#123;
+    logWarning(s&quot;Registering desensitization UDFs for session [user: $username]&quot;)
+    ctx.udf.register(&quot;hide_mid_4_phone_number&quot;,HideMid4PhoneNumber _)
+    ctx.udf.register(&quot;hide_last_4_phone_number&quot;,HideLast4PhoneNumber _)
+    ctx.udf.register(&quot;hide_user_name&quot;,HideUserName _)
+    ctx.udf.register(&quot;hide_id_card&quot;,HideIDCard _)
+    ctx.udf.register(&quot;hide_bank_card_number&quot;,HideBankCardNumber _)
+  &#125;
+&#125;</code></pre>
+<p><strong>实现启动时加载脱敏配置</strong><br>org.apache.spark.sql.hive.thriftserver.HiveThriftServer2类，含有ThriftServer的main方法，在启动ThriftServer服务时运行，在DeveloperApi注解下的startWithContext方法添加加载脱敏配置信息的方法loadDesensitizationMeta，保证每次启动ThriftServer生效配置。</p>
+<pre><code class="scala">@DeveloperApi
+def startWithContext(sqlContext: SQLContext): HiveThriftServer2 = &#123;
+  val executionHive = HiveUtils.newClientForExecution(
+    sqlContext.sparkContext.conf,
+    sqlContext.sessionState.newHadoopConf())
+  DesensitizationModule.loadDesensitizationMeta(sqlContext)
+......</code></pre>
+<p><strong>实现手动刷新脱敏配置</strong><br>org.apache.spark.sql.hive.thriftserver.server.SparkSQLOperationManager类，用于管理Spark的Operation，其中newExecuteStatementOperation是实际执行statement的方法，在这里判断SQL如果为”refresh_desensitization_auth”则调用loadDesensitizationMeta方法刷新脱敏配置信息</p>
+<pre><code class="scala">  override def newExecuteStatementOperation(
+      parentSession: HiveSession,
+      statement: String,
+      confOverlay: JMap[String, String],
+      async: Boolean): ExecuteStatementOperation = synchronized &#123;
+    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
+    Authentication.checkIp(parentSession)
+    Authentication.checkUser(parentSession)
+    require(sqlContext != null, s&quot;Session handle: $&#123;parentSession.getSessionHandle&#125; has not been&quot; +
+      s&quot; initialized or had already closed.&quot;)
+    val conf = sqlContext.sessionState.conf
+    val hiveSessionState = parentSession.getSessionState
+    setConfMap(conf, hiveSessionState.getOverriddenConfigurations)
+    setConfMap(conf, hiveSessionState.getHiveVariables)
+    val runInBackground = async &amp;&amp; conf.getConf(HiveUtils.HIVE_THRIFT_SERVER_ASYNC)
+    var sql = statement.toLowerCase.trim
+    var statement2 = statement
+    if (sql.startsWith(&quot;create&quot;) &amp;&amp; sql.indexOf(&quot;options(&quot;) != -1) &#123; //remove &quot;\n&quot; when creating external hbase table
+      statement2 = statement.replaceAll(&quot;\n&quot;, &quot; &quot;)
+    &#125;
+    // load desensitization
+    if (&quot;refresh_desensitization_auth&quot;.equals(sql)) &#123;
+      if (DesensitizationModule.loadDesensitizationMeta(sqlContext)) &#123;  // 这里可以加限制admin权限的用户才能刷新
+        statement2 = &quot;select &#39;refresh_desensitization_auth succeed&#39;&quot;
+      &#125; else &#123;
+        statement2 = &quot;select &#39;refresh_desensitization_auth failed&#39;&quot;
+      &#125;
+    &#125;
+......</code></pre>
+<h3 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-03.jpg" alt="alt">  </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><font size="3" color="blue">优点</font>：<br>  1.无额外的硬件成本开销<br>  2.性能损耗小<br>  3.用户无感知<br>  4.权限设计灵活<br><font size="3" color="blue">缺点</font>：<br>  1.用户如果用敏感字段关联，结果不准备<br>  2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了<br><font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库</p>
+<h2 id="基于Spark执行计划自定义Rule的数据脱敏"><a href="#基于Spark执行计划自定义Rule的数据脱敏" class="headerlink" title="基于Spark执行计划自定义Rule的数据脱敏"></a>基于Spark执行计划自定义Rule的数据脱敏</h2><p>未完待续…<br><font size="3" color="red">。。。</font><br><font size="3" color="blue">！！！</font><br><font face="verdana" color="green"  size="3">？？？</font></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2020Summary/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                我的2020年度总结博客</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/f5da73a2/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                大数据脱敏方案调研</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

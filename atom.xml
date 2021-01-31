@@ -83,11 +83,35 @@
   </entry>
   
   <entry>
+    <title>实现基于Spark的数据脱敏</title>
+    <link href="https://shmily-qjj.top/4cf161e5/"/>
+    <id>https://shmily-qjj.top/4cf161e5/</id>
+    <published>2020-12-11T14:16:00.000Z</published>
+    <updated>2021-01-31T09:39:09.733Z</updated>
+    
+    <summary type="html">
+    
+      二次开发Spark使其支持简单数据脱敏
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Spark" scheme="https://shmily-qjj.top/tags/Spark/"/>
+    
+      <category term="数据脱敏" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E8%84%B1%E6%95%8F/"/>
+    
+      <category term="二次开发" scheme="https://shmily-qjj.top/tags/%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
     <title>大数据脱敏方案调研</title>
     <link href="https://shmily-qjj.top/f5da73a2/"/>
     <id>https://shmily-qjj.top/f5da73a2/</id>
     <published>2020-10-20T05:19:00.000Z</published>
-    <updated>2020-12-23T16:19:39.855Z</updated>
+    <updated>2021-01-31T09:52:36.515Z</updated>
     
     <summary type="html">
     
@@ -423,26 +447,6 @@
       <category term="表白" scheme="https://shmily-qjj.top/tags/%E8%A1%A8%E7%99%BD/"/>
     
       <category term="程序猿" scheme="https://shmily-qjj.top/tags/%E7%A8%8B%E5%BA%8F%E7%8C%BF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mysql Event Scheduler</title>
-    <link href="https://shmily-qjj.top/3c26421b/"/>
-    <id>https://shmily-qjj.top/3c26421b/</id>
-    <published>2019-11-15T13:25:04.000Z</published>
-    <updated>2020-04-12T14:15:47.999Z</updated>
-    
-    <summary type="html">
-    
-      Mysql事件调度器
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="Mysql" scheme="https://shmily-qjj.top/tags/Mysql/"/>
     
   </entry>
   
