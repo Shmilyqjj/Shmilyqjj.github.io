@@ -530,7 +530,32 @@ Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO</code></pr
 </ul>
 <!-- 负载均衡：采用Round Robin轮询调度算法（依次将一个域名解析到多个IP地址的调度不同服务器的计算方法）来实现负载均衡,将任务提交到不同的节点上 -->
 
-<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG" alt="alt Impala-02"><br>注意：这样部署不科学，考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信</p>
+<h3 id="Impala-join算法"><a href="#Impala-join算法" class="headerlink" title="Impala join算法"></a>Impala join算法</h3><p>1.HashJoin，等值Join采用Hash算法进行Join，具体分为Broadcast Hash Join和Shuffle Hash Join。Boradcast Join适合右表是小表的情景，Impala会广播小表到各个节点，再关联。Shuffle Join适合大表与大表Join的情景，Impala会将大表划分成多块，然后分别进行Hash Join。<br>2.Nested Loop Join，非等值Join使用，非等值Join效率低，不支持Hint。</p>
+<h3 id="Impala-Query-Hint"><a href="#Impala-Query-Hint" class="headerlink" title="Impala Query Hint"></a>Impala Query Hint</h3><p>语法：</p>
+<pre><code class="SQL">SELECT STRAIGHT_JOIN select_list FROM
+join_left_hand_table
+  JOIN [&#123; /* +BROADCAST */ | /* +SHUFFLE */ &#125;]
+join_right_hand_table
+remainder_of_query;
+-- --------------------------------------
+INSERT insert_clauses
+  [&#123; /* +SHUFFLE */ | /* +NOSHUFFLE */ &#125;]
+  [/* +CLUSTERED */]
+  SELECT remainder_of_query;
+-- --------------------------------------
+SELECT select_list FROM
+table_ref
+  /* +&#123;SCHEDULE_CACHE_LOCAL | SCHEDULE_DISK_LOCAL | SCHEDULE_REMOTE&#125;
+    [,RANDOM_REPLICA] */
+remainder_of_query;</code></pre>
+<p>Hint会改变SQL的执行计划，使用Hint注意事项：</p>
+<ol>
+<li>有两个地方需要加上hint关键字，select后面加上STRAIGHT_JOIN；join后面加上[shuffle]或者/* +shuffle */</li>
+<li>如果是多层嵌套的join方式，也需要在每一层加上STRAIGHT_JOIN和[shuffle]或者/* +shuffle */</li>
+<li>外层的hint对于内层的join子语句是不起作用的</li>
+<li>如果select后面跟distinct之类的关键字，STRAIGHT_JOIN需要跟在关键字后面<br>不同Hint标签的具体含义和场景见文档:<strong><a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/impala_hints.html">impala_hints</a></strong></li>
+</ol>
+<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG" alt="alt Impala-02"><br>注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信</p>
 <p>在StateStore的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25010/">http://cdh101:25010/</a> 可以查看Impala集群监控状态和配置信息：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-03.JPG" alt="alt Impala-03">  </p>
 <p>在Catalog的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25020/">http://cdh101:25020/</a> 可以看到各个库表元数据信息、Schema及占用内存大小<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-04.JPG" alt="alt Impala-04">  </p>
 <p>在Impala Daemon的WEBUI <a target="_blank" rel="noopener" href="http://cdh102:25000/">http://cdh102:25000/</a> 可以看到该进程信息  在<a target="_blank" rel="noopener" href="http://cdh102:25000/queries">http://cdh102:25000/queries</a> 可以查看该节点执行SQL的详情<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-07.JPG" alt="alt Impala-07"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-08.JPG" alt="alt Impala-08">  </p>
@@ -546,7 +571,22 @@ Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO</code></pr
 进入Impala-shell后：
 shell &lt;shell&gt;  不退出impala-shell执行系统命令
 profile 分析Query执行，以便于性能调优（比-p更多的信息）</code></pre>
-<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>文件格式推荐parquet，查询效率高<br>避免碎片文件，注意文件的大小<br>根据实际的文件大小和个数选择分区的粒度<br>分区字段最好使用小的存储格式<br>使用compute stats进行性能分析，提高join效率<br>最小化返回数据量<br>使用explain确认执行计划是否高效<br>使用summary确认硬件消耗<br>使用profile进行性能调优<br>使用hdfs缓存提升查询性能<br>使用profile查看是否有hdfs块倾斜，合理分配block大小</p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ol>
+<li>文件格式推荐parquet，查询效率高</li>
+<li>避免碎片文件，注意文件的大小</li>
+<li>根据实际的文件大小和个数选择分区的粒度</li>
+<li>分区key选择最小的整数类型代替字符串类型，降低元数据占用内存大小</li>
+<li>使用COMPUTE STATS命令进行表、分区的性能分析（收集统计信息），提高表的查询效率<pre><code class="SQL">COMPUTE STATS [db_name.]table_name
+COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]</code></pre>
+</li>
+<li>最小化返回Client端的数据量</li>
+<li>使用explain+SQL命令确认执行计划是否高效</li>
+<li>执行查询后使用summary命令确认硬件消耗（物理性能特性），输出的信息包括哪个阶段耗时最多，以及每一阶段估算的内存消耗、行数与实际的差异</li>
+<li>执行查询后使用profile命令显示详细性能信息，输出的信息包括内存、CPU、I/O以及网络消耗的详细信息，可根据该信息进行调优</li>
+<li>使用profile查看是否有hdfs块倾斜，合理分配block大小</li>
+<li>充分利用Impala Query Hint优化查询效率</li>
+<li>Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下</li>
+</ol>
 <p>总结：</p>
 <ol>
 <li>Impala是典型的MPP架构实时查询分析引擎，类似的引擎还有ClickHouse</li>
@@ -582,9 +622,26 @@ profile 分析Query执行，以便于性能调优（比-p更多的信息）</cod
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/BigdataExceptionsSummary/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                大数据平台常见异常处理汇总</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/2020Summary/" rel="next">
               <div class="background">
