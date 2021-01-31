@@ -219,20 +219,7 @@ sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster2.nn3", "namenode003
 sc.hadoopConfiguration.set("dfs.namenode.rpc-address.cluster2.nn4", "namenode004:8020");
 sc.hadoopConfiguration.set("dfs.client.failover.proxy.provider.cluster2", "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
 
-Spark的temporary view
-Spark的四种视图创建方法：
-df.createGlobalTempView 创建全局临时视图 多个SparkSession共享，不支持跨Application 等价于 create global temporary view view_name(col1,col2...) as select (col1,col2...) from table_name;
-df.createOrReplaceGlobalTempView 
-df.createOrReplaceTempView  等价于 create or replace global temporary view view_name(col1,col2...) as select (col1,col2...) from table_name;
-df.createTempView  创建Session级别的临时视图 多个SparkSession不共享
-replace不存在则直接创建，存在则替换
-通过SQL创建视图时会有几种异常：
-It is not allowed to define a TEMPORARY view with IF NOT EXISTS. 创建视图不支持if not exists
-It is not allowed to add database prefix `test` for the TEMPORARY view name. 创建视图不支持库名前缀
-Not allowed to create a permanent view by referencing a temporary function.  创建永久视图不支持用临时UDF
-视图删除：
-spark.catalog.dropTempView('view_name')
-spark.catalog.dropGlobalTempView('global_view_name')
+
 
 
 ANALYZE TABLE命令分析表、列信息
@@ -243,14 +230,6 @@ desc formatted或DESCRIBE EXTENDED查看表详细信息
 ANALYZE TABLE xh_result_all COMPUTE STATISTICS FOR COLUMNS cust_no, prob, group, dt;
 DESCRIBE EXTENDED xh_result_all cust_no;
 
-sqlContext.sparkSession.sessionState.sqlParser.parsePlan(sqlString) 得到一条sql的ParsedLogicalPlan(UnresolvedLogicalPlan) 单纯根据语法树解析SQL后得到的逻辑计划，没有关联catalog，即没有获取底层存储元数据信息，简单来说，select *不会从该逻辑计划中得到实际查询的字段。
-sqlContext.sparkSession.sql("select ...").queryExecution.toString() 可以得到所有的逻辑计划和物理计划（包括ParsedLogicalPlan、AnalyzedLogicalPlan1、AnalyzedLogicalPlan2、OptimizedLogicalPlan、PhysicalPlan），可以看到具体字段的是AnalyzedLogicalPlan2、OptimizedLogicalPlan、PhysicalPlan
-sqlContext.sparkSession.sql("select ...").queryExecution.executedPlan.toString()   得到物理计划
-sqlContext.sparkSession.sql("select ...").queryExecution.logical.toString()    得到AnalyzedLogicalPlan1
-sqlContext.sparkSession.sql("select ...").queryExecution.analyzed.toString()   得到AnalyzedLogicalPlan2 可看字段映射信息
-sqlContext.sparkSession.sql("select ...").queryExecution.optimizedPlan.toString()   得到optimizedLogicalPlan2
-sqlContext.sparkSession.sql("select ...").queryExecution.sparkPlan.toString()   得到物理计划
-以上toString只能大致浏览计划，如果用于分析请使用plan的api而非toString
 
 spark.sessionState.conf.getAllConfs.foreach(println) 获取SparkSession当前的配置参数
 
