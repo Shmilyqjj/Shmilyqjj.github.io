@@ -1619,6 +1619,47 @@ $ git branch --set-upstream-to=origin/dev
 6. 再次拉取
 $ git pull
 
+编辑Git配置文件
+git config -e [--global]
+设置提交代码时的用户信息
+git config [--global] user.name "[name]"
+git config [--global] user.email "[email address]"
+重置git链接方式ssh与http切换
+git remote -v
+git remote rm origin
+git remote add origin git仓库的SSH地址
+git remote -v
+拉取
+git pull origin master
+存入暂存区
+git add [file1] [file2] ... # 多个文件
+git add [dir]   # 目录含其下子目录
+git add .  # 当前目录所有文件
+提交
+git commit -m [message]
+git commit [file1] [file2] ... -m [message]
+上传
+git push origin master
+删除
+git rm [file1] [file2] ... # 删除工作区文件，并且将这次删除放入暂存区
+分支
+git branch  列出本地所有分支
+git branch -r  列出所有远程分支
+git checkout [branch-name]  切换分支
+git branch -d [branch-name]  删除本地分支
+git push origin --delete [branch-name]  删除远程分支
+状态
+git status 暂存区和远程差异
+git diff  暂存区和工作区差异
+
+上传一个项目
+cd $PROJECT_ROOT
+git init
+git remote add origin 项目地址
+git add .
+git commit -m "程序源代码"
+git push -u origin master
+
 
 -----------------------------------------------------------------------------
 其他
