@@ -23,3 +23,5 @@ date: 2020-02-27 11:26:08
 # 大标题  
 
 [maxwell和canal选型](https://www.modb.pro/db/24734)
+
+实战https://www.jianshu.com/p/8642668cc9ba
