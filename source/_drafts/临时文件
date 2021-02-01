@@ -5,10 +5,14 @@ https://www.iteblog.com/
 https://www.liaoxuefeng.com
 https://home.apachecn.org/docs/
 https://github.com/apachecn
-
+https://blog.csdn.net/yidan7063
 
 ##################################################
 技术类书籍下载：https://github.com/SummerJoan3/books
+待下载：
+SparkSQL内核剖析
+大数据架构师指南 (朱进云著) pdf
+shell脚本实战第二版pdf
 
 ##################################################
 JVM相关
@@ -16,13 +20,22 @@ OOM八种方式与解决：https://tianmingxing.com/2019/11/17/%E4%BB%8B%E7%BB%8
 查看GC情况 https://www.cnblogs.com/alter888/p/10407952.html
 
 ##################################################
-
+监控：
+Graphite：https://blog.csdn.net/hffyyg/article/details/87900613
+JVM-Profiler 
 
 ##################################################
 大数据热点话题
 八种排查处理数据倾斜 https://mp.weixin.qq.com/s/piW10KGJVgaSB_i72OVntA
-
+联邦查询开源框架Quicksql：https://github.com/Qihoo360/Quicksql，https://www.ctolib.com/Qihoo360-XSQL.html
 ##################################################
+Apache Ranger相关
+https://blog.csdn.net/qq475781638/article/details/90247153
+https://blog.csdn.net/qq_35995514/article/details/107227468?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param
+https://blog.csdn.net/sudaxhh/article/details/52135184?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-8.channel_param
+https://blog.csdn.net/tototuzuoquan/article/details/106505018?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param
+Apache Ranger Data Masking：https://cwiki.apache.org/confluence/display/RANGER/Row-level+filtering+and+column-masking+using+Apache+Ranger+policies+in+Apache+Hive
+
 
 
 ##################################################
@@ -176,6 +189,16 @@ python import是将py文件(模块)中的元素（类，方法）加载到内存
 python编译cython => .so
 ###################################################
 Spark相关
+
+
+
+Listener实现：https://www.cnblogs.com/jason-dong/p/10029934.html
+
+Spark调度模式-FIFO和FAIR：https://blog.csdn.net/dabokele/article/details/51526048
+FIFO（先进先出），谁先提交谁先执行，后面的任务需要等待前面的任务执行。
+FAIR（公平调度）模式支持在调度池中为任务进行分组，不同的调度池权重不同，任务可以按照权重来决定执行顺序。
+
+sparkSQL参数调优：https://blog.csdn.net/yuanbingze/article/details/97368552
 
 Stage详情页Locality Level数据本地性级别分五种：
 PROCESS_LOCAL: data is in the same JVM as the running code. This is the best locality possible
@@ -522,6 +545,10 @@ Spark问题：
 
 
 
+spark逻辑计划源码阅读：
+http://wp.wjcodes.com/archives/205  （sparksql内核解析上）
+http://wp.wjcodes.com/archives/206  （sparksql内核解析下）
+https://zhuanlan.zhihu.com/p/73052739
 
 
 Spark Job 默认的调度模式 - FIFO
@@ -780,11 +807,25 @@ all_full = all_full.join(delete_data,primary,"left_anti")  # 没join上的返回
 ###################################################
 Scala相关
 获取一个变量的类型：  变量.getClass.getSimpleName
+编程规范：https://blog.csdn.net/bluejoe2000/article/details/101520022
+多线程Actor模型 实践：https://blog.csdn.net/gdkyxy2013/article/details/77824454?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control
+多线程：https://blog.csdn.net/weixin_40873462/article/details/89680070
+多线程：https://zhuanlan.zhihu.com/p/103808773
+偏函数和偏应用函数https://www.jianshu.com/p/0a8a15dbb348  以及scala学习笔记
+
+###################################################
+Flink相关
+Calcite解析SQL使用：https://blog.csdn.net/u011250186/article/details/106856572
+基于Flink+Hive构建流批一体准实时数仓：https://mp.weixin.qq.com/s/FFlh472O6AYkNo77DCXZzQ
+
+一站式流式处理云平台解决方案：
+https://github.com/edp963/wormhole
+
 
 ###################################################
 Hive相关
 
-
+Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
 Python连接Hive
 1.pyspark 
@@ -1533,6 +1574,7 @@ HBase性能优化方法总结
 -----------------------------------------------------------------------------
 Java相关
 
+java并发中锁的原理之对象头：https://www.jianshu.com/p/a32de78b7d04
 
 @PostConstruct：被@PostConstruct修饰的方法会在服务器加载Servlet的时候运行，并且只会被服务器执行一次，可以使用@PostConstruct注解一个方法来完成初始化，@PostConstruct注解的方法将会在依赖注入完成后被自动调用
   用法：
@@ -1669,9 +1711,12 @@ git push -u origin master
 NAT模式：虚拟主机和真实主机网段不同，能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.101
 仅主机模式：虚拟主机和真实主机IP段不同且不能访问外网。例子：真实主机：192.168.2.100  虚拟主机192.168.1.100
 
-Apache Ranger Data Masking：https://cwiki.apache.org/confluence/display/RANGER/Row-level+filtering+and+column-masking+using+Apache+Ranger+policies+in+Apache+Hive
 
 分布式 CAP 的一致性
+
+DataX学习
+
+com.google.common.cache.Cache缓存
 
 --------------------------------JVM GC分析--------------------------------
 https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS

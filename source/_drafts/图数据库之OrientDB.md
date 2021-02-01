@@ -196,6 +196,7 @@ TRAVERSE主要用于对图进行遍历。基于深度搜索算法或者广度搜
 
 ### 图遍历SQL之Match语法
 Match语法基于OrientDB3.x版本，具体使用可以参考：**[OrientDB图遍历SQL之MATCH](https://cloud.tencent.com/developer/article/1528023)**
+后续完善
 
 ### 经典案例实践
 通过案例熟悉图数据库中顶点和边如何设计,也方便理解点、边、属性、类等相关概念。

@@ -25,7 +25,12 @@ ANTLR全称Another Tool for Language Recognition。Antlr是用Java语言开发�
 
 
 
+【Antlr4 入门】https://www.cnblogs.com/clonen/p/9083359.html
 
+
+[ANTLR 实战 SQL 词法/语法分析]https://www.it610.com/article/1289186466957697024.htm
+
+[antlr4 使用原理](https://zhmin.github.io/2019/04/26/antlr4-tutorial/)
 
 [ANTLR官方网址](http://www.antlr.org/)
 
@@ -80,24 +85,8 @@ IDEA配置：Plugins中下载ANTLR v4 grammar plugin
 
 
 
-## 原理（中标题） 
-
-* 字体
-*斜体文本*
-_斜体文本_
-**粗体文本**
-__粗体文本__
-***粗斜体文本***
-___粗斜体文本___
-<u>带下划线文本</u>
-
-字颜色大小
-<font size="3" color="red">This is some text!</font>
-<font size="2" color="blue">This is some text!</font>
-<font face="verdana" color="green"  size="3">This is some text!</font>
 
 
 ## 参考资料  
-[Kafka史上最详细原理总结](https://blog.csdn.net/u013573133/article/details/48142677)
-[Apache Kafka](http://kafka.apache.org/)
+
 
