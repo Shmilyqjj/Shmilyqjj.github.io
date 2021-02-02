@@ -47,6 +47,9 @@ https://cloud.tencent.com/developer/article/1544865
 ##################################################
 Hadoop相关
 
+hdfs dfsadmin -setQuota 10000 /tmp/qjj  设置该目录文件数配额为1w（实际9.8k都会少一点）
+hdfs dfsadmin -setSpaceQuota 10G /tmp/qjj  设置该目录空间配额10G
+hdfs dfsadmin -clrQuota /tmp/qjj  清空目录配额限制
 hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
 
 小文件产生情况：
@@ -821,6 +824,11 @@ Calcite解析SQL使用：https://blog.csdn.net/u011250186/article/details/106856
 一站式流式处理云平台解决方案：
 https://github.com/edp963/wormhole
 
+
+###################################################
+Kafka相关
+CDH-配置 Kafka MirrorMaker 实现 Kafka 集群消息同步：https://blog.csdn.net/weixin_43215250/article/details/100521107
+滴滴开源Logi-KafkaManager 一站式Kafka监控与管控平台：https://mp.weixin.qq.com/s/N2fZSnzy7yiH5p-svdpJWg
 
 ###################################################
 Hive相关
