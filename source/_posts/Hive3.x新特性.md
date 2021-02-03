@@ -1,5 +1,5 @@
 ---
-title: Hive3.x来了
+title: Hive3.x初探
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -13,7 +13,7 @@ tags:
   - 大数据
   - Hive
 keywords: Hive
-description: Hive 3.x来了,学习一下新特性
+description: 了解Hive 3.x
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-cover.jpg
 abbrlink: 7fbbfd34
@@ -30,7 +30,8 @@ date: 2019-12-27 15:18:25
 6. Beeline代替Hive Cli，降低启动开销  
 7. 不再支持内嵌Metastore  
 8. Spark Catalog不与Hive Catalog集成，但可以互相访问  
-9.批处理使用TEZ，实时查询使用LLAP  
+9. 批处理使用TEZ，实时查询使用LLAP  
+10. Hive3支持联邦查询
 
 ## 架构原理
 1. TEZ执行引擎  
@@ -76,12 +77,24 @@ Hive3默认对内部表支持事务和[ACID特性](https://shmily-qjj.top/1f7eb1
 5. 元数据映射表  
 Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有Metastore表都映射到表空间，并在sys中可用。information_schema数据显示系统的状态。  
 
-6. Hive 3.0其他特性  
+6. 支持基于成本优化的智能下推
+查询一个数据源时如果读取全部数据后再进行分析是很高成本的，通过JDBC获取过多数据导致资源浪费以及性能不佳，Hive依靠其storage handler接口和Apache Calcite支持的基于成本的优化器（CBO）实现了对其他系统的智能下推。特别是，Calcite提供与查询的逻辑表示中的运算符子集匹配的规则，然后生成在外部系统中等效的表示以执行更多操作。Hive在其查询计划器中将计算推送到外部系统，并且依靠Calcite生成外部系统支持的查询语言。storage handler的实现负责将生成的查询发送到外部系统，检索其结果，并将传入的数据转换为Hive内部表示，以便在需要时进一步处理。这不仅限于SQL系统：例如，Apache Hive也可以联邦Apache Druid或Apache Kafka进行查询，正如我们在最近的博文中所描述的，Druid可以非常高效的处理时序数据的汇总和过滤。因此，当对存储在Druid中的数据源执行查询时，Hive可以将过滤和聚合推送给Druid，生成并发送JSON查询到引擎暴露的REST API。另一方面，如果是查询Kafka上的数据，Hive可以在分区或offset上推送过滤器，从而根据条件读取topic中的数据。
+
+7. Hive 3.0其他特性  
 1、连接Kafka Topic，简化了对Kafka数据的查询  
 2、执行查询所需的少量守护进程简化了监视和调试  
 3、工作负载管理(会话资源限制)：用户会话数，服务器会话数，每个服务器每个用户会话数等限制，防止资源争用导致资源不足  
 4、会话状态，内部数据结构，密码等驻留在客户端而不是服务器上  
 5、黑名单可以限制内存配置以防止HiveServer不稳定，可以使用不同的白名单和黑名单配置多个HiveServer实例，以建立不同级别的稳定性  
+
+## 联邦查询
+支持Oracle、MySQL、Kafka、Druid、HDFS、PostgreSQL等多个数据源的联邦查询，可以对多个数据源统一访问。
+联邦查询的优势：
+1.单个SQL方言和API
+2.集中统一的权限控制和审计跟踪（Hive支持表、行、列的访问控制）
+3.统一治理
+4.能够合并来自多个数据源的数据
+
 
 ## 优缺点  
 1. 优点：  
@@ -97,11 +110,8 @@ https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactiv
 https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html
 
 ## 参考资料  
-
 [Hive3新特性](https://www.jianshu.com/p/a1324fb4eb80)
 [Apache Tez 了解](https://www.cnblogs.com/rongfengliang/p/6991020.html)
 [Hive 3.x 功能介绍](https://blog.csdn.net/SunWuKong_Hadoop/article/details/86240707)
-[]()
-[]()
-[]()
+[使用Apache Hive3实现跨数据库的联邦查询](https://blog.csdn.net/hadoop_sc/article/details/103765887)
 
