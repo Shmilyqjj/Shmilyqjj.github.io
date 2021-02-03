@@ -1,5 +1,5 @@
 ---
-title: 一文道尽Flink流批一体计算引擎
+title: Flink流批一体计算引擎基础篇
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -21,7 +21,7 @@ abbrlink: flink
 date: 2021-01-28 12:32:16
 ---
 
-# 一文道尽Apache Flink流批一体实时计算引擎  
+# Flink流批一体计算引擎基础篇  
 内容........
 ## 背景
 ## 小标题1  
