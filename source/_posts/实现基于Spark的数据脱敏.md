@@ -47,7 +47,7 @@ val optimizedLogicalPlan:LogicalPlan = qe.optimizedPlan
 val physicalPlan:LogicalPlan = qe.executedPlan
 val physicalPlan:LogicalPlan = qe.sparkPlan
 ```
-3. LogicalPlan包含三种子类型UnaryNode,BinaryNode和LeafNode，没种子类型下又有多种子类型，子类型下又包含子类型如：Project,GlobalLimit,LocalLimit,CreateTable,Distinct,SubqueryAlias,InsertIntoTable,Join,Aggregate,Union,Filter等。
+3. LogicalPlan包含三种子类型UnaryNode,BinaryNode和LeafNode，每种子类型下又有多种子类型，子类型下又包含子类型如：Project,GlobalLimit,LocalLimit,CreateTable,Distinct,SubqueryAlias,InsertIntoTable,Join,Aggregate,Union,Filter等。
 4. Dataset和DataFrame的区别与联系：
   联系：
     1.API统一，使用上没差别
