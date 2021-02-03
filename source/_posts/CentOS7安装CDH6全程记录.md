@@ -648,6 +648,12 @@ manifest.json
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
 3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
 
+### HDFS高可用
+进入HDFS角色，操作->启用High Availability->选择两个NN、三个JN节点，下一步（注意需要格式化NN，重启HDFS相关所有正在运行的依赖服务，重新部署客户端配置）->完成
+进入HUE 将“Web界面角色”改为httpfs
+关闭Hive，备份HiveMetastore数据库的数据（以防万一），操作->更新Hive Metastore NameNodes->重启Hive服务
+
+
 ### 升级Python版本为3.8
 ```shell
 cd /opt/software
