@@ -36,7 +36,11 @@ ANTLR全称Another Tool for Language Recognition。Antlr是用Java语言开发�
 
 [ANTLR 官方 Github](https://github.com/antlr/antlr4)
 
+[java词法分析_Presto SQL Parser源码分析](https://blog.csdn.net/weixin_39637203/article/details/110724221)
 
+
+[IDEA配置antlr4环境和使用](https://blog.csdn.net/qq_36616602/article/details/85858133)
+[在IDEA中使用ANTLR4教程](https://blog.csdn.net/sherrywong1220/article/details/53697737)
 
 
 
