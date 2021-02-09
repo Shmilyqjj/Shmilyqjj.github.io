@@ -29,6 +29,7 @@ QT_IM_MODULE  DEFAULT=fcitx5
 XMODIFIERS    DEFAULT=\@im=fcitx5
 
 注销 生效
+主题：https://github.com/hosxy/Fcitx5-Material-Color 如何更新主题 换主题
 
 输入法其次可选：
 sunpinyin 和词库
