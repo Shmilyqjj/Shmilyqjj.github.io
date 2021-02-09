@@ -1,8 +1,7 @@
 Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
 
 
-
-根分区，home分区，var分区选择xfs文件系统  var给10G
+/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式96G，home分区xfs格式256G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
 
 安装各种源
 https://blog.csdn.net/weixin_43968923/article/details/86349914
@@ -11,7 +10,7 @@ https://blog.csdn.net/weixin_43968923/article/details/86349914
  
  sudo pacman -R hardcode-fixer 
  
-  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
  https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
 开机加acpi_osi参数,开机再次修改grub.cfg
  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
@@ -31,7 +30,6 @@ INPUT_METHOD  DEFAULT=fcitx5
 GTK_IM_MODULE DEFAULT=fcitx5
 QT_IM_MODULE  DEFAULT=fcitx5
 XMODIFIERS    DEFAULT=\@im=fcitx5
-
 注销 生效
 主题：https://github.com/hosxy/Fcitx5-Material-Color 如何更新主题 换主题
 
@@ -43,15 +41,11 @@ fcitx-sunpinyin
 ibus-sunpinyin
 kcm-fcitx
 
- 安装google输入法https://blog.csdn.net/ning19941128/article/details/88763772
- # 备选方案安装fcitx-rime拼音输入法：https://www.jianshu.com/p/7311e41a2f07
- # 切记不要安装搜狗输入法
-
- DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
+DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
  
- WPS：sudo pacman -S wps-office-cn  sudo pacman -S wps-office-mui-zh-cn   sudo pacman -S ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
  
- Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
+Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
  
 软件仓库安装：Typora,GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
 软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut,timeshift
