@@ -20,6 +20,7 @@ sunpinyin
 sunpinyin-data
 fcitx-sunpinyin
 ibus-sunpinyin
+kcm-fcitx
 
  安装google输入法https://blog.csdn.net/ning19941128/article/details/88763772
  # 备选方案安装fcitx-rime拼音输入法：https://www.jianshu.com/p/7311e41a2f07
