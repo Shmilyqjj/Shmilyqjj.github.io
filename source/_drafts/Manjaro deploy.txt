@@ -46,13 +46,20 @@ DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
 软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
  
 Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
+
+wechat和tim替代方案：
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
  
-软件仓库安装：Typora,GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
-软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut,timeshift
+软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
+软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
+
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
-安装yaourt
+安装
 sudo pacman -S yaourt
 
 安装docker
