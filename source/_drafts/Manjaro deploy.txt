@@ -19,7 +19,18 @@ https://blog.csdn.net/weixin_43968923/article/details/86349914
 重启openNTPD: systemctl restart openntpd
 设置开机启动: systemctl enable openntpd
 
- 输入法首选安装:
+输入法首选安装:
+sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
+fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt：对 Qt5 程序的支持fcitx5-gtk：对 GTK 程序的支持fcitx5-qt4-gitAUR：对 Qt4 程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。提示： 一般情况下，只安装 fcitx5-qt 和 fcitx5-gtk就行了配置工具fcitx5 的配置文件位于 ~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便：kcm-fcitx5：集成到 KCM 中的配置工具，专为 KDE 而生fcitx5-config-qt-git AUR：Qt 前端的 fcitx5 配置工具，与 kcm-fcitx5 相冲突注意： Fcitx5 开发人员明确表示不会考虑基于 GTK 的配置工具，对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR。
+该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量sudo vim ~/.pam_environment
+INPUT_METHOD  DEFAULT=fcitx5
+GTK_IM_MODULE DEFAULT=fcitx5
+QT_IM_MODULE  DEFAULT=fcitx5
+XMODIFIERS    DEFAULT=\@im=fcitx5
+
+注销 生效
+
+输入法其次可选：
 sunpinyin 和词库
 sunpinyin
 sunpinyin-data
