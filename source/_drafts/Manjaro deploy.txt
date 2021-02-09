@@ -14,6 +14,11 @@ https://blog.csdn.net/weixin_43968923/article/details/86349914
 开机加acpi_osi参数,开机再次修改grub.cfg
  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
 
+设置时区: sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai/etc/localtime
+安装openNTPD: sudo pacman -S openntpd
+重启openNTPD: systemctl restart openntpd
+设置开机启动: systemctl enable openntpd
+
  输入法首选安装:
 sunpinyin 和词库
 sunpinyin
