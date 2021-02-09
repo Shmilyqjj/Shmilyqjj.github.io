@@ -1,5 +1,7 @@
-安装前 给内核传参   按e在quiet后加：
-acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
+Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
+
+
+
 根分区，home分区，var分区选择xfs文件系统  var给10G
 
 安装各种源
@@ -18,6 +20,8 @@ https://blog.csdn.net/weixin_43968923/article/details/86349914
 安装openNTPD: sudo pacman -S openntpd
 重启openNTPD: systemctl restart openntpd
 设置开机启动: systemctl enable openntpd
+
+sudo systemctl enable fstrim.timer  启用TRIM，TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命。
 
 输入法首选安装(https://www.zhihu.com/question/333951476/answer/1280162871):
 sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
