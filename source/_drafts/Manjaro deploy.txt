@@ -1,6 +1,7 @@
-安装前 给内核传参   按e在quiet后加：
-acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
-根分区，home分区，var分区选择xfs文件系统  var给10G
+Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
+
+
+/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式96G，home分区xfs格式256G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
 
 安装各种源
 https://blog.csdn.net/weixin_43968923/article/details/86349914
@@ -9,34 +10,56 @@ https://blog.csdn.net/weixin_43968923/article/details/86349914
  
  sudo pacman -R hardcode-fixer 
  
-  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
  https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
 开机加acpi_osi参数,开机再次修改grub.cfg
  sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
 
- 输入法首选安装:
+设置时区: sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai/etc/localtime
+安装openNTPD: sudo pacman -S openntpd
+重启openNTPD: systemctl restart openntpd
+设置开机启动: systemctl enable openntpd
+
+sudo systemctl enable fstrim.timer  启用TRIM，TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命。
+
+输入法首选安装(https://www.zhihu.com/question/333951476/answer/1280162871):
+sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
+fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt：对 Qt5 程序的支持fcitx5-gtk：对 GTK 程序的支持fcitx5-qt4-gitAUR：对 Qt4 程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。提示： 一般情况下，只安装 fcitx5-qt 和 fcitx5-gtk就行了配置工具fcitx5 的配置文件位于 ~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便：kcm-fcitx5：集成到 KCM 中的配置工具，专为 KDE 而生fcitx5-config-qt-git AUR：Qt 前端的 fcitx5 配置工具，与 kcm-fcitx5 相冲突注意： Fcitx5 开发人员明确表示不会考虑基于 GTK 的配置工具，对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR。
+该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量sudo vim ~/.pam_environment
+INPUT_METHOD  DEFAULT=fcitx5
+GTK_IM_MODULE DEFAULT=fcitx5
+QT_IM_MODULE  DEFAULT=fcitx5
+XMODIFIERS    DEFAULT=\@im=fcitx5
+注销 生效
+主题：https://github.com/hosxy/Fcitx5-Material-Color 如何更新主题 换主题
+
+输入法其次可选：
 sunpinyin 和词库
 sunpinyin
 sunpinyin-data
 fcitx-sunpinyin
 ibus-sunpinyin
+kcm-fcitx
 
- 安装google输入法https://blog.csdn.net/ning19941128/article/details/88763772
- # 备选方案安装fcitx-rime拼音输入法：https://www.jianshu.com/p/7311e41a2f07
- # 切记不要安装搜狗输入法
+DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
+ 
+软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+ 
+Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
 
- DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
+wechat和tim替代方案：
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
  
- WPS：sudo pacman -S wps-office-cn  sudo pacman -S wps-office-mui-zh-cn   sudo pacman -S ttf-wps-fonts   => 进入文档  点击右上角A切换语言
- 
- Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
- 
-软件仓库安装：Typora,GIMP，Shotcut ， Ubuntu Cleaner，Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
-软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,企业微信,xmind,shotcut,timeshift
+软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
+软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
+
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
-安装yaourt
+安装
 sudo pacman -S yaourt
 
 安装docker
