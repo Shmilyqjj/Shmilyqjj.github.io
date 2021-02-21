@@ -643,7 +643,7 @@ org.apache.spark.sql.hive.thriftserver.server.SparkSQLOperationManager类，用�
   3.用户无感知
   4.权限设计灵活
 <font size="3" color="blue">缺点</font>：
-  1.用户如果用敏感字段关联，结果不准备
+  1.用户如果用敏感字段关联，结果不准确
   2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了
 <font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库
 
