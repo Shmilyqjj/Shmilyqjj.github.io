@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">Hive3.x来了 | 佳境的小本本</title>
+  <title itemprop="name">Hive3.x初探 | 佳境的小本本</title>
   
     <link rel="shortcut icon" href="/images/favicon.ico">
   
@@ -395,7 +395,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      Hive3.x来了</h1>
+      Hive3.x初探</h1>
       <p class="entry-census">
         <span>
           <a href="shmily-qjj.top">
@@ -423,48 +423,49 @@
         <div class="entry-content">
           <h1 id="Hive3-x新特性"><a href="#Hive3-x新特性" class="headerlink" title="Hive3.x新特性"></a>Hive3.x新特性</h1><h2 id="新特性简述"><a href="#新特性简述" class="headerlink" title="新特性简述"></a>新特性简述</h2><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-0.JPG" alt="alt Hive3.x-0">  </p>
 <ol>
-<li>执行引擎变更为<strong><a href="https://tez.apache.org/" target="_blank" rel="noopener">TEZ</a></strong>,不使用MR  </li>
+<li>执行引擎变更为**<a target="_blank" rel="noopener" href="https://tez.apache.org/">TEZ</a>**,不使用MR  </li>
 <li>成熟的<a href="https://shmily-qjj.top/1f7eb1b3/">ACID</a>大数据事务支持  </li>
-<li><a href="https://cwiki.apache.org/confluence/display/Hive/LLAP" target="_blank" rel="noopener">LLAP</a>用于妙极，毫秒级查询访问  </li>
-<li>基于<a href="http://ranger.apache.org/" target="_blank" rel="noopener">Apache Ranger</a>的统一权限管理  </li>
+<li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LLAP">LLAP</a>用于妙极，毫秒级查询访问  </li>
+<li>基于<a target="_blank" rel="noopener" href="http://ranger.apache.org/">Apache Ranger</a>的统一权限管理  </li>
 <li>默认开启HDFS ACLs</li>
 <li>Beeline代替Hive Cli，降低启动开销  </li>
 <li>不再支持内嵌Metastore  </li>
-<li>Spark Catalog不与Hive Catalog集成，但可以互相访问<br>9.批处理使用TEZ，实时查询使用LLAP  </li>
+<li>Spark Catalog不与Hive Catalog集成，但可以互相访问  </li>
+<li>批处理使用TEZ，实时查询使用LLAP  </li>
+<li>Hive3支持联邦查询</li>
 </ol>
 <h2 id="架构原理"><a href="#架构原理" class="headerlink" title="架构原理"></a>架构原理</h2><ol>
-<li>TEZ执行引擎<br><strong><a href="https://tez.apache.org/" target="_blank" rel="noopener">Apache TEZ</a></strong>是一个针对Hadoop数据处理应用程序的分布式计算框架，基于Yarn且支持DAG作业的开源计算框架。Tez产生的主要原因是绕开MapReduce所施加的限制，逐步取代MR，提供更高的性能和灵活性。<br>Apache TEZ的核心思想是将Map和Reduce拆分成若干子过程，即Map被拆分成Input、Processor、Sort、Merge和Output， Reduce被拆分成Input、Shuffle、Sort、Merge、Processor和Output等，分解后可以灵活组合成一个大的DAG作业。<br>Apache TEZ兼容MR任务，不需要代码层面的改动。<br>Apache TEZ提供了较低级别的抽象，为了增强Hive/Pig的底层实现，而不是最终面向用户的。<br>Hive3的<strong>TEZ+内存查询结合</strong>的性能据说是Hive2的50倍(也有文章说是100倍，这个数字是不是很熟悉，它到底能不能与Spark内存计算速度媲美呢)。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-1.png" alt="alt Hive3.x-1">  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-2.png" alt="alt Hive3.x-2"><br>上图是Hive On MR和Hive On Tez执行任务流程对比图，解释：</li>
+<li>TEZ执行引擎  </li>
 </ol>
+<p><strong><a target="_blank" rel="noopener" href="https://tez.apache.org/">Apache TEZ</a>**是一个针对Hadoop数据处理应用程序的分布式计算框架，基于Yarn且支持DAG作业的开源计算框架。Tez产生的主要原因是绕开MapReduce所施加的限制，逐步取代MR，提供更高的性能和灵活性。<br>Apache TEZ的核心思想是将Map和Reduce拆分成若干子过程，即Map被拆分成Input、Processor、Sort、Merge和Output， Reduce被拆分成Input、Shuffle、Sort、Merge、Processor和Output等，分解后可以灵活组合成一个大的DAG作业。<br>Apache TEZ兼容MR任务，不需要代码层面的改动。<br>Apache TEZ提供了较低级别的抽象，为了增强Hive/Pig的底层实现，而不是最终面向用户的。<br>Hive3的</strong>TEZ+内存查询结合**的性能据说是Hive2的50倍(也有文章说是100倍，这个数字是不是很熟悉，它到底能不能与Spark内存计算速度媲美呢)。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-1.png" alt="alt Hive3.x-1">  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-2.png" alt="alt Hive3.x-2"><br>上图是Hive On MR和Hive On Tez执行任务流程对比图，解释：</p>
 <table>
 <thead>
 <tr>
-<th style="text-align:center">Hive On MR</th>
-<th style="text-align:center">Hive On Tez</th>
+<th align="center">Hive On MR</th>
+<th align="center">Hive On Tez</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">计算需要多个MR任务而且中间结果都要落盘</td>
-<td style="text-align:center">只有一个作业，只写一次HDFS</td>
+<tbody><tr>
+<td align="center">计算需要多个MR任务而且中间结果都要落盘</td>
+<td align="center">只有一个作业，只写一次HDFS</td>
 </tr>
 <tr>
-<td style="text-align:center">没有资源重用</td>
-<td style="text-align:center">资源复用</td>
+<td align="center">没有资源重用</td>
+<td align="center">资源复用</td>
 </tr>
 <tr>
-<td style="text-align:center">处理完释放资源</td>
-<td style="text-align:center">Applications Manager资源池启动若干Container，处理完不释放直接分配给未运行任务</td>
+<td align="center">处理完释放资源</td>
+<td align="center">Applications Manager资源池启动若干Container，处理完不释放直接分配给未运行任务</td>
 </tr>
 <tr>
-<td style="text-align:center">Map:Reduce = 1:1</td>
-<td style="text-align:center">不再是一个Map只对应一个Reduce</td>
+<td align="center">Map:Reduce = 1:1</td>
+<td align="center">不再是一个Map只对应一个Reduce</td>
 </tr>
 <tr>
-<td style="text-align:center">在磁盘处理数据集</td>
-<td style="text-align:center">小的数据集完全在内存中处理以及内存Shuffle</td>
+<td align="center">在磁盘处理数据集</td>
+<td align="center">小的数据集完全在内存中处理以及内存Shuffle</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>新的HiveQL执行流程<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Hive/Hive3.x-4.png" alt="alt Hive3.x-4"><br>Hive编译查询-&gt;Tez执行查询-&gt;Yarn分配资源-&gt;Hive根据表类型更新HDFS或Hive仓库中的数据-&gt;Hive通过JDBC连接返回查询结果</p>
 <ol start="2">
 <li>LLAP<br>LLAP(Live Long and Process)实时长期处理，是Hive3的一种查询模式，由一个守护进程和一个基于DAG的框架组成，LLAP不是执行引擎(MR/Tez),它用来保证Hive的可伸缩性和多功能性，增强现有的执行引擎。<br>LLAP的守护进程长期存在且与DataNode直接交互，缓存，预读取，某些查询处理和访问控制功能包含在这个守护程序中用于直接处理小的查询，而计算与IO较大的繁重任务会提交Yarn执行。守护程序不是必须的，没有它Hive仍能正常工作。对LLAP节点的请求都包含元数据信息和数据位置，所以LLAP节点无状态。<br>可以使用Hive on Tez use LLAP来加速OLAP场景(OnLine Analytical Processing联机分析处理)<br>LLAP为了避免JVM内存设置的限制，使用堆外内存缓存数据以及处理GROUP BY/JOIN等操作，而守护程序仅使用少量内存。<br>Hive3支持两种查询模式<strong>Container</strong>和<strong>LLAP</strong></li>
@@ -477,17 +478,20 @@
 </li>
 <li><p>元数据映射表<br>Hive会从JDBC数据源创建两个数据库：information_schema和sys。所有Metastore表都映射到表空间，并在sys中可用。information_schema数据显示系统的状态。  </p>
 </li>
+<li><p>支持基于成本优化的智能下推<br>查询一个数据源时如果读取全部数据后再进行分析是很高成本的，通过JDBC获取过多数据导致资源浪费以及性能不佳，Hive依靠其storage handler接口和Apache Calcite支持的基于成本的优化器（CBO）实现了对其他系统的智能下推。特别是，Calcite提供与查询的逻辑表示中的运算符子集匹配的规则，然后生成在外部系统中等效的表示以执行更多操作。Hive在其查询计划器中将计算推送到外部系统，并且依靠Calcite生成外部系统支持的查询语言。storage handler的实现负责将生成的查询发送到外部系统，检索其结果，并将传入的数据转换为Hive内部表示，以便在需要时进一步处理。这不仅限于SQL系统：例如，Apache Hive也可以联邦Apache Druid或Apache Kafka进行查询，正如我们在最近的博文中所描述的，Druid可以非常高效的处理时序数据的汇总和过滤。因此，当对存储在Druid中的数据源执行查询时，Hive可以将过滤和聚合推送给Druid，生成并发送JSON查询到引擎暴露的REST API。另一方面，如果是查询Kafka上的数据，Hive可以在分区或offset上推送过滤器，从而根据条件读取topic中的数据。</p>
+</li>
 <li><p>Hive 3.0其他特性<br>1、连接Kafka Topic，简化了对Kafka数据的查询<br>2、执行查询所需的少量守护进程简化了监视和调试<br>3、工作负载管理(会话资源限制)：用户会话数，服务器会话数，每个服务器每个用户会话数等限制，防止资源争用导致资源不足<br>4、会话状态，内部数据结构，密码等驻留在客户端而不是服务器上<br>5、黑名单可以限制内存配置以防止HiveServer不稳定，可以使用不同的白名单和黑名单配置多个HiveServer实例，以建立不同级别的稳定性  </p>
 </li>
 </ol>
+<h2 id="联邦查询"><a href="#联邦查询" class="headerlink" title="联邦查询"></a>联邦查询</h2><p>支持Oracle、MySQL、Kafka、Druid、HDFS、PostgreSQL等多个数据源的联邦查询，可以对多个数据源统一访问。<br>联邦查询的优势：<br>1.单个SQL方言和API<br>2.集中统一的权限控制和审计跟踪（Hive支持表、行、列的访问控制）<br>3.统一治理<br>4.能够合并来自多个数据源的数据</p>
 <h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><ol>
 <li><p>优点：<br>性能，安全性，对ACID事物的支持，对任务资源调度的优化。</p>
 </li>
 <li><p>缺点：<br>目前最新的CDH6.3还不兼容Hive3，自己安装坑点多；目前相关文献较少，排错难。</p>
 </li>
 </ol>
-<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p><a href="https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/" target="_blank" rel="noopener">https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/</a><br><a href="https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap" target="_blank" rel="noopener">https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap</a><br><a href="https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html" target="_blank" rel="noopener">https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html</a></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/a1324fb4eb80" target="_blank" rel="noopener">Hive3新特性</a><br><a href="https://www.cnblogs.com/rongfengliang/p/6991020.html" target="_blank" rel="noopener">Apache Tez 了解</a><br><a href="https://blog.csdn.net/SunWuKong_Hadoop/article/details/86240707" target="_blank" rel="noopener">Hive 3.x 功能介绍</a><br><a href></a><br><a href></a><br><a href></a></p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p><a href="https://link.zhihu.com/?target=https://hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/">https://link.zhihu.com/?target=https%3A//hortonworks.com/tutorial/interactive-sql-on-hadoop-with-hive-llap/</a><br><a href="https://link.zhihu.com/?target=https://dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap">https://link.zhihu.com/?target=https%3A//dzone.com/articles/3x-faster-interactive-query-with-apache-hive-llap</a><br><a href="https://link.zhihu.com/?target=https://community.hortonworks.com/articles/149486/llap-sizing-and-setup.html">https://link.zhihu.com/?target=https%3A//community.hortonworks.com/articles/149486/llap-sizing-and-setup.html</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a1324fb4eb80">Hive3新特性</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/rongfengliang/p/6991020.html">Apache Tez 了解</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/SunWuKong_Hadoop/article/details/86240707">Hive 3.x 功能介绍</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/hadoop_sc/article/details/103765887">使用Apache Hive3实现跨数据库的联邦查询</a></p>
 
         </div>
         <!-- .entry-content -->

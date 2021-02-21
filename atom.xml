@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2021-02-03T02:02:13.299Z</updated>
+  <updated>2021-02-21T01:21:09.267Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://shmily-qjj.top/BigdataExceptionsSummary/"/>
     <id>https://shmily-qjj.top/BigdataExceptionsSummary/</id>
     <published>2021-01-30T04:50:00.000Z</published>
-    <updated>2021-02-03T02:02:13.299Z</updated>
+    <updated>2021-02-21T01:21:09.267Z</updated>
     
     <summary type="html">
     
@@ -65,7 +65,7 @@
     <link href="https://shmily-qjj.top/2020Summary/"/>
     <id>https://shmily-qjj.top/2020Summary/</id>
     <published>2021-01-01T00:08:08.000Z</published>
-    <updated>2021-01-10T11:40:58.181Z</updated>
+    <updated>2021-02-21T02:29:57.177Z</updated>
     
     <summary type="html">
     
@@ -87,7 +87,7 @@
     <link href="https://shmily-qjj.top/4cf161e5/"/>
     <id>https://shmily-qjj.top/4cf161e5/</id>
     <published>2020-12-11T14:16:00.000Z</published>
-    <updated>2021-01-31T09:39:09.733Z</updated>
+    <updated>2021-02-03T03:09:43.274Z</updated>
     
     <summary type="html">
     
@@ -387,15 +387,15 @@
   </entry>
   
   <entry>
-    <title>Hive3.x来了</title>
+    <title>Hive3.x初探</title>
     <link href="https://shmily-qjj.top/7fbbfd34/"/>
     <id>https://shmily-qjj.top/7fbbfd34/</id>
     <published>2019-12-27T07:18:25.000Z</published>
-    <updated>2020-04-12T14:15:47.998Z</updated>
+    <updated>2021-02-03T03:00:57.189Z</updated>
     
     <summary type="html">
     
-      Hive 3.x来了,学习一下新特性
+      了解Hive 3.x
     
     </summary>
     
