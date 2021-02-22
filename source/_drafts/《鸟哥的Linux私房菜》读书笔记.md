@@ -248,6 +248,8 @@ date: 2020-08-22 12:19:00
     SGID：对目录设定，在该目录建立的文件的组名都与这个目录组名相同
     SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
     设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
+    UID\GID：
+    查看UID\GID  命令id [username]或者cat /etc/passwd
     修改foo用户的uid # usermod -u 2005 foo
     修改foo组的gid   # groupmod -g 3000 foo
     NFS挂载A节点的目录到B节点，在B节点这个目录的用户和组的位置显示UID和GID，此时的UID和GID对应的是A节点目录的用户和组在A节点的UID\GID的值，且UID、GID在B节点没有id相匹配的用户和组。如果A节点目录hive:hive对应UID、GID分别为1008 586，而B节点1008是用户aaa的UID，586是组sqoop的GID，则挂载目录在B节点权限显示为aaa:sqoop。
