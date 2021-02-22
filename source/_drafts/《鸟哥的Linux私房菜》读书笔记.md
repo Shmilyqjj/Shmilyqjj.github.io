@@ -355,6 +355,20 @@ date: 2020-08-22 12:19:00
 ```
 ```
 
+## 日常操作总结
+1. Linux节点间延迟与带宽测试
+```
+在两台节点yum -y install qperf
+在节点A执行qperf命令
+在节点B执行：
+qperf xx.xx.xx.xx(A的ip) tcp_bw tcp_lat conf
+得到tcp_bw为得到的bw为网络带宽
+latency为网络延迟
+conf是两台节点的CPU、OS内核版本
+我们可以透过改变消息的大小（msg_size），比如从1个字节到64K，每次倍增的方式，来观察带宽和延迟的
+qperf xx.xx.xx.xx -oo msg_size:1:64k:*2 tcp_bw tcp_lat conf
+```
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>
