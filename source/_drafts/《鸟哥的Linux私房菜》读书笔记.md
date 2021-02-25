@@ -367,11 +367,12 @@ date: 2020-08-22 12:19:00
 在节点A执行qperf命令
 在节点B执行：
 qperf xx.xx.xx.xx(A的ip) tcp_bw tcp_lat conf
-得到tcp_bw为得到的bw为网络带宽
-latency为网络延迟
+得到tcp_bw为得到的bw为TCP数据包网络带宽
+latency为TCP网络延迟
 conf是两台节点的CPU、OS内核版本
 我们可以透过改变消息的大小（msg_size），比如从1个字节到64K，每次倍增的方式，来观察带宽和延迟的
 qperf xx.xx.xx.xx -oo msg_size:1:64k:*2 tcp_bw tcp_lat conf
+除了tcp_bw tcp_lat，还有udp_bw,udp_lat可测试UDP带宽，还支持其他几种协议，具体可查看qperf --help tests
 ```
 
 ## 总结  
