@@ -375,6 +375,17 @@ qperf xx.xx.xx.xx -oo msg_size:1:64k:*2 tcp_bw tcp_lat conf
 除了tcp_bw tcp_lat，还有udp_bw,udp_lat可测试UDP带宽，还支持其他几种协议，具体可查看qperf --help tests
 ```
 
+2. 程序后台运行及日志输出
+nohup sh xx.sh & 不间断(nohup)后台(&)运行,标准输出1默认写入nohup.out
+nohup sh xx.sh > /dev/null 2>&1 &  不间断(nohup)后台(&)运行,标准输出stdout($1)和异常输出stderr(2)信息都永久丢失(> /dev/null)
+nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台(&)运行,标准输出($1)和异常输出(2)信息都写入指定路径以日期命名的日志文件
+0 表示stdin标准输入，用户键盘输入的内容
+1 表示stdout标准输出，输出到显示屏的内容
+2 表示stderr标准错误，报错内容
+
+3. 文本批量替换
+sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>

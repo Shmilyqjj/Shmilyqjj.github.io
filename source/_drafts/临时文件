@@ -1129,14 +1129,6 @@ find /tmp/ -type d -name "spark-*" -mtime +60  查看/tmp/目录下60天前的�
 https://www.cnblogs.com/barfoo/p/3999882.html
 
 
-
-nohup sh xx.sh & 不间断(nohup)后台(&)运行,标准输出1默认写入nohup.out
-nohup sh xx.sh > /dev/null 2>&1 &  不间断(nohup)后台(&)运行,标准输出stdout($1)和异常输出stderr(2)信息都永久丢失(> /dev/null)
-nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台(&)运行,标准输出($1)和异常输出(2)信息都写入指定路径以日期命名的日志文件
-0 表示stdin标准输入，用户键盘输入的内容
-1 表示stdout标准输出，输出到显示屏的内容
-2 表示stderr标准错误，报错内容
-
 cat /etc/group查看组信息
 
 内存自动清理脚本https://blog.csdn.net/wangrui1573/article/details/89838938
@@ -1171,9 +1163,6 @@ if __name__ == "__main__":
 
 cd -	回到上一次所在目录
 cat和tac都能查看文件内容，还有more 查看文件内容（space 向下翻一页、Enter 向下翻一行、Ctrl+F向下滚动一屏、Ctrl+B返回上一屏）
-head -n 10 file 查看文件前10行
-tail  -n 10 file 查看文件后10行
-tail  –f file 一直更新查看文件内容
 
 shell操作mysql
 mysql  -hhostname -Pport -uusername -ppassword  -e  相关mysql的sql语句，不用在mysql的提示符下运行mysql，即可以在shell中操作mysql的方法。
@@ -1209,9 +1198,6 @@ mysql -h${HOSTNAME}  -P${PORT}  -u${USERNAME} -p${PASSWORD} ${DBNAME} -e "${sele
 
 查找当前目录一个月(30天)以前大于100M的日志文件(.log)并删除
 find  . -name "*.log" –mtime +30 –type f –size +100M |xargs rm –rf {} ;
-
-查看现有服务：ls -al /usr/lib/systemd/system/
-
 
 /bin：是Binary的缩写，这个目录存放着系统必备执行命令
 
@@ -1277,7 +1263,7 @@ find  . -name "*.log" –mtime +30 –type f –size +100M |xargs rm –rf {} ;
 /var/log/sa/ — 包含每日由sysstat软件包收集的sar文件。
 /var/log/sssd/ – 用于守护进程安全服务。
 
-sed -i 's/\r//g' *.sh  替换文件中/r/n中的/r为空
+
 
 
 不管是重启系统还是关闭系统，首先要运行sync命令，把内存中的数据写到磁盘中。 保证数据不丢失。有些数据可能存在缓存中还未写到磁盘。
