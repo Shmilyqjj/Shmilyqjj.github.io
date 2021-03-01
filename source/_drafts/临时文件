@@ -214,6 +214,9 @@ ANY: data is elsewhere on the network and not in the same rack
 相关源码解析：https://blog.csdn.net/high2011/article/details/80705393
 调优策略：尽量保证数据在同一个JVM进程，即PROCESS_LOCAL级别，如果无缓存，则一定不能是PROCESS_LOCAL，最好也只能是NODE_LOCAL
 
+Spark临时文件设置（spark运行时产生临时文件core.*）默认会占用系统盘空间，修改如下参数：
+spark-default.conf: spark.local.dir=/data/xxx 
+spark-env.sh: export SPARK_LOCAL_DIRS=/data/xxx
 
 Spark访问多个不同nameservice的HDFS集群
 1.使用配置文件
