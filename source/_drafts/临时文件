@@ -1568,6 +1568,15 @@ HBase性能优化方法总结
 
     Bloom Filter通过空间换时间,提高读操作性能。Hbase利用Bloomfilter 来提高随机读（Get）的性能,对于顺序读（Scan）而言,设置BloomFilter是没有作用的.
 
+常用HBase集群修复命令
+1. hbase hbck 检查输出所以ERROR信息，每个ERROR都会说明错误信息。
+2. hbase hbck -fixTableOrphans 先修复tableinfo缺失问题，根据内存cache或者hdfs table 目录结构，重新生成tableinfo文件。
+3. hbase hbck -fixHdfsOrphans 修复regioninfo缺失问题，根据region目录下的hfile重新生成regioninfo文件。
+4. hbase hbck -fixHdfsOverlaps 修复region重叠问题，merge重叠的region为一个region目录，并从新生成一个regioninfo。
+5. hbase hbck -fixHdfsHoles 修复region缺失，利用缺失的rowkey范围边界，生成新的region目录以及regioninfo填补这个空洞。
+6. hbase hbck -fixMeta 修复meta表信息，利用regioninfo信息，重新生成对应meta row填写到meta表中，并为其填写默认的分配regionserver。
+7. hbase hbck -fixAssignments 把这些offline的region触发上线，当region开始重新open 上线的时候，会被重新分配到真实的RegionServer上 , 并更新meta表上对应的行信息。
+
 -----------------------------------------------------------------------------
 Java相关
 
