@@ -961,7 +961,7 @@ def startWithContext(sqlContext: SQLContext): HiveThriftServer2 = &#123;
     &#125;
 ......</code></pre>
 <h3 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-03.jpg" alt="alt">  </p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><font size="3" color="blue">优点</font>：<br>  1.无额外的硬件成本开销<br>  2.性能损耗小<br>  3.用户无感知<br>  4.权限设计灵活<br><font size="3" color="blue">缺点</font>：<br>  1.用户如果用敏感字段关联，结果不准备<br>  2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了<br><font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><font size="3" color="blue">优点</font>：<br>  1.无额外的硬件成本开销<br>  2.性能损耗小<br>  3.用户无感知<br>  4.权限设计灵活<br><font size="3" color="blue">缺点</font>：<br>  1.用户如果用敏感字段关联，结果不准确<br>  2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了<br><font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库</p>
 <h2 id="基于Spark执行计划自定义Rule的数据脱敏"><a href="#基于Spark执行计划自定义Rule的数据脱敏" class="headerlink" title="基于Spark执行计划自定义Rule的数据脱敏"></a>基于Spark执行计划自定义Rule的数据脱敏</h2><p>未完待续…<br><font size="3" color="red">。。。</font><br><font size="3" color="blue">！！！</font><br><font face="verdana" color="green"  size="3">？？？</font></p>
 
         </div>
