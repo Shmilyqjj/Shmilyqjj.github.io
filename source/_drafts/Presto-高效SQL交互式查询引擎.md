@@ -38,6 +38,8 @@ date: 2021-03-02 13:46:00
 缺点：
 * 无容错能力，无重试机制
 * 不支持数据类型隐式转换
+* 与Hive相比存在不小的语法差异、函数和UDF差异以及运算结果差异(如1/2在Hive结果为0.5在Presto结果为0)
+* Hive views are not supported.需要创建Presto视图
 * 因为纯内存计算，不适合多个大表Join
 * Coordinator单点问题（常见方案：ip漂移、Nginx代理动态获取等）
 
@@ -201,6 +203,22 @@ ln -s /var/presto/data/var/log log  将日志链接到安装目录
 在各个节点后台启动Presto：bin/launcher start
 也可以在前台运行,查看具体的日志：bin/launcher run
 停止服务进程命令：bin/laucher stop
+启动脚本编写
+  #!/bin/bash
+  # 需要root用户免密
+  # 使用 sh presto-server.sh start
+  PRESTO_HOME=/opt/modules/presto-server-0.248
+  OP=$1
+  if [ "$OP" == "start" ] || [ "$OP" == "stop" ]; then
+    echo "Begin to $OP Presto Coordinator and Workers."
+    for((host=101; host<=104; host++)); do
+            echo --- "$OP" presto server on cdh$host ---
+            ssh -l root cdh$host $PRESTO_HOME/bin/launcher "$OP"
+    done
+  else
+    echo "Usage: ./presto-server.sh [start|stop]"
+    exit 1
+  fi
 # ###############################################
 根据自己的版本下载presto客户端：https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
 chmod a+x presto-cli-0.248-executable.jar
@@ -218,7 +236,7 @@ connection-password=123456
 
 Presto语法：
 ```sql
-SHOW SCHEMAS FROM hive;  查看hive数据源的所有库
+SHOW SCHEMAS FROM hive;  查看hive数据源的所有库 （FROM可以用IN替换)
 SHOW TABLES FROM hive.default;  查看hive数据源下default库下的所有表
 CREATE SCHEMA hive.web WITH (location = 'hdfs:///user/hive/warehouse/web/')  # 建库
 -- 建表
@@ -258,7 +276,8 @@ https://www.cnblogs.com/GO-NO-1/p/12143879.html
 如果一个Query超过30分钟就Kill掉吧，没准一直在GC，无法完成这个任务，还浪费了资源
 
 ## 总结
-
+1. 当前基于Spark或Hive的交互查询任务迁移Presto需要很大的工作量
+2. 
 
 ## 参考
 
