@@ -832,6 +832,8 @@ https://github.com/edp963/wormhole
 Kafka相关
 CDH-配置 Kafka MirrorMaker 实现 Kafka 集群消息同步：https://blog.csdn.net/weixin_43215250/article/details/100521107
 滴滴开源Logi-KafkaManager 一站式Kafka监控与管控平台：https://mp.weixin.qq.com/s/N2fZSnzy7yiH5p-svdpJWg
+Kafka监控（kafka-manager）：https://www.cnblogs.com/zlslch/p/7252484.html
+
 
 ###################################################
 Hive相关
