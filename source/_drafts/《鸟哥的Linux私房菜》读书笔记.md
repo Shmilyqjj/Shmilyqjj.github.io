@@ -386,6 +386,14 @@ nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台
 3. 文本批量替换
 sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
 
+4. nc使用
+安装yum install nmap-ncat.x86_64
+生产消息：nc -lk 8888
+查看消息：nc -v host port
+传文件：
+服务器端(接收文件端)命令：nc -l ip地址 端口号 > 接收的文件名
+客户端(发送文件端)命令：nc ip地址 端口号 < 发送的文件名
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>

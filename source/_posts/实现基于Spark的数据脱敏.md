@@ -647,6 +647,13 @@ org.apache.spark.sql.hive.thriftserver.server.SparkSQLOperationManager类，用�
   2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了
 <font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库
 
+### 扩展
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-05.png)  
+&emsp;&emsp;上图是HiveServer2和SparkThriftServer的架构，可以看出两者架构相近。SparkThriftServer大量复用了HiveServer2的代码。
+&emsp;&emsp;HiveServer2的架构主要是通过ThriftCLIService监听端口，然后获取请求后委托给CLIService处理。CLIService又一层层的委托，最终交给OperationManager处理。OperationManager会根据请求的类型创建一个Operation的具体实现处理。比如Hive中执行sql的Operation实现是SQLOperation。
+&emsp;&emsp;Spark Thrift Server做的事情就是实现自己的CLIService——SparkSQLCLIService，接着也实现了SparkSQLSessionManager以及SparkSQLOperationManager。另外还实现了一个处理sql的Operation——SparkExecuteStatementOperation。这样，当Spark Thrift Server启动后，对于sql的执行就会最终交给SparkExecuteStatementOperation了。
+
+
 ## 基于Spark执行计划自定义Rule的数据脱敏 
 未完待续...
 <font size="3" color="red">。。。</font>
