@@ -193,7 +193,14 @@ python编译cython => .so
 ###################################################
 Spark相关
 
-
+Atlas连接Spark  spark-atlas-connector工具
+Listener可以获取Spark执行过程中各个阶段的状态信息
+Spark-core中LiveListenerBus会管理注册的Listener，为一类Listener创建对应AsyncEventQueue
+AsyncEventQueue广播Event到Listener
+Spark批处理操作元数据跟踪：SparkAtlasEventTracker对DDL、DML相关events以及其他SQL相关的Events做监听和分析，其他Events不感兴趣会被忽略
+Spark-streaming中StreamingQueryListener监听流的启动、停止、状态更新
+Spark流处理操作元数据跟踪：SparkAtlasStreamingQueryEventTracker 本质也是监听Event
+目前已支持收集SparkSQL执行任务的血缘信息到Atlas，后续升级CDH后与Hive元数据整合。
 
 Listener实现：https://www.cnblogs.com/jason-dong/p/10029934.html
 
