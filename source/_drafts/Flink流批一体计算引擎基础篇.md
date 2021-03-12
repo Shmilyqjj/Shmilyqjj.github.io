@@ -26,6 +26,17 @@ date: 2021-01-28 12:32:16
 ## 背景
 ## 小标题1  
 
+三种时间窗口、窗口处理函数使用及案例: https://zhuanlan.zhihu.com/p/102325190
+Flink原理和应用：https://blog.csdn.net/hxcaifly/article/details/84989703
+Flink Slot：https://www.jianshu.com/p/3598f23031e6
+Flink部署模式：https://blog.csdn.net/qianfeng_dashuju/article/details/107199208   https://www.cnblogs.com/asker009/p/11327533.html
+FlinkOnYarn资源和状态管理：https://blog.csdn.net/mapeng765441650/article/details/94716684
+Flink作业调度：https://blog.csdn.net/zg_hover/article/details/86930828
+Flink全面解析：https://www.cnblogs.com/javazhiyin/p/13597319.html
+
+
+
+
 ## 小标题2  
 
 
