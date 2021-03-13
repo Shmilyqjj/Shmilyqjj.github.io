@@ -389,6 +389,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
 <div class="pattern-center-blank"></div>
 
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
     <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-Cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-Cover.jpg">
@@ -962,6 +972,7 @@ def startWithContext(sqlContext: SQLContext): HiveThriftServer2 = &#123;
 ......</code></pre>
 <h3 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-03.jpg" alt="alt">  </p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><font size="3" color="blue">优点</font>：<br>  1.无额外的硬件成本开销<br>  2.性能损耗小<br>  3.用户无感知<br>  4.权限设计灵活<br><font size="3" color="blue">缺点</font>：<br>  1.用户如果用敏感字段关联，结果不准确<br>  2.如果用户将敏感数据创建临时表，且字段名称非通用敏感字段名称，就没办法脱敏了<br><font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库</p>
+<h3 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Spark/DataMasking/DataMasking-05.png" alt="alt"><br>&emsp;&emsp;上图是HiveServer2和SparkThriftServer的架构，可以看出两者架构相近。SparkThriftServer大量复用了HiveServer2的代码。<br>&emsp;&emsp;HiveServer2的架构主要是通过ThriftCLIService监听端口，然后获取请求后委托给CLIService处理。CLIService又一层层的委托，最终交给OperationManager处理。OperationManager会根据请求的类型创建一个Operation的具体实现处理。比如Hive中执行sql的Operation实现是SQLOperation。<br>&emsp;&emsp;Spark Thrift Server做的事情就是实现自己的CLIService——SparkSQLCLIService，接着也实现了SparkSQLSessionManager以及SparkSQLOperationManager。另外还实现了一个处理sql的Operation——SparkExecuteStatementOperation。这样，当Spark Thrift Server启动后，对于sql的执行就会最终交给SparkExecuteStatementOperation了。</p>
 <h2 id="基于Spark执行计划自定义Rule的数据脱敏"><a href="#基于Spark执行计划自定义Rule的数据脱敏" class="headerlink" title="基于Spark执行计划自定义Rule的数据脱敏"></a>基于Spark执行计划自定义Rule的数据脱敏</h2><p>未完待续…<br><font size="3" color="red">。。。</font><br><font size="3" color="blue">！！！</font><br><font face="verdana" color="green"  size="3">？？？</font></p>
 
         </div>
