@@ -16,7 +16,9 @@ hexo deploy # 部署到仓库
 ****************************************************  HEXO三连： hexo clean & hexo g & hexo d  ******************************************************
 部署完成后，到Github仓库的设置中,找到Github Pages,将source选到master branch来打开Pages服务
 
-
+lymtics
+Shmily，可以是英文句子：SeeHowMuchILoveYou
+lymtics，可以是英文句子LoveyoumorethanIcansay的首字母缩写
 
 写博客：
 1.source/_post
