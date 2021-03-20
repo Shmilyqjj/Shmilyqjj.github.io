@@ -389,6 +389,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
 <div class="pattern-center-blank"></div>
 
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
 <!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
 
   <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->

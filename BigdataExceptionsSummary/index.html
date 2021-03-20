@@ -389,6 +389,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
 <div class="pattern-center-blank"></div>
 
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
 <!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
 
   <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
@@ -453,6 +471,8 @@
 <pre><code class="shell">hdfs fsck /
 hadoop dfsadmin -report</code></pre>
 <p>修复坏块除了上面讲过的hdfs debug recoverLease -path <path-of-the-file> -retries <retry times>命令外，还可以通过hadoop fs -setrep -R 3 / 命令，设置副本，副本小于3的情况会自动恢复三副本，修复后还有坏块那就是一个副本都没有了，只能丢了。</p>
+</li>
+<li><p>两个NN均为Standby，重启后过一会又都Standby<br>NN均报错：<br>java.util.concurrent.ExecutionException: java.io.IOException: Cannot find any valid remote NN to service request!<br>Caused by: java.io.IOException: Cannot find any valid remote NN to service request!<br>Exception from remote name node RemoteNameNodeInfo [nnId=namenode37, ipcAddress=xxxx, httpAddress=xxxx], try next.<br>org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.ipc.StandbyException): Operation category JOURNAL is not supported in state standby. Visit <a target="_blank" rel="noopener" href="https://s.apache.org/sbnn-error">https://s.apache.org/sbnn-error</a><br>解决：强制切换主备sudo -uhdfs hdfs haadmin -transitionToActive –forcemanual namenode37（nnId在hdfs-site有配） 切换后重启Failover Controller或ZKFC。</p>
 </li>
 </ol>
 <h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
