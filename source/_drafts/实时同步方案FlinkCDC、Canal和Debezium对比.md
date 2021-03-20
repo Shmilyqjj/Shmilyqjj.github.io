@@ -1,5 +1,5 @@
 ---
-title: Debezium调研及与Canal对比
+title: 实时同步方案FlinkCDC、Canal和Debezium对比
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -10,10 +10,10 @@ categories:
   - 技术
 comments: true
 tags:
-  - 实时数据需求
-  - Debezium
+  - 实时数据同步
+  - FlinkCDC
 keywords: Debezium
-description: Debezium实时同步的调研及与Canal对比
+description: 常见实时同步方案对比
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Phoenix/Phoenix-cover.jpg
 abbrlink: 15acb627
@@ -25,3 +25,5 @@ date: 2020-02-27 11:26:08
 [maxwell和canal选型](https://www.modb.pro/db/24734)
 
 实战https://www.jianshu.com/p/8642668cc9ba
+
+FlinkCDC https://mp.weixin.qq.com/s/Mk0jdJ8nobbxIneA8XQQGA
