@@ -313,7 +313,7 @@ BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排�
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-09.png)
 
 ### 连接Presto
-用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive等。
+用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive,PrestoOnSpark等。
 Presto-Cli:
 ```shell
 wget https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
@@ -376,6 +376,10 @@ engine = create_engine('presto://cdh101:8080/mysql/db_users')
 df = pd.read_sql("select * from tb_user_records limit 10",engine) 
 print(df)
 ```
+
+PrestoOnSpark:
+Presto on Spark即利用Spark作为Presto查询的执行框架
+操作：[Executing Presto on Spark](https://prestodb.io/docs/current/installation/spark.html)
 
 ## 最佳实践
 Presto参数调优：[Properties Reference](https://prestodb.io/docs/current/admin/properties.html)，官方详细介绍了Presto的config.properties中的常规参数如join参数，内存管理参数，Spilling溢出磁盘相关参数，数据网络交换参数（一个查询任务不同Stage会有不同节点交换数据，这些参数提高网络利用率），任务参数，节点调度参数，优化器参数以及正则相关参数
