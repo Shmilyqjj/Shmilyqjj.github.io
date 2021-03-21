@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">Presto-基于内存的高效SQL交互查询引擎 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.png);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      Presto-基于内存的高效SQL交互查询引擎</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2021-3-2<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="Presto-高效SQL交互式查询引擎"><a href="#Presto-高效SQL交互式查询引擎" class="headerlink" title="Presto-高效SQL交互式查询引擎"></a>Presto-高效SQL交互式查询引擎</h1><h2 id="Presto简介"><a href="#Presto简介" class="headerlink" title="Presto简介"></a>Presto简介</h2><p>&emsp;&emsp;Presto是Facebook开源的分布式SQL查询引擎，适用于交互式分析查询的场景（OLAP），数据量支持GB到PB字节。类似的工具有<a href="https://shmily-qjj.top/1ae37d82/"><strong>Impala</strong></a>、<strong>ClickHouse</strong>等…</p>
+<h2 id="Presto优缺点"><a href="#Presto优缺点" class="headerlink" title="Presto优缺点"></a>Presto优缺点</h2><p>优点：</p>
+<ul>
+<li>架构清晰，可不依赖任何外部系统独立运行。</li>
+<li>Presto自身提供了对集群的监控。</li>
+<li>基于纯内存计算，不需要写磁盘，效率高</li>
+<li>自身更加轻量级资源调度，线程级别的Task，效率高</li>
+<li>轮询查询结果并立刻返回结果，效率高</li>
+<li>解耦数据源，统一查询入口，支持多个数据源不同表的联邦查询分析</li>
+<li>MPP架构的优势-扩展性，节点独立，无锁资源竞争，无IO冲突，无共享数据</li>
+<li>简单的数据结构，列式存储，逻辑行，大部分数据都可以轻易的转化成Presto所需要的这种数据结构。</li>
+<li>丰富的接口，可完美对接外部存储系统，以及添加自定义的函数。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>无容错能力，无重试机制</li>
+<li>不支持数据类型隐式转换</li>
+<li>与Hive相比存在不小的语法差异、函数和UDF差异以及运算结果差异(如1/2在Hive结果为0.5在Presto结果为0)</li>
+<li>Hive views are not supported.需要创建Presto视图</li>
+<li>因为纯内存计算，不适合多个大表Join</li>
+<li>Coordinator单点问题（常见方案：ip漂移、Nginx代理动态获取等）</li>
+</ul>
+<h2 id="Presto原理"><a href="#Presto原理" class="headerlink" title="Presto原理"></a>Presto原理</h2><p><font size="3" color="red">在学习Presto原理前推荐先看看我之前关于Impala的文章：<a href="https://shmily-qjj.top/1ae37d82/">《Impala-基于内存的高效SQL交互查询引擎》</a></font></p>
+<h3 id="Presto架构和进程"><a href="#Presto架构和进程" class="headerlink" title="Presto架构和进程"></a>Presto架构和进程</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-01.png" alt="alt"><br>&emsp;&emsp;Presto与Impala的架构极其相似，都是采用Master-Slave模型以及MPP架构,而且Presto的工作角色也与ImpalaDaemon的角色基本相同，Presto有三种工作角色：Coordinator,Worker和DiscoveryServer：</p>
+<ul>
+<li><font size="3" color="red">Coordinator</font>：即Master，负责管理Meta元数据，Worker节点，SQL的解析和调度，生成Stage和Task分发给Workers，负责合并结果集并返回给客户端。相当于结合了Impalad的Coordinator角色和Planner角色的功能，区别是每个Impalad节点都可以是Coordinator，而Presto只能有一个Coordinator，多个协调者进程会导致脑裂，查询任务会死锁。</li>
+<li><font size="3" color="red">Worker</font>：负责计算和读写数据。相当于Impalad的Executor角色的功能。</li>
+<li><font size="3" color="red">DiscoveryServer</font>：通常内嵌于Coordinator节点，也可以独立出来部署，功能类似ZK，类似Impala中的ImpalaStateStore，用于监控节点心跳，一般DS和Coordinator在同一节点。Worker启动会向DS进程注册，Coordinator可以从DS获取到所有正常提供服务的Worker。</li>
+</ul>
+<h3 id="Presto数据模型"><a href="#Presto数据模型" class="headerlink" title="Presto数据模型"></a>Presto数据模型</h3><p>Presto使用Catalog、Schema和Table这3层结构来管理数据：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-06.png" alt="alt"></p>
+<ul>
+<li>Catalog：每个数据源都有一个名字，一个Catalog可包含多个Schema。通过show catalogs命令查看Presto已连接的所有数据源</li>
+<li>Schema：相当于一个数据库实例，一个Schema(数据库)中有多个Table表，通过show schemas from hive命令查看hive数据源所有库</li>
+<li>Table：相当于一张表，通过show tables from catalog_name.schema_name来查看库下有哪些表。定位一张表：数据源的类别.数据库.数据表</li>
+</ul>
+<p>Presto有两种存储单元：Page和Block</p>
+<ul>
+<li>Page：多行数据的集合，包含多个列的数据，这里的多行数据是逻辑行，实际是以列式存储。</li>
+<li>Block：一列数据，根据不同类型的数据，通常采取不同的编码方式。（Kudu也有类似的思想）<ul>
+<li>array类型的Block：应用于固定长度的类型如int、long、double，由两部分组成<ul>
+<li>boolean valueIsNull[]表示每一行是否有值。</li>
+<li>T values[] 每一行的具体值。</li>
+</ul>
+</li>
+<li>可变长度的Block：String类型，由三部分组成：<ul>
+<li>Slice：所有行数据拼接起来的字符串</li>
+<li>int offsets[]：每行数据的起始偏移位置(每一行的长度等于下一行的起始偏移量减去当前行的起始偏移量)</li>
+<li>boolean valueIsNull[]：是否空值，如果无值，偏移量与上一行相等</li>
+</ul>
+</li>
+<li>固定长度的string类型的block：所有行的数据拼接成一长串Slice，每一行的长度固定</li>
+<li>字典类型的Block：可以嵌套任意类型的Block，由两部分组成：<ul>
+<li>字典</li>
+<li>int ids[] 数据的编号，查找时先找到id，再从字典中拿到真实值</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Presto插件"><a href="#Presto插件" class="headerlink" title="Presto插件"></a>Presto插件</h3><p>了解了Presto的数据模型后，就可以利用插件来对接自己的系统。Presto提供了一套Connector接口，支持从自定义存储中读取元数据，以及列式存储数据。</p>
+<ul>
+<li>ConnectorMetadata:管理表的元数据，表的元数据，partition等信息。在处理请求时，需要获取元信息，以便确认读取的数据的位置。Presto会传入filter条件，以便减少读取的数据的范围。元信息可以从磁盘上读取，也可以缓存在内存中。</li>
+<li>ConnectorSplit:一个IO Task处理的数据的集合，是调度的单元。一个split可以对应一个partition，或多个partition。</li>
+<li>SplitManager:根据表的meta，构造split。</li>
+<li>SlsPageSource:根据split的信息以及要读取的列信息，从磁盘上读取0个或多个page，供计算引擎计算。</li>
+</ul>
+<p>基于Presto的插件我们可以开发这些功能：</p>
+<ul>
+<li>对接自己的存储系统。</li>
+<li>添加自定义数据类型。</li>
+<li>添加自定义处理函数。</li>
+<li>自定义权限控制。</li>
+<li>自定义资源控制。</li>
+<li>添加query事件处理逻辑。</li>
+</ul>
+<p>目前Presto已经支持很多类型的Connector，具体可见官方文档：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/connector.html">Presto-Connectors</a></p>
+<h3 id="Presto内存管理机制"><a href="#Presto内存管理机制" class="headerlink" title="Presto内存管理机制"></a>Presto内存管理机制</h3><p>&emsp;&emsp;Presto作为基于内存的计算引擎，对内存的分配很精细。Presto采用逻辑上的内存池，来管理不同类型的内存需求。Presto把机器的内存划分成三个内存池，分别是System Pool,Reserved Pool,General Pool。</p>
+<ul>
+<li>System Pool：保留给系统使用的内存，默认是Xmx的40%</li>
+<li>General Pool：大部分Query使用这个内存池中的内存，因为大部分Query消耗内存并不高</li>
+<li>Reserved Pool：用于给消耗内存最大的一个Query使用，这个内存池默认占10%的总内存，也表示一个Query在一台机器上最大的内存使用量</li>
+</ul>
+<p>&emsp;&emsp;<strong>为什么Presto会使用内存池机制？</strong><br>首先，System Pool为了系统正常运行以及数据传输时系统缓存消耗；在资源不充足时，一个消耗内存较大的Query开始运行，因为没足够空间所以会挂起等待执行，等一些消耗内存小的Query执行完，又有新的Query请求，内存一直不充足，如果没有Reserved Pool，这个消耗内存大的Query就会一直被挂起直到失败。为了防止这种情况，预留出Reserved Pool内存池供大Query执行。Presto每秒钟挑出来一个内存占用最大的query，允许它在所有机器上都能使用Reserved pool，避免一直没有可用内存供大Query使用。</p>
+<p>&emsp;&emsp;<strong>如果大Query不在某些节点使用Reserved Pool就会浪费那台节点的预留内存，所以为什么不是单台机器中挑出占用内存最大的Task来使用Reserved Pool？</strong><br>这样设计会死锁，假设一个大Query的一个Task在某台机器可用Reserved Pool很快执行完，而另外一台机器的Task还是挂起状态，这个Query也会一直处于挂起状态，效率降低。</p>
+<p>&emsp;&emsp;<strong>Presto内存管理分为两部分：Query内存管理和机器内存管理，是由Coordinator负责的</strong><br>Query内存管理：Query会划分为多个Task，每个Task会有一个线程循环获取Task状态包括内存使用情况，Query内存管理就是汇总这些Task的内存使用情况。<br>机器内存管理：Coordinator有一个线程定时轮询每台机器的内存状态</p>
+<h3 id="Presto执行计划"><a href="#Presto执行计划" class="headerlink" title="Presto执行计划"></a>Presto执行计划</h3><p>Presto与Spark、Hive一样，都是使用Antlr进行语法解析，一条SQL经过如下步骤最终生成在每个节点执行的LocalExecutionPlan逻辑计划。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-02.png" alt="alt"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-07.png" alt="alt"><br>样例：</p>
+<pre><code class="sql">select c1.rank, count(*) from dim.city c1 join dim.city c2 on c1.id = c2.id where c1.id &gt; 10 group by c1.rank limit 10;</code></pre>
+<p>生成的逻辑计划：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-04.jpg" alt="alt"></p>
+<p>物理执行计划：逻辑计划的每一个SubPlan都会提交到一个或者多个Worker节点上执行，一个SubPlan也可以理解为一个Stage，SubPlan有几个重要的属性planDistribution、outputPartitioning、partitionBy属性。</p>
+<ul>
+<li>planDistribution有三种类型<ul>
+<li>Source：数据源，会根据数据源大小确定分配多少个节点</li>
+<li>Fixed：分配到固定个数的节点执行（Config配置中的query.initial-hash-partitions参数配置，默认是8）</li>
+<li>None：这个SubPlan只分配到一个节点执行</li>
+</ul>
+</li>
+<li>outputPartitioning有两种类型，表示这个SubPlan的输出是否按照<strong>partitionBy属性</strong>的key值对数据进行Shuffle。<ul>
+<li>Hash：发生Shuffle</li>
+<li>None：不进行Shuffle</li>
+</ul>
+</li>
+</ul>
+<p>在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在JoinNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-05.png" alt="alt"></p>
+<p>SQL提交并解析为SubPlan后的执行流程：<br>比如一条SQL最终生成4个SubPlan（0-3），其中0，1并行执行Join或聚合操作，其余串行执行，每个SubPlan都会分发到多个工作节点执行。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-03.png" alt="alt"></p>
+<ol>
+<li>Coordinator通过HTTP协议调用Worker节点的/v1/task接口将执行计划分配给所有Worker节点（图中蓝色箭头）</li>
+<li>SubPlan1的每个节点读取一个Split的数据并过滤后将数据分发给每个SubPlan0节点进行Join或聚合操作</li>
+<li>SubPlan1的每个节点计算完成后按GroupBy Key的Hash值将数据分发到不同的SubPlan2节点</li>
+<li>所有SubPlan2节点计算完成后将数据分发到SubPlan3节点</li>
+<li>SubPlan3节点计算完成后通知Coordinator结束查询，并将数据发送给Coordinator</li>
+</ol>
+<p>总结一条SQL在Presto执行的完整流程：</p>
+<ol>
+<li>客户端通过HTTP协议发送一个查询语句给Presto集群的Coordinator</li>
+<li>Coordinator接收到客户端传来的查询语句，对该语句进行解析、生成查询执行计划，并根据查询执行计划依次生成SqlQueryExecution -&gt; SqlStageExecution -&gt; HttpRemoteTask</li>
+<li>Coordinator将每个Task分发到所需要处理的数据所在的Worker上进行分析</li>
+<li>执行Source Stage的Task，这些Task通过Connector从数据源中读取所需要的数据</li>
+<li>处于下游Stage中用的Task会读取上游Stage产生的输出结果，并在该Stage的每个Task所在的Worker内存中进行后续的计算和处理</li>
+<li>Coordinator从分发的Task之后，一直持续不断的从最后的Stage中的Task获得计算结果，并将结果写入到缓存中，直到所有的计算结束</li>
+<li>Client从提交查询后，就一直监听Coordinator中的本次查询结果集，立即输出。直到所有的结果都返回，本次查询结束</li>
+</ol>
+<h2 id="部署与使用"><a href="#部署与使用" class="headerlink" title="部署与使用"></a>部署与使用</h2><h3 id="Presto集群部署"><a href="#Presto集群部署" class="headerlink" title="Presto集群部署"></a>Presto集群部署</h3><p>下载Presto<br>使用<a target="_blank" rel="noopener" href="https://www.toolbaba.cn/d/dev_guid">GUID生成工具</a>生成所需机器数量相等的GUID，用于配置node.properties</p>
+<pre><code class="shell">cd $PRESTO_HOME
+mkdir etc
+# node.properties配置节点信息(每个节点不同)
+vim etc/node.properties
+node.environment=cdh    一个Presto集群有相同的env名称，我这里起名叫cdh
+node.id=AB1C6EAC-8CF6-B397-EFD3-77C8AB041CD5  刚刚生成的GUID，每个节点都要不同的GUID
+node.data-dir=/var/presto/data   存放数据的目录
+# JVM配置(每个节点相同)
+vim etc/jvm.config
+-server
+-Xmx4G
+-XX:+UseG1GC
+-XX:G1HeapRegionSize=32M
+-XX:+UseGCOverheadLimit
+-XX:+ExplicitGCInvokesConcurrent
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+ExitOnOutOfMemoryError
+# Presto配置 Coordinator节点 非生产集群单个节点即为Coordinator又为Worker可设node-scheduler.include-coordinator=true
+vim etc/config.properties(每个节点不同)
+coordinator=true  是否为Coordinator
+node-scheduler.include-coordinator=false  是否在Coordinator节点执行计算（会影响性能，不建议true）
+http-server.http.port=8080  请求发送的HTTP端口
+query.max-memory=4GB  单条Query占用集群内存的最大值
+query.max-memory-per-node=1GB  单条Query单个节点占用内存的最大值
+query.max-total-memory-per-node=2GB  单条Quey单个节点占用的执行内存和系统内存(readers, writers, and network buffers, etc.)总和的最大值
+discovery-server.enabled=true  整合Coordinator和DiscoveryServer为一个进程，使用同一个端口
+discovery.uri=http://cdh101:8080
+# Presto配置 Worker节点
+vim etc/config.properties
+coordinator=false
+http-server.http.port=8080
+query.max-memory=4GB
+query.max-memory-per-node=1GB
+query.max-total-memory-per-node=2GB
+discovery.uri=http://cdh101:8080  指定集群中已有的DS服务HTTP地址
+# 日志等级设置(每个节点相同)
+vim etc/log.properties
+com.facebook.presto=INFO
+# 配置支持Hive数据源 (每个节点相同)(其他数据源可参考https://prestodb.io/docs/current/connector)
+mkdir etc/catalog
+vim etc/catalog/hive.properties
+connector.name=hive-hadoop2
+hive.metastore.uri=thrift://cdh101:9083
+hive.config.resources=/etc/hadoop/conf/core-site.xml,/etc/hadoop/conf/hdfs-site.xml 
+# ###############################################
+ln -s /var/presto/data/var/log log  将日志链接到安装目录
+在各个节点后台启动Presto：bin/launcher start
+也可以在前台运行,查看具体的日志：bin/launcher run
+停止服务进程命令：bin/laucher stop
+启动脚本编写
+#!/bin/bash
+# 需要root用户免密
+# 使用 sh presto-server.sh start
+
+PRESTO_HOME=/opt/modules/presto-server-0.248
+
+OP=$1
+if [ &quot;$OP&quot; == &quot;start&quot; ] || [ &quot;$OP&quot; == &quot;stop&quot; ] || [ &quot;$OP&quot; == &quot;status&quot; ] || [ &quot;$OP&quot; == &quot;restart&quot; ]; then
+  echo &quot;Begin to $OP Presto Coordinator and Workers.&quot;
+  for((host=101; host&lt;=104; host++)); do
+          echo --- &quot;$OP&quot; presto server on cdh$host ---
+          ssh -l root cdh$host $PRESTO_HOME/bin/launcher &quot;$OP&quot;
+  done
+else
+  echo &quot;Usage: ./presto-server.sh [start|stop|restart|status]&quot;
+  exit 1
+fi
+# ###############################################
+根据自己的版本下载presto客户端：https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
+chmod a+x presto-cli-0.248-executable.jar
+mv presto-cli-0.248-executable.jar presto
+ln -s /opt/modules/presto-server-0.248/presto /usr/bin/presto
+进入Presto客户端(指定数据源hive，指定库名default) presto --server cdh101:8080 --catalog hive --schema default
+# ###############################################
+# 配置MySQL数据源
+vim etc/catalog/mysql.properties
+connector.name=mysql
+connection-url=jdbc:mysql://cdh102:3306
+connection-user=root
+connection-password=123456</code></pre>
+<h3 id="Presto语法："><a href="#Presto语法：" class="headerlink" title="Presto语法："></a>Presto语法：</h3><pre><code class="sql">SHOW CATALOGS; 查看Presto集群当前可用数据源
+SHOW SCHEMAS;  查看当前数据源有哪些库
+SHOW SCHEMAS FROM hive;  查看hive数据源的所有库 （FROM可以用IN替换)
+SHOW TABLES; 查看当前Schema库下有哪些表
+SHOW TABLES FROM hive.default;  查看hive数据源下default库下的所有表
+CREATE SCHEMA hive.web WITH (location = &#39;hdfs:///user/hive/warehouse/web/&#39;)  # 建库
+ALTER SCHEMA old_db_name RENAME TO new_db_name  # 改库名
+-- 建表
+CREATE TABLE hive.test.page_views (
+  view_time timestamp,
+  user_id bigint,
+  page_url varchar,
+  ds date,
+  country varchar
+)
+WITH (
+  format = &#39;Parquet&#39;,
+  partitioned_by = ARRAY[&#39;ds&#39;, &#39;country&#39;],
+  bucketed_by = ARRAY[&#39;user_id&#39;],
+  bucket_count = 50
+);
+-- 查看表
+desc hive.test.page_views;
+-- 查看表字段
+SHOW COLUMNS IN hive.test.page_views;
+-- 统计表信息（类似于Spark的Analyzed table）（数据大小，行数，最大值，最小值，无重复值个数，NULL值占比）
+SHOW STATS FOR table
+SHOW STATS FOR ( SELECT * FROM table [ WHERE condition ] )
+-- 查看逻辑计划（相比Spark的逻辑计划，多了每个节点的行数及数据大小,CPU操作数,内存消耗,网络传输大小）
+EXPLAIN sql
+EXPLAIN ANALYZE sql  -- 更全面 但会触发计算
+-- 枚举表
+SELECT * FROM (
+    VALUES
+        (1, &#39;a&#39;),
+        (2, &#39;b&#39;),
+        (3, &#39;c&#39;)
+) t (id, name);
+SELECT * FROM (
+    VALUES
+        (1, &#39;a&#39;, ARRAY[1, 2, 3]),
+        (2, &#39;b&#39;, ARRAY[4, 5, 6]),
+        (3, &#39;c&#39;, ARRAY[7, 8, 9])
+) AS t (id, name, arr);</code></pre>
+<p>Presto支持事务，相关命令有<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/commit.html">COMMIT</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/start-transaction.html">START TRANSACTION</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/rollback.html">ROLLBACK</a><br>更多语法：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql.html#">SQL Statement Syntax</a></p>
+<h3 id="Presto-WEBUI"><a href="#Presto-WEBUI" class="headerlink" title="Presto WEBUI"></a>Presto WEBUI</h3><p>访问WEBUI地址即为DiscoveryServer地址：<a target="_blank" rel="noopener" href="http://cdh101:8080/ui/">http://cdh101:8080/ui/</a><br>透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-08.png" alt="alt"></p>
+<table>
+<thead>
+<tr>
+<th align="center">任务状态</th>
+<th align="center">原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">QUEUED</td>
+<td align="center">等待执行</td>
+</tr>
+<tr>
+<td align="center">PLANNING</td>
+<td align="center">正在转成执行计划</td>
+</tr>
+<tr>
+<td align="center">RUNNING</td>
+<td align="center">正在运行Query</td>
+</tr>
+<tr>
+<td align="center">BLOCKED</td>
+<td align="center">阻塞中，等待内存、Buffer等资源</td>
+</tr>
+<tr>
+<td align="center">FINISHING</td>
+<td align="center">即将完成执行，正在返回数据</td>
+</tr>
+<tr>
+<td align="center">FINISHED</td>
+<td align="center">执行完成</td>
+</tr>
+<tr>
+<td align="center">FAILED</td>
+<td align="center">执行失败</td>
+</tr>
+</tbody></table>
+<p>BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排查下原因，有很多可能的原因：<br>1.内存不足<br>2.磁盘或网络I/O瓶颈<br>3.数据倾斜(所有数据都转移到几个worker上)<br>4.并行度低(只有几个worker可用)<br>5.某个Stage查询开销较高（如select *操作数据过多）<br>对于某个Query的执行过程相关监控信息，可以在WebUI上点那个Query ID即可查看<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-09.png" alt="alt"></p>
+<h3 id="连接Presto"><a href="#连接Presto" class="headerlink" title="连接Presto"></a>连接Presto</h3><p>用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive等。<br>Presto-Cli:</p>
+<pre><code class="shell">wget https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
+mv presto-cli-0.248-executable.jar presto
+chmod a+x presto
+presto --server cdh101:8080 --catalog hive --schema default --user admin</code></pre>
+<p>JDBC:</p>
+<pre><code class="java">&lt;dependency&gt;
+    &lt;groupId&gt;com.facebook.presto&lt;/groupId&gt;
+    &lt;artifactId&gt;presto-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;0.248&lt;/version&gt;
+&lt;/dependency&gt;
+
+public class PrestoConnetToJDBC &#123;
+    public static void main(String[] args) throws SQLException &#123;
+        // 1.简单创建连接
+//        String url = &quot;jdbc:presto://cdh101:8080/hive/staging_db_users&quot;;
+//        Connection connection = DriverManager.getConnection(url, &quot;root&quot;, null);
+//        connection.prepareStatement(&quot;show tables&quot;);
+
+        // 2.带参数创建连接
+        String url = &quot;jdbc:presto://cdh101:8080/hive/staging_db_users&quot;;
+        Properties properties = new Properties();
+        properties.setProperty(&quot;user&quot;, &quot;root&quot;);
+        properties.setProperty(&quot;password&quot;, &quot;&quot;);
+        properties.setProperty(&quot;SSL&quot;, &quot;false&quot;);
+        Connection connection = DriverManager.getConnection(url, properties);
+
+        // 3.带参数创建连接
+      //  String url = &quot;jdbc:presto://cdh101:8080/hive/staging_db_users?user=root&amp;password=secret&amp;SSL=true&quot;;
+      //  Connection connection = DriverManager.getConnection(url);
+        // 读数据或做其他操作
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(&quot;select * from tb_user_info limit 10&quot;);
+            while (rs.next())&#123;
+                System.out.println(rs.getString(1) + &quot;--&quot; + rs.getString(2));
+            &#125;
+    &#125;
+&#125;</code></pre>
+<p>python:<br>pip3 install sasl<br>pip3 install thrift<br>pip3 install thrift-sasl<br>pip3 install PyHive<br>pip3 install sqlalchemy<br>pip3 install requests</p>
+<pre><code class="python">from sqlalchemy import *
+from sqlalchemy.engine import create_engine
+from sqlalchemy.schema import *
+import pandas as pd
+# Presto
+engine = create_engine(&#39;presto://admin:123456@cdh101:8080/mysql/db_users&#39;)  # 密码连接
+engine = create_engine(&#39;presto://cdh101:8080/mysql/db_users&#39;) 
+df = pd.read_sql(&quot;select * from tb_user_records limit 10&quot;,engine) 
+print(df)</code></pre>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>Presto参数调优：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/admin/properties.html">Properties Reference</a>，官方详细介绍了Presto的config.properties中的常规参数如join参数，内存管理参数，Spilling溢出磁盘相关参数，数据网络交换参数（一个查询任务不同Stage会有不同节点交换数据，这些参数提高网络利用率），任务参数，节点调度参数，优化器参数以及正则相关参数</p>
+<ol>
+<li><p>Presto不是纯内存计算吗？为什么要溢写到磁盘？<br>正常情况Presto执行Query请求的内存资源超过query_max_memory或query_max_memory_per_node这个Query就会被终止。<br>溢写磁盘机制：Presto节点空闲时Query会利用全部内存资源，如果没足够内存，Query被迫使用磁盘来存储中间数据，写入磁盘再从磁盘读取回来，有较高的IO开销。<br>解决IO开销高的方法：spiller-spill-path可设置多个磁盘多个路径，并行读写提高IO效率；spill-encryption-enabled启用压缩用CPU开销换IO开销<br>局限：系统无法将中间数据划分成足够小的块，导致从磁盘加载块数据时发生OOM；只有Join和聚合操作可以落盘</p>
+</li>
+<li><p>资源隔离机制？<br>Presto可以像Yarn一样将全部资源分为多个资源组（通过配置文件etc/resource-groups.properties），资源组也可以有子组。配置可参考：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/admin/resource-groups.html">Resource Groups</a></p>
+</li>
+<li><p>Session配置管理<br>通过配置etc/session-property-config.properties可以将任务分为不同类型（如即时查询，etl，高消耗etl等…），然后对不同类型的任务配置不同的资源，参数（configuration property）。具体见：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/admin/session-property-managers.html">Session Property Managers</a><br>（Presto参数分为configuration property和session property）</p>
+</li>
+<li><p>分布式排序<br>需要排序数据超过单节点query.max-memory-per-node大小限制，默认会启用分布式排序（参数distributed-sort）。排序速度不会随节点数量增加而线性加快，因为排序后数据在单个节点合并</p>
+</li>
+<li><p>使用Alluxio基于内存缓存热点数据和降低远程机房网络IO影响<br>注意:计算与存储节点共置的场景下，Alluxio对Presto的加速效果并不明显<br>Alluxio分布式缓存数据湖相关知识可以参考我的另一篇文章：<a href="https://shmily-qjj.top/44511/">Alluxio-基于内存的虚拟分布式存储系统</a><br>Presto结合Alluxio配置和使用可以参考官方文档：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/cache.html">Alluxio Cache Service</a></p>
+</li>
+<li><p>基于成本的优化<br>Join操作对查询性能影响大，Presto也会像Spark一样，评估Join的表的顺序，自动选择最低成本的Join表顺序。<br>对应的ConfigurationProperty(optimizer.join-reordering-strategy)<br>对应的SessionProperty(join_reordering_strategy)<br>参数值：AUTOMATIC全自动的Join优化，ELIMINATE_CROSS_JOINS默认参数消除不必要的笛卡尔积，NONE按SQL语法的顺序Join</p>
+</li>
+<li><p>分布式Join算法选择<br>Presto的Join是基于Hash的，分为两种方式：Partitioned和Broadcast<br>Partitioned：每个节点都持有一部分Hash后的数据，然后Join<br>Broadcast：一个表被广播到所有参与Join计算节点<br>对应的ConfigurationProperty(join-distribution-type)<br>对应的SessionProperty(join_distribution_type)<br>参数值：AUTOMATIC全自动的Join算法选择，BROADCAST，PARTITIONED(默认)</p>
+</li>
+<li><p>Hive分析任务如何迁移Presto<br>Presto使用ANSI标准的SQL语法，Hive使用类SQL语法HQL<br>官方案例：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/migration/from-hive.html">Migrating From Hive</a></p>
+</li>
+</ol>
+<pre><code class="sql">-- 1.Presto使用下标取数组元素 下标从1开始
+select id,
+       arr[1] as arr2,
+       arr[3] as arr3 
+from
+(SELECT * FROM (
+    VALUES
+        (1, &#39;a&#39;, ARRAY[1, 2, 3]),
+        (2, &#39;b&#39;, ARRAY[4, 5, 6]),
+        (3, &#39;c&#39;, ARRAY[7, 8, 9])
+) AS t (id, name, arr)) a;
+-- 2.不支持隐式数据类型转换，需要手动转换
+SELECT
+  CAST(x AS varchar)
+, CAST(x AS bigint)
+, CAST(x AS double)
+, CAST(x AS boolean)
+FROM ...
+SELECT CAST(5 AS DOUBLE) / 2;SELECT 5 / 2;
+-- 3.WITH AS语法
+WITH a AS 
+(SELECT uploader,videos
+FROM tb_user_info
+LIMIT 10) 
+select * from a;
+-- 4.UNNEST关键字代替LATERAL VIEW explode()进行行转列
+Hive写法:
+SELECT student, score
+FROM tests
+LATERAL VIEW explode(scores) t AS score;
+Presto写法:
+SELECT student, score
+FROM tests
+CROSS JOIN UNNEST(scores) AS t (score);
+-- 5.Hive视图不支持通过Presto查询，所以要在Presto创建同名视图（即在presto读取视图定义(StatementAnalyzer.java)的时候，解析原始的sql定义的语句，转换成presto的视图结构）
+-- 6.cast as string不支持，因为Presto的是Varchar，需要在ASTBuilder.java中把string替换为了varchar类型
+-- 7.select 1 = &#39;1&#39;;在Hive和Presto计算结果分别为true,cannot be applied to integer, varchar(1) 需要额外操作实现透明的隐式转换
+-- 8.UDF支持、null值处理</code></pre>
+<ol start="9">
+<li>Hive数仓的数据安全性和权限<br>参考<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/security/built-in-system-access-control.html">Built-in System Access Control</a><br>在我看来hive.security=file形式的授权比较灵活<br>先配置全局的Catalog访问权限：<br>user:可选参数，正则匹配用户名，默认.*<br>catalog:可选参数，正则匹配Catalog名，默认.*.<br>allow:必选参数，用户是否对calalog有访问权限true\false</li>
+</ol>
+<pre><code class="shell"># 启用基于文件的权限控制
+vim /opt/modules/presto-server-0.248/etc/access-control.properties
+access-control.name=file
+security.config-file=/opt/modules/presto-server-0.248/etc/rules.json
+security.refresh-period=10s   # 配置权限自动刷新时间间隔 10s
+# 设置权限控制规则：允许只admin用户有mysql catalog的权限，所有用户有hive catalog权限，所有用户无system catalog权限
+vim /opt/modules/presto-server-0.248/etc/rules.json
+&#123;
+  &quot;catalogs&quot;: [
+    &#123;
+      &quot;user&quot;: &quot;admin&quot;,
+      &quot;catalog&quot;: &quot;(mysql|system)&quot;,
+      &quot;allow&quot;: true
+    &#125;,
+    &#123;
+      &quot;catalog&quot;: &quot;hive&quot;,
+      &quot;allow&quot;: true
+    &#125;,
+    &#123;
+      &quot;catalog&quot;: &quot;system&quot;,
+      &quot;allow&quot;: false
+    &#125;
+  ]
+&#125;
+分发access-control.properties和rules.json，重启PrestoServer生效
+连接PrestoClient并指定用户presto --server cdh101:8080 --catalog hive --schema default --user qjj</code></pre>
+<p>配置hive数据源的权限，参考<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/connector/hive-security.html#">Hive Security Configuration</a><br>有legacy,read-only,file,sql-standard四种形式，仍然是file的授权形式比较灵活</p>
+<pre><code class="shell">vim etc/catalog/hive.properties
+hive.security=file
+security.config-file=/opt/modules/presto-server-0.248/etc/catalog/hive-security.json
+
+vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
+&#123;
+  &quot;schemas&quot;: [
+    &#123;
+      &quot;user&quot;: &quot;admin&quot;,
+      &quot;schema&quot;: &quot;.*&quot;,
+      &quot;owner&quot;: true
+    &#125;,
+    &#123;
+      &quot;user&quot;: &quot;staging&quot;,
+      &quot;owner&quot;: false
+    &#125;,
+    &#123;
+      &quot;user&quot;: &quot;test&quot;,
+      &quot;schema&quot;: &quot;test&quot;,
+      &quot;owner&quot;: false
+    &#125;
+  ],
+  &quot;tables&quot;: [
+    &#123;
+      &quot;user&quot;: &quot;admin&quot;,
+      &quot;privileges&quot;: [&quot;SELECT&quot;, &quot;OWNERSHIP&quot;]
+    &#125;,
+    &#123;
+      &quot;user&quot;: &quot;staging&quot;,
+      &quot;table&quot;: &quot;(staging_db_users|staging_db_videos).*&quot;,
+      &quot;privileges&quot;: [&quot;SELECT&quot;]
+    &#125;,
+    &#123;
+      &quot;user&quot;: &quot;test&quot;,
+      &quot;table&quot;: &quot;test.*&quot;,
+      &quot;privileges&quot;: [&quot;SELECT&quot;]
+    &#125;
+  ]
+&#125;
+分发catalog/hive.properties、catalog/hive-security.json
+重启Presto-server</code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>Hive\Spark的SQL任务迁移到Presto在语法、计算结果、视图使用、类型转换、UDF及空值处理上有差异</li>
+<li>Hive\Spark任务迁移Presto，如果要做到对业务透明，还有很长的路要走</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/docs">Presto Documentation</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101366898">深入理解Presto</a><br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/16/presto.html">Presto实现原理和美团的使用实践</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35698805/article/details/112362954">Hive迁移Presto在OPPO的实践</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/BigdataExceptionsSummary/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                大数据平台常见异常处理汇总</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

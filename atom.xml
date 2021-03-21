@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2021-03-20T04:15:04.750Z</updated>
+  <updated>2021-03-21T05:05:54.186Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Presto-基于内存的高效SQL交互查询引擎</title>
+    <link href="https://shmily-qjj.top/4c197c46/"/>
+    <id>https://shmily-qjj.top/4c197c46/</id>
+    <published>2021-03-02T05:46:00.000Z</published>
+    <updated>2021-03-21T05:05:54.186Z</updated>
+    
+    <summary type="html">
+    
+      Presto提供高效的交互式SQL查询服务
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="交互式分析" scheme="https://shmily-qjj.top/tags/%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%88%86%E6%9E%90/"/>
+    
+      <category term="SQL引擎" scheme="https://shmily-qjj.top/tags/SQL%E5%BC%95%E6%93%8E/"/>
+    
+  </entry>
   
   <entry>
     <title>大数据平台常见异常处理汇总</title>
@@ -425,28 +447,6 @@
     
     
       <category term="人声混音" scheme="https://shmily-qjj.top/tags/%E4%BA%BA%E5%A3%B0%E6%B7%B7%E9%9F%B3/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>程序猿是怎么表白的</title>
-    <link href="https://shmily-qjj.top/d1c9241f/"/>
-    <id>https://shmily-qjj.top/d1c9241f/</id>
-    <published>2019-12-11T13:10:21.000Z</published>
-    <updated>2020-08-29T03:24:43.627Z</updated>
-    
-    <summary type="html">
-    
-      当然是用代码来表白啦
-    
-    </summary>
-    
-      <category term="生活" scheme="https://shmily-qjj.top/categories/%E7%94%9F%E6%B4%BB/"/>
-    
-    
-      <category term="表白" scheme="https://shmily-qjj.top/tags/%E8%A1%A8%E7%99%BD/"/>
-    
-      <category term="程序猿" scheme="https://shmily-qjj.top/tags/%E7%A8%8B%E5%BA%8F%E7%8C%BF/"/>
     
   </entry>
   
