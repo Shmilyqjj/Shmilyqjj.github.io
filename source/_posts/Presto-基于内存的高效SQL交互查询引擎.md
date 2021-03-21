@@ -15,7 +15,7 @@ tags:
 keywords: SQL实时交互式查询
 description: Presto提供高效的交互式SQL查询服务
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.png
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg
 abbrlink: 4c197c46
 date: 2021-03-02 13:46:00
 ---
