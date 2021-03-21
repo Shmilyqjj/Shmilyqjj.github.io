@@ -735,7 +735,7 @@ SELECT * FROM (
 </tr>
 </tbody></table>
 <p>BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排查下原因，有很多可能的原因：<br>1.内存不足<br>2.磁盘或网络I/O瓶颈<br>3.数据倾斜(所有数据都转移到几个worker上)<br>4.并行度低(只有几个worker可用)<br>5.某个Stage查询开销较高（如select *操作数据过多）<br>对于某个Query的执行过程相关监控信息，可以在WebUI上点那个Query ID即可查看<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-09.png" alt="alt"></p>
-<h3 id="连接Presto"><a href="#连接Presto" class="headerlink" title="连接Presto"></a>连接Presto</h3><p>用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive等。<br>Presto-Cli:</p>
+<h3 id="连接Presto"><a href="#连接Presto" class="headerlink" title="连接Presto"></a>连接Presto</h3><p>用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive,PrestoOnSpark等。<br>Presto-Cli:</p>
 <pre><code class="shell">wget https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
 mv presto-cli-0.248-executable.jar presto
 chmod a+x presto
@@ -783,6 +783,7 @@ engine = create_engine(&#39;presto://admin:123456@cdh101:8080/mysql/db_users&#39
 engine = create_engine(&#39;presto://cdh101:8080/mysql/db_users&#39;) 
 df = pd.read_sql(&quot;select * from tb_user_records limit 10&quot;,engine) 
 print(df)</code></pre>
+<p>PrestoOnSpark:<br>Presto on Spark即利用Spark作为Presto查询的执行框架<br>操作：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/installation/spark.html">Executing Presto on Spark</a></p>
 <h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>Presto参数调优：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/admin/properties.html">Properties Reference</a>，官方详细介绍了Presto的config.properties中的常规参数如join参数，内存管理参数，Spilling溢出磁盘相关参数，数据网络交换参数（一个查询任务不同Stage会有不同节点交换数据，这些参数提高网络利用率），任务参数，节点调度参数，优化器参数以及正则相关参数</p>
 <ol>
 <li><p>Presto不是纯内存计算吗？为什么要溢写到磁盘？<br>正常情况Presto执行Query请求的内存资源超过query_max_memory或query_max_memory_per_node这个Query就会被终止。<br>溢写磁盘机制：Presto节点空闲时Query会利用全部内存资源，如果没足够内存，Query被迫使用磁盘来存储中间数据，写入磁盘再从磁盘读取回来，有较高的IO开销。<br>解决IO开销高的方法：spiller-spill-path可设置多个磁盘多个路径，并行读写提高IO效率；spill-encryption-enabled启用压缩用CPU开销换IO开销<br>局限：系统无法将中间数据划分成足够小的块，导致从磁盘加载块数据时发生OOM；只有Join和聚合操作可以落盘</p>
