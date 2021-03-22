@@ -17,7 +17,7 @@ description: Presto提供高效的交互式SQL查询服务
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg
 abbrlink: 4c197c46
-date: 2021-03-02 13:46:00
+date: 2021-03-12 14:46:00
 ---
 # Presto-高效SQL交互式查询引擎  
 ## Presto简介  
