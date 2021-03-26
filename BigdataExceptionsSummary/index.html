@@ -474,6 +474,17 @@ hadoop dfsadmin -report</code></pre>
 </li>
 <li><p>两个NN均为Standby，重启后过一会又都Standby<br>NN均报错：<br>java.util.concurrent.ExecutionException: java.io.IOException: Cannot find any valid remote NN to service request!<br>Caused by: java.io.IOException: Cannot find any valid remote NN to service request!<br>Exception from remote name node RemoteNameNodeInfo [nnId=namenode37, ipcAddress=xxxx, httpAddress=xxxx], try next.<br>org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.ipc.StandbyException): Operation category JOURNAL is not supported in state standby. Visit <a target="_blank" rel="noopener" href="https://s.apache.org/sbnn-error">https://s.apache.org/sbnn-error</a><br>解决：强制切换主备sudo -uhdfs hdfs haadmin -transitionToActive –forcemanual namenode37（nnId在hdfs-site有配） 切换后重启Failover Controller或ZKFC。</p>
 </li>
+<li><p>基于Sentry认证的HDFS集群NN启动异常<br>NN进程启动成功但是一直处于忙碌状态，查看NN的日志</p>
+<pre><code class="log">晚上9点53:24.664分 INFO SentryAuthorizationInfo Refresh interval [500]ms, retry wait [30000]
+晚上9点53:24.664分 INFO SentryAuthorizationInfo stale threshold [60000]ms
+晚上9点53:24.669分 INFO HMSPaths HMSPaths:[/user/hive/warehouse, /user/hive/xxxx] Initialized
+晚上9点53:24.681分 INFO SentryTransportPool Creating pool for xxx:8038,xxx:8038 with default port 8038
+晚上9点53:24.683分 INFO SentryTransportPool Adding endpoint xxx:8038
+晚上9点53:24.683分 INFO SentryTransportPool Adding endpoint xxx:8038
+晚上9点53:24.683分 INFO SentryTransportPool Connection pooling is disabled
+日志卡在这不继续了，卡在这</code></pre>
+<p>与此同时两个SentryServer有一台发生OOM，不稳定<br>原因：由于基于Sentry认证，HDFS的NN在启动时，Sentry会全量收集HMSPaths下的ACL信息，会驻留在Sentry内存中，如果Sentry内存不足容易OOM，需要通过增加堆内存的方式解决。两个SentryServer虽然可以负载均衡高可用，当一个SentryServer宕掉请求才会转移到另一个节点，而OOM时，请求会一直卡住，不会自动转移，导致NN启动异常。<br>解决：增加Sentry堆内存，不盲目加，根据当前Hive服务器数、库数、表数、分区数、列数及视图数进行评估，具体评估标准如下：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-05.png" alt="alt"><br>如图推算：每百万个Hive对象（库、表、分区数）需要配置2.25G的Sentry最大堆内存</p>
+</li>
 </ol>
 <h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
 <li>HiveMetaStore状态不良导DDLSQL耗时200s以上<br>HMS进程报错：<font size="3" color="red">hive metastore server Failed to sync requested HMS notifications up to the event ID xxx</font><br>原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。<br>开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。<br>解决：<br> ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。<br> ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）</li>
