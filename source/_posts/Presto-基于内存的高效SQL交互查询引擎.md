@@ -130,7 +130,7 @@ select c1.rank, count(*) from dim.city c1 join dim.city c2 on c1.id = c2.id wher
   + Hash：发生Shuffle
   + None：不进行Shuffle
 
-在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在JoinNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据
+在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在AggregateNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-05.png)
 
 SQL提交并解析为SubPlan后的执行流程：
