@@ -1,9 +1,21 @@
-HBase Shell
+HBase Shell操作
+
+
+HBase表结构模型：
+rowkey：行键，最大64k，按照字典排序。
+column family:列族，建议列族不超过3个。
+qualifier：列。可以随时扩展
+timestamp:时间戳
+cell：数据的单元格
+version：数据的版本，现在默认的版本1个，0.98前 是3个
 
 建表必须有table name和column family name
 create 'test', 'cf'
 建表并设置属性
 create 'test_qjj', { NAME => 'baseInfo', VERSIONS => 3 }, { NAME => 'extraInfo', VERSIONS => 2}
+创建user表，包含info、data两个列族
+create 'user', 'info', 'data' 或
+create 'user1', {NAME => 'info', VERSIONS => '3'}，{NAME => 'data'}
 
 查看所有表
 list
@@ -17,12 +29,79 @@ desc 'test_qjj'
 put 'table_name','row_name','cf:column_name','value'
 put 'test', 'row1', 'cf:a', 'value1'
 put 'test', 'row2', 'cf:a', 'value2'
+向user表添加数据操作
+向user表中插入信息，row key为rk0001，列族info中添加name列标示符，值为zhangsan
+put 'user', 'rk0001', 'info:name', 'zhangsan'
+向user表中插入信息，row key为rk0001，列族info中添加gender列标示符，值为female
+put 'user', 'rk0001', 'info:gender', 'female'
+向user表中插入信息，row key为rk0001，列族info中添加age列标示符，值为20
+put 'user', 'rk0001', 'info:age', 20
+向user表中插入信息，row key为rk0001，列族data中添加pic列标示符，值为picture
+put 'user', 'rk0001', 'data:pic', 'picture'
 
 查询数据
 scan 'test'
 scan 'test', {LIMIT=>5}
 get 'test','row1'
 get 'test','row1','cf:qjj'
+通过rowkey进行查询
+get 'user', 'rk0001'
+查看rowkey下面的某个列族的信息
+get 'user', 'rk0001', 'info'
+查看rowkey指定列族指定字段的值
+get 'user', 'rk0001', 'info:name', 'info:age'
+查看rowkey指定多个列族的信息
+get 'user', 'rk0001', 'info', 'info2'
+或者
+get 'user', 'rk0001', {COLUMN => ['info', 'data']}
+或者
+get 'risk1_cust_all_his_input',org.apache.commons.lang.StringUtils.reverse("160068292701")
+get 'user', 'rk0001', {COLUMN => ['info:name', 'data:pic']}
+
+指定rowkey与列值查询
+获取user表中row key为rk0001，cell的值为zhangsan的信息
+get 'user', 'rk0001', {FILTER => "ValueFilter(=, 'binary:zhangsan')"}
+ 指定rowkey与列值模糊查询
+获取user表中row key为rk0001，列标示符中含有a的信息
+get 'user', 'rk0001', {FILTER =>"QualifierFilter(=,'substring:a'))"}
+
+查询所有数据
+scan 'user'
+scan 'jxl_orig_calls', {COLUMNS => ['cri:request_id','cri:place','cri:use_time'],STARTROW => org.apache.commons.lang.StringUtils.reverse("18876397000"), ENDROW => org.apache.commons.lang.StringUtils.reverse("~18876397000"),FILTER => "SingleColumnValueFilter('cri', 'request_id', =, 'binary:C841712220003209023')",LIMIT=>1000}
+ 列族查询
+scan 'user', {COLUMNS => 'info'}
+scan 'user', {COLUMNS => 'info', RAW => true, VERSIONS => 5}
+scan 'user', {COLUMNS => 'info', RAW => true, VERSIONS => 3}
+ 多列族查询
+查询user表中列族为info和data的信息
+scan 'user', {COLUMNS => ['info', 'data']}
+scan 'user', {COLUMNS => ['info:name', 'data:pic']}
+ 指定列族与某个列名查询
+查询user表中列族为info、列标示符为name的信息
+scan 'user', {COLUMNS => 'info:name'}
+指定列族与列名以及限定版本查询
+查询user表中列族为info、列标示符为name的信息,并且版本最新的5个scan 'user', {COLUMNS => 'info:name', VERSIONS => 5}
+指定多个列族与按照数据值模糊查询
+查询user表中列族为info和data且列标示符中含有a字符的信息
+scan 'user', {COLUMNS => ['info', 'data'], FILTER => "(QualifierFilter(=,'substring:a'))"}
+rowkey的范围值查询
+查询user表中列族为info，rk范围是[rk0001, rk0003)的数据
+scan 'user', {COLUMNS => 'info', STARTROW => 'rk0001', ENDROW => 'rk0003'}
+指定rowkey模糊查询
+查询user表中row key以rk字符开头的
+scan 'user',{FILTER=>"PrefixFilter('row')"}
+指定数据范围值查询
+查询user表中指定范围的数据
+scan 'user', {TIMERANGE => [1392368783980, 1392380169184]}
+
+更新表数据
+1)更新数据值
+更新操作同插入操作一模一样，只不过有数据就更新，没数据就添加
+2)更新版本号
+将user表的f1列族版本号改为5
+alter 'user', NAME => 'info', VERSIONS => 5
+
+
 
 
 is_disable 'test' /is_enable 'test' 是否失效
@@ -32,7 +111,8 @@ enable 'test' 后不可修改设置或删除表
 删除表
 disable 'test' -> drop 'test'
 
-清空表数据truncate 'user_info'
+清空表数据
+truncate 'user_info'
 
 增加/删除列族
 增加
@@ -41,11 +121,23 @@ alter 'test_qjj',{NAME=>'otherInfo',VERSIONS=>3}
 删除
 alter 'test_qjj','delete'=>'extraInfo'
 alter 'test_qjj',{NAME=>'otherInfo',METHOD=>'delete'}
+删除一个列族：
+alter 'user', NAME => 'info', METHOD => 'delete'
+或 alter 'user', 'delete' => 'info'
 
 删除数据
 delete 'test','row4','cf:qjj'
 delete 'test','row6','cf:qjj',1569294709008  加时间戳
 deleteall 'test','row6' 删除行的所有元素
+1)指定rowkey以及列名进行删除
+删除user表row key为rk0001，列标示符为info:name的数据
+delete 'user', 'rk0001', 'info:name'
+2)指定rowkey，列名以及字段值进行删除
+删除user表row key为rk0001，列标示符为info:name，timestamp为1392383705316的数据
+delete 'user', 'rk0001', 'info:name', 1392383705316
+
+统计一张表有多少行数据
+count 'user'
 
 表存在
 exists 'test'
