@@ -400,6 +400,7 @@ drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响
 ```
 
 **5.转储一张Hive表到Kudu**
+
 ```Impala 
 show create table default.test;
 
@@ -419,10 +420,86 @@ INSERT INTO impala_kudu.test SELECT * FROM default.test;
 SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因
 ```
 
+**6.Kudu表备份到Hive**
+实测在数据量不大 百G级别 使用Impala实现Kudu数据全量同步Hive，不会对Kudu服务造成影响
+```Impala 
+CREATE TABLE default.impala_kudu_test LIKE impala_kudu.test;
+INSERT INTO default.impala_kudu_test SELECT * FROM impala_kudu.test;
+```
+
 在官网了解更多：[Using Apache Kudu with Apache Impala](https://kudu.apache.org/docs/kudu_impala_integration.html)
 
 ### Kudu + Spark
-https://blog.csdn.net/nazeniwaresakini/article/details/104220206/
+```pom
+    <!-- scala.bin.version: 2.12, kudu.version: 1.10.0 -->
+    <dependency>
+        <groupId>org.apache.kudu</groupId>
+        <artifactId>kudu-spark2_${scala.bin.version}</artifactId>
+        <version>${kudu.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.kudu</groupId>
+        <artifactId>kudu-spark2-tools_${scala.bin.version}</artifactId>
+        <version>${kudu.version}</version>
+   </dependency>
+```
+Spark连接并操作Kudu表
+```scala
+import org.apache.kudu.client._
+import collection.JavaConverters._
+ 
+// Read a table from Kudu
+val df = spark.read
+  .options(Map("kudu.master" -> "kudu.master:7051", "kudu.table" -> "kudu_table"))
+  .format("kudu").load
+ 
+// Query using the Spark API...
+df.select("id").filter("id >= 5").show()
+ 
+// ...or register a temporary table and use SQL
+df.createOrReplaceTempView("kudu_table")
+val filteredDF = spark.sql("select id from kudu_table where id >= 5").show()
+ 
+// Use KuduContext to create, delete, or write to Kudu tables
+val kuduContext = new KuduContext("kudu.master:7051", spark.sparkContext)
+ 
+// Create a new Kudu table from a DataFrame schema
+// NB: No rows from the DataFrame are inserted into the table
+kuduContext.createTable(
+    "test_table", df.schema, Seq("key"),
+    new CreateTableOptions()
+        .setNumReplicas(1)
+        .addHashPartitions(List("key").asJava, 3))
+ 
+// Insert data
+kuduContext.insertRows(df, "test_table")
+ 
+// Delete data
+kuduContext.deleteRows(filteredDF, "test_table")
+ 
+// Upsert data
+kuduContext.upsertRows(df, "test_table")
+ 
+// Update data
+val alteredDF = df.select("id", $"count" + 1)
+kuduContext.updateRows(filteredRows, "test_table")
+ 
+// Data can also be inserted into the Kudu table using the data source, though the methods on
+// KuduContext are preferred
+// NB: The default is to upsert rows; to perform standard inserts instead, set operation = insert
+// in the options map
+// NB: Only mode Append is supported
+df.write
+  .options(Map("kudu.master"-> "kudu.master:7051", "kudu.table"-> "test_table"))
+  .mode("append")
+  .format("kudu").save
+ 
+// Check for the existence of a Kudu table
+kuduContext.tableExists("another_table")
+ 
+// Delete a Kudu table
+kuduContext.deleteTable("unwanted_table")
+```
 
 ### Kudu + Hive
 **与Hive MetaStore集成**
