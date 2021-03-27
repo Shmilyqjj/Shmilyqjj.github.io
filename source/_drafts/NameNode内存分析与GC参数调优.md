@@ -13,6 +13,8 @@ tags:
   - HDFS
   - NameNode
   - JVM调优
+  - CMS
+  - G1
 keywords: 内存分析
 description: 如何评估NN内存需求以及针对NN的GC调优策略
 photos: >-
@@ -21,17 +23,28 @@ date: 2020-03-23 16:19:00
 ---
 # NameNode内存分析与GC参数调优
 
-https://ericsahit.github.io/2016/12/25/Namenode%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90/
+ Namenode内存分析 https://ericsahit.github.io/2016/12/25/Namenode%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90/
 
 ## NameNode使用内存分析    
+CMS调优：https://blog.csdn.net/flysqrlboy/article/details/88679457
 
+吞吐量(throughput)，响应时间(latency)，和内存用量，三者只能取其二
+CMS+ParNew调优响应时间优先：https://blog.csdn.net/qq_32641659/article/details/88030753
+
+
+
+NN GC调优：https://blog.csdn.net/shadyxu/article/details/94593336
+
+
+
+CMS对比G1：https://blog.csdn.net/zhou2s_101216/article/details/79219953
 
 ### 小标题1  
 
 ### 小标题2  
 
 
-## GC调参策略
+## 调参策略
 NameNode默认采用ParNew+CMS的GC收集器，
 
 CMS的垃圾收集
@@ -48,7 +61,7 @@ CMS的垃圾收集
 6、concurrent-sweep ，并发清理。
 
 
-https://blog.csdn.net/zhanyuanlin/article/details/77816600
+[HDFS使用QJM(Quorum Journal Manager)实现的高可用性以及备份机制]https://blog.csdn.net/zhanyuanlin/article/details/77816600
 
 * 字体
 *斜体文本*
@@ -64,6 +77,8 @@ ___粗斜体文本___
 <font size="2" color="blue">This is some text!</font>
 <font face="verdana" color="green"  size="3">This is some text!</font>
 
+
+## 改用G1收集器
 
 ## 参考资料  
 
