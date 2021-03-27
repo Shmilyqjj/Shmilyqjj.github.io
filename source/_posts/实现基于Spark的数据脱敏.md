@@ -463,7 +463,22 @@ result=Dataset.ofRows(sqlContext.sparkSession, logicalPlan)
 这样在需要脱敏时逻辑计划就可以被替换并执行后续的操作了，返回给用户的数据也是脱敏后的数据。
 
 **UDF编写和注册**
-DesensitizationUDFs类，注册脱敏UDF的统一入口，在org.apache.spark.sql.hive.thriftserver.SparkSQLSessionManager的**OpenSession**方法中调用：DesensitizationUDFs.register(ctx,username)，为正在登陆的用户调用注册UDF，保证UDF可用。
+DesensitizationUDFs类，注册脱敏UDF的统一入口，在org.apache.spark.sql.hive.thriftserver.SparkSQLSessionManager的**OpenSession**方法中调用：DesensitizationUDFs.register(ctx,username)，为正在登陆的用户调用注册UDF，保证UDF可用。但如果有用户恶意频繁登陆会触发频繁UDF注册，导致Thriftserver负载高，故可设置免UDF加载的白名单用户参数：--conf "spark.thrift.desensitization.load.udf.user.whitelist=user1,admin" 
+```scala
+// Register Desensitization UDFs
+    var loadUDFWhitelist:Array[String] = Array()
+    try{
+      // 提交任务时加--conf "spark.thrift.desensitization.load.udf.user.whitelist=user1,admin"  这些用户不加载脱敏UDF
+      loadUDFWhitelist = ctx.sparkSession.conf.get("spark.thrift.desensitization.load.udf.user.whitelist").split(",")
+    }catch {
+      case e:Exception => e.printStackTrace()  //如果没配置该参数 java.util.NoSuchElementException
+    }
+    if(!loadUDFWhitelist.contains(username)){
+      DesensitizationUDFs.register(ctx,username)
+    }
+```
+
+UDF类：
 ```scala
 package org.apache.spark.sql.hive.thriftserver.desensitization
 
