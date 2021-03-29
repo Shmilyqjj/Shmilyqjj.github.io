@@ -413,7 +413,7 @@ RDD是只读的
 Stage划分原理：
     因此spark划分stage的整体思路是：从后往前推，遇到宽依赖就断开，划分为一个stage；遇到窄依赖就将这个RDD加入该stage中。（总结：遇到一个宽依赖就分一个stage）
 Executor内存划分：
-    [堆外内存]堆外内存主要用于JVM自身，字符串，NIO Buffer等开销。默认是executorMemory*0.3且最低限制384m。
+    [堆外内存]堆外内存主要用于JVM自身，字符串，NIO Buffer等开销。默认是executorMemory*0.3且最低限制384m。(所以报堆外内存不足时很可能是操作或者读写了单字段很大如Json串很长的表，Json串会被加载到堆外内存，太多大Json串作为对象放在堆外内存就会导致堆外内存不足，任务Job Aborted)
     [堆内内存]即为JVM最大堆内存(-Xmx)，Spark Executor的内存划分为四块，ExecutionMemory，StorageMemory，UserMemory，ReservedMemory(300m)。其中ExecutionMemory，StorageMemory，UserMemory是JVM使用的内存。
     - ExecutionMemory用于存放Shuffle、Join、Sort、Aggregation等计算过程中的临时数据
     - StorageMemory用于存储Spark的Cache数据，如RDD缓存
