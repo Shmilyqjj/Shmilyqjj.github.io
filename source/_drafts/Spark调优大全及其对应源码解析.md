@@ -44,6 +44,8 @@ http://spark.apache.org/docs/latest/job-scheduling.html#resource-allocation-poli
 
 ## Spark参数调优
 
+https://blog.csdn.net/u013332124/article/details/90677676  （SparkAE）
+
 
 ## Spark源码级别调优
 
