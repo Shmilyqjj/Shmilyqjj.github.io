@@ -29,11 +29,15 @@ date: 2020-03-11 10:16:00
 
 ### 动态分配
 
+https://spoddutur.github.io/spark-notes/distribution_of_executors_cores_and_memory_for_spark_application.html
+
 https://stackoverflow.com/questions/37871194/how-to-tune-spark-executor-number-cores-and-executor-memory
 
 http://spark.apache.org/docs/latest/configuration.html#dynamic-allocation
 
 http://spark.apache.org/docs/latest/job-scheduling.html#resource-allocation-policy
+
+
 
 
 ## Spark参数调优
