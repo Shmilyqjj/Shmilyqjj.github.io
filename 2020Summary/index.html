@@ -409,7 +409,7 @@
 
 <!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
 
-  <style type="text/css"> html {FILTER: blur(8px);transition: all 0.5s ease 0s;}</style>
+  <!-- 对于指定nocopy属性的文章，禁止复制 -->
   <script language="Javascript">
     document.oncontextmenu=new Function("event.returnValue=false");
     document.onselectstart=new Function("event.returnValue=false");

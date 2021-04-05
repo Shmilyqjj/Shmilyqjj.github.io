@@ -449,7 +449,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="Presto-高效SQL交互式查询引擎"><a href="#Presto-高效SQL交互式查询引擎" class="headerlink" title="Presto-高效SQL交互式查询引擎"></a>Presto-高效SQL交互式查询引擎</h1><h2 id="Presto简介"><a href="#Presto简介" class="headerlink" title="Presto简介"></a>Presto简介</h2><p>&emsp;&emsp;Presto是Facebook开源的分布式SQL查询引擎，适用于交互式分析查询的场景（OLAP），数据量支持GB到PB字节。类似的工具有<a href="https://shmily-qjj.top/1ae37d82/"><strong>Impala</strong></a>、<strong>ClickHouse</strong>等…</p>
+          <h1 id="Presto-高效SQL交互式查询引擎"><a href="#Presto-高效SQL交互式查询引擎" class="headerlink" title="Presto-高效SQL交互式查询引擎"></a>Presto-高效SQL交互式查询引擎</h1><h2 id="Presto简介"><a href="#Presto简介" class="headerlink" title="Presto简介"></a>Presto简介</h2><p>&emsp;&emsp;Presto是Facebook开源的分布式SQL查询引擎，适用于交互式分析查询的场景（OLAP），响应时间在小于 1 秒到几分钟的场景，数据量支持GB到PB字节。类似的工具有<a href="https://shmily-qjj.top/1ae37d82/"><strong>Impala</strong></a>、<strong>ClickHouse</strong>等…</p>
 <h2 id="Presto优缺点"><a href="#Presto优缺点" class="headerlink" title="Presto优缺点"></a>Presto优缺点</h2><p>优点：</p>
 <ul>
 <li>架构清晰，可不依赖任何外部系统独立运行。</li>
@@ -468,15 +468,16 @@
 <li>不支持数据类型隐式转换</li>
 <li>与Hive相比存在不小的语法差异、函数和UDF差异以及运算结果差异(如1/2在Hive结果为0.5在Presto结果为0)</li>
 <li>Hive views are not supported.需要创建Presto视图</li>
-<li>因为纯内存计算，不适合多个大表Join</li>
+<li>因为纯内存计算，不适合多个大表Join(聚合操作边读数据边计算，再清内存，再读数据再计算，这种耗的内存并不高；但关联操作可能产生大量临时数据，可能比Hive慢)</li>
 <li>Coordinator单点问题（常见方案：ip漂移、Nginx代理动态获取等）</li>
+<li></li>
 </ul>
 <h2 id="Presto原理"><a href="#Presto原理" class="headerlink" title="Presto原理"></a>Presto原理</h2><p><font size="3" color="red">在学习Presto原理前推荐先看看我之前关于Impala的文章：<a href="https://shmily-qjj.top/1ae37d82/">《Impala-基于内存的高效SQL交互查询引擎》</a></font></p>
 <h3 id="Presto架构和进程"><a href="#Presto架构和进程" class="headerlink" title="Presto架构和进程"></a>Presto架构和进程</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-01.png" alt="alt"><br>&emsp;&emsp;Presto与Impala的架构极其相似，都是采用Master-Slave模型以及MPP架构,而且Presto的工作角色也与ImpalaDaemon的角色基本相同，Presto有三种工作角色：Coordinator,Worker和DiscoveryServer：</p>
 <ul>
 <li><font size="3" color="red">Coordinator</font>：即Master，负责管理Meta元数据，Worker节点，SQL的解析和调度，生成Stage和Task分发给Workers，负责合并结果集并返回给客户端。相当于结合了Impalad的Coordinator角色和Planner角色的功能，区别是每个Impalad节点都可以是Coordinator，而Presto只能有一个Coordinator，多个协调者进程会导致脑裂，查询任务会死锁。</li>
 <li><font size="3" color="red">Worker</font>：负责计算和读写数据。相当于Impalad的Executor角色的功能。</li>
-<li><font size="3" color="red">DiscoveryServer</font>：通常内嵌于Coordinator节点，也可以独立出来部署，功能类似ZK，类似Impala中的ImpalaStateStore，用于监控节点心跳，一般DS和Coordinator在同一节点。Worker启动会向DS进程注册，Coordinator可以从DS获取到所有正常提供服务的Worker。</li>
+<li><font size="3" color="red">DiscoveryServer</font>：通常内嵌于Coordinator节点，也可以独立出来部署，功能类似ZK，类似Impala中的ImpalaStateStore，用于监控节点心跳，一般DS和Coordinator在同一节点。Worker启动会向DS进程注册，Coordinator可以从DS获取到所有正常提供服务的Worker。<br>Coordinator 与 Worker、Client 通信是通过 REST API。</li>
 </ul>
 <h3 id="Presto数据模型"><a href="#Presto数据模型" class="headerlink" title="Presto数据模型"></a>Presto数据模型</h3><p>Presto使用Catalog、Schema和Table这3层结构来管理数据：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-06.png" alt="alt"></p>
 <ul>
@@ -589,7 +590,7 @@ vim etc/jvm.config
 -XX:+ExplicitGCInvokesConcurrent
 -XX:+HeapDumpOnOutOfMemoryError
 -XX:+ExitOnOutOfMemoryError
-# Presto配置 Coordinator节点 非生产集群单个节点即为Coordinator又为Worker可设node-scheduler.include-coordinator=true
+# Presto配置 Coordinator节点 非生产集群单个节点可以既为Coordinator又为Worker可设node-scheduler.include-coordinator=true
 vim etc/config.properties(每个节点不同)
 coordinator=true  是否为Coordinator
 node-scheduler.include-coordinator=false  是否在Coordinator节点执行计算（会影响性能，不建议true）
@@ -652,6 +653,7 @@ connector.name=mysql
 connection-url=jdbc:mysql://cdh102:3306
 connection-user=root
 connection-password=123456</code></pre>
+<h3 id="Presto-On-Yarn部署"><a href="#Presto-On-Yarn部署" class="headerlink" title="Presto On Yarn部署"></a>Presto On Yarn部署</h3><pre><code class="text">待补充</code></pre>
 <h3 id="Presto语法："><a href="#Presto语法：" class="headerlink" title="Presto语法："></a>Presto语法：</h3><pre><code class="sql">SHOW CATALOGS; 查看Presto集群当前可用数据源
 SHOW SCHEMAS;  查看当前数据源有哪些库
 SHOW SCHEMAS FROM hive;  查看hive数据源的所有库 （FROM可以用IN替换)
@@ -697,7 +699,7 @@ SELECT * FROM (
         (3, &#39;c&#39;, ARRAY[7, 8, 9])
 ) AS t (id, name, arr);</code></pre>
 <p>Presto支持事务，相关命令有<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/commit.html">COMMIT</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/start-transaction.html">START TRANSACTION</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/rollback.html">ROLLBACK</a><br>更多语法：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql.html#">SQL Statement Syntax</a></p>
-<h3 id="Presto-WEBUI"><a href="#Presto-WEBUI" class="headerlink" title="Presto WEBUI"></a>Presto WEBUI</h3><p>访问WEBUI地址即为DiscoveryServer地址：<a target="_blank" rel="noopener" href="http://cdh101:8080/ui/">http://cdh101:8080/ui/</a><br>透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-08.png" alt="alt"></p>
+<h3 id="Presto-WEBUI"><a href="#Presto-WEBUI" class="headerlink" title="Presto WEBUI"></a>Presto WEBUI</h3><p>访问WEBUI地址即为DiscoveryServer地址：<a target="_blank" rel="noopener" href="http://cdh101:8080/ui/">http://cdh101:8080/ui/</a><br>透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-08.jpg" alt="alt"></p>
 <table>
 <thead>
 <tr>
@@ -800,7 +802,83 @@ print(df)</code></pre>
 </li>
 <li><p>分布式Join算法选择<br>Presto的Join是基于Hash的，分为两种方式：Partitioned和Broadcast<br>Partitioned：每个节点都持有一部分Hash后的数据，然后Join<br>Broadcast：一个表被广播到所有参与Join计算节点<br>对应的ConfigurationProperty(join-distribution-type)<br>对应的SessionProperty(join_distribution_type)<br>参数值：AUTOMATIC全自动的Join算法选择，BROADCAST，PARTITIONED(默认)</p>
 </li>
-<li><p>Hive分析任务如何迁移Presto<br>Presto使用ANSI标准的SQL语法，Hive使用类SQL语法HQL<br>官方案例：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/migration/from-hive.html">Migrating From Hive</a></p>
+<li><p>Presto会根据元数据信息读取分区数据，合理设置分区能减少Presto数据读取量，提升查询性能</p>
+</li>
+<li><p>Presto对ORC格式文件的读取进行了特定优化，相对于Parquet，Presto对ORC支持更好(Impala对Parquet支持更好)</p>
+</li>
+<li><p>数据压缩可以减少节点间数据传输对网络带宽的压力，对于即席查询需要快速解压，建议采用Snappy压缩算法</p>
+</li>
+<li><p>预先排序以提高性能<br>对于已经排序的数据，在查询的数据过滤阶段，ORC格式支持跳过读取不必要的数据。比如对于经常需要过滤的字段可以预先排序。<br>INSERT INTO table nation_orc partition(p) SELECT * FROM nation SORT BY n_name;<br>如果需要过滤 n_name 字段，则性能将提升：<br>SELECT count(*) FROM nation_orc WHERE n_name=’AUSTRALIA’;</p>
+</li>
+<li><p>一些Presto优化常识</p>
+<ul>
+<li>因为列式存储，尽量避免select *，而是<strong>只查询有用字段</strong></li>
+<li>对于有分区的表，<strong>where语句中优先使用分区字段进行过滤</strong></li>
+<li>合理安排__group by字段的顺序__有助于提高查询效率，这些字段按照每个字段distinct数据多少进行降序排列</li>
+<li><strong>多表Join时，数据越多的表越往后放，Left join时，条件过滤尽量在ON阶段完成，而少用WHERE，Join左边尽量放小数据量的表，而且最好是重复关联键少的表</strong></li>
+<li>将使用频繁的表作为一个子查询抽离出来，避免多次读取IO</li>
+</ul>
+</li>
+<li><p>Order by时使用limit：Order by需要扫描数据到单个worker节点进行排序，导致单个worker需要大量内存。如果是查询Top N或者Bottom N，使用limit可减少排序计算和内存压力</p>
+</li>
+<li><p>精度要求低的场景使用近似聚合函数：Presto有一些近似聚合函数，对于允许有少量误差的查询场景，使用这些函数对查询性能有大幅提升。比如使用approx_distinct()函数比Count(distinct x)有大概2~3%的误差。</p>
+</li>
+<li><p>用regexp_like代替多个like语句：Presto查询优化器没有对多个like语句进行优化，使用regexp_like对性能有较大提升</p>
+<pre><code class="sql">[GOOD]
+SELECT
+xxx
+FROM
+access
+WHERE
+regexp_like(method, &#39;GET|POST|PUT|DELETE&#39;)
+[BAD]
+SELECT
+xxx
+FROM
+access
+WHERE
+method LIKE &#39;%GET%&#39; OR
+method LIKE &#39;%POST%&#39; OR
+method LIKE &#39;%PUT%&#39; OR
+method LIKE &#39;%DELETE%&#39;</code></pre>
+</li>
+<li><p>使用Rank函数代替row_number函数来获取Top N:在进行一些分组排序场景时，使用rank函数性能更好</p>
+<pre><code class="sql">[GOOD]
+SELECT checksum(rnk)
+FROM (
+SELECT rank() OVER (PARTITION BY l_orderkey, l_partkey ORDER BY l_shipdate DESC) AS rnk
+FROM lineitem
+) t
+WHERE rnk = 1
+[BAD]
+SELECT checksum(rnk)
+FROM (
+SELECT row_number() OVER (PARTITION BY l_orderkey, l_partkey ORDER BY l_shipdate DESC) AS rnk
+FROM lineitem
+) t
+WHERE rnk = 1</code></pre>
+</li>
+<li><p>使用Presto分析统计数据时，可考虑把多次查询合并为一次查询，用Presto提供的子查询完成。</p>
+<pre><code class="sql">WITH subquery_1 AS (
+SELECT a1, a2, a3 
+FROM Table_1 
+WHERE a3 between 20180101 and 20180131
+),               /*子查询subquery_1,注意：多个子查询需要用逗号分隔*/
+subquery_2 AS (
+SELECT b1, b2, b3
+FROM Table_2
+WHERE b3 between 20180101 and 20180131
+)                /*最后一个子查询后不要带逗号，不然会报错。*/        
+SELECT 
+subquery_1.a1, subquery_1.a2, 
+subquery_2.b1, subquery_2.b2
+FROM subquery_1
+JOIN subquery_2
+ON subquery_1.a3 = subquery_2.b3;</code></pre>
+</li>
+<li><p>字段名与关键字冲突：MySQL对于关键字冲突的字段名加反引号，Presto对与关键字冲突的字段名加双引号。</p>
+</li>
+<li><p>Hive分析任务如何迁移Presto<br>Presto使用ANSI标准的SQL语法，Hive使用类SQL语法HQL<br>官方案例：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/migration/from-hive.html">Migrating From Hive</a>  </p>
 </li>
 </ol>
 <pre><code class="sql">-- 1.Presto使用下标取数组元素 下标从1开始
@@ -840,8 +918,16 @@ CROSS JOIN UNNEST(scores) AS t (score);
 -- 5.Hive视图不支持通过Presto查询，所以要在Presto创建同名视图（即在presto读取视图定义(StatementAnalyzer.java)的时候，解析原始的sql定义的语句，转换成presto的视图结构）
 -- 6.cast as string不支持，因为Presto的是Varchar，需要在ASTBuilder.java中把string替换为了varchar类型
 -- 7.select 1 = &#39;1&#39;;在Hive和Presto计算结果分别为true,cannot be applied to integer, varchar(1) 需要额外操作实现透明的隐式转换
--- 8.UDF支持、null值处理</code></pre>
-<ol start="9">
+-- 8.UDF支持、null值处理
+-- 9.对于timestamp类型字段做where条件比较，hive可以直接比较，presto需要加timestamp关键字
+/*Hive的写法*/
+SELECT t FROM a WHERE t &gt; &#39;2021-01-01 00:00:00&#39;; 
+/*Presto中的写法*/
+SELECT t FROM a WHERE t &gt; timestamp &#39;2021-01-01 00:00:00&#39;;
+-- 10.Presto的MD5传入binary类型则会返回binary类型，所以对字符串的MD5需要转换：
+SELECT to_hex(md5(to_utf8(&#39;abcd&#39;)));
+-- 11.Presto不支持INSERT OVERWRITE，只能先DELETE再INSERT</code></pre>
+<ol start="20">
 <li>Hive数仓的数据安全性和权限<br>参考<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/security/built-in-system-access-control.html">Built-in System Access Control</a><br>在我看来hive.security=file形式的授权比较灵活<br>先配置全局的Catalog访问权限：<br>user:可选参数，正则匹配用户名，默认.*<br>catalog:可选参数，正则匹配Catalog名，默认.*.<br>allow:必选参数，用户是否对calalog有访问权限true\false</li>
 </ol>
 <pre><code class="shell"># 启用基于文件的权限控制
@@ -916,7 +1002,7 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
 <li>Hive\Spark的SQL任务迁移到Presto在语法、计算结果、视图使用、类型转换、UDF及空值处理上有差异</li>
 <li>Hive\Spark任务迁移Presto，如果要做到对业务透明，还有很长的路要走</li>
 </ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/docs">Presto Documentation</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101366898">深入理解Presto</a><br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/16/presto.html">Presto实现原理和美团的使用实践</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35698805/article/details/112362954">Hive迁移Presto在OPPO的实践</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/docs">Presto Documentation</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101366898">深入理解Presto</a><br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/16/presto.html">Presto实现原理和美团的使用实践</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35698805/article/details/112362954">Hive迁移Presto在OPPO的实践</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1N7Kd9E2dLB1OPhY_MTs6A">零基础熟悉 Presto的概念、安装、使用及优化</a></p>
 
         </div>
         <!-- .entry-content -->

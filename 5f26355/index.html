@@ -450,8 +450,7 @@
         
         <div class="entry-content">
           <h1 id="Apache-Kudu"><a href="#Apache-Kudu" class="headerlink" title="Apache Kudu"></a>Apache Kudu</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>&emsp;&emsp;在Kudu出现前，由于传统存储系统的局限性，对于数据的快速输入和分析还没有一个完美的解决方案，要么以缓慢的数据输入为代价实现快速分析，要么以缓慢的分析为代价实现数据快速输入。随着快速输入和分析场景越来越多，传统存储层的局限性越来越明显，Kudu应运而生，它的定位介于HDFS和HBase之间，将低延迟随机访问，逐行插入、更新和快速分析扫描融合到一个存储层中，是一个<strong>既支持随机读写又支持OLAP分析的存储引擎</strong>。本篇文章研究一下Kudu，对其应用场景，架构原理及基本使用做一个总结。</p>
-<h2 id="Kudu介绍"><a href="#Kudu介绍" class="headerlink" title="Kudu介绍"></a>Kudu介绍</h2>  <font size="3" color="red"><strong>在Kudu出现前，无法对实时变化的数据做快速分析：</strong></font>
-
+<h2 id="Kudu介绍"><a href="#Kudu介绍" class="headerlink" title="Kudu介绍"></a>Kudu介绍</h2><p>  <font size="3" color="red"><strong>在Kudu出现前，无法对实时变化的数据做快速分析：</strong></font></p>
 <p>  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-01.png" alt="alt Kudu-01"><br>  以上设计方案的缺陷：<br>  1.数据存储多份造成冗余，存储资源浪费。<br>  2.架构复杂，运维成本高，排查问题困难。<br>  而Kudu就融合了动态数据与静态数据的处理，同时支持随机读写和OLAP分析。</p>
 <p>  <font size="3" color="red"><strong>Kudu与HDFS,HBase的对比：</strong></font><br>  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-02.JPG" alt="alt Kudu-02">  </p>
 <h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
@@ -469,7 +468,7 @@
 <li><strong>特点</strong><ul>
 <li>基于列式存储</li>
 <li>快速顺序读写</li>
-<li>使用 <a href="https://shmily-qjj.top/5f26355/#LSM树">LSM树</a> 以支持高效随机读写</li>
+<li>使用 <a href="https://shmily-qjj.top/5f26355/#LSM%E6%A0%91">LSM树</a> 以支持高效随机读写</li>
 <li>查询性能和耗时较稳定</li>
 <li>不依赖Zookeeper</li>
 <li>有表结构，需要定义Schema，需要定义唯一键，支持SQL分析（依赖Impala，Spark等引擎）</li>
@@ -493,113 +492,107 @@
 <table>
 <thead>
 <tr>
-<th style="text-align:center">特性</th>
-<th style="text-align:center">Kudu</th>
-<th style="text-align:center">Hudi</th>
-<th style="text-align:center">Delta Lake</th>
+<th align="center">特性</th>
+<th align="center">Kudu</th>
+<th align="center">Hudi</th>
+<th align="center">Delta Lake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">行级别更新</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<tbody><tr>
+<td align="center">行级别更新</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">schema修改</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">schema修改</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">批流共享</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">批流共享</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">可用索引</td>
-<td style="text-align:center">是</td>
-<td style="text-align:center">是</td>
-<td style="text-align:center">否</td>
+<td align="center">可用索引</td>
+<td align="center">是</td>
+<td align="center">是</td>
+<td align="center">否</td>
 </tr>
 <tr>
-<td style="text-align:center">多并发写</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">不支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">多并发写</td>
+<td align="center">支持</td>
+<td align="center">不支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">版本回滚</td>
-<td style="text-align:center">不支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">版本回滚</td>
+<td align="center">不支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">实时性</td>
-<td style="text-align:center">高</td>
-<td style="text-align:center">近实时</td>
-<td style="text-align:center">差</td>
+<td align="center">实时性</td>
+<td align="center">高</td>
+<td align="center">近实时</td>
+<td align="center">差</td>
 </tr>
 <tr>
-<td style="text-align:center">使用HDFS</td>
-<td style="text-align:center">不支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">使用HDFS</td>
+<td align="center">不支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">空值处理</td>
-<td style="text-align:center">默认null</td>
-<td style="text-align:center">error</td>
-<td style="text-align:center">默认null</td>
+<td align="center">空值处理</td>
+<td align="center">默认null</td>
+<td align="center">error</td>
+<td align="center">默认null</td>
 </tr>
 <tr>
-<td style="text-align:center">并发读写</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">不支持并发写</td>
-<td style="text-align:center">支持</td>
+<td align="center">并发读写</td>
+<td align="center">支持</td>
+<td align="center">不支持并发写</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">云存储</td>
-<td style="text-align:center">不支持</td>
-<td style="text-align:center">支持</td>
-<td style="text-align:center">支持</td>
+<td align="center">云存储</td>
+<td align="center">不支持</td>
+<td align="center">支持</td>
+<td align="center">支持</td>
 </tr>
 <tr>
-<td style="text-align:center">兼容性</td>
-<td style="text-align:center">Spark，Impala，Presto</td>
-<td style="text-align:center">Spark，Presto，Hive，MR 较好</td>
-<td style="text-align:center">依赖Spark，有限支持Hive，Presto</td>
+<td align="center">兼容性</td>
+<td align="center">Spark，Impala，Presto</td>
+<td align="center">Spark，Presto，Hive，MR 较好</td>
+<td align="center">依赖Spark，有限支持Hive，Presto</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><strong>选择建议：</strong>考虑实时数仓方案以及SQL支持方面可选Kudu，数据湖方案及可回滚可选DeltaLake和Hudi，考虑兼容性高且应对读多写少读少写多都有很好的方案选Hudi，考虑并发写能力读多写少且与Spark紧密结合选DeltaLake。</p>
 <h2 id="Kudu架构原理"><a href="#Kudu架构原理" class="headerlink" title="Kudu架构原理"></a>Kudu架构原理</h2><h3 id="Raft算法介绍"><a href="#Raft算法介绍" class="headerlink" title="Raft算法介绍"></a>Raft算法介绍</h3><p>&emsp;&emsp;为了更好地理解Kudu，需要简单了解一下Raft算法。Raft是一个一致性算法，在分布式系统中一致性算法就是让多个节点在网络不稳定甚至部分节点宕机的情况下能对某个事件达成一致。而Raft是一个用于管理日志一致性的协议，它将分布式一致性分解为多个子问题：LeaderElection，LogReplication，Safety，LogCompaction等。</p>
 <p>&emsp;&emsp;<font size="3" color="red">Raft将系统中的角色分为Leader，Follower和Candidate。正常运行时只有Leader和Follower，选举时才会有Candidate。</font><br>&emsp;&emsp;<font size="3" color="red">Leader:</font>接受客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。<br>&emsp;&emsp;<font size="3" color="red">Follower:</font>接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。响应Candidate的邀请投票请求。把客户端请求重定向到Leader。<br>&emsp;&emsp;<font size="3" color="red">Candidate:</font>Leader选举过程中的临时角色，由于Follower转变而来。</p>
 <p><strong>Leader选举</strong><br>发生在<strong>Follower接收不到Leader的HeartBeat导致ElectionTimeout超时</strong>的情况下。<br>①每个Follower都有一个时钟<strong>ElectionTimeout</strong>，是个<strong>随机值</strong>，表示Follower等待成为Leader的时间，谁的时钟先跑完则先发起Leader选举。（收到Leader心跳时会清零ElectionTimeout）<br>②Follower将其任期(Term)加1然后转为Candidate状态，并且给自己投票，然后携Term_id和日志index给其他节点发起选举（RequestVote RPC）。有三种情况：<br>①赢得半数以上选票，成为Leader<br>②收到Leader消息，Leader被抢了，成为Follower<br>③选举超时时，没有节点赢得多数选票，选举失败，Term_id自增1，进行下一轮选举</p>
-<p>③<strong>Raft协议所有日志都只能从Leader写入Follower，Leader节点日志只会增加（index+1），不会删除和覆盖。</strong><br>所以Leader必须包含全部日志，能被选举为Leader的节点一定包含了所有已经提交的日志。</p>
-<p><font size="3" color="red">每个节点最多只能给一个候选人投票，先到先服务的原则。</font><br>选举胜出规则：节点Term_id越大越新则可能胜出，但可能有Term_id相同的情况，Term_id相同，比较日志Index越大越新则胜出。这一点很像Zookeeper选举的规则。<br>详细过程：首先会有一个Candidate选自己然后发起投票-&gt;Follower收到邀票，如果这个Follower还没给其他节点投票(一个节点只能一票),且对比Term_id比自己大，就把票投给这个Candidate，如果Term_id比自己小且自己还没投票，就拒绝请求，给自己投票。</p>
+<p>③<strong>Raft协议所有日志都只能从Leader写入Follower，Leader节点日志只会增加（index+1），不会删除和覆盖。</strong><br>所以Leader必须包含全部日志，能被选举为Leader的节点一定包含了所有已经提交的日志。<br><font size="3" color="red">每个节点最多只能给一个候选人投票，先到先服务的原则。</font><br>选举胜出规则：节点Term_id越大越新则可能胜出，但可能有Term_id相同的情况，Term_id相同，比较日志Index越大越新则胜出。这一点很像Zookeeper选举的规则。<br>详细过程：首先会有一个Candidate选自己然后发起投票-&gt;Follower收到邀票，如果这个Follower还没给其他节点投票(一个节点只能一票),且对比Term_id比自己大，就把票投给这个Candidate，如果Term_id比自己小且自己还没投票，就拒绝请求，给自己投票。</p>
 <p><strong>概括：</strong>增加任期编号-&gt;给自己投票-&gt;重置ElectionTimeout-&gt;发送投票RPC给其他节点</p>
 <p><strong>日志复制</strong><br>过程：Leader接收来自客户端的请求并将其以日志的形式复制到集群中的其它节点，并且强制要求其它节点的日志和自己保持一致。</p>
 <p>Raft同步日志由编号index、term_id和命令组成。=&gt;有助于选举和根据term持久化<br>日志永远只有一个流向Leader-&gt;Follower</p>
 <p>1.日志复制的保证：</p>
 <pre><code class="text">1.如果不同日志中的两个条目有着相同的索引和任期号，则它们所存储的命令是相同的（原因：leader 最多在一个任期里的一个日志索引位置创建一条日志条目，日志条目在日志的位置从来不会改变）。
-2.如果不同日志中的两个条目有着相同的索引和任期号，则它们之前的所有条目都是完全一样的（原因：每次 RPC 发送附加日志时，leader 会把这条日志条目的前面的日志的下标和任期号一起发送给 follower，如果 follower 发现和自己的日志不匹配，那么就拒绝接受这条日志，这个称之为一致性检查）。
-</code></pre>
+2.如果不同日志中的两个条目有着相同的索引和任期号，则它们之前的所有条目都是完全一样的（原因：每次 RPC 发送附加日志时，leader 会把这条日志条目的前面的日志的下标和任期号一起发送给 follower，如果 follower 发现和自己的日志不匹配，那么就拒绝接受这条日志，这个称之为一致性检查）。</code></pre>
 <p>2.网络故障或Leader崩溃时保证一致性：</p>
 <pre><code class="text">网络崩溃讲集群分为两拨，没有Leader存在的另一波会重新选主，这时网络恢复，会出现两个Leadr的情况，这是会产生冲突的，这时会根据任期Term_id将任期低的Leader自动降级为Follower，Leader和Follower日志有冲突的时候，Leader将校验Follower最后一条日志是否和Leader匹配，如果不匹配，将递减查询，直到匹配，匹配后，删除冲突的日志。这样就实现了主从日志的一致性。
-递减查询，直到匹配，强制覆盖 =&gt;Leader会强制Follower复制它的日志，Leader会从最后的LogIndex从后往前试，直到找到日志一致的index，然后开始复制，覆盖该index之后的日志条目。
-</code></pre>
+递减查询，直到匹配，强制覆盖 =&gt;Leader会强制Follower复制它的日志，Leader会从最后的LogIndex从后往前试，直到找到日志一致的index，然后开始复制，覆盖该index之后的日志条目。</code></pre>
 <p>场景：<br>发生了网络分区或者网络通信故障，使得Leader不能访问大多数Follwer了，那么Leader只能正常更新它能访问的那些Follower，而大多数的Follower因为没有了Leader，他们重新选出一个Leader，然后这个 Leader来接受客户端的请求，如果客户端要求其添加新的日志，这个新的Leader会通知大多数Follower。如果这时网络故障修复 了，那么原先的Leader就变成Follower，在失联阶段这个老Leader的任何更新都不能算commit，都回滚，接受新的Leader的新的更新（递减查询匹配日志）。</p>
 <p><strong>日志压缩</strong><br>日志不能无限增长，否则会导致重播日志时耗时很长。所以对日志进行压缩，定量Snapshot。</p>
-<p>&emsp;&emsp;Raft参考：<a href="https://blog.csdn.net/daaikuaichuan/article/details/98627822" target="_blank" rel="noopener">Raft算法详解</a><br>&emsp;&emsp;<strong>Raft算法在Kudu中的应用：</strong>多个TMaster之间通过Raft协议实现数据同步和高可用–Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。</p>
+<p>&emsp;&emsp;Raft参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/daaikuaichuan/article/details/98627822">Raft算法详解</a><br>&emsp;&emsp;<strong>Raft算法在Kudu中的应用：</strong>多个TMaster之间通过Raft协议实现数据同步和高可用–Raft负责在多个Tablet副本中选出Leader和Follower，Leader Tablet负责发送写入数据给Follower Tablet，大多数副本都完成了写操作则会向客户端确认。</p>
 <h3 id="Kudu的一致性模型"><a href="#Kudu的一致性模型" class="headerlink" title="Kudu的一致性模型"></a>Kudu的一致性模型</h3><p>相关资料不多，可以一起讨论  </p>
 <pre><code class="text">Kudu为用户提供了两种一致性模型(snapshot consistency和external consistency)。默认的一致性模型是snapshot consistency。这种一致性模型保证用户每次读取出来的都是一个可用的快照，但这种一致性模型只能保证单个client可以看到最新的数据，但不能保证多个client每次取出的都是最新的数据。另一种一致性模型external consistency(后开始的事务一定可以看到先提交的事务的修改。所有事务的读写都加锁可以解决这个问题，缺点是性能较差。)可以在多个client之间保证每次取到的都是最新数据，但是Kudu没有提供默认的实现，需要用户做一些额外工作。
 为了实现external consistency，Kudu提供了两种方式：
 1.在client之间传播timestamp token。在一个client完成一次写入后，会得到一个timestamp token，然后这个client把这个token传播到其他client，这样其他client就可以通过token取到最新数据了。不过这个方式的复杂度很高，基于HybridTime方案，这也就是为什么Kudu高度依赖NTP。
-2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着[分布式事务实现-Spanner](https://blog.csdn.net/weixin_30650039/article/details/94998723)的出现，未来几年内基于real-time clock的技术将会逐渐成熟。
-</code></pre>
+2.通过commit-wait方式，这有些类似于Google的Spanner。但是目前基于NTP的commit-wait方式延迟实在有点高。不过Kudu相信，随着[分布式事务实现-Spanner](https://blog.csdn.net/weixin_30650039/article/details/94998723)的出现，未来几年内基于real-time clock的技术将会逐渐成熟。</code></pre>
 <h3 id="LSM树"><a href="#LSM树" class="headerlink" title="LSM树"></a>LSM树</h3><p><font size="3" color="blue"><strong>LSM树(Log-Structured Merge Tree)</strong></font><br>&emsp;&emsp;Kudu与HBase在写的过程中都采用了LSM树的结构，LSM树的主要思想就是随机写转换为顺序写来提高写性能，随机读写需要磁盘的机械臂不断寻道，延迟较高，而转换为顺序写后机械臂不会频繁寻址，性能较好。<br>&emsp;&emsp;LSM树原理是把一棵大的树拆分成N棵小树，小树存在于内存中，随着更新和写入操作，小树存放数据达到一定大小后会写入磁盘，小树到了磁盘中，定期与磁盘中的大树做合并。<br>&emsp;&emsp;大家都知道HBase的MemStore，Kudu在写入方面的设计与之类似，Kudu先将对数据的修改保留在内存中，达到一定大小后将这些修改操作批量写入磁盘。但读取的时候稍微麻烦些，需要读取历史数据和内存中最近修改操作。所以写入性能大大提升，而读取时要先去内存读取，如果没命中，则会去磁盘读多个文件。</p>
 <h3 id="压缩和编码"><a href="#压缩和编码" class="headerlink" title="压缩和编码"></a>压缩和编码</h3><p>&emsp;&emsp;我们都知道列式存储的压缩效果很好，那么为什么列式存储比行存储压缩效果好呢？<br>&emsp;&emsp;比如一个列存的国家名，那只能包含“美国”，“日本”，“韩国”，“加拿大”等值，而这些值会存储在一起，而不是分散到包含很多不相关的其他列值之间。这样列式存储也就不需要将每个值都完完整整保存起来，所以压缩效果显著。<br>&emsp;&emsp;编码对于列式存储的优化更加明显，编码和压缩作用相同，比如上面的例子，编码会将数据的值转换为一种更小的表现形式，比如，“美国”编码为1，“日本”编码为2，“韩国”编码为3，“加拿大”编码为4…则Kudu只存储1，2，3，4…而不存储长字符串，占用空间大大减少。</p>
 <h3 id="Kudu一些概念"><a href="#Kudu一些概念" class="headerlink" title="Kudu一些概念"></a>Kudu一些概念</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png" alt="alt Kudu-03">   </p>
@@ -637,7 +630,7 @@
 <ul>
 <li><strong>基于Hash分区(Hash Partitioning):</strong><br>&emsp;&emsp;哈希分区通过哈希值将行分配到许多Buckets(存储桶)之一,一个Bucket对应一个Tablet。<br>&emsp;&emsp;优点：按ID哈希分区可以将数据均匀分布，写操作会分布在多个节点，减轻热点和Tablet大小不均匀问题。<strong>也就是基于ID哈希分区写效率高</strong><br>&emsp;&emsp;缺点：按ID查询数据会读取单个Tablet(Bucket)，单点读取效率低。</li>
 <li><strong>基于Range分区(Range Partitioning):</strong><br>&emsp;&emsp;由PK范围划分组成，一个区间对应一个Tablet。将数据按给定的主键范围的存储到各个TS节点上。<br>&emsp;&emsp;优点：如果按日期范围分区，单个ID的读取会跨多个节点并行执行，效率高。<strong>也就是基于时间范围分区查询效率高。</strong><br>&emsp;&emsp;缺点：如果按日期范围分区会有写热点问题，而且一旦数据量超出最后一个Range，接下来的数据将全部写入最后一个Range分区，发生倾斜。</li>
-<li><strong>多级分区(Multilevel Partitioning):</strong>可以在单表上组合分区类型。<br>&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点–既可以数据分布均匀，又可以在每个分片中保留指定的数据。<strong>也就是基于ID哈希分区且基于时间范围分区组合方式读写效率都会提高</strong><br>&emsp;&emsp;缺点：优点太多…</li>
+<li><strong>多级分区(Multilevel Partitioning):**可以在单表上组合分区类型。<br>&emsp;&emsp;优点：结合以上两种分区方式，保留两种分区类型的优点–既可以数据分布均匀，又可以在每个分片中保留指定的数据。</strong>也就是基于ID哈希分区且基于时间范围分区组合方式读写效率都会提高**<br>&emsp;&emsp;缺点：优点太多…</li>
 </ul>
 <h3 id="复制策略"><a href="#复制策略" class="headerlink" title="复制策略"></a>复制策略</h3><p>&emsp;&emsp;如果一个TServer出现故障，副本的数量由3减到2个，Kudu会尽快恢复副本数。两种复制策略：<br><strong>3-4-3</strong>：如果一个副本丢失，先添加替换的副本，再删除失败的副本，Kudu默认使用这种复制策略。<br><strong>3-2-3</strong>：如果一个副本丢失，先删除失败的副本，再添加替换的副本。</p>
 <h3 id="一些细节"><a href="#一些细节" class="headerlink" title="一些细节"></a>一些细节</h3><ol>
@@ -655,16 +648,14 @@ Parquet格式存储的数据集大小60TB
 Tablet冗余副本3
 
 TServer数量 = (Parquet格式存储的数据集大小 * 冗余数) / (TS磁盘容量 * ( 1 - 磁盘预留))
-TServer数量 = (60 * 3) / (8 * (1 - 0.25)) = 30
-</code></pre>
+TServer数量 = (60 * 3) / (8 * (1 - 0.25)) = 30</code></pre>
 <h3 id="存储介质"><a href="#存储介质" class="headerlink" title="存储介质"></a>存储介质</h3><p>&emsp;&emsp;在CM部署Master和TServer时，我们可以看到如下配置：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.png" alt="alt Kudu-07"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.jpg" alt="alt Kudu-07"><br>&emsp;&emsp;<strong>Kudu设计时就对数据和WAL分开存储的，为什么呢？</strong><br>&emsp;&emsp;之前说过WAL仅支持追加写，单个操作乍一看会顺序写WAL，但同时执行多个任务时，更像是随机写WAL，这就很考验WAL底层存储的IOPS(IO Per Second)了。传统机械盘IOPS也就几百，而NVMe-SSD的IOPS能达到万级甚至百万级，所以Kudu WAL尽量存储在SSD中。<br>&emsp;&emsp;<strong>那WAL的SSD盘大概要选多大呢？</strong></p>
 <pre><code class="text">Kudu的WAL日志是可以控制大小，日志段数量的。
 默认日志段大小8M，数量1-80个，按默认的8M，80个算，如果共2000个Tablet，需要WAL的SSD大小：
-8 * 80 * 2000 = 1280000MB 约1.3TB
-</code></pre>
+8 * 80 * 2000 = 1280000MB 约1.3TB</code></pre>
 <p>&emsp;&emsp;Tablet的数据可以用机械盘HDD来存储(SSD更好)，可以与DataNode处于同一块磁盘，这样更方便管理，因为这样可以充分利用磁盘负载和磁盘空间，不至于一个盘爆满另一个盘空余很多。</p>
-<h2 id="Kudu使用"><a href="#Kudu使用" class="headerlink" title="Kudu使用"></a>Kudu使用</h2><p>环境：<br>四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。<br><strong>OS:</strong>CentOS7;<strong>Impala:</strong>3.2.0-cdh6.3.1;<strong>Kudu:</strong>1.10.0-cdh6.3.1(3Master+3TServer);<strong>Hive:</strong>2.1.1-cdh6.3.1;<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg" alt="alt Kudu-08"><br>依次启动HDFS、hive、Kudu、Impala。</p>
-<h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><p>&emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。<br>&emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。<br>&emsp;&emsp;注意：=, &lt;=, ‘\&lt;’, ‘>‘, &gt;=, BETWEEN, IN等操作会从Impala谓词下推到Kudu，性能高。而!=, like和其他Impala关键字会让Kudu返回所有结果再让Impala过滤，效率低下。因为Kudu没二级索引，所以没有主键的谓词也会造成全表扫描。</p>
+<h2 id="Kudu使用"><a href="#Kudu使用" class="headerlink" title="Kudu使用"></a>Kudu使用</h2><p>环境：<br>四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。<br>**OS:**CentOS7;**Impala:**3.2.0-cdh6.3.1;**Kudu:**1.10.0-cdh6.3.1(3Master+3TServer);**Hive:**2.1.1-cdh6.3.1;<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg" alt="alt Kudu-08"><br>依次启动HDFS、hive、Kudu、Impala。</p>
+<h3 id="Kudu-Impala"><a href="#Kudu-Impala" class="headerlink" title="Kudu + Impala"></a>Kudu + Impala</h3><p>&emsp;&emsp;Impala定位是一款实时查询引擎(低延时SQL交互查询)，快的原因：基于内存计算，无需MR，C++编写，兼容HiveQL和支持数据本地化。这与Kudu场景相吻合，Kudu官网也说Impala和Kudu可以无缝整合。<br>&emsp;&emsp;进入Impala配置，Kudu服务处勾选Kudu即可。<br>&emsp;&emsp;注意：=, &lt;=, ‘&lt;‘, ‘&gt;‘, &gt;=, BETWEEN, IN等操作会从Impala谓词下推到Kudu，性能高。而!=, like和其他Impala关键字会让Kudu返回所有结果再让Impala过滤，效率低下。因为Kudu没二级索引，所以没有主键的谓词也会造成全表扫描。</p>
 <p><strong>1.使用Impala创建Hash分区的Kudu表</strong></p>
 <pre><code class="Impala">impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
 
@@ -684,8 +675,7 @@ TBLPROPERTIES (
 -- 查看Kudu中已能看到刚创建的表
 kudu table list cdh102:7051,cdh103:7051,cdh104:7051
 -- 查看表以及tablets
-kudu table list cdh102:7051,cdh103:7051,cdh104:7051 --list_tablets
-</code></pre>
+kudu table list cdh102:7051,cdh103:7051,cdh104:7051 --list_tablets</code></pre>
 <p>在WebUI上可以看到该表对应8个Tablet以及每个Tablet信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-09.jpg" alt="alt Kudu-09">  </p>
 <p><strong>2.使用Impala创建RANGE分区的Kudu表</strong></p>
 <pre><code class="Impala">impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
@@ -720,8 +710,7 @@ PARTITION BY RANGE (state) ( -- 联合主键时，RANGE分区可以使用其中�
 STORED AS KUDU
 TBLPROPERTIES (
 &#39;kudu.master_addresses&#39; = &#39;cdh102:7051,cdh103:7051,cdh104:7051&#39;
-);
-</code></pre>
+);</code></pre>
 <p><strong>3.使用Impala创建混合分区的Kudu表</strong></p>
 <pre><code class="Impala">impala-shell -i cdh102:21000  -- Impala Daemon在cdh102机器
 
@@ -740,8 +729,7 @@ RANGE (state) (
 STORED AS KUDU
 TBLPROPERTIES (
 &#39;kudu.master_addresses&#39; = &#39;cdh102:7051,cdh103:7051,cdh104:7051&#39;
-);
-</code></pre>
+);</code></pre>
 <p><strong>4.在Impala映射已经存在的Kudu表</strong></p>
 <pre><code class="Impala">[kudu@cdh102 /]# kudu table list cdh102:7051,cdh103:7051,cdh104:7051         
 impala::impala_kudu.first_kudu_table
@@ -757,8 +745,7 @@ TBLPROPERTIES (
 &#39;kudu.table_name&#39; = &#39;impala::impala_kudu.first_kudu_table&#39;
 );
 
-drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响
-</code></pre>
+drop table impala_kudu.fifth_kudu_table;  -- 删除不会对Kudu中表有影响</code></pre>
 <p><strong>5.转储一张Hive表到Kudu</strong></p>
 <pre><code class="Impala">show create table default.test;
 
@@ -775,12 +762,79 @@ TBLPROPERTIES (
 
 INSERT INTO impala_kudu.test SELECT * FROM default.test;
 
-SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因
-</code></pre>
-<p>在官网了解更多：<a href="https://kudu.apache.org/docs/kudu_impala_integration.html" target="_blank" rel="noopener">Using Apache Kudu with Apache Impala</a></p>
-<h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><p><a href="https://blog.csdn.net/nazeniwaresakini/article/details/104220206/" target="_blank" rel="noopener">https://blog.csdn.net/nazeniwaresakini/article/details/104220206/</a></p>
-<h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><p><strong>与Hive MetaStore集成</strong><br>官网写的很详细。<br>在官网了解更多：<a href="https://kudu.apache.org/docs/hive_metastore.html" target="_blank" rel="noopener">Using the Hive Metastore with Kudu</a></p>
-<h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><p><strong>Kudu常用Command Lines</strong><br><a href="https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy" target="_blank" rel="noopener">Kudu客户端命令</a><br>Kudu有很多命令，大致分几类：</p>
+SELECT * FROM impala_kudu.test;  -- 这时会发现数据顺序发生变化了，因为Hash分区的原因</code></pre>
+<p><strong>6.Kudu表备份到Hive</strong><br>实测在数据量不大 百G级别 使用Impala实现Kudu数据全量同步Hive，不会对Kudu服务造成影响</p>
+<pre><code class="Impala">CREATE TABLE default.impala_kudu_test LIKE impala_kudu.test;
+INSERT INTO default.impala_kudu_test SELECT * FROM impala_kudu.test;</code></pre>
+<p>在官网了解更多：<a target="_blank" rel="noopener" href="https://kudu.apache.org/docs/kudu_impala_integration.html">Using Apache Kudu with Apache Impala</a></p>
+<h3 id="Kudu-Spark"><a href="#Kudu-Spark" class="headerlink" title="Kudu + Spark"></a>Kudu + Spark</h3><pre><code class="pom">    &lt;!-- scala.bin.version: 2.12, kudu.version: 1.10.0 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.kudu&lt;/groupId&gt;
+        &lt;artifactId&gt;kudu-spark2_$&#123;scala.bin.version&#125;&lt;/artifactId&gt;
+        &lt;version&gt;$&#123;kudu.version&#125;&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.kudu&lt;/groupId&gt;
+        &lt;artifactId&gt;kudu-spark2-tools_$&#123;scala.bin.version&#125;&lt;/artifactId&gt;
+        &lt;version&gt;$&#123;kudu.version&#125;&lt;/version&gt;
+   &lt;/dependency&gt;</code></pre>
+<p>Spark连接并操作Kudu表</p>
+<pre><code class="scala">import org.apache.kudu.client._
+import collection.JavaConverters._
+
+// Read a table from Kudu
+val df = spark.read
+  .options(Map(&quot;kudu.master&quot; -&gt; &quot;kudu.master:7051&quot;, &quot;kudu.table&quot; -&gt; &quot;kudu_table&quot;))
+  .format(&quot;kudu&quot;).load
+
+// Query using the Spark API...
+df.select(&quot;id&quot;).filter(&quot;id &gt;= 5&quot;).show()
+
+// ...or register a temporary table and use SQL
+df.createOrReplaceTempView(&quot;kudu_table&quot;)
+val filteredDF = spark.sql(&quot;select id from kudu_table where id &gt;= 5&quot;).show()
+
+// Use KuduContext to create, delete, or write to Kudu tables
+val kuduContext = new KuduContext(&quot;kudu.master:7051&quot;, spark.sparkContext)
+
+// Create a new Kudu table from a DataFrame schema
+// NB: No rows from the DataFrame are inserted into the table
+kuduContext.createTable(
+    &quot;test_table&quot;, df.schema, Seq(&quot;key&quot;),
+    new CreateTableOptions()
+        .setNumReplicas(1)
+        .addHashPartitions(List(&quot;key&quot;).asJava, 3))
+
+// Insert data
+kuduContext.insertRows(df, &quot;test_table&quot;)
+
+// Delete data
+kuduContext.deleteRows(filteredDF, &quot;test_table&quot;)
+
+// Upsert data
+kuduContext.upsertRows(df, &quot;test_table&quot;)
+
+// Update data
+val alteredDF = df.select(&quot;id&quot;, $&quot;count&quot; + 1)
+kuduContext.updateRows(filteredRows, &quot;test_table&quot;)
+
+// Data can also be inserted into the Kudu table using the data source, though the methods on
+// KuduContext are preferred
+// NB: The default is to upsert rows; to perform standard inserts instead, set operation = insert
+// in the options map
+// NB: Only mode Append is supported
+df.write
+  .options(Map(&quot;kudu.master&quot;-&gt; &quot;kudu.master:7051&quot;, &quot;kudu.table&quot;-&gt; &quot;test_table&quot;))
+  .mode(&quot;append&quot;)
+  .format(&quot;kudu&quot;).save
+
+// Check for the existence of a Kudu table
+kuduContext.tableExists(&quot;another_table&quot;)
+
+// Delete a Kudu table
+kuduContext.deleteTable(&quot;unwanted_table&quot;)</code></pre>
+<h3 id="Kudu-Hive"><a href="#Kudu-Hive" class="headerlink" title="Kudu + Hive"></a>Kudu + Hive</h3><p><strong>与Hive MetaStore集成</strong><br>官网写的很详细。<br>在官网了解更多：<a target="_blank" rel="noopener" href="https://kudu.apache.org/docs/hive_metastore.html">Using the Hive Metastore with Kudu</a></p>
+<h3 id="Kudu-APIs"><a href="#Kudu-APIs" class="headerlink" title="Kudu APIs"></a>Kudu APIs</h3><p><strong>Kudu常用Command Lines</strong><br><a target="_blank" rel="noopener" href="https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy">Kudu客户端命令</a><br>Kudu有很多命令，大致分几类：</p>
 <pre><code class="shell">su - kudu
 kudu cluster 集群管理，包括健康状态检查，移动tablet，rebalance等操作
 kudu diagnose 集群诊断工具
@@ -795,8 +849,7 @@ kudu table  操作Kudu表，包括添加范围分区，设置blockSize，设置�
 kudu tablet  操作Kudu的Tablet 包括更换Tablet的Leader，Raft配置
 kudu test  测试
 kudu tserver 操作TabletServer包括运行，设置Flag，获取状态，时间戳，列出TServers等
-kudu wal 操作Kudu WAL，转储WAL日志文件
-</code></pre>
+kudu wal 操作Kudu WAL，转储WAL日志文件</code></pre>
 <p><strong>Kudu常用Java API：</strong></p>
 <pre><code class="Java">Maven Dep：
 &lt;dependency&gt;
@@ -815,8 +868,8 @@ import org.apache.kudu.client.*;
 import org.apache.kudu.shaded.com.google.common.collect.ImmutableList;
 import java.util.LinkedList;
 
-public class KuduDDL{
-    public static void main(String[] args) {
+public class KuduDDL&#123;
+    public static void main(String[] args) &#123;
         String kuduMasterAddrs = &quot;cdh102,cdh103,cdh104&quot;;
         KuduDDLOperations kuduDDLOperations = KuduDDLOperations.getInstance(kuduMasterAddrs);
 
@@ -837,14 +890,14 @@ public class KuduDDL{
         CreateTableOptions options = new CreateTableOptions();
         options.setRangePartitionColumns(ImmutableList.of(&quot;id&quot;)); //设置id为Range key
         int temp = 0;
-        for(int i = 0; i &lt; 10; i++){  //id 每10一个区间直到100
+        for(int i = 0; i &lt; 10; i++)&#123;  //id 每10一个区间直到100
             PartialRow lowLevel = schema.newPartialRow();  //定义用来分区的列
             lowLevel.addInt(&quot;id&quot;, temp);  //与字段类型对应 INT32则addInt  INT64则addLong
             PartialRow highLevel = schema.newPartialRow();
             temp += 10;
             highLevel.addInt(&quot;id&quot;, temp);
             options.addRangePartition(lowLevel, highLevel);
-        }
+        &#125;
         //3.开始建表
         boolean result = kuduDDLOperations.createTable(tableName, schema, options);
         System.out.println(result);
@@ -861,40 +914,40 @@ public class KuduDDL{
 
         //关闭连接
         kuduDDLOperations.closeConnection();
-    }
-}
+    &#125;
+&#125;
 
-class KuduDDLOperations {
+class KuduDDLOperations &#123;
     private static volatile KuduDDLOperations instance;
     private KuduClient kuduClient = null;
-    private KuduDDLOperations(String masterAddr){
+    private KuduDDLOperations(String masterAddr)&#123;
         kuduClient = new KuduClient.KuduClientBuilder(masterAddr).defaultOperationTimeoutMs(6000).build();
-    }
+    &#125;
 
-    public static KuduDDLOperations getInstance(String masterAddr){
-        if(instance == null){
-            synchronized (KuduDDLOperations.class){
-                if(instance == null){
+    public static KuduDDLOperations getInstance(String masterAddr)&#123;
+        if(instance == null)&#123;
+            synchronized (KuduDDLOperations.class)&#123;
+                if(instance == null)&#123;
                     instance = new KuduDDLOperations(masterAddr);
-                }
-            }
-        }
+                &#125;
+            &#125;
+        &#125;
         return instance;
-    }
+    &#125;
 
-    public void closeConnection(){
-        try {
+    public void closeConnection()&#123;
+        try &#123;
             kuduClient.close();
-        } catch (Exception e) {
+        &#125; catch (Exception e) &#123;
             e.printStackTrace();
-        }
-    }
+        &#125;
+    &#125;
 
-    public ColumnSchema newColumn(String name, Type type, boolean isKey){
+    public ColumnSchema newColumn(String name, Type type, boolean isKey)&#123;
         ColumnSchema.ColumnSchemaBuilder column = new ColumnSchema.ColumnSchemaBuilder(name, type);
         column.key(isKey);
         return column.build();
-    }
+    &#125;
 
     /**
      * 创建表
@@ -905,32 +958,32 @@ class KuduDDLOperations {
      * @param tableOptions 建表参数 TableOptions对象
      * @return boolean
      */
-    public boolean createTable(String tableName, Schema schema, CreateTableOptions tableOptions){
-        try {
+    public boolean createTable(String tableName, Schema schema, CreateTableOptions tableOptions)&#123;
+        try &#123;
             kuduClient.createTable(tableName, schema, tableOptions);
             System.out.println(&quot;Create table successfully!&quot;);
             return true;
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
-        }
+        &#125;
         return false;
-    }
+    &#125;
 
     /**
      * 删库跑路
      * @param tableName 要删的表名
      * @return boolean 是否需要跑路
      */
-    public boolean dropTable(String tableName){
-        try {
+    public boolean dropTable(String tableName)&#123;
+        try &#123;
             kuduClient.deleteTable(tableName);
             System.out.println(&quot;Drop table successfully!&quot;);
             return true;
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
-        }
+        &#125;
         return false;
-    }
+    &#125;
 
     /**
      * 给Kudu表添加字段
@@ -939,18 +992,18 @@ class KuduDDLOperations {
      * @param type 类型
      * @return
      */
-    public boolean addColumn(String tableName, String column, Type type) {
+    public boolean addColumn(String tableName, String column, Type type) &#123;
         AlterTableOptions alterTableOptions = new AlterTableOptions();
         alterTableOptions.addColumn(new ColumnSchema.ColumnSchemaBuilder(column, type).nullable(true).build());
-        try {
+        try &#123;
             kuduClient.alterTable(tableName, alterTableOptions);
             System.out.println(&quot;成功添加字段&quot; + column + &quot;到表&quot; + tableName);
             return true;
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
-        }
+        &#125;
         return false;
-    }
+    &#125;
 
     /**
      * 删除Kudu表指定字段
@@ -958,18 +1011,18 @@ class KuduDDLOperations {
      * @param column 字段名
      * @return
      */
-    public boolean deleteColumn(String tableName, String column){
+    public boolean deleteColumn(String tableName, String column)&#123;
         AlterTableOptions alterTableOptions = new AlterTableOptions().dropColumn(column);
-        try {
+        try &#123;
             kuduClient.alterTable(tableName, alterTableOptions);
             System.out.println(&quot;成功删除表&quot; + tableName + &quot;的字段&quot; + column);
             return true;
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
-        }
+        &#125;
         return false;
-    }
-}
+    &#125;
+&#125;
 // -------------------------------------------------------------------------------------------------------------
 //KuduDML.java  Kudu数据操作API包括：CRUD
 package top.qjj.shmily.operations;
@@ -977,8 +1030,8 @@ package top.qjj.shmily.operations;
 import org.apache.kudu.client.SessionConfiguration.FlushMode;
 import org.apache.kudu.client.*;
 
-public class KuduDML {
-    public static void main(String[] args) {
+public class KuduDML &#123;
+    public static void main(String[] args) &#123;
         String masterAddr = &quot;cdh102,cdh103,cdh104&quot;;
         KuduDMLOperations kuduDMLOperations = KuduDMLOperations.getInstance(masterAddr);
         //插入数据
@@ -991,40 +1044,40 @@ public class KuduDML {
         kuduDMLOperations.selectRows();
         //关闭Client连接
         kuduDMLOperations.closeConnection();
-    }
-}
+    &#125;
+&#125;
 
-class KuduDMLOperations {
+class KuduDMLOperations &#123;
     private static volatile KuduDMLOperations instance;
     private KuduClient kuduClient = null;
-    private KuduDMLOperations(String masterAddr){
+    private KuduDMLOperations(String masterAddr)&#123;
         kuduClient = new KuduClient.KuduClientBuilder(masterAddr).defaultOperationTimeoutMs(6000).build();
-    }
-    public static KuduDMLOperations getInstance(String masterAddr){
-        if(instance == null){
-            synchronized (KuduDMLOperations.class){
-                if(instance == null){
+    &#125;
+    public static KuduDMLOperations getInstance(String masterAddr)&#123;
+        if(instance == null)&#123;
+            synchronized (KuduDMLOperations.class)&#123;
+                if(instance == null)&#123;
                     instance = new KuduDMLOperations(masterAddr);
-                }
-            }
-        }
+                &#125;
+            &#125;
+        &#125;
         return instance;
-    }
+    &#125;
 
-    public void closeConnection() {
-        try {
+    public void closeConnection() &#123;
+        try &#123;
             kuduClient.close();
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
-        }
-    }
+        &#125;
+    &#125;
 
     /**
      * 以kudu_table_with_hash表(id INT,name STRING)为例 插入数据
      * 注意：写数据时数据不支持为null，需要对进来的数据判空
      */
-    public void insertRows(){
-        try {
+    public void insertRows()&#123;
+        try &#123;
             KuduTable table = kuduClient.openTable(&quot;kudu_table_with_hash&quot;);  //打开表
             KuduSession kuduSession = kuduClient.newSession();  //创建会话Session
             kuduSession.setFlushMode(FlushMode.MANUAL_FLUSH);  //设置数据提交方式
@@ -1037,51 +1090,51 @@ class KuduDMLOperations {
             int numOps = 3000;
             kuduSession.setMutationBufferSpace(numOps); //设置MANUAL_FLUSH需要设置缓冲区操作次数限制 如果超限会抛异常
             int nowOps = 0;  //记录当前操作数
-            for(int i = 0; i &lt;= 100; i++){
+            for(int i = 0; i &lt;= 100; i++)&#123;
                 Insert insert = table.newInsert();
                 //字段数据
                 insert.getRow().addInt(&quot;id&quot;, i);
                 insert.getRow().addString(&quot;name&quot;, &quot;小&quot;+i);
                 nowOps += 1;
-                if(nowOps == numOps / 2){ //所以缓冲区操作次数达到一半时进行flush提交数据，避免抛异常
+                if(nowOps == numOps / 2)&#123; //所以缓冲区操作次数达到一半时进行flush提交数据，避免抛异常
                     kuduSession.flush();  //提交数据
                     nowOps = 0;  //计数器归零
-                }
+                &#125;
                 kuduSession.apply(insert);
-            }
+            &#125;
             kuduSession.flush();  //保证最后都提交上去了
             kuduSession.close();
             System.out.println(&quot;数据成功写入Kudu表&quot;);
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
             System.out.println(&quot;数据写入失败，原因：&quot; + e.getMessage());
-        }
-    }
+        &#125;
+    &#125;
 
     /**
      * 以kudu_table_with_hash表(id INT,name STRING)为例 查询数据
      */
-    public void selectRows(){
-        try {
+    public void selectRows()&#123;
+        try &#123;
             KuduTable table = kuduClient.openTable(&quot;kudu_table_with_hash&quot;); // 打开表
             KuduScanner scanner = kuduClient.newScannerBuilder(table).build();  //创建Scanner
-            while (scanner.hasMoreRows()){
-                for (RowResult r: scanner.nextRows()) {
+            while (scanner.hasMoreRows())&#123;
+                for (RowResult r: scanner.nextRows()) &#123;
                     System.out.println(r.getInt(&quot;id&quot;) + &quot; - &quot; + r.getString(1));
-                }
-            }
+                &#125;
+            &#125;
             scanner.close();
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
             System.out.println(&quot;查询失败，原因：&quot; + e.getMessage());
-        }
-    }
+        &#125;
+    &#125;
 
     /**
      * 以kudu_table_with_hash表(id INT,name STRING)为例 更新一条数据
      */
-    public void updateRow(){
-        try {
+    public void updateRow()&#123;
+        try &#123;
             KuduTable table = kuduClient.openTable(&quot;kudu_table_with_hash&quot;);
             KuduSession session = kuduClient.newSession();
             session.setFlushMode(FlushMode.AUTO_FLUSH_SYNC);
@@ -1091,17 +1144,17 @@ class KuduDMLOperations {
             row.addString(&quot;name&quot;, &quot;qjj&quot;);
             session.apply(update);
             session.close();
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
             System.out.println(&quot;数据更新失败，原因：&quot; + e.getMessage());
-        }
-    }
+        &#125;
+    &#125;
 
     /**
      * 以kudu_table_with_hash表(id INT,name STRING)为例 删除一条数据
      */
-    public void deleteRow(){
-        try {
+    public void deleteRow()&#123;
+        try &#123;
             KuduTable table = kuduClient.openTable(&quot;kudu_table_with_hash&quot;);
             KuduSession session = kuduClient.newSession();
             Delete delete = table.newDelete();
@@ -1109,13 +1162,12 @@ class KuduDMLOperations {
             session.flush();
             session.apply(delete);
             session.close();
-        } catch (KuduException e) {
+        &#125; catch (KuduException e) &#123;
             e.printStackTrace();
             System.out.println(&quot;数据删除失败，原因：&quot; + e.getMessage());
-        }
-    }
-}
-</code></pre>
+        &#125;
+    &#125;
+&#125;</code></pre>
 <p><strong>Kudu常用Python API：</strong></p>
 <pre><code class="python">import kudu
 from kudu.client import Partitioning
@@ -1143,19 +1195,19 @@ table = client.table(&#39;python_example&#39;)
 session = client.new_session()
 
 # Insert a row
-op = table.new_insert({&#39;key&#39;: 1, &#39;ts_val&#39;: datetime.utcnow()})
+op = table.new_insert(&#123;&#39;key&#39;: 1, &#39;ts_val&#39;: datetime.utcnow()&#125;)
 session.apply(op)
 
 # Upsert a row
-op = table.new_upsert({&#39;key&#39;: 2, &#39;ts_val&#39;: &quot;2020-01-01T00:00:00.000000&quot;})
+op = table.new_upsert(&#123;&#39;key&#39;: 2, &#39;ts_val&#39;: &quot;2020-01-01T00:00:00.000000&quot;&#125;)
 session.apply(op)
 
 # Updating a row
-op = table.new_update({&#39;key&#39;: 1, &#39;ts_val&#39;: (&quot;2020-07-12&quot;, &quot;%Y-%m-%d&quot;)})
+op = table.new_update(&#123;&#39;key&#39;: 1, &#39;ts_val&#39;: (&quot;2020-07-12&quot;, &quot;%Y-%m-%d&quot;)&#125;)
 session.apply(op)
 
 # Delete a row
-op = table.new_delete({&#39;key&#39;: 2})
+op = table.new_delete(&#123;&#39;key&#39;: 2&#125;)
 session.apply(op)
 
 # Flush write operations, if failures occur, capture print them.
@@ -1170,10 +1222,9 @@ scanner.add_predicate(table[&#39;ts_val&#39;] == datetime(2020, 7, 12))
 
 # Open Scanner and read all tuples
 # Note: This doesn&#39;t scale for large scans
-result = scanner.open().read_all_tuples()
-</code></pre>
-<h2 id="Kudu优化"><a href="#Kudu优化" class="headerlink" title="Kudu优化"></a>Kudu优化</h2><p>1.使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）<br>2.<a href="https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">kudu性能调优</a><br>3.memory_limit_hard_bytes 该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。<br>官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。<br>4.block_cache_capacity_mb Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。<br>5.memory.soft_limit_in_bytes/memory.limit_in_bytes这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。<br>6.maintenance_manager_num_threads单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。<br>7.max_create_tablets_per_ts创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。<br>8.follower_unavailable_considered_failed_sec当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。<br>9.max_clock_sync_error_usec NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。</p>
-<h2 id="Kudu异常处理"><a href="#Kudu异常处理" class="headerlink" title="Kudu异常处理"></a>Kudu异常处理</h2><p><a href="https://kudu.apache.org/docs/troubleshooting.html" target="_blank" rel="noopener">Apache Kudu Troubleshooting</a></p>
+result = scanner.open().read_all_tuples()</code></pre>
+<h2 id="Kudu优化"><a href="#Kudu优化" class="headerlink" title="Kudu优化"></a>Kudu优化</h2><p>1.使用SSD会显著提高Kudu性能。（因为如果取多个字段，列式存储在传统磁盘上会多次寻址，而使用SSD不会有寻址问题）<br>2.<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39478115/article/details/78469837?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight">kudu性能调优</a><br>3.memory_limit_hard_bytes 该参数是单个TServer能够使用的最大内存量。如果写入量很大而内存太小，会造成写入性能下降。如果集群资源充裕，可以将它设得比较大，比如设置为单台服务器内存总量的一半。<br>官方也提供了一个近似估计的方法，即：每1TB实际存储的数据约占用1.5GB内存，每个副本的MemRowSet和DeltaMemStore约占用128MB内存，（对多读少写的表而言）每列每CPU核心约占用256KB内存，另外再加上块缓存，最后在这些基础上留出约25%的余量。<br>4.block_cache_capacity_mb Kudu中也设计了BlockCache，不管名称还是作用都与HBase中的对应角色相同。默认值512MB，经验值是设置1~4GB之间，我们设了4GB。<br>5.memory.soft_limit_in_bytes/memory.limit_in_bytes这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。<br>6.maintenance_manager_num_threads单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。<br>7.max_create_tablets_per_ts创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。<br>8.follower_unavailable_considered_failed_sec当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。<br>9.max_clock_sync_error_usec NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。</p>
+<h2 id="Kudu异常处理"><a href="#Kudu异常处理" class="headerlink" title="Kudu异常处理"></a>Kudu异常处理</h2><p><a target="_blank" rel="noopener" href="https://kudu.apache.org/docs/troubleshooting.html">Apache Kudu Troubleshooting</a></p>
 <h2 id="HTAP混合事务分析处理"><a href="#HTAP混合事务分析处理" class="headerlink" title="HTAP混合事务分析处理"></a>HTAP混合事务分析处理</h2><p>HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。<br>HTAP的场景举例：</p>
 <ol>
 <li>管理层希望看到实时的数据汇总报表</li>
@@ -1182,7 +1233,7 @@ result = scanner.open().read_all_tuples()
 <li>车联网，物联网</li>
 </ol>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;Kudu–Fast Analytics on Fast Data.一个Kudu实现了整个大数据技术栈中诸多组件的功能，有分布式文件系统（好比HDFS），有一致性算法（好比Zookeeper），有Table（好比Hive表），有Tablet（好比Hive分区），有列式存储（如Parquet），有顺序和随机读取（如HBase），所以看起来kudu像一个轻量级的，结合了HDFS+Zookeeper+Hive+Parquet+HBase等组件功能并在性能上进行平衡的组件。它轻松地解决了随机读写+快速分析的业务场景，解决了实时数仓的诸多难点，同时降低了存储成本和运维成本。<br>&emsp;&emsp;学Kudu时让我想到曾经看过的终结者系列电影，万物互联，主角不小心被街边一个不起眼的监控探头拍到，就会立刻引来终结者的追杀，任何有网络的地方留下任何痕迹都会立刻被终结者感知…很明显，这就是在快速变化的数据上进行快速分析，如果没有Kudu，大量的物联网数据就只能批处理了，就没了时效性，主角就可以随便浪了。没准”天网”系统里就部署了Kudu节点呢？！哈哈哈！<br>&emsp;&emsp;在实时数仓、实时计算和物联网蓬勃发展的今天，你确定不学一下Kudu吗？</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.《Kudu:构建高性能实时数据分析存储系统》<br>2.<a href="https://kudu.apache.org/docs/" target="_blank" rel="noopener">Apache Kudu - Fast Analytics on Fast Data</a><br>3.<a href="https://www.cnblogs.com/dajiangtai/p/12461999.html" target="_blank" rel="noopener">Kudu专注于大规模数据快速读写，同时进行快速分析的利器</a><br>4.<a href="https://www.cnblogs.com/starzy/p/10573508.html" target="_blank" rel="noopener">Kudu基础入门</a><br>5.<a href="https://www.cnblogs.com/kehanc/p/12153409.html" target="_blank" rel="noopener">Kudu、Hudi和Delta Lake的比较</a><br>6.<a href="https://blog.csdn.net/nazeniwaresakini/article/details/104220206/" target="_blank" rel="noopener">迟到的Kudu设计要点面面观</a><br>7.<a href="https://www.jianshu.com/p/5ffd8730aad8" target="_blank" rel="noopener">迟到的Kudu设计要点面面观-前篇</a><br>8.<a href="https://blog.csdn.net/superzyl/article/details/87954442" target="_blank" rel="noopener">kudu-列式存储管理器-第四篇（原理篇）</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.《Kudu:构建高性能实时数据分析存储系统》<br>2.<a target="_blank" rel="noopener" href="https://kudu.apache.org/docs/">Apache Kudu - Fast Analytics on Fast Data</a><br>3.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dajiangtai/p/12461999.html">Kudu专注于大规模数据快速读写，同时进行快速分析的利器</a><br>4.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/starzy/p/10573508.html">Kudu基础入门</a><br>5.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/kehanc/p/12153409.html">Kudu、Hudi和Delta Lake的比较</a><br>6.<a target="_blank" rel="noopener" href="https://blog.csdn.net/nazeniwaresakini/article/details/104220206/">迟到的Kudu设计要点面面观</a><br>7.<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5ffd8730aad8">迟到的Kudu设计要点面面观-前篇</a><br>8.<a target="_blank" rel="noopener" href="https://blog.csdn.net/superzyl/article/details/87954442">kudu-列式存储管理器-第四篇（原理篇）</a></p>
 
         </div>
         <!-- .entry-content -->
