@@ -21,7 +21,7 @@ date: 2021-03-12 14:46:00
 ---
 # Presto-高效SQL交互式查询引擎  
 ## Presto简介  
-&emsp;&emsp;Presto是Facebook开源的分布式SQL查询引擎，适用于交互式分析查询的场景（OLAP），数据量支持GB到PB字节。类似的工具有[**Impala**](https://shmily-qjj.top/1ae37d82/)、**ClickHouse**等...
+&emsp;&emsp;Presto是Facebook开源的分布式SQL查询引擎，适用于交互式分析查询的场景（OLAP），响应时间在小于 1 秒到几分钟的场景，数据量支持GB到PB字节。类似的工具有[**Impala**](https://shmily-qjj.top/1ae37d82/)、**ClickHouse**等...
 
 ## Presto优缺点
 优点：
@@ -41,8 +41,9 @@ date: 2021-03-12 14:46:00
 * 不支持数据类型隐式转换
 * 与Hive相比存在不小的语法差异、函数和UDF差异以及运算结果差异(如1/2在Hive结果为0.5在Presto结果为0)
 * Hive views are not supported.需要创建Presto视图
-* 因为纯内存计算，不适合多个大表Join
+* 因为纯内存计算，不适合多个大表Join(聚合操作边读数据边计算，再清内存，再读数据再计算，这种耗的内存并不高；但关联操作可能产生大量临时数据，可能比Hive慢)
 * Coordinator单点问题（常见方案：ip漂移、Nginx代理动态获取等）
+* 
 
 ## Presto原理
 <font size="3" color="red">在学习Presto原理前推荐先看看我之前关于Impala的文章：[《Impala-基于内存的高效SQL交互查询引擎》](https://shmily-qjj.top/1ae37d82/)</font>
@@ -53,6 +54,7 @@ date: 2021-03-12 14:46:00
 * <font size="3" color="red">Coordinator</font>：即Master，负责管理Meta元数据，Worker节点，SQL的解析和调度，生成Stage和Task分发给Workers，负责合并结果集并返回给客户端。相当于结合了Impalad的Coordinator角色和Planner角色的功能，区别是每个Impalad节点都可以是Coordinator，而Presto只能有一个Coordinator，多个协调者进程会导致脑裂，查询任务会死锁。
 * <font size="3" color="red">Worker</font>：负责计算和读写数据。相当于Impalad的Executor角色的功能。
 * <font size="3" color="red">DiscoveryServer</font>：通常内嵌于Coordinator节点，也可以独立出来部署，功能类似ZK，类似Impala中的ImpalaStateStore，用于监控节点心跳，一般DS和Coordinator在同一节点。Worker启动会向DS进程注册，Coordinator可以从DS获取到所有正常提供服务的Worker。
+Coordinator 与 Worker、Client 通信是通过 REST API。
 
 ### Presto数据模型
 Presto使用Catalog、Schema和Table这3层结构来管理数据：
@@ -173,7 +175,7 @@ vim etc/jvm.config
 -XX:+ExplicitGCInvokesConcurrent
 -XX:+HeapDumpOnOutOfMemoryError
 -XX:+ExitOnOutOfMemoryError
-# Presto配置 Coordinator节点 非生产集群单个节点即为Coordinator又为Worker可设node-scheduler.include-coordinator=true
+# Presto配置 Coordinator节点 非生产集群单个节点可以既为Coordinator又为Worker可设node-scheduler.include-coordinator=true
 vim etc/config.properties(每个节点不同)
 coordinator=true  是否为Coordinator
 node-scheduler.include-coordinator=false  是否在Coordinator节点执行计算（会影响性能，不建议true）
@@ -291,7 +293,7 @@ Presto支持事务，相关命令有[COMMIT](https://prestodb.io/docs/current/sq
 ### Presto WEBUI
 访问WEBUI地址即为DiscoveryServer地址：http://cdh101:8080/ui/
 透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-08.png)
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-08.jpg)
 
 | 任务状态 | 原因 |
 | :----: | :----: |
@@ -419,9 +421,93 @@ Broadcast：一个表被广播到所有参与Join计算节点
 对应的SessionProperty(join_distribution_type)
 参数值：AUTOMATIC全自动的Join算法选择，BROADCAST，PARTITIONED(默认)
 
-8. Hive分析任务如何迁移Presto
+8. Presto会根据元数据信息读取分区数据，合理设置分区能减少Presto数据读取量，提升查询性能
+
+9. Presto对ORC格式文件的读取进行了特定优化，相对于Parquet，Presto对ORC支持更好(Impala对Parquet支持更好)
+
+10. 数据压缩可以减少节点间数据传输对网络带宽的压力，对于即席查询需要快速解压，建议采用Snappy压缩算法
+
+11. 预先排序以提高性能
+对于已经排序的数据，在查询的数据过滤阶段，ORC格式支持跳过读取不必要的数据。比如对于经常需要过滤的字段可以预先排序。
+INSERT INTO table nation_orc partition(p) SELECT * FROM nation SORT BY n_name;
+如果需要过滤 n_name 字段，则性能将提升：
+SELECT count(*) FROM nation_orc WHERE n_name='AUSTRALIA';
+
+12. 一些Presto优化常识
+  * 因为列式存储，尽量避免select *，而是__只查询有用字段__
+  * 对于有分区的表，__where语句中优先使用分区字段进行过滤__
+  * 合理安排__group by字段的顺序__有助于提高查询效率，这些字段按照每个字段distinct数据多少进行降序排列
+  * __多表Join时，数据越多的表越往后放，Left join时，条件过滤尽量在ON阶段完成，而少用WHERE，Join左边尽量放小数据量的表，而且最好是重复关联键少的表__
+  * 将使用频繁的表作为一个子查询抽离出来，避免多次读取IO
+
+13. Order by时使用limit：Order by需要扫描数据到单个worker节点进行排序，导致单个worker需要大量内存。如果是查询Top N或者Bottom N，使用limit可减少排序计算和内存压力
+
+14. 精度要求低的场景使用近似聚合函数：Presto有一些近似聚合函数，对于允许有少量误差的查询场景，使用这些函数对查询性能有大幅提升。比如使用approx_distinct()函数比Count(distinct x)有大概2~3%的误差。
+
+15. 用regexp_like代替多个like语句：Presto查询优化器没有对多个like语句进行优化，使用regexp_like对性能有较大提升
+```sql
+[GOOD]
+SELECT
+  xxx
+FROM
+  access
+WHERE
+  regexp_like(method, 'GET|POST|PUT|DELETE')
+[BAD]
+SELECT
+  xxx
+FROM
+  access
+WHERE
+  method LIKE '%GET%' OR
+  method LIKE '%POST%' OR
+  method LIKE '%PUT%' OR
+  method LIKE '%DELETE%'
+```
+
+16. 使用Rank函数代替row_number函数来获取Top N:在进行一些分组排序场景时，使用rank函数性能更好
+```sql
+[GOOD]
+SELECT checksum(rnk)
+FROM (
+  SELECT rank() OVER (PARTITION BY l_orderkey, l_partkey ORDER BY l_shipdate DESC) AS rnk
+  FROM lineitem
+) t
+WHERE rnk = 1
+[BAD]
+SELECT checksum(rnk)
+FROM (
+  SELECT row_number() OVER (PARTITION BY l_orderkey, l_partkey ORDER BY l_shipdate DESC) AS rnk
+  FROM lineitem
+) t
+WHERE rnk = 1
+```
+
+17. 使用Presto分析统计数据时，可考虑把多次查询合并为一次查询，用Presto提供的子查询完成。
+```sql
+WITH subquery_1 AS (
+    SELECT a1, a2, a3 
+    FROM Table_1 
+    WHERE a3 between 20180101 and 20180131
+),               /*子查询subquery_1,注意：多个子查询需要用逗号分隔*/
+subquery_2 AS (
+    SELECT b1, b2, b3
+    FROM Table_2
+    WHERE b3 between 20180101 and 20180131
+)                /*最后一个子查询后不要带逗号，不然会报错。*/        
+SELECT 
+    subquery_1.a1, subquery_1.a2, 
+    subquery_2.b1, subquery_2.b2
+FROM subquery_1
+    JOIN subquery_2
+    ON subquery_1.a3 = subquery_2.b3;
+```
+
+18. 字段名与关键字冲突：MySQL对于关键字冲突的字段名加反引号，Presto对与关键字冲突的字段名加双引号。
+
+19. Hive分析任务如何迁移Presto
 Presto使用ANSI标准的SQL语法，Hive使用类SQL语法HQL
-官方案例：[Migrating From Hive](https://prestodb.io/docs/current/migration/from-hive.html)
+官方案例：[Migrating From Hive](https://prestodb.io/docs/current/migration/from-hive.html)  
 
 ```sql
 -- 1.Presto使用下标取数组元素 下标从1开始
@@ -462,9 +548,17 @@ CROSS JOIN UNNEST(scores) AS t (score);
 -- 6.cast as string不支持，因为Presto的是Varchar，需要在ASTBuilder.java中把string替换为了varchar类型
 -- 7.select 1 = '1';在Hive和Presto计算结果分别为true,cannot be applied to integer, varchar(1) 需要额外操作实现透明的隐式转换
 -- 8.UDF支持、null值处理
+-- 9.对于timestamp类型字段做where条件比较，hive可以直接比较，presto需要加timestamp关键字
+/*Hive的写法*/
+SELECT t FROM a WHERE t > '2021-01-01 00:00:00'; 
+/*Presto中的写法*/
+SELECT t FROM a WHERE t > timestamp '2021-01-01 00:00:00';
+-- 10.Presto的MD5传入binary类型则会返回binary类型，所以对字符串的MD5需要转换：
+SELECT to_hex(md5(to_utf8('abcd')));
+-- 11.Presto不支持INSERT OVERWRITE，只能先DELETE再INSERT
 ```
 
-9. Hive数仓的数据安全性和权限
+20. Hive数仓的数据安全性和权限
 参考[Built-in System Access Control](https://prestodb.io/docs/current/security/built-in-system-access-control.html)
 在我看来hive.security=file形式的授权比较灵活
 先配置全局的Catalog访问权限：
@@ -556,3 +650,4 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
 [深入理解Presto](https://zhuanlan.zhihu.com/p/101366898)
 [Presto实现原理和美团的使用实践](https://tech.meituan.com/2014/06/16/presto.html)
 [Hive迁移Presto在OPPO的实践](https://blog.csdn.net/weixin_35698805/article/details/112362954)
+[零基础熟悉 Presto的概念、安装、使用及优化](https://mp.weixin.qq.com/s/1N7Kd9E2dLB1OPhY_MTs6A)
