@@ -240,6 +240,11 @@ connection-user=root
 connection-password=123456
 ```
 
+### Presto On Yarn部署
+```text
+待补充
+```
+
 ### Presto语法：
 ```sql
 SHOW CATALOGS; 查看Presto集群当前可用数据源
