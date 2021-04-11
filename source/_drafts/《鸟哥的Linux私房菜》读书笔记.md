@@ -394,6 +394,10 @@ sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
 服务器端(接收文件端)命令：nc -l ip地址 端口号 > 接收的文件名
 客户端(发送文件端)命令：nc ip地址 端口号 < 发送的文件名
 
+5. 目录下文件按大小\时间排序
+大文件GB级别以上的文件按大小排序du -sh /path/* | grep G | sort -rnk1
+按大小排序并显示ll | sort -rnk5
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>
