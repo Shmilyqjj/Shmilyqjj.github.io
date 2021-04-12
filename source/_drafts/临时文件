@@ -1043,7 +1043,7 @@ extra：包含MySQL为了解决查询的详细信息
 使用PROCEDURE ANALYSE()分析优化表数据类型select * from table PROCEDURE ANALYSE();
 
 
-没数据则插入 有数据则修改
+没数据则插入 有数据则修改（根据主键或唯一索引判断的，replace into跟insert功能类似，不同点在于replace into首先尝试插入数据到表中，如果根据主键或者唯一索引判断发现表中已经有此行数据，则先删除此行数据，然后插入新的数据；否则，直接插入新数据。要注意的是：插入数据的表必须有主键或者是唯一索引！否则的话，replace into会直接插入数据，这将导致表中出现重复的数据。）
 REPLACE INTO d_bigdata.system_state(name,state,info) VALUES('$2','$3','$4');
 INSERT INTO dss_table_meta(table_name,create_time,update_time) VALUES ('%s','%s','%s') ON DUPLICATE KEY UPDATE create_time='%s',update_time='%s';  主键冲突则修改（table_name是主键）
 
