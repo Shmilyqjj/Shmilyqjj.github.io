@@ -1141,6 +1141,8 @@ done
 找一个目录下前10大的目录  递归深度8层
 du --max-depth=8 /home -h |sort -h -r |head -10
 
+查看一个文件更新时间的时间戳date +%s -r file_name
+
 ```bash
 # https://majing.io/posts/10000006301174
 # http://c.biancheng.net/view/1114.html
