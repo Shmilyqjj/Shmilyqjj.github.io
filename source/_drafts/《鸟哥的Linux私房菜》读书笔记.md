@@ -272,17 +272,19 @@ date: 2020-08-22 12:19:00
          -perm 0600：找0600权限的文件  -perm +4000找SUID权限文件
          -exec command：执行一条指令来处理搜索结果
       常用示例：
-         find /opt -mtime 0   24小时内发生修改的文件（0替换为3就是3天前的那天24小时内）
-         find /opt -mtime -3  3天内发生修改的文件
-         find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
-         find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
-         find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
-         find /opt -user shmily -name *.conf  找opt目录下shmily用户的conf后缀文件
-         find /opt -user shmily -name *.conf -exec ls -lh {} \;  找opt目录下shmily用户的conf后缀文件并执行ll列出完整信息
-         find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
-         find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
-         find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
-         rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
+        find /opt -mtime 0   24小时内发生修改的文件（0替换为3就是3天前的那天24小时内）
+        find /opt -mtime -3  3天内发生修改的文件
+        find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
+        find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
+        find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
+        find /hadoop/bigdata/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -ri "keyword" | grep -v grep  查看目录下包含keyword关键字的所有sh后缀和py后缀文件
+        find /tmp/ -type d -name "spark-*" -mtime +60  查看/tmp/目录下60天前的类型为目录且名称以spark-开头的目录
+        find /opt -user shmily -name *.conf  找opt目录下shmily用户的conf后缀文件
+        find /opt -user shmily -name *.conf -exec ls -lh {} \;  找opt目录下shmily用户的conf后缀文件并执行ll列出完整信息
+        find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
+        find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
+        find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
+        rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
 17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
 18.在目录下创建一个文件需要的权限：对该目录有wx权限
 ```

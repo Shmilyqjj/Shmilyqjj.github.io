@@ -1191,10 +1191,7 @@ grep -n "xxx" file   -n显示行号
 grep -v "INFO" file   查看除INFO外的日志，-v是排除含关键字所在的行
 grep "2020-07-10 08:10.*" file  查看指定时间的日志
 tac xx.log | more 从尾部看日志
-find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
-find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
-find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
-find /tmp/ -type d -name "spark-*" -mtime +60  查看/tmp/目录下60天前的类型为目录且名称以spark-开头的目录
+
 https://www.cnblogs.com/barfoo/p/3999882.html
 
 
