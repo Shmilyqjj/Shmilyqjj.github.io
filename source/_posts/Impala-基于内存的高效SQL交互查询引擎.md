@@ -80,7 +80,7 @@ Impalad包含三种角色：
 * <font size="3" color="red">Query Executor</font>：执行数据计算，比如scan，Aggregation，Merge等，返回数据。
 
 ### Impala StateStore
-&emsp;&emsp;Statestored进程，状态管理进程（类似ZK），定时检查Impala Daemon的健康状况，协调各个运行Impalad进程之间的信息，Impala通过这些信息去定位查询请求所要的数据，如果Impala节点下线，StateStore会通知其他节点，避免查询任务分发到不可用的节点上。
+&emsp;&emsp;Statestored进程，状态管理进程（类似ZK），定时检查Impala Daemon的健康状况，协调各个运行Impalad进程之间的信息，Impala通过这些信息去定位查询请求所要的数据，如果Impala节点下线，StateStore会通知其他节点，避免查询任务分发到不可用的节点上。(定位Impala卡住以及各种异常状况，可以先从ImpalaStateStore下手，查看StateStore日志方便定位问题)
 
 ### Impala Catalog Service
 &emsp;&emsp;Catalogd进程，元数据管理服务，收集Hive等系统的元数据，将数据表变化的信息分发给各个进程。接收来自StateStore的所有请求，每个Impala节点在本地缓存所有元数据。**当表创建、数据更新或Schema发生变化时，其他Impala后台进程必须更新元数据缓存，才能查询**。
