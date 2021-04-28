@@ -387,6 +387,7 @@ nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台
 
 3. 文本批量替换
 sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
+sed -i s/sourceWord/targetWord/g $(find /hadoop/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -rl "keywords")  批量替换/hadoop目录下所有包含keyword关键字的shell和python脚本中内容sourceWord替换为targetWord
 
 4. nc使用
 安装yum install nmap-ncat.x86_64
