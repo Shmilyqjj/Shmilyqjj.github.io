@@ -631,6 +631,7 @@ spark.executor.memory+spark.executor.memoryOverhead <= yarn.scheduler.maximum-al
 
 AM对应的Container内存由spark.yarn.am.memory加上spark.yarn.am.memoryOverhead来确定
 一个Container就是一个进程=内存隔离，对应Spark的一个进程（driver或Executor）
+一个SparkApplication（driver个数1，executor个数N）->Container数N，其中Driver在启动节点，Executor在各个节点以Container形式封装，N个Executor->N个Container进程，可以通过Container进程状态分析Executor状态
 由这六个参数决定
 storage memory在Spark WebUI上的值怎么来的？
   我记得Spark内存模型中有UserMemory，StorageMemory，ExecutionMemory和ReservedMemory，期中缓存内存和执行内存可互相借用。
