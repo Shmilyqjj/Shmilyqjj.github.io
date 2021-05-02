@@ -41,6 +41,10 @@ fcitx-sunpinyin
 ibus-sunpinyin
 kcm-fcitx
 
+
+//让 Windows 把硬件时间当作 UTC （避免双系统切换导致的时间错乱）
+Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1
+
 DOCK软件：sudo pacman -S  latte-dock   =>   latte-dock
  
 软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
