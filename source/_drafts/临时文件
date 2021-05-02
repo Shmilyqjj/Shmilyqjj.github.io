@@ -221,6 +221,29 @@ ANY: data is elsewhere on the network and not in the same rack
 相关源码解析：https://blog.csdn.net/high2011/article/details/80705393
 调优策略：尽量保证数据在同一个JVM进程，即PROCESS_LOCAL级别，如果无缓存，则一定不能是PROCESS_LOCAL，最好也只能是NODE_LOCAL
 
+pyspark初始化
+from pyspark.sql import HiveContext
+from pyspark import SparkContext, SparkConf
+conf = SparkConf()
+# 资源
+conf.set('spark.driver.memory', '3G')
+conf.set('spark.executor.memory', '20G')
+conf.set('spark.yarn.executor.memoryOverhead', '5G')
+conf.set('spark.executor.cores', '6')  # 等价于--num-executors
+conf.set('spark.executor.instances', '4')
+conf.set('spark.memory.storageFraction', '0.1')
+sc = SparkContext(conf=conf, appName='qjj_spark_app', master='yarn')
+sc.setLogLevel("WARN")
+sqlContext = HiveContext(sc)
+spark = sqlContext.sparkSession
+
+# scala sparkSession初始化
+//创建Spark Context
+val conf = new org.apache.spark.SparkConf().setMaster("yarn").setAppName("QjjSpark")
+val sc = new org.apache.spark.SparkContext(conf)
+val sqlContext=new org.apache.spark.sql.SQLContext(sc)
+val spark = sqlContext
+
 Spark临时文件设置
 （spark运行时产生临时文件core.*，/tmp/spark-*,/tmp/blockmgr-*）
 回答
@@ -608,6 +631,7 @@ spark.executor.memory+spark.executor.memoryOverhead <= yarn.scheduler.maximum-al
 
 AM对应的Container内存由spark.yarn.am.memory加上spark.yarn.am.memoryOverhead来确定
 一个Container就是一个进程=内存隔离，对应Spark的一个进程（driver或Executor）
+一个SparkApplication（driver个数1，executor个数N）->Container数N，其中Driver在启动节点，Executor在各个节点以Container形式封装，N个Executor->N个Container进程，可以通过Container进程状态分析Executor状态
 由这六个参数决定
 storage memory在Spark WebUI上的值怎么来的？
   我记得Spark内存模型中有UserMemory，StorageMemory，ExecutionMemory和ReservedMemory，期中缓存内存和执行内存可互相借用。
@@ -1168,10 +1192,7 @@ grep -n "xxx" file   -n显示行号
 grep -v "INFO" file   查看除INFO外的日志，-v是排除含关键字所在的行
 grep "2020-07-10 08:10.*" file  查看指定时间的日志
 tac xx.log | more 从尾部看日志
-find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
-find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
-find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
-find /tmp/ -type d -name "spark-*" -mtime +60  查看/tmp/目录下60天前的类型为目录且名称以spark-开头的目录
+
 https://www.cnblogs.com/barfoo/p/3999882.html
 
 
@@ -1394,6 +1415,9 @@ Linux中重要的C运行库glibc：
          ll /lib64/libc.so.6  发现已经链接到libc-2.17.so
          ldd --version 
          strings /lib64/libc.so.6 | grep GLIBC_
+
+Linux CPU负载正常 load/cpu <=1 是合理的  负载很高对计算型业务影响明显，对io\cache型应用影响小
+
 
 环境变量 ~/.bash_profile
     PROMPT_COMMAND="one command"  终端任何命令执行都先执行这个设置的命令
