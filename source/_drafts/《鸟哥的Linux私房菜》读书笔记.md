@@ -401,6 +401,50 @@ sed -i s/sourceWord/targetWord/g $(find /hadoop/ -type f -name "*.sh" -o -name "
 大文件GB级别以上的文件按大小排序du -sh /path/* | grep G | sort -rnk1
 按大小排序并显示ll | sort -rnk5
 
+6. 统计磁盘使用情况
+汇总目录的总大小 du -sh /tmp/xx
+查看当前目录下文件和目录大小du -sh *
+查看当前目录下文件和目录大小包括隐藏文件du -sh * .[^.]*
+有时我们发现系统的关键目录占用空间都不大，都在可以接受的范围，但磁盘容量还是被大量占用，无法释放。是因为du命令只能检测目录下未删除的文件，而目录下可能存在已删除的文件但该文件一直被某一未关闭的进程写入，所以虽然文件表面上被删除了，但不会释放空间，会一直占用磁盘空间。此时可通过以下方式排查：
+  lsof命令列出打开的文件(list open files)
+  lsof | grep deleted 列出被进程占用但已被删除的文件，可以看到占用大小，对占用磁盘大的进程进行关闭或重启即可释放空间
+一个快速检测系统盘关键目录及磁盘占用的脚本：
+```shell
+#!/bin/bash
+declare -A dic path_threshold_dict=(\
+[/home]="2048" \
+[/tmp]="2048" \
+[/root]="1536" \
+[/var]="1536" \
+[/usr]="10240" \
+)
+echo "Filesystem    Size  Used Avail Use% Mounted on"
+df -h | grep / | awk 'NR==1'
+if [ $(whoami) != "root" ]; then
+  echo "Please use root to run this script."
+  exit 1
+fi
+function size_check(){
+  # arg1 is path,arg2 is size threshold(GB)
+  size=$(du -sm $1 | awk '{print $1}')
+  if [ $size -gt $2 ]; then
+    echo "目录'$1'大于$2 MB ，检查该目录下占用空间前10的大目录"
+    du --max-depth=8 $1 -h | sort -h -r | head -10
+  else
+    echo "目录'$1'占用空间为$size MB，未超过检测阈值 $2 MB."
+  fi
+}
+for i in ${!path_threshold_dict[*]}
+do
+  echo "----------------------------------------"
+  size_check $i ${path_threshold_dict[$i]}
+done
+echo "----------------------------------------"
+# Check disk space occupied by unclosed processes.
+echo 'These files were deleted but disk space was not freed.'
+lsof | grep deleted
+```
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>
