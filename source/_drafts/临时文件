@@ -879,6 +879,8 @@ Kafka监控（kafka-manager）：https://www.cnblogs.com/zlslch/p/7252484.html
 ###################################################
 Hive相关
 
+sql: set -v;查看当前的server配置
+
 Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
 Python连接Hive
