@@ -356,6 +356,57 @@ $SPARK_HOME/sbin/start-thriftserver.sh
 参考：[dynamic-resource-allocation](http://spark.apache.org/docs/2.3.1/job-scheduling.html#dynamic-resource-allocation)
 [configuring-the-external-shuffle-service](http://spark.apache.org/docs/2.3.1/running-on-yarn.html#configuring-the-external-shuffle-service)
 
+pyspark动态资源模板
+from pyspark import SparkContext, SparkConf
+import time
+conf = SparkConf()
+# dynamic resource
+from pyspark.sql import HiveContext
+from pyspark import SparkContext, SparkConf
+conf = SparkConf()
+conf.set('spark.driver.memory', '4G')
+conf.set('spark.executor.memory', '2G')
+conf.set("spark.shuffle.service.enabled", "true")
+conf.set("spark.dynamicAllocation.enabled", "true")
+conf.set("spark.dynamicAllocation.minExecutors", "1")
+conf.set("spark.dynamicAllocation.maxExecutors", "4")
+conf.set("spark.dynamicAllocation.initialExecutors", "1")
+conf.set("spark.dynamicAllocation.executorIdleTimeout", "60")
+conf.set("spark.dynamicAllocation.cachedExecutorIdleTimeout", "300")
+sc = SparkContext(conf=conf, appName='qjj_dynamic_spark_app', master='yarn')
+sc.setLogLevel("WARN")
+sqlContext = HiveContext(sc)
+spark = sqlContext.sparkSession
+
+
+
+Spark-SQL合并小文件代码模板
+from pyspark.sql import HiveContext
+from pyspark import SparkContext, SparkConf
+import time
+conf = SparkConf()
+# 线上Yarn环境申请资源
+conf.set('spark.driver.memory', '1G')
+conf.set('spark.executor.memory', '8G')
+conf.set('spark.executor.memoryOverhead', '4G')
+conf.set('spark.executor.cores', '5')
+conf.set('spark.executor.instances', '6')
+conf.set('spark.memory.storageFraction', '0.1')
+sc = SparkContext(conf=conf, appName='qjj_merge_small_file_app', master='yarn')
+sc.setLogLevel("WARN")
+sqlContext = HiveContext(sc)
+spark = sqlContext.sparkSession
+OUTPUT_FILE_COUNT = 100
+SQL = """
+insert into target_table select * from source_table distribute by cust_no
+"""
+st = time.time()
+spark.sql("set hive.exec.dynamic.partition.mode=nonstrict").show()
+spark.sql("set hive.exec.dynamic.partition=true").show()
+spark.sql("set parquet.compression=snapp").show()
+spark.sql(f"set spark.sql.shuffle.partitions={OUTPUT_FILE_COUNT}").show()
+spark.sql(SQL).show()
+print(f"耗时:{time.time() - st}秒")
 
 spark-sql优化：
 1.join on和where条件先后顺序无所谓，可以被spark优化器优化
@@ -1145,6 +1196,9 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 
 ##################################################
 Linux相关
+
+pwd -P . 获取当前目录的全路径
+两台节点不同用户免密：只需将id_rsa.pub值复制到另一台节点另一用户的~/.ssh/authorized_keys中并确保该文件权限为600即可
 
 shell比较浮点数大小
 awk -v var=4.2 'BEGIN{print (var > 4 ? 0 : -1)}'
