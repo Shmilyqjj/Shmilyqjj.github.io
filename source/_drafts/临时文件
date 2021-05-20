@@ -193,6 +193,9 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+spark_df.write.saveAsTable(hive_table_name, mode=mode)写入表报错The format of the existing table default.fdm_mx_dz_maidian_var1 is `HiveFileFormat`. It doesn't match the specified format `ParquetFileFormat`.;
+解决方案1：spark_df.write.format("Hive").saveAsTable(hive_table_name, mode=mode)  解决方案2：spark_df.registerTempTable('spark_data');spark.sql('insert into hive_table_name select * from spark_data')
+
 Atlas连接Spark  spark-atlas-connector工具
 Listener可以获取Spark执行过程中各个阶段的状态信息
 Spark-core中LiveListenerBus会管理注册的Listener，为一类Listener创建对应AsyncEventQueue
