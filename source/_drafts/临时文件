@@ -1197,6 +1197,8 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 ##################################################
 Linux相关
 
+rsync使用： rsync -lr fileOrDir root@192.168.1.101:/root/
+
 pwd -P . 获取当前目录的全路径
 两台节点不同用户免密：只需将id_rsa.pub值复制到另一台节点另一用户的~/.ssh/authorized_keys中并确保该文件权限为600即可
 
