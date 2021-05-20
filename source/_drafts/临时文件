@@ -196,6 +196,12 @@ Spark相关
 spark_df.write.saveAsTable(hive_table_name, mode=mode)写入表报错The format of the existing table default.fdm_mx_dz_maidian_var1 is `HiveFileFormat`. It doesn't match the specified format `ParquetFileFormat`.;
 解决方案1：spark_df.write.format("Hive").saveAsTable(hive_table_name, mode=mode)  解决方案2：spark_df.registerTempTable('spark_data');spark.sql('insert into hive_table_name select * from spark_data')
 
+apache.spark.SparkException: Job aborted due to stage failure: Serialized task 32:5 was 204136673 bytes, which exceeds max allowed: spark.rpc.message.maxSize (134217728 bytes).Consider increasing spark.rpc.message.maxSize or using broadcast variables for large values.
+用sc.parallelize(data,slices)时，如果data数据过大，易出现该问题
+解决：增加spark.rpc.message.maxSize，该值默认大小128M
+提交任务是加：–conf spark.rpc.message.maxSize=512
+
+
 Atlas连接Spark  spark-atlas-connector工具
 Listener可以获取Spark执行过程中各个阶段的状态信息
 Spark-core中LiveListenerBus会管理注册的Listener，为一类Listener创建对应AsyncEventQueue
