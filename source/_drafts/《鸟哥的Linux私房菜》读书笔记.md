@@ -57,7 +57,7 @@ date: 2020-08-22 12:19:00
 2.几乎所有的硬件装置文件都存放在/dev这个目录
 3.磁盘有sda，sdb，sdc等等，还有vda，vdb（虚拟磁盘）等
 4.Linux内核侦测磁盘顺序？如果有5个插槽，硬盘A插在SATA1，B插在SATA4，USB盘C，按侦测顺序，硬盘A为/dev/sda，硬盘B为/dev/sdb，USB盘开机才被加载为/dev/sdc
-5.机械硬盘由磁盘盘，机械臂读取头和马达组成，数据写在磁盘盘上，磁盘盘又分Sector扇区和Track磁道。
+5.机械硬盘由磁盘盘，机械臂读取头和马达组成，数据写在磁盘盘上，磁盘盘又分Sector扇区和Track磁道。(通过fdisk -l命令可以看到Sector数量)
 6.早期磁盘第一个扇区记录整个磁盘的重要信息，称为MasterBootRecord(MBR)。现在的磁盘格式GUIDpartitionTable(GPT)。MBR和GPT为两种分区表格式。
 7.MBR分区表只有64bytes只能容纳4个分区记录，通过延伸分区利用额外扇区记录更多分区信息来实现分更多分区。延伸分区名称/dev/sda1，/dev/sda2...windows识别磁盘顺序也是按磁柱(同一个磁道)的顺序排为C，D，E，F...
 8.对于MBR，磁盘分区可以提高读写性能，因为如果在C盘，只会找那个分区的磁柱范围，数据集中，检索速度提高。
@@ -67,6 +67,7 @@ date: 2020-08-22 12:19:00
 12.UEFI和BIOS都是在主板上的程序，开机首先运行它。UEFI是C语言编写，比汇编的BIOS更容易开发。
 13.UEFI的SecureBoot要关闭才能启动Linux。
 14.安装Linux分区，初级分法只需要分/和swap两个区即可。建议加一个分区用于备用。对于多用户的情况，可以将/home独立在一个分区上并加大容量。一些服务器数据或log会存在于/var，可以独立出来并加大容量。
+15.fdisk命令可以查看磁盘以及添加、删除、转换磁盘分区等操作
 ```
 
 ## 第三章 安装CentOS7
@@ -458,6 +459,13 @@ lsof -utony //查看用户tony的进程的文件使用情况
 lsof -i //显示所有打开的端口
 lsof -i:80 //显示所有打开80端口的进程
 lsof -i -U //显示所有打开的端口和UNIX domain文件
+
+7. ssh到远程节点执行命令
+已免密无需密码：ssh -l root 192.168.1.101 "source /etc/profile;echo 1 >> /path/to/remote/logs 2>&1"
+未免密需要密码：
+yum install sshpass
+sshpass -p "password" ssh root@192.168.1.101 'echo 1'
+
 
 
 ## 总结  
