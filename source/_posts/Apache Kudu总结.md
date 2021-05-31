@@ -920,6 +920,11 @@ result = scanner.open().read_all_tuples()
 
 ## Kudu异常处理
 [Apache Kudu Troubleshooting](https://kudu.apache.org/docs/troubleshooting.html)
+1.报错"Remote error:Service unavailable: Scan request on kudu.tserver.TabletServerService from xx.xx.xx.xx:xx dropped due to backpressure.The service queue is full;it has 50 ites." 原因：高峰期单个Tablet的rpc请求队列达到上限，导致TabletServer无法提供服务，临时解决方案是重启该TabletServer。 可在gflagfile增加参数：--rpc_service_queue_length=120 (适当调大，默认值100)
+
+2.TS维护前需要健康检查，如果有任何副本不足的情况，需等待副本拷贝完成后再维护。可在gflagfile增加参数：--rpc_service_queue_length=3600  follower_unavailable_considered_failed_sec默认为300s，tablet失去联系超过300s后，该节点的数据就会在其他节点重建，为了避免维护造成的不必要的数据移动和拷贝，可以临时设置此时间为更长的时间（重启维护加上tablet重启后初始化需要的时间）  KuduTS重启恢复速度更快。
+
+
 
 ## HTAP混合事务分析处理
 HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
@@ -942,3 +947,4 @@ HTAP的场景举例：
 6.[迟到的Kudu设计要点面面观](https://blog.csdn.net/nazeniwaresakini/article/details/104220206/)
 7.[迟到的Kudu设计要点面面观-前篇](https://www.jianshu.com/p/5ffd8730aad8)
 8.[kudu-列式存储管理器-第四篇（原理篇）](https://blog.csdn.net/superzyl/article/details/87954442)
+9.[Kudu configuration reference](https://kudu.apache.org/docs/configuration_reference.html)
