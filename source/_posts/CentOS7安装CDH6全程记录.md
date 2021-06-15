@@ -281,6 +281,7 @@ mysql-server依赖mysql-client
 mysql-client依赖mysql-community-libs  
 mysql-community-libs依赖mysql-community-common  
 所以安装Server会默认安装其全部依赖  
+在线安装：
 ```shell
  rpm -qa|grep mariadb
  rpm -e --nodeps mariadb-libs-5.5.64-1.el7.x86_64  # 卸载MariaDB 虽然CDH6支持了MariaDB，但还是推荐Mysql
@@ -288,6 +289,32 @@ mysql-community-libs依赖mysql-community-common
  yum -y install mysql57-community-release-el7-10.noarch.rpm
  yum -y install mysql-community-server
 ```  
+
+离线安装：
+去[Mysql-Archives](https://downloads.mysql.com/archives/community/) 下载对应版本的rpm包
+```shell
+# 安装依赖包
+rpm -ivh mysql-community-common-5.7.28-1.el7.x86_64.rpm
+# 若安装失败 删除mariadb包
+rpm -qa | grep mariadb
+rpm -ve mariadb
+# 安装libs
+rpm -ivh mysql-community-libs-5.7.28-1.el7.x86_64.rpm 
+# 安装客户端
+rpm -ivh mysql-community-client-5.7.28-1.el7.x86_64.rpm 
+# 安装服务端
+rpm -ivh mysql-community-server-5.7.28-1.el7.x86_64.rpm 
+# 启动
+systemctl status mysqld 
+# 开机自启
+systemctl  enable mysqld
+# 查找临时密码
+grep 'temporary password' /var/log/mysqld.log
+# 设置密码强度
+set global validate_password_policy=LOW;
+set global validate_password_length=6;
+```
+
 ![alt CDH-08.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.6.jpg)  
 如图安装完成，接着我们对其进行一些配置  
 ```shell
