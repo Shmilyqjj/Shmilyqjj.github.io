@@ -671,12 +671,33 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
  source /etc/profile
  java -version</code></pre>
 <p>还有一些其他的监控命令<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_15766181/article/details/89928275">Linux监控命令汇总</a>  </p>
-<p>Mysql安装(CDH必备)<br>首先查看Cloudera Manager官网要求的Mysql版本：<a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_database_requirements.html#cdh_cm_supported_db">Database Requirements</a><br>参考CDH6.x兼容的版本，我们选择Mysql5.7版本<br>注意:<br>mysql-server依赖mysql-client<br>mysql-client依赖mysql-community-libs<br>mysql-community-libs依赖mysql-community-common<br>所以安装Server会默认安装其全部依赖  </p>
+<p>Mysql安装(CDH必备)<br>首先查看Cloudera Manager官网要求的Mysql版本：<a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_database_requirements.html#cdh_cm_supported_db">Database Requirements</a><br>参考CDH6.x兼容的版本，我们选择Mysql5.7版本<br>注意:<br>mysql-server依赖mysql-client<br>mysql-client依赖mysql-community-libs<br>mysql-community-libs依赖mysql-community-common<br>所以安装Server会默认安装其全部依赖<br>在线安装：</p>
 <pre><code class="shell"> rpm -qa|grep mariadb
  rpm -e --nodeps mariadb-libs-5.5.64-1.el7.x86_64  # 卸载MariaDB 虽然CDH6支持了MariaDB，但还是推荐Mysql
  wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm  
  yum -y install mysql57-community-release-el7-10.noarch.rpm
  yum -y install mysql-community-server</code></pre>
+<p>离线安装：<br>去<a target="_blank" rel="noopener" href="https://downloads.mysql.com/archives/community/">Mysql-Archives</a> 下载对应版本的rpm包</p>
+<pre><code class="shell"># 安装依赖包
+rpm -ivh mysql-community-common-5.7.28-1.el7.x86_64.rpm
+# 若安装失败 删除mariadb包
+rpm -qa | grep mariadb
+rpm -ve mariadb
+# 安装libs
+rpm -ivh mysql-community-libs-5.7.28-1.el7.x86_64.rpm 
+# 安装客户端
+rpm -ivh mysql-community-client-5.7.28-1.el7.x86_64.rpm 
+# 安装服务端
+rpm -ivh mysql-community-server-5.7.28-1.el7.x86_64.rpm 
+# 启动
+systemctl status mysqld 
+# 开机自启
+systemctl  enable mysqld
+# 查找临时密码
+grep &#39;temporary password&#39; /var/log/mysqld.log
+# 设置密码强度
+set global validate_password_policy=LOW;
+set global validate_password_length=6;</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.6.jpg" alt="alt CDH-08.6"><br>如图安装完成，接着我们对其进行一些配置  </p>
 <pre><code class="shell"> systemctl start mysqld.service
  systemctl enable mysqld.service  # 设置开机启动
@@ -779,6 +800,13 @@ FLUSH PRIVILEGES;
 </code></pre>
 <p>关于如何查看和修改用户的远程登录权限：<br>select user,host from mysql.user;<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.5.jpg" alt="alt CDH-09.5"><br>host字段为%的则是允许远程登录的用户，是localhost的只能本地登录<br>所以想给远程某台机器开通远程访问某个用户的权限： update mysql.user set host=’CDH066’ where user=’root’;<br>或者想给某个用户所有局域网内机器的访问权限： update mysql.user set host=’%’ where user=’root’;<br>然后重启服务或者刷新配置就可以通过mysql -hCDH066 -uroot -p123456来登录了<br>远程其他节点可以通过制定-h来访问非root用户的mysql<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.6.jpg" alt="alt CDH-09.6"> </p>
 <p>Mysql JDBC库配置：<br>右键 链接另存为 进行下载<br>**<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar">下载mysql-connector-java-5.1.47-bin.jar</a>**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  </p>
+<p>系统文件描述符限制修改<br>vi /etc/security/limits.conf</p>
+<pre><code class="text">* soft nofile 32728
+* hard nofile 1029345
+* soft nproc 65536
+* hard nproc unlimited
+* soft memlock unlimited
+* hard memlock unlimited</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-10.jpg" alt="alt CDH-10">  </p>
 <p>好玩的screenfetch(可选，用来娱乐…)  </p>
 <pre><code class="bash"> cd /usr/local/src
@@ -834,8 +862,10 @@ type=rpm-md
 <p>下载parcel包，：<a target="_blank" rel="noopener" href="https://archive.cloudera.com/cdh6/6.3.1/parcels/">Index of cdh6/6.3.1/parcels/</a><br>下载其中的CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel和manifest.json这两个文件，将这两个文件上传到**/opt/cloudera/parcel-repo**目录  </p>
 <pre><code class="shell">cd /opt/cloudera/parcel-repo
 sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk &#39;&#123; print $1 &#125;&#39; &gt;CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
-chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
-/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456   # 初始化数据库</code></pre>
+chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*</code></pre>
+<p>初始化数据库<br>该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到cmserver初始化。<br>通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。</p>
+<pre><code class="shell"># （scm_prepare_database.sh 库类型 scm库名称 scm库连接的用户名 密码 -h服务端所在地址）
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456 -hHOST  </code></pre>
 <p>systemctl start cloudera-scm-server.service    # 启动CM服务<br>systemctl status cloudera-scm-server.service   # 查看启动状态<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg" alt="alt CDH-15">  </p>
 <p>等待几分钟后访问<strong><a target="_blank" rel="noopener" href="http://cdh066:7180/">http://cdh066:7180</a></strong>，默认帐号密码都是<strong>admin</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg" alt="alt CDH-16">  </p>
 <p>这里选择免费版本<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-17.jpg" alt="alt CDH-17">  </p>
@@ -858,9 +888,27 @@ manifest.json</code></pre>
 <p>将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0.jar放入/opt/cloudera/csd中<br>将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel和FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha放入/opt/cloudera/parcel-repo中<br>然后重启Cloudera Manager Server服务：sudo systemctl restart cloudera-scm-server<br>重启完成后进入页面，主机-&gt;Parcel-&gt;检查新Parcel-&gt;找到Flink-&gt;分配<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG" alt="alt CDH-27"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG" alt="alt CDH-26"><br>完成分配后开始添加服务：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG" alt="alt CDH-28"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG" alt="alt CDH-29"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG" alt="alt CDH-30"><br>好啦，Flink可以使用啦。</p>
 <h3 id="六-功能扩展"><a href="#六-功能扩展" class="headerlink" title="六.功能扩展"></a>六.功能扩展</h3><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1544865">自定义告警脚本</a></p>
 <h3 id="七-坑点总结"><a href="#七-坑点总结" class="headerlink" title="七.坑点总结"></a>七.坑点总结</h3><ol>
-<li>如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/<strong>,</strong>/dfs/dn/<strong>,</strong>/dfs/snn/<strong>这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为</strong>drwx—— 3 hdfs hadoop<strong>，即hdfs用户hadoop组，里面的current文件夹的权限为</strong>drwxr-xr-x 3 hdfs hdfs**。  </li>
-<li>提示<strong>Error: JAVA_HOME is not set and Java could not be found</strong>  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  </li>
-<li>The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  </li>
+<li><p>如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/<strong>,</strong>/dfs/dn/<strong>,</strong>/dfs/snn/<strong>这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为</strong>drwx—— 3 hdfs hadoop<strong>，即hdfs用户hadoop组，里面的current文件夹的权限为</strong>drwxr-xr-x 3 hdfs hdfs**。  </p>
+</li>
+<li><p>提示<strong>Error: JAVA_HOME is not set and Java could not be found</strong>  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  </p>
+</li>
+<li><p>The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  </p>
+</li>
+<li><p>启动ClouderaManagerServer报错</p>
+<pre><code class="text">INFO main:com.cloudera.server.cmf.bootstrap.EntityManagerFactoryBean: MYSQL database engine and table mapping: &#123;InnoDB=[AUDITS, COMMANDS, CONFIGS, SCHEMA_VERSION]&#125;
+2020-03-25 16:27:22,021 WARN main:com.cloudera.server.cmf.bootstrap.EntityManagerFactoryBean: Failed to determine prior version. This is expected if you are starting Cloudera Manager for the first time. Please also ignore any error messages about missing tables. Moving ahead assuming no upgrade: org.hibernate.exception.SQLGrammarException: could not extract ResultSet
+2020-03-25 16:27:22,031 INFO main:com.cloudera.enterprise.dbutil.DbUtil: Schema version table already exists.
+2020-03-25 16:27:22,032 INFO main:com.cloudera.enterprise.dbutil.DbUtil: DB Schema version 1.
+2020-03-25 16:27:22,039 WARN main:org.springframework.context.support.GenericApplicationContext: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name &#39;com.cloudera.server.cmf.TrialState&#39;: Cannot resolve reference to bean &#39;entityManagerFactoryBean&#39; while setting constructor argument; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name &#39;entityManagerFactoryBean&#39;: FactoryBean threw exception on object creation; nested exception is java.lang.RuntimeException: Unable to obtain CM release version.
+2020-03-25 16:27:22,040 ERROR main:com.cloudera.server.cmf.Main: Server failed.</code></pre>
+<p>使用/opt/cloudera/cm/schema/scm_prepare_database.sh工具初始化scm数据库时报错：when @@GLOBAL.ENFORCE_GTID_CONSISTENCY = 1<br>原因是数据库启用了gtid_mode，my.cnf有如下配置</p>
+<pre><code class="text">gtid_mode = on
+enforce_gtid_consistency = 1
+binlog_gtid_simple_recovery = 1</code></pre>
+<p>解决：<br>①注释掉如上配置，重启mysql server，②删掉scm库并重建，③重启cloudera-scm-server 即可</p>
+</li>
+<li><p>向CM添加host时，只有某几台主机可以被识别，其他主机，能显示出来但是灰色的，提示无法解析主机名称<br>解决：检查/etc/hosts 配置是否正确</p>
+</li>
 </ol>
 <h3 id="HDFS高可用"><a href="#HDFS高可用" class="headerlink" title="HDFS高可用"></a>HDFS高可用</h3><p>进入HDFS角色，操作-&gt;启用High Availability-&gt;选择两个NN、三个JN节点，下一步（注意需要格式化NN，重启HDFS相关所有正在运行的依赖服务，重新部署客户端配置）-&gt;完成<br>进入HUE 将“Web界面角色”改为httpfs<br>关闭Hive，备份HiveMetastore数据库的数据（以防万一），操作-&gt;更新Hive Metastore NameNodes-&gt;重启Hive服务</p>
 <h3 id="升级Python版本为3-8"><a href="#升级Python版本为3-8" class="headerlink" title="升级Python版本为3.8"></a>升级Python版本为3.8</h3><pre><code class="shell">cd /opt/software
