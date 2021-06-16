@@ -452,6 +452,16 @@ Mysql JDBC库配置：
 右键 链接另存为 进行下载  
 **[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
+系统文件描述符限制修改
+vi /etc/security/limits.conf
+```text
+* soft nofile 32728
+* hard nofile 1029345
+* soft nproc 65536
+* hard nproc unlimited
+* soft memlock unlimited
+* hard memlock unlimited
+```  
 ![alt CDH-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-10.jpg)  
 
 好玩的screenfetch(可选，用来娱乐...)  
@@ -589,8 +599,15 @@ type=rpm-md
 cd /opt/cloudera/parcel-repo
 sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk '{ print $1 }' >CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
 chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
-/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456   # 初始化数据库
-```  
+``` 
+ 
+初始化数据库
+该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到cmserver初始化。
+通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。
+```shell
+# （scm_prepare_database.sh 库类型 scm库名称 scm库连接的用户名 密码 -h服务端所在地址）
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456 -hHOST  
+```
 
 systemctl start cloudera-scm-server.service    # 启动CM服务  
 systemctl status cloudera-scm-server.service   # 查看启动状态
@@ -674,6 +691,27 @@ manifest.json
 1. 如果遇到HDFS无法启动的问题，可能是因为**/dfs/nn/**,**/dfs/dn/**,**/dfs/snn/**这些目录和里面的文件权限不够，请检查每个节点的这几个目录，保证nn,dn,snn文件夹权限为**drwx------ 3 hdfs hadoop**，即hdfs用户hadoop组，里面的current文件夹的权限为**drwxr-xr-x 3 hdfs hdfs**。  
 2. 提示**Error: JAVA_HOME is not set and Java could not be found**  先确保JDK安装路径在/usr/java/jdkxxxxx，再确定JAVA版本是当前CDH支持的JAVA版本，过高过低都不会兼容，就报这个错误。  
 3. The number of live datanodes 2 has reached the minimum number 0. Safe mode will be turned off automatically once the thresholds have been reached.   不多说，关闭安全模式 hdfs dfsadmin -safemode leave 注意，需要sudo到hdfs用户操作  如果sudo到hdfs失败，就vim /etc/passwd  将hdfs用户对应的/sbin/nologin改成/bin/bash 即可sudo到hdfs  
+4. 启动ClouderaManagerServer报错
+```text
+INFO main:com.cloudera.server.cmf.bootstrap.EntityManagerFactoryBean: MYSQL database engine and table mapping: {InnoDB=[AUDITS, COMMANDS, CONFIGS, SCHEMA_VERSION]}
+2020-03-25 16:27:22,021 WARN main:com.cloudera.server.cmf.bootstrap.EntityManagerFactoryBean: Failed to determine prior version. This is expected if you are starting Cloudera Manager for the first time. Please also ignore any error messages about missing tables. Moving ahead assuming no upgrade: org.hibernate.exception.SQLGrammarException: could not extract ResultSet
+2020-03-25 16:27:22,031 INFO main:com.cloudera.enterprise.dbutil.DbUtil: Schema version table already exists.
+2020-03-25 16:27:22,032 INFO main:com.cloudera.enterprise.dbutil.DbUtil: DB Schema version 1.
+2020-03-25 16:27:22,039 WARN main:org.springframework.context.support.GenericApplicationContext: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.cloudera.server.cmf.TrialState': Cannot resolve reference to bean 'entityManagerFactoryBean' while setting constructor argument; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactoryBean': FactoryBean threw exception on object creation; nested exception is java.lang.RuntimeException: Unable to obtain CM release version.
+2020-03-25 16:27:22,040 ERROR main:com.cloudera.server.cmf.Main: Server failed.
+```
+使用/opt/cloudera/cm/schema/scm_prepare_database.sh工具初始化scm数据库时报错：when @@GLOBAL.ENFORCE_GTID_CONSISTENCY = 1
+原因是数据库启用了gtid_mode，my.cnf有如下配置
+```text
+gtid_mode = on
+enforce_gtid_consistency = 1
+binlog_gtid_simple_recovery = 1
+```
+解决：
+①注释掉如上配置，重启mysql server，②删掉scm库并重建，③重启cloudera-scm-server 即可
+
+5. 向CM添加host时，只有某几台主机可以被识别，其他主机，能显示出来但是灰色的，提示无法解析主机名称
+解决：检查/etc/hosts 配置是否正确
 
 ### HDFS高可用
 进入HDFS角色，操作->启用High Availability->选择两个NN、三个JN节点，下一步（注意需要格式化NN，重启HDFS相关所有正在运行的依赖服务，重新部署客户端配置）->完成
