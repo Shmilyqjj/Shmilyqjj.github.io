@@ -579,9 +579,14 @@
 <h2 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h2><p>在虚拟机环境上部署Cloudera Manager，可能达不到预期的效果，但是基本的功能可以实现。<br>我的电脑内存16GB勉强可以使用，如果电脑16GB以上的可以考虑折腾CDH，16GB以下的想都不要想…</p>
 <h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><p>物理机i7-6700hq 16GB内存 1T HDD<br>虚拟机四台 8个逻辑核心 内存分配分别是 5GB 3GB 2GB 2GB （可以说是榨干了物理机性能）<br>建议如果没有i7-8th及以上CPU或没有32G+的电脑，就不要尝试了。还是直接装Apache版的好些。<br>VMWare 15<br>SecureCRT 8.1.4<br>FileZilla 3.40.0<br>CentOS 7<br><font size="6" color="red"><strong>以上是旧配置，后面再有更新均使用新的配置：</strong></font><br>物理机i7-9750h 64GB内存 2T HDD+2T SSD<br>虚拟机四台 12个逻辑核心 内存分配分别是 20GB 14GB 14GB 10GB<br>Hyper-V虚拟机<br>SecureCRT 8.5.3<br>FileZilla 3.40.0<br>CentOS 7<br>能够同时运行所有服务。</p>
 <h3 id="一-基础配置"><a href="#一-基础配置" class="headerlink" title="一.基础配置"></a>一.基础配置</h3><p><strong>下载CentOS7:</strong><br><a target="_blank" rel="noopener" href="http://mirrors.aliyun.com/centos/7.7.1908/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso">CentOS7 Minimal下载</a></p>
-<p><strong>虚拟机配置</strong><br>采用NAT格式网卡,按如下配置<br>虚拟网卡设置（编辑-虚拟网络编辑器）<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.jpg" alt="alt CDH-02"><br>点击NAT设置:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.5.jpg" alt="alt CDH-2.5"><br>点击DHCP设置:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.jpg" alt="alt CDH-03"><br>以后我们的虚拟机都使用NAT网卡<br><strong>安装CentOS7</strong><br>文件-&gt;新建虚拟机-&gt;选择自定义(高级)-&gt;下一步-&gt;下一步-&gt;<strong>稍后安装操作系统</strong>-&gt;选择Linux/CentOS7 64位-&gt;下一步-&gt;虚拟机名称CDH066-&gt;下一步<br>-&gt;根据自己电脑设置核心数-&gt;下一步-&gt;虚拟机内存5120MB-&gt;网络类型选NAT-&gt;下一步…-&gt;磁盘分配80GB-&gt;下一步-&gt;下一步-&gt;自定义硬件-&gt;选择CentOS7的安装镜像,如图:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.5.jpg" alt="alt CDH-03.5"><br>关闭-&gt;完成-&gt;开启此虚拟机<br>开始安装<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-04.jpg" alt="alt CDH-04"><br>安装Minimal版的CentOS，感觉很清爽！但是后续需要自己手动装一些依赖包，不过这样也好，可以避免安装过多无用的依赖。时区选择ShangHai。  </p>
-<p>在这步安装时指定root密码123456<br>安装时指定一个管理员用户shmily 密码123456<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.jpg" alt="alt CDH-05"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.5.jpg" alt="alt CDH-05.5">  </p>
-<p>===2020更新===<br>推荐使用Hyper-V<br>配置方法大体相同，要注意网络那块<br>在Hyper-V管理器中的虚拟交换机管理器新建内部网络，然后如果要指定IP，需要去电脑的网络设置IPV4，然后设置把Wifi网络共享给这个网卡。<br>IPV4：192.168.x.1  (x均替换为你喜欢的值 1-254)<br>网关255.255.255.255.0<br>然后配置虚拟机ifcfg-eth0时<br>IPADDR=192.168.x.101<br>NETMASK=255.255.255.0<br>DNS1=192.168.x.1<br>DNS2=192.168.x.2<br>……..<br>最终我的设置如图：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.6.JPG" alt="alt CDH-05.6"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.7.JPG" alt="alt CDH-05.7"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.8.JPG" alt="alt CDH-05.8"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.9.JPG" alt="alt CDH-05.9">  </p>
+<p><strong>虚拟机配置</strong>  </p>
+<ul>
+<li><p>使用VMWare<br>采用NAT格式网卡,按如下配置<br>虚拟网卡设置（编辑-虚拟网络编辑器）<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.jpg" alt="alt CDH-02"><br>点击NAT设置:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.5.jpg" alt="alt CDH-2.5"><br>点击DHCP设置:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.jpg" alt="alt CDH-03"><br>以后我们的虚拟机都使用NAT网卡<br><strong>安装CentOS7</strong><br>文件-&gt;新建虚拟机-&gt;选择自定义(高级)-&gt;下一步-&gt;下一步-&gt;<strong>稍后安装操作系统</strong>-&gt;选择Linux/CentOS7 64位-&gt;下一步-&gt;虚拟机名称CDH066-&gt;下一步<br>-&gt;根据自己电脑设置核心数-&gt;下一步-&gt;虚拟机内存5120MB-&gt;网络类型选NAT-&gt;下一步…-&gt;磁盘分配80GB-&gt;下一步-&gt;下一步-&gt;自定义硬件-&gt;选择CentOS7的安装镜像,如图:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.5.jpg" alt="alt CDH-03.5"><br>关闭-&gt;完成-&gt;开启此虚拟机<br>开始安装<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-04.jpg" alt="alt CDH-04"><br>安装Minimal版的CentOS，感觉很清爽！但是后续需要自己手动装一些依赖包，不过这样也好，可以避免安装过多无用的依赖。时区选择ShangHai。  </p>
+<p>此步骤时指定root密码123456<br>安装时指定一个管理员用户shmily 密码123456<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.jpg" alt="alt CDH-05"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.5.jpg" alt="alt CDH-05.5">  </p>
+</li>
+<li><p>使用Hyper-V（推荐）<br>在Hyper-V管理器中的虚拟交换机管理器新建内部网络，然后如果要指定IP，需要去电脑的网络设置IPV4，然后设置把Wifi网络共享给这个网卡。<br>IPV4：192.168.x.1  (x均替换为你喜欢的值 1-254)<br>网关255.255.255.255.0<br>然后配置虚拟机ifcfg-eth0时<br>IPADDR=192.168.x.101<br>NETMASK=255.255.255.0<br>DNS1=192.168.x.1<br>DNS2=192.168.x.2<br>……..<br>我的设置如图：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.6.JPG" alt="alt CDH-05.6"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.7.JPG" alt="alt CDH-05.7"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.8.JPG" alt="alt CDH-05.8"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.9.JPG" alt="alt CDH-05.9">  </p>
+</li>
+</ul>
 <p>安装完成后Reboot，按步骤进行如下配置  </p>
 <pre><code class="shell"> rm -rf * 
 
@@ -620,6 +625,8 @@
  # 修改Hostname
  vi /etc/hostname
  localhost.localdomain改为cdh066
+
+ sudo hostnamectl set-hostname CDH067
 
  vi /etc/hosts  # 添加如下记录
  192.168.1.66 cdh066
@@ -670,6 +677,13 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 
  source /etc/profile
  java -version</code></pre>
+<p>优化服务器配置</p>
+<pre><code class="shell"># swappiness
+echo 10 &gt; /proc/sys/vm/swappiness
+# 关闭透明大页面压缩
+echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag
+echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled
+echo &quot;vm.swappiness=0&quot; &gt;&gt; /etc/sysctl.conf</code></pre>
 <p>还有一些其他的监控命令<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_15766181/article/details/89928275">Linux监控命令汇总</a>  </p>
 <p>Mysql安装(CDH必备)<br>首先查看Cloudera Manager官网要求的Mysql版本：<a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_database_requirements.html#cdh_cm_supported_db">Database Requirements</a><br>参考CDH6.x兼容的版本，我们选择Mysql5.7版本<br>注意:<br>mysql-server依赖mysql-client<br>mysql-client依赖mysql-community-libs<br>mysql-community-libs依赖mysql-community-common<br>所以安装Server会默认安装其全部依赖<br>在线安装：</p>
 <pre><code class="shell"> rpm -qa|grep mariadb
@@ -815,10 +829,34 @@ FLUSH PRIVILEGES;
  chmod 777 /usr/local/bin/screenfetch</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-11.jpg" alt="alt CDH-11">  </p>
 <p>我的配置暂时这样，如果后续有什么需要改进我再更新。<br>更多安全与防火墙配置参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/thinktik/article/details/81046318">安全与防火墙配置</a><br>有关linux用户和组的详细文章:<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pengyunjing/p/8543026.html">Linux用户和组</a>  </p>
+<p>开启ntpd时间同步：参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zx8167107/article/details/78753134">ntp本地服务器搭建</a><br>1.创建本地NTP时间服务器</p>
+<pre><code class="text">vim /etc/ntp.conf
+注释掉：
+#restrict default nomodify notrap nopeer noquery
+#restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+#server 0.centos.pool.ntp.org iburst
+#server 1.centos.pool.ntp.org iburst
+#server 2.centos.pool.ntp.org iburst
+#server 3.centos.pool.ntp.org iburst
+添加：
+restrict default nomodify
+restrict 192.168.1.0 mask 255.255.255.0 nomodify   显式的指出时间服务器所涉及的ip范围
+server 127.127.1.0
+fudge 127.127.1.0 stratum 10</code></pre>
+<p>2.配置NTP客户端（其他节点）</p>
+<pre><code class="text">注释掉：
+#restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+#server 0.centos.pool.ntp.org iburst
+#server 1.centos.pool.ntp.org iburst
+#server 2.centos.pool.ntp.org iburst
+#server 3.centos.pool.ntp.org iburst
+添加：
+server cdh101  指明本地ntp服务器地址</code></pre>
+<p>3.分别启动ntpd服务<br>systemctl status ntpd<br>systemctl start ntpd<br>systemctl enable ntpd<br>ntpdate -u cdh101  手动同步一次<br>ntpq –p  查看ntpd服务状态</p>
 <h3 id="二-克隆虚拟机"><a href="#二-克隆虚拟机" class="headerlink" title="二.克隆虚拟机"></a>二.克隆虚拟机</h3><p>克隆CDH所需的另外三台虚拟机<br>右键CDH066这台已关闭的虚拟机，右键-&gt;管理-&gt;克隆<br>选择虚拟机中当前状态  下一步<br>选择创建完整克隆  下一步<br>虚拟机名称 CDH067  完成<br>同样方法克隆 CDH068 CDH069<br>克隆完成对机器进行设置:<br>CDH067  3GB内存<br>CDH068  2GB内存<br>CDH069  2GB内存  </p>
 <p>开启CDH067机器<br>确保 /ect/hosts里已经添加了其他机器的ip和host<br>vim /etc/sysconfig/network-scripts/ifcfg-ens33<br>删除UUID和HWADDR<br>IPADDR重新分配为192.168.1.67<br>修改后如图<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-12.jpg" alt="alt CDH-12">  </p>
 <p>vi /etc/sysconfig/network<br>NETWORKING=yes<br>HOSTNAME=CDH067  </p>
-<p>vi /etc/hostname<br>CDH066改为CDH067  </p>
+<p>vi /etc/hostname<br>CDH066改为CDH067<br>sudo hostnamectl set-hostname CDH067</p>
 <p>重启 reboot  </p>
 <p>同样方式修改CDH068,CDH069  </p>
 <p>检查：  </p>
@@ -859,23 +897,23 @@ type=rpm-md
 <p>安装Cloudera Manager组件:  </p>
 <pre><code class="shell"># 在CDH066节点运行
  yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server --skip-broken --nogpgcheck</code></pre>
-<p>下载parcel包，：<a target="_blank" rel="noopener" href="https://archive.cloudera.com/cdh6/6.3.1/parcels/">Index of cdh6/6.3.1/parcels/</a><br>下载其中的CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel和manifest.json这两个文件，将这两个文件上传到**/opt/cloudera/parcel-repo**目录  </p>
+<p>下载parcel包，：<a target="_blank" rel="noopener" href="https://archive.cloudera.com/cdh6/6.3.1/parcels/">Index of cdh6/6.3.1/parcels/</a><br>该链接目前需要有License的Cloudera帐号才可以下载了。</p>
 <pre><code class="shell">cd /opt/cloudera/parcel-repo
 sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk &#39;&#123; print $1 &#125;&#39; &gt;CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
 chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*</code></pre>
-<p>初始化数据库<br>该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到cmserver初始化。<br>通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。</p>
+<p>初始化数据库<br>该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到CMServer初始化。<br>通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。</p>
 <pre><code class="shell"># （scm_prepare_database.sh 库类型 scm库名称 scm库连接的用户名 密码 -h服务端所在地址）
 /opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 123456 -hHOST  </code></pre>
 <p>systemctl start cloudera-scm-server.service    # 启动CM服务<br>systemctl status cloudera-scm-server.service   # 查看启动状态<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg" alt="alt CDH-15">  </p>
 <p>等待几分钟后访问<strong><a target="_blank" rel="noopener" href="http://cdh066:7180/">http://cdh066:7180</a></strong>，默认帐号密码都是<strong>admin</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg" alt="alt CDH-16">  </p>
 <p>这里选择免费版本<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-17.jpg" alt="alt CDH-17">  </p>
 <p>下面就是群集安装的步骤：<br>主机名称填写cdh066,cdh067,cdh068,cdh069，然后点击搜索搜索<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG" alt="alt CDH-18"><br>这里搜到了67，68，69节点，但是66节点是灰色的，安装时，66节点不会被安装Agent，意味着后续安装的组件只能部署在67，68，69节点上运行，不过没有关系，可以在添加组件的步骤之前新开个页面将cdh066也加进去。  </p>
-<p>这步使用我们搭建的本地源 <strong><a target="_blank" rel="noopener" href="http://cdh066/cloudera-repos/">http://cdh066/cloudera-repos/</a></strong>  如下设置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG" alt="alt CDH-19">  </p>
+<p>这步使用我们搭建的本地源 <strong><a target="_blank" rel="noopener" href="http://cdh066/cloudera-repos/">http://cdh066/cloudera-repos/</a></strong>  如下设置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG" alt="alt CDH-19"><br>若继续按钮仍为灰色，可以点击更多选项，将所有外部源的链接全部删掉，增加本地parcel源地址，保存更改。</p>
 <p>这步<strong>不要勾选</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.JPG" alt="alt CDH-20">  </p>
 <p>填入root用户的密码<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.JPG" alt="alt CDH-21">  </p>
 <p>这步耐心等待，<strong>不要手动刷新</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.JPG" alt="alt CDH-22">  </p>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.2.JPG" alt="alt CDH-22.2"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.25.JPG" alt="alt CDH-22.25">  </p>
-<p>这步勾选最后一项<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.3.JPG" alt="alt CDH-22.3">  </p>
+<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.25.JPG" alt="alt CDH-22.25">  </p>
+<p>这步勾选最后一项<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.3.JPG" alt="alt CDH-22.3"><br>企业安装时，最好先Inspect Hosts，验证节点是否有配置不当的地方，避免影响稳定性。针对Inspect Hosts的结果，可以一条一条优化集群配置。</p>
 <p>开始安装服务 如图，选<strong>自定义服务</strong><br>根据集群环境和需求选择合适的服务和搭配。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.4.JPG" alt="alt CDH-22.4"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG" alt="alt CDH-22.5">   </p>
 <p>填上之前建的数据库，选的服务不同要求也不同<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG" alt="alt CDH-22.6">  </p>
 <p>最后部署成功，启动服务：<br>因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG" alt="alt CDH-24"><br>后续文章更新内容采用新电脑64GB内存i7-9750h物理机环境，能正常运行CDH服务：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-31.JPG" alt="alt CDH-31">  </p>
@@ -964,6 +1002,8 @@ pip3 install koalas -i https://pypi.doubanio.com/simple</code></pre>
 <h3 id="impala-shell脚本报错"><a href="#impala-shell脚本报错" class="headerlink" title="impala-shell脚本报错"></a>impala-shell脚本报错</h3><p>升级Python版本后，Impala-shell报语法错误<br>原python命令是python2.7，现python命令是python3.8，而/opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell脚本没考虑环境变量，直接用python命令执行，故出现语法兼容性问题。<br>解决：vim /opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/bin/impala-shell<br>将最后一行exec python…替换为exec python2.7</p>
 <pre><code class="python">PYTHONPATH=&quot;$&#123;EGG_PATH&#125;$&#123;SHELL_HOME&#125;/gen-py:$&#123;SHELL_HOME&#125;/lib:$&#123;PYTHONPATH&#125;&quot; \
   exec python2.7 $&#123;SHELL_HOME&#125;/impala_shell.py &quot;$@&quot;</code></pre>
+<h3 id="beeline连接Impala"><a href="#beeline连接Impala" class="headerlink" title="beeline连接Impala"></a>beeline连接Impala</h3><p>1.拷贝ImpalaJDBC41.jar到/opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/lib/hive/auxlib<br>2.beeline -d “com.cloudera.impala.jdbc41.Driver” -u “jdbc:impala://one_impalad_ip:21050”<br>3.如果报warn：Error: [Simba]<a href="11975">JDBC</a> Unsupported transaction isolation level: 4. (state=HY000,code=11975) 则加beeline参数–isolation=default </p>
+<h2 id="Cloudera-Manager使用"><a href="#Cloudera-Manager使用" class="headerlink" title="Cloudera Manager使用"></a>Cloudera Manager使用</h2><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-usage-01.JPG" alt="alt CDH-usage-01">  </p>
 
         </div>
         <!-- .entry-content -->
