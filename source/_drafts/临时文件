@@ -312,6 +312,15 @@ spark.sessionState.conf.getAllConfs.foreach(println) 获取SparkSession当前的
 
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128000000; && distribute by 均匀分布的字段=该参数是用于开启spark的自适应执行，这是spark比较老版本的自适应执行，后面的targetPostShuffleInputSize是用于控制之后的shuffle阶段的平均输入数据大小，防止产生过多的task。表小文件过多导致堆外OOM或者合并小文件时使用。
 spark.sql.adaptive.enabled && spark.sql.adaptive.shuffle.targetPostShuffleInputSize=128M; && distribute by 均匀分布的字段 spark可以根据数据量大小自动规划分区数，自适应分区。spark.sql.adaptive.shuffle.targetPostShuffleInputSize是控制进入shuffle阶段的数据量大小，若不适用压缩格式和压缩算法，输出文件大小会在128M左右，但如果输出snappy+parquet或采用其他压缩格式和压缩算法，则实际输出文件大小是128M*压缩比，可能几M-几十M。由于这种方式合并小文件不需要写死分区数，可以方便批量处理多张表的小文件合并。可以估算压缩比(不太好估，跟具体的数据重复度有关)将spark.sql.adaptive.shuffle.targetPostShuffleInputSize设得更大些，输出的文件，即压缩后的文件也会大一些。
+所以使用动态分区进行Hive表小文件合并的完整流程：
+set parquet.compression=snappy
+spark.sql.adaptive.enabled;
+spark.sql.adaptive.shuffle.targetPostShuffleInputSize=300M;
+create table A_new stored as parquet as select * from A distribute by col_equality;
+alter table A rename to A_old;
+alter table A_new rename to A;
+drop table A_old;
+
 
 spark动态资源分配，没用到Executor时回收资源
 开启动态资源调整需要（on yarn情况下）
@@ -413,7 +422,7 @@ insert into target_table select * from source_table distribute by cust_no
 st = time.time()
 spark.sql("set hive.exec.dynamic.partition.mode=nonstrict").show()
 spark.sql("set hive.exec.dynamic.partition=true").show()
-spark.sql("set parquet.compression=snapp").show()
+spark.sql("set parquet.compression=snappy").show()
 spark.sql(f"set spark.sql.shuffle.partitions={OUTPUT_FILE_COUNT}").show()
 spark.sql(SQL).show()
 print(f"耗时:{time.time() - st}秒")
