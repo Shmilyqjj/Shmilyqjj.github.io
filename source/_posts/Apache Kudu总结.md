@@ -924,6 +924,17 @@ result = scanner.open().read_all_tuples()
 
 2.TS维护前需要健康检查，如果有任何副本不足的情况，需等待副本拷贝完成后再维护。可在gflagfile增加参数：--rpc_service_queue_length=3600  follower_unavailable_considered_failed_sec默认为300s，tablet失去联系超过300s后，该节点的数据就会在其他节点重建，为了避免维护造成的不必要的数据移动和拷贝，可以临时设置此时间为更长的时间（重启维护加上tablet重启后初始化需要的时间）  KuduTS重启恢复速度更快。
 
+3.Kudu JavaAPI客户端请求连接服务器Mater时报错：
+①Caused by: org.apache.kudu.client.RecoverableException: connection disconnected
+②你的主机中的软件终止了一个已建立的链接 unexpected exception from downstream on
+③Caused by: org.apache.kudu.client.NoLeaderFoundException: Master config (master1_ipaddr:7051,master2_ipaddr:7051,master3_ipaddr:7051) has no leader. Exceptions received: org.apache.kudu.client.RecoverableException: connection disconnected,org.apache.kudu.client.RecoverableException: connection disconnected,org.apache.kudu.client.RecoverableException: connection disconnected
+④org.apache.kudu.client.NonRecoverableException: cannot complete before timeout:KuduRpc(method=GetTableSchema,tablet=null,attemtp=7...,Sent:(master-master1_ip:7051,[ConnectToMaster,7 ])...Received(master-master1_ip:7051,[NERWORK_ERROR, 6]))
+在网上搜了一大堆：设置完如下的配置，也不起作用。
+--rpc_encryption=disabled
+--rpc_authentication=disabled
+--trusted_subnets=0.0.0.0/0
+原因：kudu客户端连接kudu服务器时,服务器返回master的主机名而非IP，告诉客户端谁是master,然后通信，但是主机名不是主机的ip，所以客户端会在本地hosts文件找这个主机名，但是本机没有配置，所以会失败，直到超时。
+解决：需要本地解析ip对应的host，修改本地host，增加Master节点的host映射即可解决。
 
 
 ## HTAP混合事务分析处理
