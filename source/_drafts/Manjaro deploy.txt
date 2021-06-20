@@ -57,8 +57,8 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
  
-软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools，deepin-wine-qq，deepin-wine-wechat，teamviewer(sudo teamviewer --daemon enable+systemctl stop teamviewerd.service+systemctl start  teamviewerd.service)
-软件仓库安装:forticlientsslvpn 4.4.2336  , remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
+软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools
+软件仓库安装:forticlientsslvpn 4.4.2336,remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
 
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
@@ -98,7 +98,7 @@ DD9AF44B 99C49590 D2DBDEE1 75860FD2
 8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
 ------ END LICENSE ------​
  
- 系统压测工具：sudo pacman -S stress
+系统压测工具：sudo pacman -S stress
  
 Ramfs: 创建一个最大大小为8G的RAMFS
 mkdir -p /ramfs
@@ -115,10 +115,6 @@ alias ll='ls -l --color'
 
 vim /etc/sudoers
 shmily ALL=(ALL)  ALL
-
-如果微信不能截图发图：
-yay -S deepin-wine5
-sudo vim /opt/deepinwine/apps/Deepin-WeChat/run.sh将WINE_CMD改成 WINE_CMD="deepin-wine5"
 
 清理内存 echo 1 > /proc/sys/vm/drop_caches
 
