@@ -466,6 +466,11 @@ lsof -i -U //显示所有打开的端口和UNIX domain文件
 yum install sshpass
 sshpass -p "password" ssh root@192.168.1.101 'echo 1'
 
+8. 上传下载文件lrzsz
+yum -y install lrzsz
+rz 上传
+sz xxx下载
+
 
 
 ## 总结  
