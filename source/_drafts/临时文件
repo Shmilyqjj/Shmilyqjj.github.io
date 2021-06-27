@@ -134,6 +134,23 @@ pip install -r requirements.txt  # 恢复
 requirements.txt记录了依赖包信息和精确版本号
 
 
+pip安装 build失败：
+报错1：
+gcc: error trying to exec 'cc1plus': execvp: No such file or directory
+    error: command 'gcc' failed with exit status 1
+原因：gcc版本与g++不兼容 
+解决：yum install gcc-c++
+
+报错2：
+    In file included from sasl/saslwrapper.cpp:629:0:
+    sasl/saslwrapper.h:22:23: fatal error: sasl/sasl.h: No such file or directory
+     #include <sasl/sasl.h>
+                           ^
+    compilation terminated.
+    error: command 'gcc' failed with exit status 1
+原因：缺少系统yum相关依赖
+解决：yum -y install cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib
+
 设计模式：https://www.cnblogs.com/wangjian941118/p/9289145.html
 
 打印调用栈
@@ -254,7 +271,7 @@ val sqlContext=new org.apache.spark.sql.SQLContext(sc)
 val spark = sqlContext
 
 Spark临时文件设置
-（spark运行时产生临时文件core.*，/tmp/spark-*,/tmp/blockmgr-*）
+（spark运行时产生临时文件/tmp/spark-*,/tmp/blockmgr-*）
 回答
 Spark任务在运行过程中，driver会创建一个spark-开头的本地临时目录，用于存放业务jar包，配置文件等，同时在本地创建一个blockmgr-开头的本地临时目录，用于存放block data。此两个目录会在Spark应用运行结束时自动删除。此两个目录的存放路径优先通过SPARK_LOCAL_DIRS环境变量指定，若不存在该环境变量，则设置为spark.local.dir的值，若此配置还不存在，则使用java.io.tmpdir的值。客户端默认配置中spark.local.dir被设置为/tmp，因此默认使用系统/tmp目录。
 但存在一些特殊情况，如driver进程未正常退出，比如被kill -9命令结束进程，或者Java虚拟机直接崩溃等场景，导致driver的退出流程未正常执行，则可能导致该部分目录无法被正常清理，残留在系统中。
@@ -320,6 +337,9 @@ create table A_new stored as parquet as select * from A distribute by col_equali
 alter table A rename to A_old;
 alter table A_new rename to A;
 drop table A_old;
+
+Hive分区表小文件合并，可以直接在当前分区上进行操作 不需要临时表
+insert overwrite table xxx_partition_table partition(dt=xxx) select xx,xx,xx from xxx_partition_table where dt=xxx distribute by cust_no;
 
 
 spark动态资源分配，没用到Executor时回收资源
@@ -1911,7 +1931,7 @@ delta，高性能的spark存储格式。format(parquet)
 直接改成format(delta)
 Apache Arrow-Based Spark Native SQL Engine
 apache arrow是一个标准数据格式，多种使用dataframe的计算框架都通用
-
+AnalyticDB
 
 
 
