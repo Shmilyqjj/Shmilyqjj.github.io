@@ -6,14 +6,14 @@ Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   �
 安装各种源
 https://blog.csdn.net/weixin_43968923/article/details/86349914
  
- sudo pacman -S acpi 
+sudo pacman -S acpi 
  
- sudo pacman -R hardcode-fixer 
- 
+sudo pacman -R hardcode-fixer 
+
 sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
  https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
 开机加acpi_osi参数,开机再次修改grub.cfg
- sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
 
 设置时区: sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai/etc/localtime
 安装openNTPD: sudo pacman -S openntpd
@@ -57,7 +57,7 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
  
-软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools
+软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools
 软件仓库安装:forticlientsslvpn 4.4.2336,remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
 
 
@@ -71,6 +71,7 @@ sudo pacman -S docker
 
 安装常用工具
 pacman -S net-tools dnsutils inetutils iproute2 neofetch
+系统压测工具：sudo pacman -S stress
 
 Python源
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -78,6 +79,7 @@ sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
 pip install pyOpenSSL
 pip install certifi
 pip install koalas
+
  
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
@@ -97,16 +99,9 @@ A684C2DC 0B1583D4 19CBD290 217618CD
 DD9AF44B 99C49590 D2DBDEE1 75860FD2
 8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
 ------ END LICENSE ------​
- 
-系统压测工具：sudo pacman -S stress
- 
-Ramfs: 创建一个最大大小为8G的RAMFS
-mkdir -p /ramfs
-mount -t ramfs none /ramfs -o maxsize=8388608
-实际测试超过8G也会存，可能导致系统内存占满崩溃
-所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
-mkdir -p /tmpfs
-mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+
+
 
 ls -l命令简写ll
 sudo vim /etc/profile和~/.bashrc
@@ -117,4 +112,18 @@ vim /etc/sudoers
 shmily ALL=(ALL)  ALL
 
 清理内存 echo 1 > /proc/sys/vm/drop_caches
+
+Ramfs: 创建一个最大大小为8G的RAMFS
+mkdir -p /ramfs
+mount -t ramfs none /ramfs -o maxsize=8388608
+实际测试超过8G也会存，可能导致系统内存占满崩溃
+所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
+mkdir -p /tmpfs
+mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+
+系统备份和还原两种方式：
+使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
+使用timeshift恢复系统
+
 
