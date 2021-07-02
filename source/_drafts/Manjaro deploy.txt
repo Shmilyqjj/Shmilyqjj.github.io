@@ -58,8 +58,8 @@ yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
  
 软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools
-软件仓库安装:forticlientsslvpn 4.4.2336,remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
-
+软件仓库安装:forticlientsslvpn 4.4.2336,remmina,xmind,timeshift,yaourt
+安装远程协助工具todesk Linux版
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
@@ -78,6 +78,7 @@ sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
 pip install pyOpenSSL
 pip install certifi
+pip install pyspark 
 pip install koalas
 
  
