@@ -83,6 +83,8 @@ pip install koalas
  
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
+clash GUI科学上网工具参考1：https://github.com/liyafe1997/ClashR-Pro  参考2：https://github.com/mantech2045/qclash/releases/tag/v0.0.6
+
 
 Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
 激活码：
