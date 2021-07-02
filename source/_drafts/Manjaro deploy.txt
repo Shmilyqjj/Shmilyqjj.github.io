@@ -57,9 +57,11 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
  
-软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools
+软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
 软件仓库安装:forticlientsslvpn 4.4.2336,remmina,xmind,timeshift,yaourt
 安装远程协助工具todesk Linux版
+
+# 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
