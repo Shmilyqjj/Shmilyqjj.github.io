@@ -156,3 +156,15 @@ sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
 
 echo "All Done"
 将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+
+
+# 安装Jetbrains全家桶 创建快捷方式参考：
+[Desktop Entry]
+Name=GoLand
+Comment=GoLand
+Exec=/opt/apps/IDEs/GoLand/bin/goland.sh
+Icon=/opt/apps/IDEs/GoLand/bin/goland.png
+Terminal=false
+Type=Application
+Categories=Development
