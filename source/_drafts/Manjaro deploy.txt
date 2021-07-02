@@ -169,3 +169,6 @@ Icon=/opt/apps/IDEs/GoLand/bin/goland.png
 Terminal=false
 Type=Application
 Categories=Development
+
+# 安装其他终端工具
+Terminus：https://github.com/Eugeny/tabby
