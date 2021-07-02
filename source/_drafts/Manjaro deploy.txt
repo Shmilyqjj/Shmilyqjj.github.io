@@ -1,7 +1,7 @@
 Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
 
 
-/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式96G，home分区xfs格式256G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
+/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
 
 安装各种源
 https://blog.csdn.net/weixin_43968923/article/details/86349914
@@ -126,4 +126,29 @@ mount tmpfs /tmpfs -t tmpfs -o size=8192m
 使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
 使用timeshift恢复系统
 
+# 解决无法写和更新NTFS盘数据的问题：
+创建 fix_ntfs_disk_rw.sh 内容：
+#!/bin/bash
 
+# Fix NTFS Disk which can not be writen on linux system.
+# Usage: sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+DEFAULT_MOUNT_POINT=$1
+TARGET_MOUNT_POINT=$2
+
+if [ "$(whoami)" != "root" ];then
+  echo User root is necessary.
+  exit 1
+fi
+
+current_point=$(df -h | grep $DEFAULT_MOUNT_POINT | awk '{print $1}')
+echo "Remounting point $current_point from $DEFAULT_MOUNT_POINT to $TARGET_MOUNT_POINT"
+
+sudo ntfsfix $current_point
+sudo umount $DEFAULT_MOUNT_POINT
+sudo mkdir -p $TARGET_MOUNT_POINT
+sudo chmod 1777 $TARGET_MOUNT_POINT
+sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
+
+echo "All Done"
+将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
