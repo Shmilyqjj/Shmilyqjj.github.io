@@ -84,7 +84,9 @@ pip install koalas
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
 clash GUI科学上网工具参考1：https://github.com/liyafe1997/ClashR-Pro  参考2：https://github.com/mantech2045/qclash/releases/tag/v0.0.6
-
+GUI不可用则使用原生（推荐）：
+Linux下安装&配置Clash以实现代理上网：https://zhuanlan.zhihu.com/p/369344633
+在 Linux 上使用 Clash 作代理：http://einverne.github.io/post/2021/03/linux-use-clash.html
 
 Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
 激活码：
