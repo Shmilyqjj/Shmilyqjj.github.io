@@ -1,19 +1,19 @@
 Nvidia+Intel双显卡笔记本安装需要这步：安装前 给内核传参   按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按  F10 启动
 
 
-/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式96G，home分区xfs格式256G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
+/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
 
 安装各种源
 https://blog.csdn.net/weixin_43968923/article/details/86349914
  
- sudo pacman -S acpi 
+sudo pacman -S acpi 
  
- sudo pacman -R hardcode-fixer 
- 
+sudo pacman -R hardcode-fixer 
+
 sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
  https://zhuanlan.zhihu.com/p/102525227设置显卡切换（简言之就是驱动管理里使用430xx-bumblebee驱动）
 开机加acpi_osi参数,开机再次修改grub.cfg
- sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
+sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009" 
 
 设置时区: sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai/etc/localtime
 安装openNTPD: sudo pacman -S openntpd
@@ -57,9 +57,11 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
  
-软件仓库安装：Typora,GIMP，Shotcut ， Etcher，laptop-mode-tools
-软件仓库安装:forticlientsslvpn 4.4.2336,remmina,deepin-wine-wxwork,xmind,timeshift,yaourt
+软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
+软件仓库安装:forticlientsslvpn 4.4.2336,remmina,xmind,timeshift,yaourt
+安装远程协助工具todesk Linux版
 
+# 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
 
 安装KVM ：https://www.jianshu.com/p/392ae8181dc3
 
@@ -71,16 +73,23 @@ sudo pacman -S docker
 
 安装常用工具
 pacman -S net-tools dnsutils inetutils iproute2 neofetch
+系统压测工具：sudo pacman -S stress
 
 Python源
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
 pip install pyOpenSSL
 pip install certifi
+pip install pyspark 
 pip install koalas
+
  
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
+clash GUI科学上网工具参考1：https://github.com/liyafe1997/ClashR-Pro  参考2：https://github.com/mantech2045/qclash/releases/tag/v0.0.6
+GUI不可用则使用原生（推荐）：
+Linux下安装&配置Clash以实现代理上网：https://zhuanlan.zhihu.com/p/369344633
+在 Linux 上使用 Clash 作代理：http://einverne.github.io/post/2021/03/linux-use-clash.html
 
 Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
 激活码：
@@ -97,16 +106,9 @@ A684C2DC 0B1583D4 19CBD290 217618CD
 DD9AF44B 99C49590 D2DBDEE1 75860FD2
 8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
 ------ END LICENSE ------​
- 
-系统压测工具：sudo pacman -S stress
- 
-Ramfs: 创建一个最大大小为8G的RAMFS
-mkdir -p /ramfs
-mount -t ramfs none /ramfs -o maxsize=8388608
-实际测试超过8G也会存，可能导致系统内存占满崩溃
-所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
-mkdir -p /tmpfs
-mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+
+
 
 ls -l命令简写ll
 sudo vim /etc/profile和~/.bashrc
@@ -118,3 +120,57 @@ shmily ALL=(ALL)  ALL
 
 清理内存 echo 1 > /proc/sys/vm/drop_caches
 
+Ramfs: 创建一个最大大小为8G的RAMFS
+mkdir -p /ramfs
+mount -t ramfs none /ramfs -o maxsize=8388608
+实际测试超过8G也会存，可能导致系统内存占满崩溃
+所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
+mkdir -p /tmpfs
+mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+
+系统备份和还原两种方式：
+使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
+使用timeshift恢复系统
+
+# 解决无法写和更新NTFS盘数据的问题：
+创建 fix_ntfs_disk_rw.sh 内容：
+#!/bin/bash
+
+# Fix NTFS Disk which can not be writen on linux system.
+# Usage: sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+DEFAULT_MOUNT_POINT=$1
+TARGET_MOUNT_POINT=$2
+
+if [ "$(whoami)" != "root" ];then
+  echo User root is necessary.
+  exit 1
+fi
+
+current_point=$(df -h | grep $DEFAULT_MOUNT_POINT | awk '{print $1}')
+echo "Remounting point $current_point from $DEFAULT_MOUNT_POINT to $TARGET_MOUNT_POINT"
+
+sudo ntfsfix $current_point
+sudo umount $DEFAULT_MOUNT_POINT
+sudo mkdir -p $TARGET_MOUNT_POINT
+sudo chmod 1777 $TARGET_MOUNT_POINT
+sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
+
+echo "All Done"
+将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+
+
+# 安装Jetbrains全家桶 创建快捷方式参考：
+[Desktop Entry]
+Name=GoLand
+Comment=GoLand
+Exec=/opt/apps/IDEs/GoLand/bin/goland.sh
+Icon=/opt/apps/IDEs/GoLand/bin/goland.png
+Terminal=false
+Type=Application
+Categories=Development
+
+# 安装其他终端工具
+Terminus：https://github.com/Eugeny/tabby
