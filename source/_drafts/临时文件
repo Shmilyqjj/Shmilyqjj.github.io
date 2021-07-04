@@ -47,10 +47,20 @@ https://cloud.tencent.com/developer/article/1544865
 ##################################################
 Hadoop相关
 
+调试HDFS NN性能和响应，可以从客户端连接NN的响应耗时分析，具体分析方法：在命令行export HADOOP_ROOT_LOGGER=DEBUG,console 然后运行hdfs命令可以debug 分析debug日志
+
 hdfs dfsadmin -setQuota 10000 /tmp/qjj  设置该目录文件数配额为1w（实际9.8k都会少一点）
 hdfs dfsadmin -setSpaceQuota 10G /tmp/qjj  设置该目录空间配额10G
 hdfs dfsadmin -clrQuota /tmp/qjj  清空目录配额限制
 hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
+
+hdfs权限管理
+hdfs自身不提供用户和组，其用户和组依赖Linux的用户和组。
+Linux服务器批量（所有数据节点）操作：groupadd supergroup ； usermod -a -G supergroup hive （将hive用户添加到supergroup组） 
+单节点运行命令hdfs dfsadmin -refreshUserToGroupsMappings  刷新hdfs权限
+
+查看NN状态命令
+hdfs haadmin -getAllServiceState  得到 ip active  ip standby
 
 小文件产生情况：
 1.流作业
@@ -1235,6 +1245,28 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 
 ##################################################
 Linux相关
+
+rsync排除目录：
+rsync -avP --exclude=dirc/ tmp  /home/xx/
+注意 dirc/ 后面的 / 一定要，指名是目录，如果不加的话 dirc文件也会被排除
+-a, --archive                   归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD
+-v, --verbose                  详细模式输出
+-P 等同于 --partial            保留那些因故没有完全传输的文件，以是加快随后的再次传输
+如果想排除多个目录或文件的话 使用
+rsync -avP  --exclude-from=/usr/exclude.list
+exclude.list 必须是绝对路径，里面保存了各种要排除的文件或目录，以换行隔开
+例：rsync -avP --exclude .svn/ --exclude build/ --exclude dist/
+--exclude .vscode/ --exclude __pycache__
+PythonAPI root@xxx.xx.xx.xxx:/usr/
+
+
+批量CRLF转LF 代码
+sed -i -e 's/\r\+$//' bin/*
+sed -i -e 's/\r\+$//' sbin/*
+sed -i -e 's/\r\+$//' conf/*.sh
+
+
+shell字符串截取https://www.jb51.net/article/56563.htm
 
 rsync使用： rsync -lr fileOrDir root@192.168.1.101:/root/
 
