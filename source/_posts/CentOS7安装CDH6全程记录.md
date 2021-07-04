@@ -731,7 +731,9 @@ manifest.json
 ![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
 ![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
 ![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
-好啦，Flink可以使用啦。
+
+Flink1.9.0版本比较老，对Hive的兼容不是很友好，可以参考：https://blog.csdn.net/qq_31454379/article/details/110440037 安装Flink官方1.12版本
+
 
 ### 六.功能扩展 
 [自定义告警脚本](https://cloud.tencent.com/developer/article/1544865)
@@ -846,5 +848,82 @@ PYTHONPATH="${EGG_PATH}${SHELL_HOME}/gen-py:${SHELL_HOME}/lib:${PYTHONPATH}" \
 2.beeline -d "com.cloudera.impala.jdbc41.Driver" -u "jdbc:impala://one_impalad_ip:21050"
 3.如果报warn：Error: [Simba][JDBC](11975) Unsupported transaction isolation level: 4. (state=HY000,code=11975) 则加beeline参数--isolation=default 
 
+### 部署与CDH6组件版本兼容的开源版Spark 2.x
+CDH不是自带Spark吗，为什么要使用开源版？因为CDH Spark阉割了很多Spark的功能，不支持spark-sql入口和spark-thriftserver入口，还有一些其他功能，可以参考:[]()
+使用Spark2.3.x：下载或编译获得spark2.3.2-bin-hadoop2.6官方tarball可以直接兼容当前CDH个版本。其源码中hive依赖版本为1.2.1.spark2，hadoop版本为2.6.5，作为兼容hive、hadoop的客户端。
+使用Spark2.4.x: 下载或编译获得spark2.4.8-bin-hadoop2.7官方tarball，不可直接兼容，需要替换jar包：
+```shell
+echo "export SPARK_HOME=/opt/spark/spark-2.4.8-bin-hadoop2.7" >> /etc/profile;source /etc/profile
+rm -f $SPARK_HOME:/jars/hadoop-yarn*
+cp /opt/cloudera/parcels/CDH/jars/hadoop-yarn* $SPARK_HOME:/jars/
+cp /opt/cloudera/parcels/CDH/jars/hive-shims-scheduler-2.1.1-cdh6.3.2.jar $SPARK_HOME:/jars/
+```
+spark-env.sh
+```text
+JAVA_HOME=/usr/local/jdk1.8.0_181/
+HADOOP_CONF_DIR=/etc/hadoop/conf
+export SPARK_DIST_CLASSPATH=$(/opt/cloudera/parcels/CDH/bin/hadoop classpath)
+export SPARK_LOCAL_DIRS=/data/spark_tmp_data
+```
+spark-defaults.conf
+```text
+spark.kryoserializer.buffer.max=512m
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+spark.eventLog.enabled=false
+spark.eventLog.dir=file:///data/spark_tmp_data
+spark.driver.extraLibraryPath=/hadoop/cloudera/parcels/CDH/lib/hadoop/lib/native
+spark.executor.extraLibraryPath=/hadoop/cloudera/parcels/CDH/lib/hadoop/lib/native
+spark.yarn.am.extraLibraryPath=/hadoop/cloudera/parcels/CDH/lib/hadoop/lib/native
+spark.executorEnv.JAVA_HOME=/usr/local/jdk1.8.0_181/
+spark.yarn.appMasterEnv.JAVA_HOME=/usr/local/jdk1.8.0_181/
+spark.local.dir=/data/spark_tmp_data
+```
+ln -s /etc/hadoop/conf/core-site.xml $SPARK_HOME:/conf/core-site.xml
+ln -s /etc/hadoop/conf/hdfs-site.xml $SPARK_HOME:/conf/hdfs-site.xml
+ln -s /etc/hadoop/conf/mapred-site.xml $SPARK_HOME:/conf/mapred-site.xml
+ln -s /etc/hadoop/conf/yarn-site.xml $SPARK_HOME:/conf/yarn-site.xml
+ln -s /etc/hive/conf/hive-site.xml $SPARK_HOME:/conf/hive-site.xml
+如果在Kerberos集群启用ThriftServer，在hive-site.xml添加或修改如下参数
+```text
+  <property>
+    <name>hive.metastore.sasl.enabled</name>
+    <value>true</value>
+  </property>
+  <!-- 以下三项填写HMS所在服务器的地址和HiveServer2服务的keytab，HS2服务的keytab文件到HS2节点找最新/var/run/cloudera-scm-agent/process/ 里面的hive.keytab -->
+  <property>
+    <name>hive.metastore.kerberos.principal</name>
+    <value>hive/cdh02@SMYOA.COM</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication.kerberos.principal</name>
+    <value>hive/cdh02@SMYOA.COM</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication.kerberos.keytab</name>
+    <value>/hadoop/bigdata/kerberos/keytab/hiveserver2_cdh02.keytab</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication</name>
+    <value>NONE</value>
+  </property>
+```
+提交任务：
+```shell
+cd $SPARK_HOME
+bin/spark-sql --master yarn
+sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thrift  --master yarn --executor-memory 8g --executor-cores 5 --num-executors 20  
+[启用Kerberos] sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thrift  --master yarn --executor-memory 8g --executor-cores 5 --num-executors 20  --hiveconf hive.server2.authentication.kerberos.keytab /hadoop/bigdata/kerberos/keytab/hiveserver2_cdh02.keytab
+```
+
+### 升级与CDH6组件版本兼容的开源版Spark 3.x
+编译https://blog.csdn.net/Young2018/article/details/108856622
+部署https://www.pianshen.com/article/46531976066/
+
+
 ## Cloudera Manager使用
 ![alt CDH-usage-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-usage-01.JPG)  
+
+
+
+## CDH卸载
+https://mp.weixin.qq.com/s?__biz=MzI4OTY3MTUyNg==&mid=2247484118&idx=1&sn=e7109978013a286fe1f172f99459c45a&chksm=ec2ad2dfdb5d5bc96fcaeb6ce2ed42a025e1d95ab251372fb4769c29434f0d84fb66bbfec1d2&scene=21#wechat_redirect
