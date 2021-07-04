@@ -22,6 +22,9 @@ sudo vim /boot/grub/grub.cfg   =>  acpi_osi=! acpi_osi="Windows 2009"
 
 sudo systemctl enable fstrim.timer  启用TRIM，TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命。
 
+git config --global user.name "shmily"
+git config --global user.email 710552907@qq.com
+
 su root
 chmod 1777 /opt
 mkdir /opt/apps
