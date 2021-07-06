@@ -1,0 +1,326 @@
+---
+title: 基于Manjaro KDE版打造美观舒适开发环境
+author: 佳境
+avatar: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
+authorLink: shmily-qjj.top
+authorAbout: 你自以为的极限，只是别人的起点
+authorDesc: 你自以为的极限，只是别人的起点
+categories:
+  - 技术
+comments: true
+tags:
+  - Linux
+  - Manjaro
+keywords: Manjaro
+description: Manjaro Linux安装部署与美化
+photos: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+date: 2021-07-07 11:22:00
+---
+# 基于Manjaro KDE版打造美观舒适开发环境
+
+## 系统安装与初始化配置
+### 安装系统
+到[Manjaro官网](https://manjaro.org/)下载最新ManjaroLinux发行版（本文基于Manjaro KDE Plasma 5.21.5版本）
+到[Rufus官网](http://rufus.ie)下载镜像克隆工具
+使用Rufus克隆Manjaro镜像到U盘，模式选择UEFI
+Windows+Linux双系统可以加如下参数使Windows把硬件时间当作UTC（避免双系统切换导致的时间错乱）
+Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1
+
+双显卡用户注意事项(单显卡忽略此步骤)：
+Nvidia+Intel双显卡笔记本安装需要这步：安装前给内核传参=>按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按F10启动，否则会卡死无法进入桌面
+
+
+/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
+
+双显卡用户注意事项(单显卡忽略此步骤)：
+重启第一次进入系统也需要按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按F10启动，否则会卡死无法进入桌面
+进入系统后，
+sudo vim /boot/grub/grub.cfg 在所有quiet后加acpi_osi=! acpi_osi="Windows 2009"参数，下次开机则不需要再加内核参数
+（若系统更新了内核，grub.cfg也会被更新，需要重新加内核参数进入系统，重新修改grub.cfg文件）
+建议每次更新系统执行如下脚本(update_grub.sh)自动增加内核参数：
+```shell
+#!/bin/bash
+echo "双显卡笔记本更新Manjaro系统后需要添加grub参数避免无法开机"
+if [[ $(whoami) != root ]]; then
+  echo -e "\033[41;37m[ERROR] Need sudo or root privilege.\033[0m"
+  exit 1
+fi
+GRUB_CFG="/boot/grub/grub.cfg"
+GRUB_CFG_BACKUP="$GRUB_CFG"_bak
+echo "Backup path: $GRUB_CFG_BACKUP"
+cp $GRUB_CFG $GRUB_CFG_BACKUP
+if [ -n "$(grep "Windows 2009" $GRUB_CFG)" ]; then
+  echo "Grub config is ok,no update."
+else
+  echo "Grub config need to be updated.Go to update it."
+  # 防止不能加载显卡不能进桌面
+  sed -i 's/quiet/quiet acpi_osi=! acpi_osi="Windows 2009"/g' $GRUB_CFG
+  # 开机等待界面超时时间设为3s
+  sed -i 's/timeout=10/timeout=3/g' $GRUB_CFG
+fi
+echo -e "\033[42;3mAll Done. Result:\033[0m"
+cat $GRUB_CFG | grep "quiet"
+cat $GRUB_CFG | grep "timeout="
+```
+双显卡用户目前无论安装任何Linux发行版都很坑，对于Manjaro,奉上设置显卡切换的教程：[Manjaro 笔记本配置Intel与Nvidia双显卡切换，防踩坑教程](https://zhuanlan.zhihu.com/p/102525227) 
+
+
+### 初始化系统
+安装必备系统镜像源
+```shell
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+# 更新镜像排名
+sudo pacman-mirrors -i -c China -m rank 
+cp /etc/pacman.conf /etc/pacman.conf.backup
+# 添加ArchLinux中文社区源
+sudo vi /etc/pacman.conf
+  [archlinuxcn]
+  SigLevel = Optional TrustedOnly
+  #清华源
+  Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+  #中科大源
+  #Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+# 配置生效
+sudo pacman-mirrors -g
+# 更新pacman数据库全面更新系统并签名
+sudo pacman -Syyu && sudo pacman -S archlinuxcn-keyring
+# 安装yaourt
+sudo pacman -S yaourt
+cp /etc/yaourtrc /etc/yaourtrc.backup
+sudo echo 'AURURL="https://aur.tuna.tsinghua.edu.cn"' >> /etc/yaourtrc
+# 安装一些常用的包
+sudo pacman -S acpi vim
+```
+
+创建一些目录
+```shell
+su root
+chmod 1777 /opt
+# 存放我的应用
+mkdir /opt/apps
+chmod 1777 -R /opt/apps/
+usermod -a -G root shmily 
+# sudo su和sudo su - 可以免密码 以我用户名shmily为例(sudo su只切用户不带root的环境变量 sudo su -带root环境变量跟root用户一样)
+sudo vim /etc/sudoers
+shmily ALL=(ALL) NOPASSWD: ALL
+su shmily
+# 用户代码项目存放目录
+sudo mkdir -p /opt/Projects/
+sudo mkdir -p /opt/Projects/OpenSourceProjects
+sudo mkdir -p /opt/Projects/MyProjects
+sudo mkdir -p /opt/Projects/EnterpriseProjects
+sudo chmod 1777 -R /opt/Projects/
+# 系统环境所需目录
+sudo mkdir -p /opt/Env/
+# 工具目录
+sudo mkdir -p /opt/Tools/
+```
+
+输入法首选安装:
+sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
+在当前桌面登陆的用户下执行sudo vim ~/.pam_environment
+INPUT_METHOD  DEFAULT=fcitx5
+GTK_IM_MODULE DEFAULT=fcitx5
+QT_IM_MODULE  DEFAULT=fcitx5
+XMODIFIERS    DEFAULT=\@im=fcitx5
+后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量
+注销重新登陆后生效
+如何更新主题 换主题[Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
+
+
+
+说明：fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
+提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。
+注意：对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR,该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量。
+
+其他可选输入法组件：
+sunpinyin+sunpinyin-data
+fcitx-sunpinyin
+ibus-sunpinyin
+kcm-fcitx
+
+
+
+
+
+### 安装常用软件
+DOCK任务栏(开机会自动启动)：
+sudo pacman -S latte-dock
+
+安装VSCode：
+首先官网去下载安装包vscode官网https://code.visualstudio.com
+code-stable-xxxxxxx.tar.gz
+tar -zxvf code-stable-x64-1623937300.tar.gz -C /opt/apps/
+sudo chmod +x /opt/apps/VSCode-linux-x64/code
+ln -s /opt/apps/VSCode-linux-x64/code /usr/local/bin/code
+touch /usr/share/applications/VSCode.desktop
+chmod +x /usr/share/applications/VSCode.desktop
+cp /opt/apps/VSCode-linux-x64/resources/app/resources/linux/code.png /usr/share/icons/
+cat>/usr/share/applications/VSCode.desktop<<EOF
+[Desktop Entry]
+Name=Visual Studio Code
+Comment=Multi-platform code editor for Linux
+Exec=/opt/apps/VSCode-linux-x64/code
+Icon=/usr/share/icons/code.png
+Type=Application
+StartupNotify=true
+Categories=TextEditor;Development;Utility;
+MimeType=text/plain;
+EOF
+
+
+
+git config --global user.name "shmily"
+git config --global user.email 710552907@qq.com
+
+
+
+
+
+
+
+
+ 
+软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+ 
+Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
+
+wechat和tim替代方案：
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
+ 
+软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
+软件仓库安装:forticlientsslvpn 4.4.2336,remmina,xmind,timeshift,yaourt
+安装远程协助工具todesk Linux版
+
+# 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
+
+安装KVM ：https://www.jianshu.com/p/392ae8181dc3
+
+
+
+安装docker
+sudo pacman -S docker
+
+安装常用工具
+pacman -S net-tools dnsutils inetutils iproute2 neofetch
+系统压测工具：sudo pacman -S stress
+
+Python源
+sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
+pip install pyOpenSSL
+pip install certifi
+pip install pyspark 
+pip install koalas
+
+ 
+Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
+
+clash GUI科学上网工具参考1：https://github.com/liyafe1997/ClashR-Pro  参考2：https://github.com/mantech2045/qclash/releases/tag/v0.0.6
+GUI不可用则使用原生（推荐）：
+Linux下安装&配置Clash以实现代理上网：https://zhuanlan.zhihu.com/p/369344633
+在 Linux 上使用 Clash 作代理：http://einverne.github.io/post/2021/03/linux-use-clash.html
+
+Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
+激活码：
+----- BEGIN LICENSE -----
+Member J2TeaM
+Single User License
+EA7E-1011316
+D7DA350E 1B8B0760 972F8B60 F3E64036
+B9B4E234 F356F38F 0AD1E3B7 0E9C5FAD
+FA0A2ABE 25F65BD8 D51458E5 3923CE80
+87428428 79079A01 AA69F319 A1AF29A4
+A684C2DC 0B1583D4 19CBD290 217618CD
+5653E0A0 BACE3948 BB2EE45E 422D2C87
+DD9AF44B 99C49590 D2DBDEE1 75860FD2
+8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
+------ END LICENSE ------​
+
+
+
+
+ls -l命令简写ll
+sudo vim /etc/profile和~/.bashrc
+alias ls='ls --color'
+alias ll='ls -l --color'
+
+vim /etc/sudoers
+shmily ALL=(ALL)  ALL
+
+清理内存 echo 1 > /proc/sys/vm/drop_caches
+
+Ramfs: 创建一个最大大小为8G的RAMFS
+mkdir -p /ramfs
+mount -t ramfs none /ramfs -o maxsize=8388608
+实际测试超过8G也会存，可能导致系统内存占满崩溃
+所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
+mkdir -p /tmpfs
+mount tmpfs /tmpfs -t tmpfs -o size=8192m
+
+
+系统备份和还原两种方式：
+使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
+使用timeshift恢复系统
+
+## 系统常规优化
+```shell
+# 1.启用TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命
+sudo systemctl enable fstrim.timer
+```
+
+# 解决无法写和更新NTFS盘数据的问题：
+创建 fix_ntfs_disk_rw.sh 内容：
+#!/bin/bash
+
+# Fix NTFS Disk which can not be writen on linux system.
+# Usage: sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+DEFAULT_MOUNT_POINT=$1
+TARGET_MOUNT_POINT=$2
+
+if [ "$(whoami)" != "root" ];then
+  echo User root is necessary.
+  exit 1
+fi
+
+current_point=$(df -h | grep $DEFAULT_MOUNT_POINT | awk '{print $1}')
+echo "Remounting point $current_point from $DEFAULT_MOUNT_POINT to $TARGET_MOUNT_POINT"
+
+sudo ntfsfix $current_point
+sudo umount $DEFAULT_MOUNT_POINT
+sudo mkdir -p $TARGET_MOUNT_POINT
+sudo chmod 1777 $TARGET_MOUNT_POINT
+sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
+
+echo "All Done"
+将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+
+
+
+# 安装Jetbrains全家桶 创建快捷方式参考：
+[Desktop Entry]
+Name=GoLand
+Comment=GoLand
+Exec=/opt/apps/IDEs/GoLand/bin/goland.sh
+Icon=/opt/apps/IDEs/GoLand/bin/goland.png
+Terminal=false
+Type=Application
+Categories=Development
+
+# 安装其他终端工具
+Terminus：https://github.com/Eugeny/tabby
+
+
+
+
+## 参考链接
+[Manjaro Gnome 下fcitx5的安装](https://www.zhihu.com/question/333951476/answer/1280162871)
+[Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
+
+
