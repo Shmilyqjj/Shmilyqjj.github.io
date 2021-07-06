@@ -174,7 +174,7 @@ EOF
 
 git config --global user.name "shmily"
 git config --global user.email 710552907@qq.com
-
+git config --global http.version HTTP/1.1
 
 
 
