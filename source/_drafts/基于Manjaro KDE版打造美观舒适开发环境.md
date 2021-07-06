@@ -94,7 +94,7 @@ sudo echo 'AURURL="https://aur.tuna.tsinghua.edu.cn"' >> /etc/yaourtrc
 sudo pacman -S acpi vim
 ```
 
-创建一些目录
+### 创建一些目录
 ```shell
 su root
 chmod 1777 /opt
@@ -118,6 +118,7 @@ sudo mkdir -p /opt/Env/
 sudo mkdir -p /opt/Tools/
 ```
 
+### 输入法
 输入法首选安装:
 sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
 在当前桌面登陆的用户下执行sudo vim ~/.pam_environment
@@ -128,8 +129,6 @@ XMODIFIERS    DEFAULT=\@im=fcitx5
 后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量
 注销重新登陆后生效
 如何更新主题 换主题[Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
-
-
 
 说明：fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
 提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。
@@ -145,10 +144,11 @@ kcm-fcitx
 
 
 
-### 安装常用软件
-DOCK任务栏(开机会自动启动)：
-sudo pacman -S latte-dock
+## 安装常用软件
+### 开发环境安装
 
+
+### 开发工具安装
 安装VSCode：
 首先官网去下载安装包vscode官网https://code.visualstudio.com
 code-stable-xxxxxxx.tar.gz
@@ -175,6 +175,12 @@ EOF
 git config --global user.name "shmily"
 git config --global user.email 710552907@qq.com
 git config --global http.version HTTP/1.1
+
+
+## 美化
+
+
+
 
 
 
