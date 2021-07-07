@@ -53,6 +53,9 @@ Sqoop原理很简单，就是将导入导出的命令翻译成MapReduce程序，
  export HBASE_HOME=/opt/module/hbase
  export ZOOKEEPER_HOME=/opt/module/zookeeper-3.4.13
  export ZOOCFGDIR=/opt/module/zookeeper-3.4.13/conf
+ # SQOOP写哪个集群，用哪个Yarn，用以下Hive、Hadoop客户端配置指定到sqoop-env.sh
+ export HADOOP_CONF_DIR=/etc/hadoop/cluster_client_conf/hadoop-conf/
+ export HIVE_CONF_DIR=/etc/hadoop/cluster_client_conf/hive-conf/
 
  拷贝mysql驱动到Sqoop的lib目录下
  cp mysql-connector-java-5.1.27-bin.jar /opt/module/sqoop/lib/
