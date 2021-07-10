@@ -181,8 +181,10 @@ EOF
 git config --global user.name "shmily"
 git config --global user.email 710552907@qq.com
 git config --global http.version HTTP/1.1
-
-
+git config --global core.autocrlf false
+git config --global core.safecrlf true
+git config --global core.autocrlf input #提交时转换为LF，检出时不转换
+                                                
 ## 美化
 
 
