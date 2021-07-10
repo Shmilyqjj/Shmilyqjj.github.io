@@ -25,6 +25,12 @@ date: 2021-07-07 11:22:00
 到[Manjaro官网](https://manjaro.org/)下载最新ManjaroLinux发行版（本文基于Manjaro KDE Plasma 5.21.5版本）
 到[Rufus官网](http://rufus.ie)下载镜像克隆工具
 使用Rufus克隆Manjaro镜像到U盘，模式选择UEFI
+
+系统BIOS设置项：
+Boot顺序将系统安装盘改为第一项
+关闭安全启动Security Boot => 否则无法引导进入Linux
+SATA模式由Raid On切换为AHCI => 若系统有NVME硬盘则需要此操作，避免Linux无法识别到NVME硬盘（双系统用户先进入Windows->cmd运行msconfig->引导->勾选安全引导->重启的过程中会修复硬盘的AHCI驱动避免因切换AHCI导致无法启动Windows系统->重启后再取消勾选安全引导）
+
 Windows+Linux双系统可以加如下参数使Windows把硬件时间当作UTC（避免双系统切换导致的时间错乱）
 Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1
 
