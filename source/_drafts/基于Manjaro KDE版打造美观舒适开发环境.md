@@ -330,6 +330,45 @@ Categories=Development
 # 安装其他终端工具
 Terminus：https://github.com/Eugeny/tabby
 
+# 使用Wine运行一些常见Windows程序
+  中文显示问题修复：
+  在windows下拷贝字体文件——simsun.ttc（c:\windows\fonts\simsun.ttc），复制到
+~/.wine/drive_c/windows/Fonts下；
+然后，编辑reg文件，文件内容如下：
+REGEDIT4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\NT\CurrentVersion\FontSubstitutes]
+"Arial"="simsun"
+"Arial CE,238"="simsun"
+"Arial CYR,204"="simsun"
+"Arial Greek,161"="simsun"
+"Arial TUR,162"="simsun"
+"Courier New"="simsun"
+"Courier New CE,238"="simsun"
+"Courier New CYR,204"="simsun"
+"Courier New Greek,161"="simsun"
+"Courier New TUR,162"="simsun"
+"FixedSys"="simsun"
+"Helv"="simsun"
+"Helvetica"="simsun"
+"MS Sans Serif"="simsun"
+"MS Shell Dlg"="simsun"
+"MS Shell Dlg 2"="simsun"
+"System"="simsun"
+"Tahoma"="simsun"
+"Times"="simsun"
+"Times New Roman CE,238"="simsun"
+"Times New Roman CYR,204"="simsun"
+"Times New Roman Greek,161"="simsun"
+"Times New Roman TUR,162"="simsun"
+"Tms Rmn"="simsun"
+ （注：按照windows的格式，最后一行之后要敲回车符）
+保存文件名为fonts.reg，保存在~/.wine下；
+然后导入regedit：
+    打开gnome-terminal，输入指令  cd ~/.wine
+                                regedit fonts.reg
+导入成功。
+最后，打开regedit，~/.wine/drive_c/windows/regedit.exe,依次找到 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes，将该键下的MS Shell Dlg和MS Shell Dlg2键值删除。
+Wine运行程序： wine xxx.exe
 
 
 
