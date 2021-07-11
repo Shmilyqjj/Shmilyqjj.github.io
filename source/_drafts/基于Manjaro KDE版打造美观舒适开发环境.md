@@ -127,31 +127,100 @@ sudo mkdir -p /opt/Tools/
 ### 输入法
 输入法首选安装:
 sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
-在当前桌面登陆的用户下执行sudo vim ~/.pam_environment
+```shell
+sudo vim ~/.pam_environment （在当前桌面登陆的用户下执行）
 INPUT_METHOD  DEFAULT=fcitx5
 GTK_IM_MODULE DEFAULT=fcitx5
 QT_IM_MODULE  DEFAULT=fcitx5
 XMODIFIERS    DEFAULT=\@im=fcitx5
-后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量
+```
+**<u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u>**
 注销重新登陆后生效
 如何更新主题 换主题[Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
-
-说明：fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
+**说明：**fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
 提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。
 注意：对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR,该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量。
-
-其他可选输入法组件：
+**其他可选输入法组件：**
 sunpinyin+sunpinyin-data
 fcitx-sunpinyin
 ibus-sunpinyin
 kcm-fcitx
 
+### Git配置
+```shell
+git config --global user.name "shmily"
+git config --global user.email 710552907@qq.com
+git config --global http.version HTTP/1.1
+git config --global core.autocrlf false
+git config --global core.safecrlf true
+git config --global core.autocrlf input #提交时转换为LF，检出时不转换
+git config http.proxy socks5://127.0.0.1:7891  # 因为我的Clash代理sock端口是7891
+```
 
-
+### 系统常规优化
+```shell
+# 1.启用TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命
+sudo systemctl enable fstrim.timer
+```
 
 
 ## 安装常用软件
+Clash科学上网
+[下载Clash](https://github.com/Dreamacro/clash/releases)
+cd ~/下载
+gunzip clash-linux-amd64-v1.6.5.gz
+mkdir /opt/apps/Clash
+mv clash-linux-amd64-v1.6.5 /opt/apps/Clash/
+cd /opt/apps/Clash
+chmod +x clash-linux-amd64-v1.6.5
+./clash-linux-amd64-v1.6.5 直到出现INFO[0003] Mixed(http+socks5) proxy listening at: 127.0.0.1:7890即可关闭
+ls ~/.config/clash 会有config.yaml  Country.mmdb 如果没出现上述INFO日志则可能是Country.mmdb下载失败，可以手动下载
+sudo touch /usr/share/applications/Clash.desktop
+chmod a+x /usr/share/applications/Clash.desktop
+cat>/usr/share/applications/Clash.desktop<<EOF
+[Desktop Entry]
+Name=Clash For Linux
+Comment=clash-for-linux
+Encoding=UTF-8
+Exec=/opt/apps/Clash/clash-linux-amd64-v1.6.5
+Icon=/opt/apps/Clash/logo_64.png
+Categories=System;Application;Network;
+StartupNotify=true
+Terminal=false
+Type=Application
+EOF
+生效我们的代理配置文件
+cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
+使用WebUI管理连接：
+根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过http://clash.razord.top进行策略组节点的切换
+只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega：
+
+必要时可以使用系统全局代理：
+进入系统设置->网络设置->使用系统代理服务器配置(或使用手动设置的代理服务器)->http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891
+配置Clash开机自启：
+cp /usr/share/applications/Clash.desktop ~/.config/autostart/
+
+微信、TIM
+wechat和tim替代方案：
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+sudo pacman -Sy base-devel
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
+
+
 ### 开发环境安装
+sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip
+Python源
+sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
+pip install pyOpenSSL
+pip install certifi
+pip install pyspark 
+pip install koalas
+
+ 
+Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
 
 ### 开发工具安装
@@ -178,20 +247,15 @@ EOF
 
 
 
-git config --global user.name "shmily"
-git config --global user.email 710552907@qq.com
-git config --global http.version HTTP/1.1
-git config --global core.autocrlf false
-git config --global core.safecrlf true
-git config --global core.autocrlf input #提交时转换为LF，检出时不转换
+
                                                 
 ## 美化
 
 
+# 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
 
 
-
-
+Terminus：https://github.com/Eugeny/tabby
 
 
 
@@ -201,44 +265,42 @@ git config --global core.autocrlf input #提交时转换为LF，检出时不转�
  
 Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
 
-wechat和tim替代方案：
-sudo pacman -S yay
-yay --aururl https://aur.tuna.tsinghua.edu.cn --save
-yay -S com.qq.weixin.spark
-yay -S com.qq.tim.spark
+
  
 软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
-软件仓库安装:forticlientsslvpn 4.4.2336,remmina,xmind,timeshift,yaourt
+软件仓库安装:todesk,remmina,xmind,timeshift,yaourt
 安装远程协助工具todesk Linux版
 
-# 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
 
-安装KVM ：https://www.jianshu.com/p/392ae8181dc3
+
+### 虚拟机软件
+安装VirtualBox:
+mhwd-kernel -li  (我的是linux510，则安装linux510-virtualbox-host-modules) 
+sudo pacman -Syu virtualbox linux510-virtualbox-host-modules
+重启或执行sudo vboxreload
+
+安装KVM（备选）：
+pacman -S qemu libvirt ovmf virt-manager
+（kvm负责CPU和内存的虚拟化，qemu向Guest OS模拟硬件，ovmf为虚拟机启用UEFI支持，libvirt提供管理虚拟机和其它虚拟化功能的工具和API，virt-manager是管理虚拟机的GUI）
+systemctl enable libvirtd
+systemctl start libvirtd
+usermod -a -G kvm shmily
+启动qem/virt-manager
+
+
+
 
 
 
 安装docker
 sudo pacman -S docker
 
-安装常用工具
-pacman -S net-tools dnsutils inetutils iproute2 neofetch
-系统压测工具：sudo pacman -S stress
 
-Python源
-sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
-pip install pyOpenSSL
-pip install certifi
-pip install pyspark 
-pip install koalas
 
- 
-Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
+系统压测工具：sudo pacman -S neofetch
 
-clash GUI科学上网工具参考1：https://github.com/liyafe1997/ClashR-Pro  参考2：https://github.com/mantech2045/qclash/releases/tag/v0.0.6
-GUI不可用则使用原生（推荐）：
-Linux下安装&配置Clash以实现代理上网：https://zhuanlan.zhihu.com/p/369344633
-在 Linux 上使用 Clash 作代理：http://einverne.github.io/post/2021/03/linux-use-clash.html
+
+
 
 Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
 激活码：
@@ -264,8 +326,7 @@ sudo vim /etc/profile和~/.bashrc
 alias ls='ls --color'
 alias ll='ls -l --color'
 
-vim /etc/sudoers
-shmily ALL=(ALL)  ALL
+
 
 清理内存 echo 1 > /proc/sys/vm/drop_caches
 
@@ -282,11 +343,7 @@ mount tmpfs /tmpfs -t tmpfs -o size=8192m
 使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
 使用timeshift恢复系统
 
-## 系统常规优化
-```shell
-# 1.启用TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命
-sudo systemctl enable fstrim.timer
-```
+
 
 # 解决无法写和更新NTFS盘数据的问题：
 创建 fix_ntfs_disk_rw.sh 内容：
@@ -327,8 +384,8 @@ Terminal=false
 Type=Application
 Categories=Development
 
-# 安装其他终端工具
-Terminus：https://github.com/Eugeny/tabby
+
+
 
 # 使用Wine运行一些常见Windows程序
   中文显示问题修复：
