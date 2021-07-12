@@ -173,8 +173,18 @@ sudo pacman -S adobe-source-han-serif-cn-fonts
 
 
 ## 安装常用软件
+```shell
+sudo pacman -S google-chrome  # Chrome
+sudo pacman -S netease-cloud-music  # 网易云音乐
+sudo pacman -S unrar unzip p7zip  # 解压
+### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
+sudo pacman -S gimp  # 修图
+sudo pacman -S neofetch screenfetch  # 输出系统信息
+```
+
 Clash科学上网
 [下载Clash](https://github.com/Dreamacro/clash/releases)
+```shell
 cd ~/下载
 gunzip clash-linux-amd64-v1.6.5.gz
 mkdir /opt/apps/Clash
@@ -197,8 +207,9 @@ StartupNotify=true
 Terminal=false
 Type=Application
 EOF
-生效我们的代理配置文件
+# 生效我们的代理配置文件
 cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
+```
 使用WebUI管理连接：
 根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过http://clash.razord.top进行策略组节点的切换
 只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega：
@@ -209,25 +220,39 @@ cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
 cp /usr/share/applications/Clash.desktop ~/.config/autostart/
 
 微信、TIM
-wechat和tim替代方案：
+```shell
 sudo pacman -S yay
 yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
+```
 
-sudo pacman -S netease-cloud-music  # 网易云音乐
 
-软件商店启用AUR
+
+软件商店启用AUR和Snap源
+
 
 ### 开发环境安装
-sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen
+sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
 sudo pacman -S nodejs
 sudo pacman -S npm
 sudo pacman -S make
 sudo pacman -S cmake
 sudo pacman -S clang
 sudo pacman -S maven
+```shell
+# 下载jdk-8u181-linux-x64.tar.gz
+sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
+# 下载scala-2.12.12.tgz
+sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
+sudo vim /etc/profile
+export JAVA_HOME=/opt/Env/jdk1.8.0_181
+export PATH=$PATH:$JAVA_HOME/bin
+export SCALA_HOME=/opt/Env/scala-2.12.12
+export PATH=$PATH:$SCALA_HOME/bin
+source /etc/profile
+```
 
 Python源
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -237,9 +262,14 @@ Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
 
 ### 开发工具安装
-安装VSCode：
-首先官网去下载安装包vscode官网https://code.visualstudio.com
-code-stable-xxxxxxx.tar.gz
+```shell
+sudo pacman -S intellij-idea-ultimate-edition  # 安装IDEA最新旗舰版
+sudo pacman -S pycharm-community-edition # 安装PyCharm
+sudo pacman -S goland  # 安装Goland
+sudo pacman -S gitkraken # Git GUI管理工具
+yay -S typora # Typora markdown工具
+# 安装VSCode：
+# 首先官网去下载安装包vscode官网https://code.visualstudio.com 得到code-stable-xxxxxxx.tar.gz
 tar -zxvf code-stable-x64-1623937300.tar.gz -C /opt/apps/
 sudo chmod +x /opt/apps/VSCode-linux-x64/code
 ln -s /opt/apps/VSCode-linux-x64/code /usr/local/bin/code
@@ -258,8 +288,23 @@ Categories=TextEditor;Development;Utility;
 MimeType=text/plain;
 EOF
 
+```
 
-
+Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
+激活码：
+----- BEGIN LICENSE -----
+Member J2TeaM
+Single User License
+EA7E-1011316
+D7DA350E 1B8B0760 972F8B60 F3E64036
+B9B4E234 F356F38F 0AD1E3B7 0E9C5FAD
+FA0A2ABE 25F65BD8 D51458E5 3923CE80
+87428428 79079A01 AA69F319 A1AF29A4
+A684C2DC 0B1583D4 19CBD290 217618CD
+5653E0A0 BACE3948 BB2EE45E 422D2C87
+DD9AF44B 99C49590 D2DBDEE1 75860FD2
+8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
+------ END LICENSE ------​
 
                                                 
 ## 美化
@@ -274,7 +319,7 @@ Terminus：https://github.com/Eugeny/tabby
 
 
  
-软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+
  
 Deepin软件-去软件仓库 ： 深度影院 深度相机
 深度录屏sudo pacman -S deepin-screen-recorder
@@ -310,26 +355,12 @@ sudo pacman -S docker
 
 
 
-系统压测工具：sudo pacman -S neofetch
 
 
 
 
-Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
-激活码：
------ BEGIN LICENSE -----
-Member J2TeaM
-Single User License
-EA7E-1011316
-D7DA350E 1B8B0760 972F8B60 F3E64036
-B9B4E234 F356F38F 0AD1E3B7 0E9C5FAD
-FA0A2ABE 25F65BD8 D51458E5 3923CE80
-87428428 79079A01 AA69F319 A1AF29A4
-A684C2DC 0B1583D4 19CBD290 217618CD
-5653E0A0 BACE3948 BB2EE45E 422D2C87
-DD9AF44B 99C49590 D2DBDEE1 75860FD2
-8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
------- END LICENSE ------​
+
+
 
 
 
