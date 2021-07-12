@@ -157,10 +157,18 @@ git config --global core.autocrlf input #提交时转换为LF，检出时不转�
 git config http.proxy socks5://127.0.0.1:7891  # 因为我的Clash代理sock端口是7891
 ```
 
+
 ### 系统常规优化
 ```shell
 # 1.启用TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命
 sudo systemctl enable fstrim.timer
+# 2.安装中文字体
+sudo pacman -S wqy-zenhei
+sudo pacman -S wqy-bitmapfont
+sudo pacman -S wqy-microhei
+sudo pacman -S ttf-wps-fonts
+sudo pacman -S adobe-source-han-sans-cn-fonts
+sudo pacman -S adobe-source-han-serif-cn-fonts
 ```
 
 
@@ -208,17 +216,22 @@ sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
 
+sudo pacman -S netease-cloud-music  # 网易云音乐
+
+软件商店启用AUR
 
 ### 开发环境安装
-sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip
+sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen
+sudo pacman -S nodejs
+sudo pacman -S npm
+sudo pacman -S make
+sudo pacman -S cmake
+sudo pacman -S clang
+sudo pacman -S maven
+
 Python源
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
-pip install pyOpenSSL
-pip install certifi
-pip install pyspark 
-pip install koalas
-
  
 Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
 
@@ -261,10 +274,10 @@ Terminus：https://github.com/Eugeny/tabby
 
 
  
-软件商店AUR：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
+软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts   => 进入文档  点击右上角A切换语言
  
-Deepin软件-去软件仓库 ：深度截图  深度录屏  深度备份还原工具
-
+Deepin软件-去软件仓库 ： 深度影院 深度相机
+深度录屏sudo pacman -S deepin-screen-recorder
 
  
 软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
