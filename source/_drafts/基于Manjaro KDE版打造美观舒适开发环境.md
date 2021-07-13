@@ -424,6 +424,7 @@ echo "All Done"
 
 
 # 安装Jetbrains全家桶 创建快捷方式参考：
+创建GoLand.desktop 内容如下
 [Desktop Entry]
 Name=GoLand
 Comment=GoLand
@@ -433,6 +434,7 @@ Terminal=false
 Type=Application
 Categories=Development
 
+然后执行sudo desktop-file-install GoLand.desktop 安装快捷方式
 
 
 
