@@ -92,15 +92,11 @@ sudo vi /etc/pacman.conf
 sudo pacman-mirrors -g
 # 更新pacman数据库全面更新系统并签名
 sudo pacman -Syyu && sudo pacman -S archlinuxcn-keyring
-# 安装yaourt
-sudo pacman -S yaourt
-cp /etc/yaourtrc /etc/yaourtrc.backup
-sudo echo 'AURURL="https://aur.tuna.tsinghua.edu.cn"' >> /etc/yaourtrc
 # 安装一些常用的包
 sudo pacman -S acpi vim
 ```
 
-### 创建一些目录
+### 创建一些目录及配置免密
 ```shell
 su root
 chmod 1777 /opt
@@ -108,11 +104,16 @@ chmod 1777 /opt
 mkdir /opt/apps
 chmod 1777 -R /opt/apps/
 usermod -a -G root shmily 
-# sudo su和sudo su - 可以免密码 以我用户名shmily为例(sudo su只切用户不带root的环境变量 sudo su -带root环境变量跟root用户一样)
+# sudo免密 避免频繁输入密码 以我用户名shmily为例(sudo su只切用户不带root的环境变量 sudo su -带root环境变量跟root用户一样)
 sudo vim /etc/sudoers
 shmily ALL=(ALL) NOPASSWD: ALL
-su shmily
+清徐%sudo ALL=(ALL) ALL前的注释#
+sudo vim /etc/sudoers.d/10-installer
+在%wheel ALL=(ALL) ALL行后添加如下配置
+shmily ALL=(ALL) NOPASSWD: ALL
+%shmily ALL=(ALL) NOPASSWD: ALL
 # 用户代码项目存放目录
+su shmily
 sudo mkdir -p /opt/Projects/
 sudo mkdir -p /opt/Projects/OpenSourceProjects
 sudo mkdir -p /opt/Projects/MyProjects
@@ -123,6 +124,7 @@ sudo mkdir -p /opt/Env/
 # 工具目录
 sudo mkdir -p /opt/Tools/
 ```
+软件商店启用AUR和Snap源
 
 ### 输入法
 输入法首选安装:
@@ -180,6 +182,13 @@ sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
 sudo pacman -S gimp  # 修图
 sudo pacman -S neofetch screenfetch  # 输出系统信息
+yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
+### 远程桌面连接工具remmina 软件商店安装
+sudo pacman -S deepin-screen-recorder  # 深度录屏
+
+
+软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
+软件仓库安装:timeshift
 ```
 
 Clash科学上网
@@ -230,7 +239,7 @@ yay -S com.qq.tim.spark
 
 
 
-软件商店启用AUR和Snap源
+
 
 
 ### 开发环境安装
@@ -322,12 +331,8 @@ Terminus：https://github.com/Eugeny/tabby
 
  
 Deepin软件-去软件仓库 ： 深度影院 深度相机
-深度录屏sudo pacman -S deepin-screen-recorder
 
- 
-软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
-软件仓库安装:todesk,remmina,xmind,timeshift,yaourt
-安装远程协助工具todesk Linux版
+
 
 
 
