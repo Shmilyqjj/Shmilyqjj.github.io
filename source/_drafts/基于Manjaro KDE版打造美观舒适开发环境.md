@@ -192,9 +192,14 @@ sudo pacman -S neofetch screenfetch  # 输出系统信息
 yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
 ### 远程桌面连接工具remmina 软件商店安装
 sudo pacman -S deepin-screen-recorder  # 深度录屏
+# 企业微信安装
+https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
+用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
+cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
+sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
 
 
-软件仓库安装：Typora,GIMP，Shotcut ， laptop-mode-tools syncthing
+软件仓库安装：Typora，Shotcut ， laptop-mode-tools(可选 有tlp可以不用) syncthing
 软件仓库安装:timeshift
 ```
 
