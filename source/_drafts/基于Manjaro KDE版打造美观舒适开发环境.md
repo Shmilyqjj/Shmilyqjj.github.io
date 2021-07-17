@@ -176,6 +176,13 @@ sudo pacman -S adobe-source-han-serif-cn-fonts
 
 ## 安装常用软件
 ```shell
+# 微信、TIM
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+sudo pacman -Sy base-devel
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
+# #########################
 sudo pacman -S google-chrome  # Chrome
 sudo pacman -S netease-cloud-music  # 网易云音乐
 sudo pacman -S unrar unzip p7zip  # 解压
@@ -228,14 +235,7 @@ cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
 配置Clash开机自启：
 cp /usr/share/applications/Clash.desktop ~/.config/autostart/
 
-微信、TIM
-```shell
-sudo pacman -S yay
-yay --aururl https://aur.tuna.tsinghua.edu.cn --save
-sudo pacman -Sy base-devel
-yay -S com.qq.weixin.spark
-yay -S com.qq.tim.spark
-```
+
 
 
 
