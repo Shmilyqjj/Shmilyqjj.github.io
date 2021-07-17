@@ -197,9 +197,9 @@ https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
 用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
 cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
 sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
-
-
-软件仓库安装：Typora，Shotcut ， laptop-mode-tools(可选 有tlp可以不用) syncthing
+# 安装文件多设备同步工具
+sudo pacman -S syncthing
+软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
 软件仓库安装:timeshift
 ```
 
