@@ -398,34 +398,66 @@ mount tmpfs /tmpfs -t tmpfs -o size=8192m
 使用timeshift恢复系统
 
 
+# 开机自启自定义脚本
+su root
+vim /etc/systemd/system/rc-local.service 创建该文件
+```shell
+[Unit]
+Description="/etc/rc.local Compatibility" 
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+StandardInput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target
+```
+
+vim /etc/rc.local 创建该文件
+```shell
+#!/bin/sh
+# /etc/rc.local
+if test -d /etc/rc.local.d; then
+    for rcscript in /etc/rc.local.d/*.sh; do
+        test -r "${rcscript}" && sh ${rcscript}
+    done
+    unset rcscript
+fi
+```
+chmod a+x /etc/rc.local
+mkdir /etc/rc.local.d
+systemctl enable rc-local.service
+自定义脚本放在/etc/rc.local.d/里就可以了
+
+
 
 # 解决无法写和更新NTFS盘数据的问题：
-创建 fix_ntfs_disk_rw.sh 内容：
+创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：
+```shell
 #!/bin/bash
-
 # Fix NTFS Disk which can not be writen on linux system.
 # Usage: sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
-
 DEFAULT_MOUNT_POINT=$1
 TARGET_MOUNT_POINT=$2
-
 if [ "$(whoami)" != "root" ];then
   echo User root is necessary.
   exit 1
 fi
-
 current_point=$(df -h | grep $DEFAULT_MOUNT_POINT | awk '{print $1}')
 echo "Remounting point $current_point from $DEFAULT_MOUNT_POINT to $TARGET_MOUNT_POINT"
-
 sudo ntfsfix $current_point
 sudo umount $DEFAULT_MOUNT_POINT
 sudo mkdir -p $TARGET_MOUNT_POINT
 sudo chmod 1777 $TARGET_MOUNT_POINT
 sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
-
 echo "All Done"
+```
 将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
-
+编写一个shell脚本放在/etc/rc.local.d/中开机自动挂载
 
 
 # 安装Jetbrains全家桶 创建快捷方式参考：
