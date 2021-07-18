@@ -398,7 +398,7 @@ mount tmpfs /tmpfs -t tmpfs -o size=8192m
 使用timeshift恢复系统
 
 
-# 开机自启自定义脚本
+# 开机自启脚本
 su root
 vim /etc/systemd/system/rc-local.service 创建该文件
 ```shell
@@ -457,7 +457,7 @@ sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
 echo "All Done"
 ```
 将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
-编写一个shell脚本放在/etc/rc.local.d/中开机自动挂载
+
 
 
 # 安装Jetbrains全家桶 创建快捷方式参考：
