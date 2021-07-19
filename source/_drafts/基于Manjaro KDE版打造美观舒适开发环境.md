@@ -185,6 +185,7 @@ yay -S com.qq.tim.spark
 # #########################
 sudo pacman -S google-chrome  # Chrome
 sudo pacman -S netease-cloud-music  # 网易云音乐
+yay -S tenvideo # 腾讯视频
 sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
 sudo pacman -S gimp  # 修图
