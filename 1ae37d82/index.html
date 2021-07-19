@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">Impala-基于内存的高效SQL交互查询引擎 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      Impala-基于内存的高效SQL交互查询引擎</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2021-1-17<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="Impala-基于内存的高效SQL交互查询引擎"><a href="#Impala-基于内存的高效SQL交互查询引擎" class="headerlink" title="Impala-基于内存的高效SQL交互查询引擎"></a>Impala-基于内存的高效SQL交互查询引擎</h1><h2 id="Impala简介"><a href="#Impala简介" class="headerlink" title="Impala简介"></a>Impala简介</h2><p>&emsp;&emsp;Impala是Cloudera提供的一款高效率的SQL实时查询工具，官方测试性能比Hive快10到100倍，SQL查询性能甚至比SparkSQL还更加高效。Impala是基于Hive的大数据分析查询引擎，直接使用Hive的元数据库，意味着Impala元数据都存储在Hive的元数据库当中。Impala兼容绝大多数HiveQL语法。</p>
+<pre><code class="text">Impala基于MPP（Massively Parallel Processing）[大规模并行处理]理念的查询引擎，什么是MPP？
+MPP是一种海量数据实时分析架构,MPP理念是将任务并行的分散到多个服务器和节点上，在每个节点上计算完成后，将各自部分的结果汇总在一起得到最终的结果
+特点：
+● Shared Nothing架构（每一个节点都是独立的，自给的，在系统中不存在单点竞争，没有共享数据），私有资源
+● 任务分布式并行执行（数据无共享，无IO冲突，无锁资源竞争，计算速度快）
+● 数据分布式存储(本地化)
+● 横向扩展（易扩容）;
+● 单个节点查询效率慢会影响整个查询（倾斜）
+附：
+Shared Everthing：完全透明共享 CPU/Memory/IO，并行处理能力是最差的
+Shared Storage：各个处理单元使用自己的私有CPU//Memory，但共享磁盘系统
+Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO</code></pre>
+<p><strong>基于SQL的计算引擎对比</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">引擎</th>
+<th align="center">开发语言</th>
+<th align="center">执行机制</th>
+<th align="center">资源调度</th>
+<th align="center">内存分配</th>
+<th align="center">容错</th>
+<th align="center">场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Hive(MR)</td>
+<td align="center">Java</td>
+<td align="center">SQL-&gt;MR-&gt;Yarn-&gt;HDFS</td>
+<td align="center">Yarn调度</td>
+<td align="center">内存不够则用磁盘</td>
+<td align="center">Hadoop容错机制包括重试和推测执行</td>
+<td align="center">离线分析和跑批任务</td>
+</tr>
+<tr>
+<td align="center">Spark</td>
+<td align="center">Scala</td>
+<td align="center">SQL-&gt;计划-&gt;Yarn-&gt;HDFS</td>
+<td align="center">支持多种调度</td>
+<td align="center">优先使用内存不够则用磁盘，可手动</td>
+<td align="center">Lineage+Checkpoint+失败重试</td>
+<td align="center">兼容多种场景</td>
+</tr>
+<tr>
+<td align="center">Presto</td>
+<td align="center">Java</td>
+<td align="center">SQL-&gt;计划-&gt;Workers-&gt;HDFS</td>
+<td align="center">自身</td>
+<td align="center">纯内存计算</td>
+<td align="center">无容错设计</td>
+<td align="center">交互式分析查询</td>
+</tr>
+<tr>
+<td align="center">ClickHouse</td>
+<td align="center">C++</td>
+<td align="center">SQL-&gt;计划-&gt;读存储引擎数据向量化执行</td>
+<td align="center">自身</td>
+<td align="center">内存+连续IO</td>
+<td align="center">多主机跨数据中心异步复制，不怕节点宕机</td>
+<td align="center">存储数据库+OLAP分析的场景</td>
+</tr>
+<tr>
+<td align="center">Impala</td>
+<td align="center">C++</td>
+<td align="center">SQL-&gt;计划-&gt;HDFS</td>
+<td align="center">自身</td>
+<td align="center">纯内存计算</td>
+<td align="center">无容错设计</td>
+<td align="center">交互式分析查询</td>
+</tr>
+</tbody></table>
+<h2 id="Impala优缺点"><a href="#Impala优缺点" class="headerlink" title="Impala优缺点"></a>Impala优缺点</h2><p>优点：</p>
+<ol>
+<li>基于内存计算，低延迟，高吞吐，查询速度快，适用于秒级响应的OLAP交互式分析查询</li>
+<li>提供窗口函数（聚合 OVER PARTITION, RANK, LEAD, LAG, NTILE等等）以支持高级分析功能</li>
+<li>支持PB级数据量的实时分析</li>
+<li>支持map、struct、array类型上的复杂嵌套查询，支持UDF和UDAF</li>
+<li>可以使用Impala插入或更新HBase（类似Phoenix）</li>
+<li>支持Parquet、Avro、Text、RCFile、SequenceFile、HFile等多种文件格式，支持Snappy（有效平衡压缩率和解压缩速度）、Gzip（最高压缩率的归档数据压缩）、Deflate（不支持文本文件）、Bzip2、LZO（只支持文本文件）等多种压缩编码格式</li>
+<li>支持存储在HDFS、HBase、S3、Kudu上的数据操作</li>
+<li>与CDH深度整合，支持查看查询任务的各项指标</li>
+<li>支持Sentry和Kerberos</li>
+</ol>
+<p>局限性：</p>
+<ol>
+<li>不适用于跑批</li>
+<li>查询时占用大量内存</li>
+<li>不支持ORC</li>
+<li>“AnalysisException: Impala does not support modifying a non-Kudu table” 不支持非Kudu表的Update、delete操作</li>
+<li>不支持Date数据类型</li>
+</ol>
+<h2 id="Impala原理"><a href="#Impala原理" class="headerlink" title="Impala原理"></a>Impala原理</h2><p><strong>Impala架构图</strong><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-01.png" alt="alt Impala-01">  </p>
+<h3 id="Impala-Daemon"><a href="#Impala-Daemon" class="headerlink" title="Impala Daemon"></a>Impala Daemon</h3><p>&emsp;&emsp;Impala的核心进程Impalad，部署在所有的数据节点上，接收客户端的查询请求，读写数据，并行执行来自集群中其他节点的查询请求，将中间结果返回给调度节点。调用节点将结果返回给客户端。Impalad进程通过持续与StateStore通信来确认自己所在的节点是否健康以及是否可以接受新的任务请求。</p>
+<p>Impalad包含三种角色：</p>
+<ul>
+<li><font size="3" color="red">Query Coordinator</font>：用户在Impala集群上的某个节点提交数据处理请求（例如impala-shell提交SQL），则该Impalad节点称为Coordinator Node（协调节点）,负责定位数据位置，拆分请求（Fragment），将任务分解为多个可并行执行的小请求，发送这些请求到多个Query Executor，接收Query Executor处理后返回的数据并构建最终结果返回给用户。</li>
+<li><font size="3" color="red">Query Planner</font>：Java编写的，解析SQL生成QueryPlanTree执行计划树。</li>
+<li><font size="3" color="red">Query Executor</font>：执行数据计算，比如scan，Aggregation，Merge等，返回数据。</li>
+</ul>
+<h3 id="Impala-StateStore"><a href="#Impala-StateStore" class="headerlink" title="Impala StateStore"></a>Impala StateStore</h3><p>&emsp;&emsp;Statestored进程，状态管理进程（类似ZK），定时检查Impala Daemon的健康状况，协调各个运行Impalad进程之间的信息，Impala通过这些信息去定位查询请求所要的数据，如果Impala节点下线，StateStore会通知其他节点，避免查询任务分发到不可用的节点上。(定位Impala卡住以及各种异常状况，可以先从ImpalaStateStore下手，查看StateStore日志方便定位问题)</p>
+<h3 id="Impala-Catalog-Service"><a href="#Impala-Catalog-Service" class="headerlink" title="Impala Catalog Service"></a>Impala Catalog Service</h3><p>&emsp;&emsp;Catalogd进程，元数据管理服务，收集Hive等系统的元数据，将数据表变化的信息分发给各个进程。接收来自StateStore的所有请求，每个Impala节点在本地缓存所有元数据。<strong>当表创建、数据更新或Schema发生变化时，其他Impala后台进程必须更新元数据缓存，才能查询</strong>。</p>
+<ul>
+<li>Schema变化时（Hive操作create table/drop table/alter table add columns）使用：<br>invalidate metadata  //重新加载所有库中的所有表（不推荐，还不如重启Catalogd进程）<br>invalidate metadata [table]  //重新加载指定的某个表</li>
+<li>数据变化时（Hive操作insert into、load data、alter table add partition、Alter table drop partition或HDFS增删重命名文件）使用：<br>refresh [table]   //刷新某个表<br>refresh [table] partition [partition] //刷新某个表的某个分区</li>
+<li><font size="3" color="red">注意：invalidate会清除表的缓存并从MetaStore重新同步元数据，代价较大；refresh会重用之前的元数据，仅仅执行文件刷新操作，它能够检测到表中分区的增加和减少，代价相对小些</font></li>
+</ul>
+<!-- 负载均衡：采用Round Robin轮询调度算法（依次将一个域名解析到多个IP地址的调度不同服务器的计算方法）来实现负载均衡,将任务提交到不同的节点上 -->
+
+<h3 id="Impala-join算法"><a href="#Impala-join算法" class="headerlink" title="Impala join算法"></a>Impala join算法</h3><p>1.HashJoin，等值Join采用Hash算法进行Join，具体分为Broadcast Hash Join和Shuffle Hash Join。Boradcast Join适合右表是小表的情景，Impala会广播小表到各个节点，再关联。Shuffle Join适合大表与大表Join的情景，Impala会将大表划分成多块，然后分别进行Hash Join。<br>2.Nested Loop Join，非等值Join使用，非等值Join效率低，不支持Hint。</p>
+<h3 id="Impala-Query-Hint"><a href="#Impala-Query-Hint" class="headerlink" title="Impala Query Hint"></a>Impala Query Hint</h3><p>语法：</p>
+<pre><code class="SQL">SELECT STRAIGHT_JOIN select_list FROM
+join_left_hand_table
+  JOIN [&#123; /* +BROADCAST */ | /* +SHUFFLE */ &#125;]
+join_right_hand_table
+remainder_of_query;
+-- --------------------------------------
+INSERT insert_clauses
+  [&#123; /* +SHUFFLE */ | /* +NOSHUFFLE */ &#125;]
+  [/* +CLUSTERED */]
+  SELECT remainder_of_query;
+-- --------------------------------------
+SELECT select_list FROM
+table_ref
+  /* +&#123;SCHEDULE_CACHE_LOCAL | SCHEDULE_DISK_LOCAL | SCHEDULE_REMOTE&#125;
+    [,RANDOM_REPLICA] */
+remainder_of_query;</code></pre>
+<p>Hint会改变SQL的执行计划，使用Hint注意事项：</p>
+<ol>
+<li>有两个地方需要加上hint关键字，select后面加上STRAIGHT_JOIN；join后面加上[shuffle]或者/* +shuffle */</li>
+<li>如果是多层嵌套的join方式，也需要在每一层加上STRAIGHT_JOIN和[shuffle]或者/* +shuffle */</li>
+<li>外层的hint对于内层的join子语句是不起作用的</li>
+<li>如果select后面跟distinct之类的关键字，STRAIGHT_JOIN需要跟在关键字后面<br>不同Hint标签的具体含义和场景见文档:<strong><a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/impala_hints.html">impala_hints</a></strong></li>
+</ol>
+<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-02.JPG" alt="alt Impala-02"><br>注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信</p>
+<p>在StateStore的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25010/">http://cdh101:25010/</a> 可以查看Impala集群监控状态和配置信息：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-03.JPG" alt="alt Impala-03">  </p>
+<p>在Catalog的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25020/">http://cdh101:25020/</a> 可以看到各个库表元数据信息、Schema及占用内存大小<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-04.JPG" alt="alt Impala-04">  </p>
+<p>在Impala Daemon的WEBUI <a target="_blank" rel="noopener" href="http://cdh102:25000/">http://cdh102:25000/</a> 可以看到该进程信息  在<a target="_blank" rel="noopener" href="http://cdh102:25000/queries">http://cdh102:25000/queries</a> 可以查看该节点执行SQL的详情<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-07.JPG" alt="alt Impala-07"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-08.JPG" alt="alt Impala-08">  </p>
+<p>在CDH Impala组件中可以查看执行SQL任务的详细信息<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-05.JPG" alt="alt Impala-05"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-06.JPG" alt="alt Impala-06"> </p>
+<p>一些重要的常用的impala-shell使用命令</p>
+<pre><code class="shell">impala-shell -i host指定Coordinator
+-d 指定连接到哪个库
+-q &quot;select ...&quot; 不进入impala-shell直接查询某语句返回结果到命令行
+-f file 执行文件中的sql
+-p 获取执行计划
+-o 保存执行结果到文件
+-h 帮助
+进入Impala-shell后：
+shell &lt;shell&gt;  不退出impala-shell执行系统命令
+profile 分析Query执行，以便于性能调优（比-p更多的信息）</code></pre>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ol>
+<li>文件格式推荐parquet，查询效率高</li>
+<li>避免碎片文件，注意文件的大小</li>
+<li>根据实际的文件大小和个数选择分区的粒度</li>
+<li>分区key选择最小的整数类型代替字符串类型，降低元数据占用内存大小</li>
+<li>使用COMPUTE STATS命令进行表、分区的性能分析（收集统计信息），提高表的查询效率<pre><code class="SQL">COMPUTE STATS [db_name.]table_name
+COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]</code></pre>
+</li>
+<li>最小化返回Client端的数据量</li>
+<li>使用explain+SQL命令确认执行计划是否高效</li>
+<li>执行查询后使用summary命令确认硬件消耗（物理性能特性），输出的信息包括哪个阶段耗时最多，以及每一阶段估算的内存消耗、行数与实际的差异</li>
+<li>执行查询后使用profile命令显示详细性能信息，输出的信息包括内存、CPU、I/O以及网络消耗的详细信息，可根据该信息进行调优</li>
+<li>使用profile查看是否有hdfs块倾斜，合理分配block大小</li>
+<li>充分利用Impala Query Hint优化查询效率</li>
+<li>Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下</li>
+</ol>
+<p>总结：</p>
+<ol>
+<li>Impala是典型的MPP架构实时查询分析引擎，类似的引擎还有ClickHouse</li>
+<li>Impala非常适合即时报表展示的场景</li>
+<li>使用Impala一定要注意元数据缓存问题以及所查询的表文件个数、倾斜问题，否则会严重拖慢效率</li>
+<li>多参考以上最佳实践部分</li>
+</ol>
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><p><a target="_blank" rel="noopener" href="http://impala.apache.org/docs/build/impala-3.4.pdf">Impala-3.4 PDF Document</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38483094/article/details/95797505">Impala介绍以及优劣</a><br><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/IMPALA/Impala+Home">Cloudera Impala Wiki</a><br><a target="_blank" rel="noopener" href="https://github.com/cloudera/Impala">Impala Github repository</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39478115/article/details/77506322">Impala架构</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/BigdataExceptionsSummary/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                大数据平台常见异常处理汇总</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2020Summary/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Life/2020Summary/2020Summary-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                我的2020年度总结博客</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">大数据平台常见异常处理汇总 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Bigdata-Problems-cover.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      大数据平台常见异常处理汇总</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2021-1-30<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="大数据平台常见异常处理汇总"><a href="#大数据平台常见异常处理汇总" class="headerlink" title="大数据平台常见异常处理汇总"></a>大数据平台常见异常处理汇总</h1><p>本博客记录工作中遇到的，大数据相关各个组件的异常处理过程，养成良好的问题归纳总结习惯，累积问题解决经验与思路。</p>
+<h2 id="Spark相关"><a href="#Spark相关" class="headerlink" title="Spark相关"></a>Spark相关</h2><ol>
+<li><p>Shuffle异常导致任务失败<br>报错：<font size="3" color="red">org.apache.spark.shuffle.MetadataFetchFailedException: Missing an output location for shuffle 1</font><br>原因：<br>shuffle分为shuffle write和shuffle read两部分。<br>shuffle write的分区数由上一阶段的RDD分区数控制，shuffle read的分区数则是由Spark提供的一些参数控制。<br>shuffle write可以简单理解为类似于saveAsLocalDiskFile的操作，将计算的中间结果按某种规则临时放到各个executor所在的本地磁盘上。<br>shuffle read的时候数据的分区数则是由spark提供的一些参数控制。可以想到的是，如果这个参数值设置的很小，同时shuffle read的量很大，那么将会导致一个task需要处理的数据非常大。结果导致JVM crash，从而导致取shuffle数据失败，同时executor也丢失了，看到Failed to connect to host的错误，也就是executor lost的意思。有时候即使不会导致JVM crash也会造成长时间的gc。<br>解决思路：减少shuffle的数据量和增加处理shuffle数据的分区数<br>①spark.sql.shuffle.partitions控制分区数，默认为200，根据shuffle的量以及计算的复杂度提高这个值 shuffle并行度<br>②提高spark.executor.memory<br>③map side join或是broadcast join来规避shuffle的产生<br>④分析数据倾斜 解决数据倾斜<br>⑤增加失败的重试次数和重试的时间间隔<br>通过spark.shuffle.io.maxRetries控制重试次数，默认是3，可适当增加，例如10。<br>通过spark.shuffle.io.retryWait控制重试的时间间隔，默认是5s，可适当增加，例如10s。<br>⑥类似RemoteShuffleService的服务，解决Shuffle单台机器IO瓶颈，记录Shuffle状态，大批量提升Shuffle效率和稳定性。</p>
+</li>
+<li><p>SparkSQL报awaitResult异常<br>报错：<font size="3" color="red">org.apache.spark.SparkException: Exception thrown in awaitResult</font><br>原因：广播数据超时<br>解决：spark.sql.broadcastTimeout=1200 默认大小300</p>
+</li>
+<li><p>HiveOnSpark不能创建SparkClient及Return Code 1异常<br>报错：<font size="3" color="red">FAILED：SemanticException Failed to get a spark session: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to create spark client.</font><br><font size="3" color="red">Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.spark.SparkTask</font><br>原因：以上报错证明初始化Spark失败，而以前不会失败，所以大概率是资源问题而不是代码问题，查看Yarn队列发现所提交的队列已满且已超过能申请资源的上限（虚线部分），故任务启动失败<br>解决：CM界面-&gt;群集-&gt;动态资源池配置-&gt;提高队列的资源权重（上限也会响应提高）-&gt;刷新动态资源池配置</p>
+</li>
+<li><p>ExecutorLost、Task Lost<br>报错：<br>1.[<font size="3" color="red">executor lost</font>] WARN TaskSetManager: Lost task 1.0 in stage 0.0 (TID 1, aa.local): ExecutorLostFailure (executor lost)<br>2.[<font size="3" color="red">task lost</font>] WARN TaskSetManager: Lost task 69.2 in stage 7.0 (TID 1145, 192.168.47.217): java.io.IOException: Connection from /xx.xxx.xx.xxx:xxxxx closed<br>3.[<font size="3" color="red">timeout</font>] java.util.concurrent.TimeoutException: Futures timed out after [120 second<br>ERROR TransportChannelHandler: Connection to /xxx.xxx.xx.xxx:xxxxx has been quiet for 120000 ms while there are outstanding requests. Assuming connection is dead; please adjust spark.network.timeout if this is wrong<br>原因：节点资源不足、网络延迟波动、GC导致Executor运行慢等原因<br>解决：①spark.network.timeout的值（默认为120s,配置所有网络传输的延时），根据情况改成300(5min)或更高 ②分别增加各类超时参数<br>spark.core.connection.ack.wait.timeout<br>spark.akka.timeout<br>spark.storage.blockManagerSlaveTimeoutMs<br>spark.shuffle.io.connectionTimeout<br>spark.rpc.askTimeout or spark.rpc.lookupTimeout</p>
+</li>
+</ol>
+<h2 id="HDFS相关"><a href="#HDFS相关" class="headerlink" title="HDFS相关"></a>HDFS相关</h2><ol>
+<li><p>数据块丢失且命令无法修复<br>起因：多张表查询发现如下报错，提示块丢失<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-01.png" alt="alt"><br>分析：CM界面看HDFS丢失块，发现有2500多，大批量块丢失可能的原因：<br>    1.DataNode与NameNode未通信，DataNode进程未启动<br>    2.DataNode数据磁盘损坏，数据丢失<br> 3.一个文件的全部副本丢失<br>解决过程：<br>尝试修复丢失块：hdfs debug recoverLease -path <path-of-the-file> -retries <retry times><br>显示修复成功，但使用hadoop fs -text <file_name> 还是报MissingBlock无法读取<br>使用fsck检测坏块 hdfs fsck /user/hive/warehouse<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-02.png" alt="alt"><br>发现绝大多数block名称都带有172.xxx.xxx.11 定位到可能是172.xxx.xxx.11节点的DataNode可能存在问题<br>通过CM日志和机器上进程状态判断172.xxx.xxx.11的DataNode已与NameNode保持心跳，运行正常，进而怀疑磁盘坏了（概率太小）<br>查看CM配置和机器磁盘，发现少配置了些硬盘路径，原因是在配置新节点磁盘路径时误修改整个配置组的磁盘路径，导致该配置组中所有DataNode缺少磁盘，进而出现块丢失且无法修复的问题。<br>解决：还原磁盘配置，滚动重启该配置组中的DataNode，将不同机器配置分成多个配置组，重新修改配置<br>重启过程中丢失块数一直在减少：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-03.png" alt="alt"><br>最终恢复正常<br>总结：<br>1.CM上修改配置一定要慎重，注意修改配置组中某台节点的配置会影响整个配置组中所有节点的配置<br>2.CM显示DataNode重启成功只是进程启动成功，但日志出现“Total time to add all replicas to map”字眼才是真正完成启动<br>3.<a target="_blank" rel="noopener" href="https://hdfs-site/dfshealth.html#tab-overview">https://hdfs-site/dfshealth.html#tab-overview</a> 从HDFS WebUI获取更多信息（丢失块的信息一目了然）</p>
+</li>
+<li><p>Win开发Hadoop环境winutils<br>错误：<font size="3" color="red">Could not locate executable null\bin\winutils.exe in the Hadoop binaries</font><br>解决：将winutils.exe放在HADOOP_HOME\bin下，然后代码里System.setProperty(“hadoop.home.dir”, “D:\Programming\Env\Hadoop\hadoop-2.7.2\“)或设置环境变量HADOOP_HOME和PATH后重启电脑<br>winutils.exe下载地址：<a target="_blank" rel="noopener" href="https://github.com/steveloughran/winutils">winutils-master</a></p>
+</li>
+<li><p>Namenode is not formatted<br>错误Namenode is not formatted<br>分析：一般新部署的HDFS才会提示需要格式化(hadoop namenode -format)，而生产环境Namenode一旦有异常，也可能出现这样的问题，但我不能格式化生产环境啊！<br>NN日志如下：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-04.png" alt="alt"><br>可知识由于加载fsimage异常，去NameNode的存储路径/dfs/nn/发现没有文件，而其他节点/dfs/nn目录下有current目录，current目录下有fsimage。所以可以判定该Namenode无法启动就是因为fsimage丢失<br>解决：scp这个current目录，权限与之前的一致（一般为hdfs:hdfs权限）</p>
+</li>
+<li><p>修复HDFS坏块<br>查看坏块可通过</p>
+<pre><code class="shell">hdfs fsck /
+hadoop dfsadmin -report</code></pre>
+<p>修复坏块除了上面讲过的hdfs debug recoverLease -path <path-of-the-file> -retries <retry times>命令外，还可以通过hadoop fs -setrep -R 3 / 命令，设置副本，副本小于3的情况会自动恢复三副本，修复后还有坏块那就是一个副本都没有了，只能丢了。</p>
+</li>
+<li><p>两个NN均为Standby，重启后过一会又都Standby<br>NN均报错：<br>java.util.concurrent.ExecutionException: java.io.IOException: Cannot find any valid remote NN to service request!<br>Caused by: java.io.IOException: Cannot find any valid remote NN to service request!<br>Exception from remote name node RemoteNameNodeInfo [nnId=namenode37, ipcAddress=xxxx, httpAddress=xxxx], try next.<br>org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.ipc.StandbyException): Operation category JOURNAL is not supported in state standby. Visit <a target="_blank" rel="noopener" href="https://s.apache.org/sbnn-error">https://s.apache.org/sbnn-error</a><br>解决：强制切换主备sudo -uhdfs hdfs haadmin -transitionToActive –forcemanual namenode37（nnId在hdfs-site有配） 切换后重启Failover Controller或ZKFC。</p>
+</li>
+<li><p>基于Sentry认证的HDFS集群NN启动异常<br>NN进程启动成功但是一直处于忙碌状态，查看NN的日志</p>
+<pre><code class="log">晚上9点53:24.664分 INFO SentryAuthorizationInfo Refresh interval [500]ms, retry wait [30000]
+晚上9点53:24.664分 INFO SentryAuthorizationInfo stale threshold [60000]ms
+晚上9点53:24.669分 INFO HMSPaths HMSPaths:[/user/hive/warehouse, /user/hive/xxxx] Initialized
+晚上9点53:24.681分 INFO SentryTransportPool Creating pool for xxx:8038,xxx:8038 with default port 8038
+晚上9点53:24.683分 INFO SentryTransportPool Adding endpoint xxx:8038
+晚上9点53:24.683分 INFO SentryTransportPool Adding endpoint xxx:8038
+晚上9点53:24.683分 INFO SentryTransportPool Connection pooling is disabled
+日志卡在这不继续了，卡在这</code></pre>
+<p>与此同时两个SentryServer有一台发生OOM，不稳定<br>原因：由于基于Sentry认证，HDFS的NN在启动时，Sentry会全量收集HMSPaths下的ACL信息，会驻留在Sentry内存中，如果Sentry内存不足容易OOM，需要通过增加堆内存的方式解决。两个SentryServer虽然可以负载均衡高可用，当一个SentryServer宕掉请求才会转移到另一个节点，而OOM时，请求会一直卡住，不会自动转移，导致NN启动异常。<br>解决：增加Sentry堆内存，不盲目加，根据当前Hive服务器数、库数、表数、分区数、列数及视图数进行评估，具体评估标准如下：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-05.png" alt="alt"><br>如图推算：每百万个Hive对象（库、表、分区数）需要配置2.25G的Sentry最大堆内存</p>
+</li>
+<li><p>distcp数据拷贝报错<br>distcp报错file might have been written to during copy, consider enabling HDFS Snapshots to avoid this error.<br>hdfs-site.xml里增加dfs.namenode.snapshot.capture.openfiles 值为true 开启Immutable Snapshot，保证快照目录里所有文件的状态都是关闭的，文件大小都是创建快照时的状态，解决同步hdfs数据报错文件不存在，或者报不能复制一个打开的或正在写入的文件这些问题。</p>
+</li>
+<li><p>NameNode启动后无法RPC和切换状态并一直FullGC，几乎80%以上时间都在FullGC</p>
+<pre><code class="log">2021-07-14 09:38:35,803 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 47892ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=48186ms
+2021-07-14 09:39:25,780 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 47976ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=48428ms
+2021-07-14 09:40:15,526 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 47744ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=47840ms
+2021-07-14 09:41:04,652 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 47126ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=47437ms
+2021-07-14 09:41:55,106 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 48452ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=48767ms
+2021-07-14 09:42:48,440 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 51332ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=51719ms
+2021-07-14 09:43:40,527 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 50086ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=50450ms
+2021-07-14 09:44:34,750 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 52222ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=52462ms
+2021-07-14 09:45:30,759 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 53999ms
+GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</code></pre>
+<p>原因：加载FSImage到堆内存的过程中由于堆内存不足导致无法启动。<br>解决：</p>
+</li>
+<li><p>增加NameNode堆内存，启动后查看HDFS WebUI-&gt;Overview-&gt;Summary查看主NN堆内存使用情况和目前Blocks数量，对NN内存需求重新做评估，调整合适的堆大小。根据Block数量和增量精细化计算NN的堆内存，避免再次OOM。</p>
+</li>
+<li><p>如果可能，可以减小HDFS垃圾回收时间。</p>
+</li>
+<li><p>查看HDFS WebUI-&gt;Snaoshot栏，删除无用的快照，避免快照变化文件占用大量空间和Blocks。</p>
+</li>
+</ol>
+<h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
+<li><p>HiveMetaStore状态不良导DDLSQL耗时200s以上<br>HMS进程报错：<font size="3" color="red">hive metastore server Failed to sync requested HMS notifications up to the event ID xxx</font><br>原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。<br>开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。<br>解决：<br> ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。<br> ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）</p>
+</li>
+<li><p>HBase外部表报<font size="3" color="red">Unexpected end-of-input</font><br>起因：使用Hive创建HBase外部表时正常，但使用HBase外部表时报Unexpected end-of-input: was expecting closing<br>分析过程：翻阅源码部分发现异常是在解析外部表创建JSON时发生，于是对比建表语句和Hive元数据库中的TABLE_PARAMS表信息得到原因<br>原因：创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而使用该表的时候会读元数据，但因为元数据不完整而报错。<br>解决：<br>①分多次建表<br>②改varchar(4000)为longtext然后重建表（影响无法评估，没尝试）</p>
+</li>
+<li><p>Hive和Spark查询Hive表报java.net.UnknownHostException: nameservice1<br>分析：由于机器HDFS HA配置发生变动，关掉了高可用，所以nameservice变成了ip:8020，报这个错，首先检查了/etc/hadoop/conf/hdfs-site.xml里面无dfs.nameservices配置，证明配置文件没问题。使用hivecli，desc formatted某几张表，发现表的LOCATION均为hdfs://nameservice1/xx 找到了问题的原因，元数据错误，所以需要去Hive元数据库批量修改元数据。<br>解决：连接到Hive metastore元数据库，批量修改LOCATION：<br>update hive.SDS set LOCATION=concat(“hdfs://ip:8020”,substring(LOCATION,20,length(LOCATION)-19)) where LOCATION like “hdfs://nameservice1%”;<br>update hive.DBS set DB_LOCATION_URI=concat(“hdfs://ip:8020”,substring(DB_LOCATION_URI,20,length(DB_LOCATION_URI)-19)) where DB_LOCATION_URI like “hdfs://nameservice1%”;<br>无需重启服务即可生效，问题解决。</p>
+</li>
+</ol>
+<h2 id="Yarn相关"><a href="#Yarn相关" class="headerlink" title="Yarn相关"></a>Yarn相关</h2><ol>
+<li><p>应用提交报<font size="3" color="red">Retrying connect to server 0.0.0.0</font><br>原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确<br>解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml</p>
+<pre><code class="yarn-site.xml">&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
+  &lt;value&gt;master:8032&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
+  &lt;value&gt;master:8030&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
+  &lt;value&gt;master:8031&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+</li>
+<li><p>内存不足Container退出<br>报错：<font size="3" color="red">Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.Dump of the process-tree for container_e23_1574819880505_43157_01_000001</font><br>分析：”physical memory used”为物理内存占用（应用已占满9G），”virtual memory used”为虚拟内存占用，18.9GB是取决于yarn.nodemanager.vmem-pmem-ratio（yarn-site.xml中设置的虚拟内存和物理内存比例，默认2.1），报错是因为物理内存不足，是任务设置的内存少了<br>解决思路：<br>①如果资源充足，增加任务并行度分担任务负载<br>②增大任务可用资源（注意不要超过单台NM可分配上限yarn.scheduler.maximum-allocation-mb的值）<br>③适当增大yarn.nodemanager.vmem-pmem-ratio，适当调高虚拟内存比例<br>④[不建议]取消内存的检查：在yarn-site.xml或者程序中中设置yarn.nodemanager.vmem-check-enabled为false</p>
+</li>
+</ol>
+<h2 id="HBase相关"><a href="#HBase相关" class="headerlink" title="HBase相关"></a>HBase相关</h2><ol>
+<li><p>集群新增RS致另一RS异常退出<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-01.png" alt="alt"><br>上线的RegionServer会触发Region移动，报错前有Flush操作，因为Region移动前会先Flush Region<br>异常相关源码：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-02.png" alt="alt"><br>Flush Memstore到HFile这个过程未发生异常，但Flush一个Memstore后跟踪Memstore总大小未发生变化，即内存清理失败 超过5次就中止这个RS<br>分析：版本BUG</p>
+</li>
+<li><p>Couldn’t read snapshot info from hdfs:xx/hbase/.hbase-snapshot/xxx导致Master不可用<br>hbase shell执行list命令报ERROR: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing<br>跟进Master日志看到Couldn’t read snapshot info from hdfs:xx/hbase/.hbase-snapshot/xxx，Master状态不可用<br>分析：由于HDFS的原因导致HBase的Snapshot文件丢失，详细看了一下，其他snapshot目录下有.snapshot以及data.manifest，而这个没有<br>操作：删除这个snapshot目录 重启HMaster<br>修复后scan操作又报Unknown table xxx，而且几乎所有表都不能scan<br>操作：首先想到的就是修复HBase元数据hbase hbck -fixMeta<br>修复后继续scan，报错ERROR: No server address listed in hbase:meta for region t1,,1536659773616.09db0b8b3b7f8cd81dde86c9f1e41306. containing row rowkey001: 1 time…<br>分析：查询hbase:meta表scan ‘hbase:meta’,{LIMIT=&gt;10,FILTER=&gt;”PrefixFilter(‘test_ray’)”}<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-03.png" alt="alt"><br>发现表元数据中都没有regionserver的信息，正常情况是这样的：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-04.png" alt="alt"><br>解决：重新对region分区：hbase hbck -fixAssignments  最终服务和数据均恢复正常</p>
+</li>
+</ol>
+<h2 id="Kafka相关"><a href="#Kafka相关" class="headerlink" title="Kafka相关"></a>Kafka相关</h2><ol>
+<li>ConsumerRebalanceFailedException异常解决<br>报错：kafka.common.ConsumerRebalanceFailedException: group_xxx-1446432618163-2746a209 can’t rebalance after 5 retries<br>分析：官网给出了异常的相关说明和解决方案<br>consumer rebalancing fails (you will see ConsumerRebalanceFailedException): This is due to conflicts when two consumers are trying to own the same topic partition. The log will show you what caused the conflict (search for “conflict in “).<br>If your consumer subscribes to many topics and your ZK server is busy, this could be caused by consumers not having enough time to see a consistent view of all consumers in the same group. If this is the case, try Increasing rebalance.max.retries and rebalance.backoff.ms.<br>Another reason could be that one of the consumers is hard killed. Other consumers during rebalancing won’t realize that consumer is gone after zookeeper.session.timeout.ms time. In the case, make sure that rebalance.max.retries * rebalance.backoff.ms &gt; zookeeper.session.timeout.ms.<br>简单来说就是同一个topic的同一个分区被多个消费者消费，发生冲突<br>解决：<br>①增加相关topic的partition数<br>②提高kafka的consumer如下两项配置<br>rebalance.backoff.ms=2000<br>rebalance.max.retries=10</li>
+</ol>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ol>
+<li>Zookeeper日志和快照过大<br>解决1：cd $ZOOKEEPER_HOME;bin/zkCleanup.sh {dataDir} 5;bin/zkCleanup.sh {snapshotDir} 5 并设置成定时调度<br>解决2：从3.4.0开始，zookeeper提供了自动清理snapshot和事务日志的功能，通过配置autopurge.snapRetainCount和autopurge.purgeInterval这两个参数能够实现定时清理了。这两个参数都是在zoo.cfg中配置的：<br> autopurge.purgeInterval 这个参数指定了清理频率，单位是小时，需要填写一个1或更大的整数，默认是0，表示不开启自己清理功能。<br> autopurge.snapRetainCount 这个参数和上面的参数搭配使用，这个参数指定了需要保留的文件数目。默认是保留3个。<br>原理：Zookeeper不会删除旧的快照和日志文件，zkCleanup.sh可以帮助合理清理当前节点的旧的日志和快照文件解决磁盘空间。其中dataDir是特定服务集合的znode存储的永久副本，对znode的所有更改会附加到log日志中，snapshotDir是永久快照。zkCleanup.sh将保留最后一个快照和相关的log日志，清除其他的快照和日志。注意最后一个参数值要大于等于3，日志损坏的情况下保证有3个以上备份。<br>参考:<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/r3.4.6/zookeeperAdmin.html#sc_maintenance">zookeeperAdmin.html#sc_maintenance</a></li>
+</ol>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/4c197c46/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                Presto-基于内存的高效SQL交互查询引擎</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/1ae37d82/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-cover.JPG">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                Impala-基于内存的高效SQL交互查询引擎</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>
