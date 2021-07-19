@@ -7,7 +7,7 @@
 地址：shmily-qjj.top
 cd /d D:\PersonalBlog
 hexo init D:\PersonalBlog
-npm install    (npm install hexo --save)
+npm install    (npm install hexo --save)   (Linux端安装hexo命令：npm install hexo-cli -g)
 看板live2d可选 npm uninstall hexo-helper-live2d --save   选模型 然后npm install 模型名
 hexo clean # 非必要
 hexo g     # 生成文件
