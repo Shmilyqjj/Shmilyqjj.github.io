@@ -190,7 +190,22 @@ sudo pacman -S unrar unzip p7zip  # 解压
 sudo pacman -S gimp  # 修图
 sudo pacman -S neofetch screenfetch  # 输出系统信息
 yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
-### 远程桌面连接工具remmina 软件商店安装
+### 远程桌面连接工具remmina
+sudo pacman -S remmina
+安装工程会提示
+remmina 的可选依赖
+    freerdp: RDP plugin
+    libsecret: Secret plugin [已安装]
+    libvncserver: VNC plugin
+    libxkbfile: NX plugin [已安装]
+    nxproxy: NX plugin
+    spice-gtk: Spice plugin
+    telepathy-glib: Telepathy plugin
+    xorg-server-xephyr: XDMCP plugin
+    gnome-terminal: external tools
+选择自己想要的依赖，如RDP远程桌面连接:
+sudo pacman -S freerdp
+# #########################################################
 sudo pacman -S deepin-screen-recorder  # 深度录屏
 # 企业微信安装
 https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
