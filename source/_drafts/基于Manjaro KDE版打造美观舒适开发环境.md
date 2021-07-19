@@ -298,7 +298,7 @@ sudo pacman -S pycharm-community-edition # 安装PyCharm
 sudo pacman -S goland  # 安装Goland
 sudo pacman -S gitkraken # Git GUI管理工具
 yay -S typora # Typora markdown工具
-# 安装VSCode：
+# 安装VSCode(yay -S visual-studio-code-bin)：
 # 首先官网去下载安装包vscode官网https://code.visualstudio.com 得到code-stable-xxxxxxx.tar.gz
 tar -zxvf code-stable-x64-1623937300.tar.gz -C /opt/apps/
 sudo chmod +x /opt/apps/VSCode-linux-x64/code
@@ -317,7 +317,6 @@ StartupNotify=true
 Categories=TextEditor;Development;Utility;
 MimeType=text/plain;
 EOF
-
 ```
 
 Sublime安装https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
