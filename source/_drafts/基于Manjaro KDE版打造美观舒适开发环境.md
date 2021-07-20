@@ -273,6 +273,8 @@ sudo pacman -S clang
 sudo pacman -S maven
 ```shell
 # 下载jdk-8u181-linux-x64.tar.gz
+# 卸载系统默认jdk
+sudo archlinux-java unset  # 否则不会从环境变量读
 sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
 # 下载scala-2.12.12.tgz
 sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
