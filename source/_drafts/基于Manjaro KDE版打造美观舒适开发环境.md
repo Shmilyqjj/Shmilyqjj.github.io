@@ -275,11 +275,13 @@ sudo pacman -S maven
 # 下载jdk-8u181-linux-x64.tar.gz
 # 卸载系统默认jdk
 sudo archlinux-java unset  # 否则不会从环境变量读java地址
+## 系统默认使用Java8会导致部分依赖java运行的软件出现不兼容现象，建议将系统JAVA_HOME
 sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
 # 下载scala-2.12.12.tgz
 sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
 sudo vim /etc/profile
-export JAVA_HOME=/opt/Env/jdk1.8.0_181
+export JAVA8_HOME=/opt/Env/jdk1.8.0_181
+export JAVA_HOME=/opt/Env/jdk-11.0.11
 export PATH=$PATH:$JAVA_HOME/bin
 export SCALA_HOME=/opt/Env/scala-2.12.12
 export PATH=$PATH:$SCALA_HOME/bin
