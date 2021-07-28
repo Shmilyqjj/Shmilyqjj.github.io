@@ -936,6 +936,21 @@ result = scanner.open().read_all_tuples()
 原因：kudu客户端连接kudu服务器时,服务器返回master的主机名而非IP，告诉客户端谁是master,然后通信，但是主机名不是主机的ip，所以客户端会在本地hosts文件找这个主机名，但是本机没有配置，所以会失败，直到超时。
 解决：需要本地解析ip对应的host，修改本地host，增加Master节点的host映射即可解决。
 
+4.Impala 查询Kudu报Error loading metadata for kudu table xxx 如下：
+![alt Kudu-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-10.png)
+原因：Impala操作Kudu超时
+解决：在Impala设置kudu_operation_timeout_ms = 1800000
+
+5.Kudu客户端如下报错：
+RPC can not complete before timeout: KuduRpc(method=CreateTable, tablet=null, attempt=26, DeadlineTracker(timeout=30000, elapsed=29427)
+解决:
+```java
+session.setTimeoutMillis(60000);
+new KuduClient.KuduClientBuilder("cdh101").defaultAdminOperationTimeoutMs(600000).build();
+```
+
+
+
 
 ## HTAP混合事务分析处理
 HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
