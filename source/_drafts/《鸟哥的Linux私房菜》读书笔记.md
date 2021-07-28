@@ -471,6 +471,14 @@ yum -y install lrzsz
 rz 上传
 sz xxx下载
 
+9. ramfs与tmpfs使用
+Ramfs: 创建一个最大大小为8G的RAMFS
+mkdir -p /ramfs
+mount -t ramfs none /ramfs -o maxsize=8388608
+实际测试超过8G也会存，可能导致系统内存占满崩溃
+所以挂载tmpfs--据说速度比ramfs还快，限制大小有用，能使用SWAP空间
+mkdir -p /tmpfs
+mount tmpfs /tmpfs -t tmpfs -o size=8192m
 
 
 ## 总结  
