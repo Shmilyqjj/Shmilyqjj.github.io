@@ -286,11 +286,37 @@ cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin
 sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
 -------------------------------------------------------------------------------------------------------
 sudo pacman -S deepin-screen-recorder  # 深度录屏
-# 安装文件同步工具 多端同步
-sudo pacman -S syncthing
 软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
 软件仓库安装:timeshift (系统可能已经自带了)
 软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
+# 安装文件同步工具 多端同步
+sudo pacman -S syncthing
+# 参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
+# 启动Syncthing的快捷方式syncthing-start.desktop
+[Desktop Entry]
+Name=Start Syncthing
+GenericName=File synchronization
+Comment=Starts the main syncthing process in the background.
+Exec=/usr/bin/syncthing serve --no-browser --logfile=default
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;daemon;
+Categories=Network;FileTransfer;P2P
+# 查看Syncthing UI的快捷方式syncthing-ui.desktop
+[Desktop Entry]
+Name=Syncthing Web UI
+GenericName=File synchronization UI
+Comment=Opens Syncthing's Web UI in the default browser (Syncthing must already be started).
+Exec=/usr/bin/syncthing -browser-only
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;interface;
+Categories=Network;FileTransfer;P2P
+# 生效快捷方式
+sudo desktop-file-install syncthing-start.desktop
+sudo desktop-file-install syncthing-ui.desktop
 ```
 
 ### Clash科学上网
@@ -440,8 +466,12 @@ usermod -a -G kvm shmily
 
 
 ## 系统界面美化
+Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高，是桌面控的福音。下面做一些简单的界面设置。
+### Dock栏
+sudo pacman -S latte-dock
 
-### 安装zsh oh-my-zsh：https://zhuanlan.zhihu.com/p/58073103
+### oh-my-zsh
+
 
 ### 命令行终端
 可选代替Konsole的更好看的命令行终端
@@ -539,4 +569,4 @@ Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用
 [Manjaro Gnome 下fcitx5的安装](https://www.zhihu.com/question/333951476/answer/1280162871)
 [Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
 [ArchLinux Wiki](https://wiki.archlinux.org/)
-
+[Syncthing](https://github.com/syncthing/syncthing)
