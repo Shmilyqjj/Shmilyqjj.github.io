@@ -222,6 +222,8 @@ Spark相关
 
 spark_df.write.saveAsTable(hive_table_name, mode=mode)写入表报错The format of the existing table default.fdm_mx_dz_maidian_var1 is `HiveFileFormat`. It doesn't match the specified format `ParquetFileFormat`.;
 解决方案1：spark_df.write.format("Hive").saveAsTable(hive_table_name, mode=mode)  解决方案2：spark_df.registerTempTable('spark_data');spark.sql('insert into hive_table_name select * from spark_data')
+df.coalesce(10).write.partitionBy("dt").mode(SaveMode.Append).saveAsTable(table_name)  不会覆盖之前的分区 df字段顺序跟表字段顺序不一致时按表字段顺序写入
+df.coalesce(10).write.mode(SaveMode.Overwrite).insertInto(table_name)  df字段顺序跟表字段顺序不一致时按df字段顺序写入=>会导致表中字段值错乱 不会覆盖之前的分区，分区值从df中自动化获取不许加partitionBy
 
 apache.spark.SparkException: Job aborted due to stage failure: Serialized task 32:5 was 204136673 bytes, which exceeds max allowed: spark.rpc.message.maxSize (134217728 bytes).Consider increasing spark.rpc.message.maxSize or using broadcast variables for large values.
 用sc.parallelize(data,slices)时，如果data数据过大，易出现该问题
@@ -980,6 +982,9 @@ Kafka监控（kafka-manager）：https://www.cnblogs.com/zlslch/p/7252484.html
 Hive相关
 
 sql: set -v;查看当前的server配置
+
+Hive修改表Format格式：ALTER TABLE table_name SET FILEFORMAT INPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat" OUTPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat" SERDE "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe";
+
 
 Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
