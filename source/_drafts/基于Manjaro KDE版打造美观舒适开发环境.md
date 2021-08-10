@@ -479,11 +479,13 @@ echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.
 #使配置立即生效
 source ~/.zshrc
 按提示设置即可
+设置时建议不要带图标，因为在其他用到zsh的终端上可能会出现乱码或方框，很不美观，可以在其他用到zsh的终端上重新执行p10k configure命令来设置更合适的样式。
 
 ### 命令行终端
 可选代替Konsole的更好看的命令行终端
 Tabby(原Terminus)：https://github.com/Eugeny/tabby
-我继续配置Konsole
+继续配置Konsole:
+
 
 ### 全局主题
 
