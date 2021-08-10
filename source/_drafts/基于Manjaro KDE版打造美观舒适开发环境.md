@@ -471,11 +471,19 @@ Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高�
 sudo pacman -S latte-dock
 
 ### oh-my-zsh
-
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+#安装powerlevel10k主题
+sudo pacman -Sy --noconfirm zsh-theme-powerlevel10k
+#配置powerlevel10k
+echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.zshrc
+#使配置立即生效
+source ~/.zshrc
+按提示设置即可
 
 ### 命令行终端
 可选代替Konsole的更好看的命令行终端
-Terminus：https://github.com/Eugeny/tabby
+Tabby(原Terminus)：https://github.com/Eugeny/tabby
+我继续配置Konsole
 
 ### 全局主题
 
@@ -516,6 +524,11 @@ echo "All Done"
 echo 1 > /proc/sys/vm/drop_caches
 echo 2 > /proc/sys/vm/drop_caches
 echo 3 > /proc/sys/vm/drop_caches
+
+### 解决thermal误报导致自动关机
+报错kernel: thermal thermal_zone3: critical temperature reached (101 C), shutting down  直接被关机
+echo disabled > /sys/class/thermal/thermal_zone3/mode 
+
 
 ### 使用Wine运行一些常见Windows程序
 https://blog.csdn.net/zbgjhy88/article/details/85110956
