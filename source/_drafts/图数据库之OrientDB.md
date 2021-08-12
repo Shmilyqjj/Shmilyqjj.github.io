@@ -303,7 +303,8 @@ Lucene Spatial Index：空间索引，不能索引其他类型，持久的，支
 OridenDB索引使用参考了官方文档**[OrientDB-Indexes](http://www.orientdb.org/docs/3.0.x/indexing/Indexes.html)**
 
 ### 优化数据库
-https://www.w3cschool.cn/orientdb/orientdb_optimize_database.html
+OrientDB支持轻量级边，这意味着数据实体之间的直接关系。 简单来说，它是一个场到场的关系。 OrientDB提供了不同的方法来优化数据库。 它支持将规则边转换为轻量边。
+OPTMIZE DATABASE [-lwedges] [-noverbose]   # 其中lwedges将规则边转换为轻量边，noverbose禁用输出
 
 ### WebUI
 OrientDB的WebUI可以运行查询数据、将点边依赖关系图形化显示、管理点边属性Schema、管理权限、管理函数和管理库表等功能。
