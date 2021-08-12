@@ -63,6 +63,17 @@ CMS的垃圾收集
 
 [HDFS使用QJM(Quorum Journal Manager)实现的高可用性以及备份机制]https://blog.csdn.net/zhanyuanlin/article/details/77816600
 
+
+
+G1
+https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.6.2/bk_hdfs-administration/content/ch_g1gc_garbage_collector_tech_preview.html
+
+-XX:+UseG1GC -XX:MaxGCPauseMillis=4000 -XX:ParallelGCThreads=23
+
+根据自己环境（CPU内存）来调，
+
+NN hdp2.6.0慢排查https://zhuanlan.zhihu.com/p/127022985
+
 * 字体
 *斜体文本*
 _斜体文本_
