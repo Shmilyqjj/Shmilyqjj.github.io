@@ -15,7 +15,8 @@ tags:
 keywords: Manjaro
 description: Manjaro Linux安装部署与美化
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/Manjaro-Cover.png
+abbrlink: 3f34ebe3
 date: 2021-07-07 11:22:00
 ---
 # 基于Manjaro KDE版打造美观舒适开发环境
@@ -29,8 +30,6 @@ date: 2021-07-07 11:22:00
 Boot顺序将系统安装盘改为第一项
 关闭安全启动Security Boot => 否则无法引导进入Linux
 SATA模式由Raid On切换为AHCI => 若系统有NVME硬盘则需要此操作，避免Linux无法识别到NVME硬盘（双系统用户先进入Windows->cmd运行msconfig->引导->勾选安全引导->重启的过程中会修复硬盘的AHCI驱动避免因切换AHCI导致无法启动Windows系统->重启后再取消勾选安全引导）
-
-
 
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-01.JPG)  
 双显卡用户注意事项(单显卡忽略此步骤)：
@@ -116,6 +115,7 @@ sudo pacman -S acpi vim
 ```
 
 根据个人习惯创建一些目录
+（我的习惯并不好，把一部分项目文件放在/opt下，/opt本身是用于安装一些大型软件的。正常情况下，一个用户的个人文件放在家目录下比较规范）
 ```shell
 su root
 chmod 1777 /opt
@@ -148,6 +148,7 @@ shmily ALL=(ALL) NOPASSWD: ALL
 %shmily ALL=(ALL) NOPASSWD: ALL
 ```
 软件商店勾选启用AUR和Snap源
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-09.png)
 
 ### 中文输入法安装
 输入法首选安装:
@@ -187,6 +188,7 @@ git config --global core.autocrlf false
 git config --global core.safecrlf false
 git config --global core.autocrlf input #提交时转换为LF，检出时不转换
 git config http.proxy socks5://127.0.0.1:7891  # 因为我的Clash代理sock端口是7891
+git config --global --add remote.origin.proxy ""
 ```
 
 ### 开机自启脚本部署
@@ -254,6 +256,9 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
+增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
+env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
+env WINEPREFIX=/home/shmily/.deepinwine/Spark-TIM/ deepin-wine5 winecfg
 -------------------------------------------------------------------------------------------------------
 sudo pacman -S google-chrome  # Chrome
 sudo pacman -S netease-cloud-music  # 网易云音乐
@@ -284,8 +289,9 @@ https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
 用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
 cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
 sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
+增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
+env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
 -------------------------------------------------------------------------------------------------------
-sudo pacman -S deepin-screen-recorder  # 深度录屏
 软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
 软件仓库安装:timeshift (系统可能已经自带了)
 软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
@@ -349,13 +355,31 @@ cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
 ```
 **使用WebUI管理连接**：
 根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过http://clash.razord.top进行策略组节点的切换
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-13.png)
+
 只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-14.png)
 **必要时可以使用系统全局代理**：
 进入系统设置->网络设置->使用系统代理服务器配置(或使用手动设置的代理服务器)->http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-15.png)
 **配置Clash开机自启**：
 ```shell
 cp /usr/share/applications/Clash.desktop ~/.config/autostart/
 ```
+
+### 截屏录屏
+1. 深度录屏
+sudo pacman -S deepin-screen-recorder    
+ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用
+添加截图功能到系统全局快捷方式:设置->快捷键->自定义快捷键->编辑->新建->全局快捷键->命令/URL->命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A
+2. kazam
+sudo pacman -S kazam 可以截图和录屏的工具
+3. 深度截图
+sudo pacman -S deepin-screenshot
+4. 自带截图工具Spectacle
+日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-16.png) 
+主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口
 
 ### 开发环境安装
 ```shell
@@ -386,7 +410,20 @@ Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
 ----------------------------------------------------------------------------------------
-Mysql安装：https://blog.csdn.net/uniondong/article/details/98392738
+Mysql安装：
+pacman -Si mysql	 # 查看仓库中的MySQL版本号
+sudo pacman -S mysql  # 安装mysql
+sudo mkdir /opt/mysql-data
+sudo chmod 1777 /opt/mysql-data
+sudo mysqld --initialize --user=shmily --basedir=/usr --datadir=/opt/mysql-data --character-set-server=UTF8MB4
+vim /etc/mysql/my.cnf  修改datadir=/opt/mysql-data
+chmod -R 777 /opt/mysql-data
+sudo systemctl start mysqld.service
+systemctl status mysqld.service
+初始密码登陆  
+alter user 'root'@'localhost' identified with mysql_native_password by '123456'
+mysql -uroot -p123456
+sudo systemctl enable mysqld.service  # 设置开机启动mysql server (可选)
 ```
 
 ### 开发工具安装
@@ -452,7 +489,7 @@ DD9AF44B 99C49590 D2DBDEE1 75860FD2
 
 ### 虚拟机软件安装
 安装VirtualBox:
-mhwd-kernel -li  (我的是linux510，则安装linux510-virtualbox-host-modules) 
+mhwd-kernel -li  (当前系统是linux510，则安装linux510-virtualbox-host-modules) 
 sudo pacman -Syu virtualbox linux510-virtualbox-host-modules
 重启或执行sudo vboxreload
 
@@ -469,8 +506,16 @@ usermod -a -G kvm shmily
 Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高，是桌面控的福音。下面做一些简单的界面设置。
 ### Dock栏
 sudo pacman -S latte-dock
+根据偏好设置latte dock
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-17.png) 
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-18.png) 
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-19.png) 
+效果
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-20.png) 
 
 ### oh-my-zsh
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-21.png) 
+```shell
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 #安装powerlevel10k主题
 sudo pacman -Sy --noconfirm zsh-theme-powerlevel10k
@@ -478,25 +523,59 @@ sudo pacman -Sy --noconfirm zsh-theme-powerlevel10k
 echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.zshrc
 #使配置立即生效
 source ~/.zshrc
-按提示设置即可
-设置时建议不要带图标，因为在其他用到zsh的终端上可能会出现乱码或方框，很不美观，可以在其他用到zsh的终端上重新执行p10k configure命令来设置更合适的样式。
+# 按提示设置即可 设置时建议不要带图标，因为在其他用到zsh的终端上可能会出现乱码或方框，很不美观，可以在其他用到zsh的终端上重新执行p10k configure命令来设置更合适的样式。
+# 安装语法高亮插件
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+echo "source $ZSH_CUSTOM/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+source ~/.zshrc
+```
 
 ### 命令行终端
 可选代替Konsole的更好看的命令行终端
 Tabby(原Terminus)：https://github.com/Eugeny/tabby
 继续配置Konsole:
 
+|   |   |
+| ---- | ---- |
+| <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+| <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+| <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+
 
 ### 全局主题
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-Desktop.png) 
+
+打开设置->外观->全局主题
+之所以喜欢用Mac的全局主题（McSur-dark）是因为它的任务栏比较好看比较精致
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-28.png) 
 
 ### 窗口
-
-### 欢迎屏幕
+窗口选择了这款，按钮比较简洁，是和Mac相近的，但按钮位置在右边，我还是比较习惯这种按键位置。点击主题上的按钮可以调节主题按键大小，下方可以调节窗口边框大小
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-29.png) 
+窗口配色方案我选的Ambiance-ISH，亮色看起来更敞亮，心情更好。
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-30.png) 
 
 ### 登陆页
+登陆页面只有每次开机时才会出现，锁屏是单独的锁屏页面。
+打开设置->开机与关机->登录屏幕(SDDM) 在这里设置
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-33.png) 
+效果：
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-32.png) 
+
+### 欢迎屏幕
+开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-31.png) 
 
 ### 锁屏界面
+每次锁屏(Meta+L)后都会显示这个页面。
+打开设置->工作区行为->锁屏->外观：配置
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-34.png) 
 
+### 桌面特效
+这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。
+打开设置->工作区行为->桌面特效
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-35.png) 
+主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效
 
 ## 系统使用小技巧与问题处理
 ### 解决无法写和更新NTFS盘数据的问题：
@@ -523,22 +602,66 @@ echo "All Done"
 将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
 
 ### 内存清理
-echo 1 > /proc/sys/vm/drop_caches
-echo 2 > /proc/sys/vm/drop_caches
-echo 3 > /proc/sys/vm/drop_caches
+sudo echo 1 > /proc/sys/vm/drop_caches
+sudo echo 2 > /proc/sys/vm/drop_caches
+sudo echo 3 > /proc/sys/vm/drop_caches
+
+### 搜索工具
+Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-36.png) 
 
 ### 解决thermal误报导致自动关机
-报错kernel: thermal thermal_zone3: critical temperature reached (101 C), shutting down  直接被关机
-echo disabled > /sys/class/thermal/thermal_zone3/mode 
+报错kernel: thermal thermal_zone3: critical temperature reached (125 C), shutting down  直接被关机
+sudo chmod 665 /sys/class/thermal/thermal_zone3/mode
+sudo echo "disabled" > /sys/class/thermal/thermal_zone3/mode 
+这个参数需要每次系统启动时重新写入,放入开机启动脚本路径/etc/rc.local.d/
 
+### 必须掌握的系统备份和恢复技巧
+Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。
+系统备份和还原两种方式：
+使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
+使用timeshift的快照备份和还原系统
+1. 按照向导设置：选择快照类型:RSYNC->选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)->选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)->用户主目录(默认全部)
+2. 点击创建 会立刻运行快照创建程序，创建完如图
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-37.png) 
+3. 家目录有些文件可能不需要备份，需要排除一部分文件：设定->筛选 可以自定义不对特定模式的文件创建快照
+4. 恢复快照: 选中要恢复的快照 点击恢复即可
+5. 当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:
+通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 
+  ```shell
+  # 查看可还原的还原点
+  sudo timeshift --list  
+  /dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
 
-### 使用Wine运行一些常见Windows程序
-https://blog.csdn.net/zbgjhy88/article/details/85110956
-https://blog.csdn.net/buildcourage/article/details/80871141
-中文显示问题修复：
+  Device : /dev/nvme0n1p9
+  UUID   : d4fa3365-62fe-4488-ba18-b36ddac64c4d
+  Path   : /run/timeshift/backup
+  Mode   : RSYNC
+  Status : OK
+  2 snapshots, 75.5 GB free
+
+  Num     Name                 Tags  Description  
+  ------------------------------------------------------------------------------
+  0    >  2021-08-12_12-24-49  O                  
+  1    >  2021-08-12_14-00-01  M                  
+  # 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
+  sudo timeshift --restore --snapshot '2021-08-12_14-00-01' --skip-grub
+  ```
+
+6. 无法进入系统也无法进入tty命令行
+参照文章开始的部分创建Manjaro安装盘，进入LiveCD桌面，安装timeshift 按上一步的步骤进行恢复
+恢复完成后桌面无法加载程序快捷方式->解决：yay -Syuu执行系统更新即可
+
+### 使用Wine运行Windows程序
+**Wine （“Wine Is Not an Emulator” 的首字母缩写）**是一个能够在多种POSIX-compliant操作系统（诸如Linux，macOS及BSD等）上运行Windows应用的兼容层。Wine不是像虚拟机或者模拟器一样模仿内部的Windows逻辑，而是將Windows API调用翻译成为动态的POSIX调用，免除了性能和其他一些行为的内存占用，让你能够干净地集合Windows应用到你的桌面。
+安装wine 忽略 之前的步骤已经有wine了
+sudo pacman -S wine wine_gecko wine-mono
+sudo pacman -S lib32-mesa lib32-nvidia-utils
+**中文显示问题修复：**
   在windows下拷贝字体文件——simsun.ttc（c:\windows\fonts\simsun.ttc），复制到
 ~/.wine/drive_c/windows/Fonts下；
 然后，编辑reg文件，文件内容如下：
+```text
 REGEDIT4
 [HKEY_LOCAL_MACHINE\Software\Microsoft\NT\CurrentVersion\FontSubstitutes]
 "Arial"="simsun"
@@ -565,23 +688,27 @@ REGEDIT4
 "Times New Roman Greek,161"="simsun"
 "Times New Roman TUR,162"="simsun"
 "Tms Rmn"="simsun"
- （注：按照windows的格式，最后一行之后要敲回车符）
-保存文件名为fonts.reg，保存在~/.wine下；
-然后导入regedit：
-    打开gnome-terminal，输入指令  cd ~/.wine
-                                regedit fonts.reg
-导入成功。
-最后，打开regedit，~/.wine/drive_c/windows/regedit.exe,依次找到 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes，将该键下的MS Shell Dlg和MS Shell Dlg2键值删除。
-Wine运行程序： wine xxx.exe
 
-### 必须掌握的系统备份和恢复技巧
-Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。
-系统备份和还原两种方式：
-使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
-使用timeshift的快照备份和还原系统
+```
+（注：按照windows的格式，最后一行之后要敲回车符）保存文件名为fonts.reg，保存在~/.wine下；然后导入regedit：打开gnome-terminal，输入指令  cd ~/.wine ; regedit fonts.reg 最后，打开regedit，~/.wine/drive_c/windows/regedit.exe,依次找到 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes，将该键下的MS Shell Dlg和MS Shell Dlg2键值删除。
+
+**Wine使用**
+Wine运行程序: wine xxx.exe
+msi安装包运行: msiexec -i <msi安装包>
+
+**Deepin-wine**
+Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件如微信、TIM/QQ、网易云音乐等有着更好的兼容性和使用体验。
+注意，Deepin-Wine是32位的，并且其依赖于Wine，因此本机上安装的Wine最好是32位的，否则Deepin-Wine使用命令时会有不便。
+安装(忽略 之前的步骤已有此依赖) yaourt deepin-wine
+使用方法与wine基本一致
+
+更多Wine进阶使用可以了解[Wine官方网站](https://www.winehq.org/) [Linux使用Wine](https://blog.csdn.net/buildcourage/article/details/80871141)
 
 ## 参考链接
 [Manjaro Gnome 下fcitx5的安装](https://www.zhihu.com/question/333951476/answer/1280162871)
 [Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
 [ArchLinux Wiki](https://wiki.archlinux.org/)
 [Syncthing](https://github.com/syncthing/syncthing)
+[Manjaro安装Mysql8.0（血泪篇）](https://blog.csdn.net/uniondong/article/details/98392738)
+[archlinux Timeshift系统备份与还原](https://www.cnblogs.com/orginly/p/14806538.html)
+[轻松上手Manjaro之Manjaro下使用Wine](https://blog.csdn.net/zbgjhy88/article/details/85110956)
