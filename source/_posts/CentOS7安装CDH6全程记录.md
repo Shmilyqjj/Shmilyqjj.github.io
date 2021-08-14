@@ -396,9 +396,6 @@ innodb_thread_concurrency = 8
 innodb_flush_method = O_DIRECT
 innodb_log_file_size = 512M
 sql_mode=STRICT_ALL_TABLES
-
-# disable_ssl
-skip_ssl
 ```
 
 重启Mysql服务  
@@ -484,7 +481,6 @@ vi /etc/security/limits.conf
 ```
 ![alt CDH-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-11.jpg)  
 
-我的配置暂时这样，如果后续有什么需要改进我再更新。  
 更多安全与防火墙配置参考[安全与防火墙配置](https://blog.csdn.net/thinktik/article/details/81046318)  
 有关linux用户和组的详细文章:[Linux用户和组](https://www.cnblogs.com/pengyunjing/p/8543026.html)  
 
@@ -561,7 +557,7 @@ sudo hostnamectl set-hostname CDH067
 3. ifconfig 或 ip addr命令查看ip地址成功改过来了  
 则配置成功  
 
-### 三.配置免密登录  
+### 三.配置免密登录[可选 非必须]  
 在四台机器分别操作：  
 ssh-keygen  并连续敲三下回车
 
@@ -645,10 +641,10 @@ type=rpm-md
 
 ```shell
 cd /opt/cloudera/parcel-repo
-sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk '{ print $1 }' >CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
+sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk '{ print $1 }' > CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
 chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
 ``` 
- 
+
 初始化数据库
 该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到CMServer初始化。
 通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。
@@ -706,8 +702,9 @@ systemctl status cloudera-scm-server.service   # 查看启动状态
 ![alt CDH-31](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-31.JPG)  
 
 ClockOffset的报警：
-集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：
-[集群NTP服务配置](https://blog.csdn.net/weixin_39158271/article/details/80207291) 中的 **配置内网NTP-Clients** 部分。
+集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，重新参考之前NTP时钟同步的配置。
+
+企业级部署时，需要在安装好各角色后，依次设置里面每个角色(包括CMServer)的dir、path等路径，将一些日志、dump路径等放在数据盘。
 
 ### 五.Flink集成  
 集成官方Flink-1.9.0到CDH管理
