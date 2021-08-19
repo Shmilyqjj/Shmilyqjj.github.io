@@ -189,6 +189,7 @@ git config --global core.safecrlf false
 git config --global core.autocrlf input #提交时转换为LF，检出时不转换
 git config http.proxy socks5://127.0.0.1:7891  # 因为我的Clash代理sock端口是7891
 git config --global --add remote.origin.proxy ""
+git config --global core.editor "vim"
 ```
 
 ### 开机自启脚本部署
