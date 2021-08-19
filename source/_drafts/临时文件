@@ -1251,6 +1251,8 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 ##################################################
 Linux相关
 
+找目录下所有jar中含指定类的jar：for i in *.jar; do jar -tvf "$i" | grep -Hsi class类名 && echo "$i"; done
+
 rsync排除目录：
 rsync -avP --exclude=dirc/ tmp  /home/xx/
 注意 dirc/ 后面的 / 一定要，指名是目录，如果不加的话 dirc文件也会被排除
