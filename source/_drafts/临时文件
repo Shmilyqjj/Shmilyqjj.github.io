@@ -282,6 +282,18 @@ val sc = new org.apache.spark.SparkContext(conf)
 val sqlContext=new org.apache.spark.sql.SQLContext(sc)
 val spark = sqlContext
 
+# Scala spark streaming context
+  def getSparkStreamingContext(master:String, appName:String="spark_streaming_app"):StreamingContext = {
+    val conf = new org.apache.spark.SparkConf()
+      .setMaster(master)
+      .setAppName(appName)
+      .set("spark.streaming.receiver.writeAheadLog.enable","true")
+    val sc = new org.apache.spark.SparkContext(conf)
+    sc.setLogLevel("WARN")
+    val sqlContext=new org.apache.spark.sql.SQLContext(sc)
+    new StreamingContext(sc,Seconds(5))
+  }
+
 Spark临时文件设置
 （spark运行时产生临时文件/tmp/spark-*,/tmp/blockmgr-*）
 回答
