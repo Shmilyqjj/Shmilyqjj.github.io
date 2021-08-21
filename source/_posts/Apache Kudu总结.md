@@ -948,8 +948,10 @@ RPC can not complete before timeout: KuduRpc(method=CreateTable, tablet=null, at
 session.setTimeoutMillis(60000);
 new KuduClient.KuduClientBuilder("cdh101").defaultAdminOperationTimeoutMs(600000).build();
 ```
-
-
+6.Kudu服务部分或全部挂，报错日志如下
+Check failed: _s.ok() Bad status: Service unavailable: Cannot initialize clock: Timed out waiting for clock sync: Error reading clock. Clock considered unsynchronized
+原因：ntp同步问题，可能是ntpd进程未启动、或/etc/sysconfig/ntpd带有-x参数、或所有节点都同步到一台公用ntp服务器但该ntp服务器有问题
+解决：1.检查ntpd进程是否存在 2.去掉/etc/sysconfig/ntpd中-x参数(默认只有-g) 3.配置/etc/ntp.conf将集群内所有节点时钟同步到集群内的某一台节点 再重启Kudu即可
 
 
 ## HTAP混合事务分析处理
