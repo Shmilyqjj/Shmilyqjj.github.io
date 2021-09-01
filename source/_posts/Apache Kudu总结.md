@@ -509,6 +509,12 @@ kuduContext.deleteTable("unwanted_table")
 ### Kudu APIs
 **Kudu常用Command Lines**
 [Kudu客户端命令](https://kudu.apache.org/docs/command_line_tools_reference.html#_command_hierarchy)
+```shell
+kudu cluster ksck master1,master2,master3  查看表及表状态  HEALTHY正常  UNDER_REPLICATED缺失副本但不影响使用  UNAVAILABLE表无法使用
+kudu cluster rebalance master1,master2,master3 -max_moves_per_server 3 -max_run_time_sec 10  Kudu数据重平衡避免热点TS，TS的service_queue被占满、内存占用过大
+```
+
+
 Kudu有很多命令，大致分几类：
 ```shell
 su - kudu
@@ -915,7 +921,7 @@ result = scanner.open().read_all_tuples()
 5.memory.soft_limit_in_bytes/memory.limit_in_bytes这是Kudu进程组（即Linux cgroup）的内存软限制和硬限制。当系统内存不足时，会优先回收超过软限制的进程占用的内存，使之尽量低于阈值。当进程占用的内存超过了硬限制，会直接触发OOM导致Kudu进程被杀掉。我们设为-1，即不限制。
 6.maintenance_manager_num_threads单个TServer用于在后台执行Flush、Compaction等后台操作的线程数，默认是1。如果是采用普通硬盘作为存储的话，该值应与所采用的硬盘数相同。
 7.max_create_tablets_per_ts创建表时能够指定的最大分区数目（hash partition * range partition），默认为60。如果不能满足需求，可以调大。
-8.follower_unavailable_considered_failed_sec当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s。
+8.follower_unavailable_considered_failed_sec当Follower与Leader失去联系后，Leader将Follower判定为失败的窗口时间，默认值300s,判定为失败则认为数据丢失。
 9.max_clock_sync_error_usec NTP时间同步的最大允许误差，单位为微秒，默认值10s。如果Kudu频繁报时间不同步的错误，可以适当调大，比如15s。
 
 ## Kudu异常处理
