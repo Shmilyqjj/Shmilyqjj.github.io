@@ -175,6 +175,8 @@ COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]
 10. 使用profile查看是否有hdfs块倾斜，合理分配block大小
 11. 充分利用Impala Query Hint优化查询效率
 12. Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下
+13. impalad无法启动EERROR是WebServer: Could not start on address 0.0.0.0:25000 解决： lsof -i :25000 拿到PID并kill这个PID
+
 
 总结：
 1. Impala是典型的MPP架构实时查询分析引擎，类似的引擎还有ClickHouse
