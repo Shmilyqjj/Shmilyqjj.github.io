@@ -176,6 +176,60 @@ COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]
 11. 充分利用Impala Query Hint优化查询效率
 12. Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下
 13. impalad无法启动EERROR是WebServer: Could not start on address 0.0.0.0:25000 解决： lsof -i :25000 拿到PID并kill这个PID
+14. 节点访问负载均衡--之前提到每个Impalad都是Coordinator，所有任务都提交到一台Coordinator会存在单点性能及单点故障问题，所以为提高任务提交吞吐量避免单点问题，可配置负载均衡的地址访问impalaDaemon,参考[Using Impala through a Proxy for High Availability](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/impala_proxy.html#tut_proxy)官方文档或[Configuring Impala Load Balancer](https://arjunkrajan.wordpress.com/2017/07/28/configuring-impala-load-balancer-in-mapr-cluster/)博客，配置如下：
+```shell
+  yum -y install haproxy
+  cp /etc/haproxy/haproxy.cfg /etc/haproxy/impala_haproxy.cfg
+  vim /etc/haproxy/impala_haproxy.cfg
+  注释掉main frontend which proxys to the backends后面的所有内容
+  注释掉如下行：
+  timeout http-requests 10s
+  timeout queue  1m
+  timeout http-keep-alive  10s
+  timeout check  10s
+
+  修改如下行:
+      timeout connect 5000
+      timeout client 3600s
+      timeout server 3600s
+
+  增加如下行：
+  listen stats :25002
+      balance
+      mode http
+      stats enable
+      stats auth username:password
+
+  listen impala :21001
+      mode tcp
+      option tcplog
+      balance leastconn
+      server impalad_1 impalad1_ip:21000 check
+      server impalad_2 impalad2_ip:21000 check
+      server impalad_3 impalad3_ip:21000 check
+      server impalad_4 impalad4_ip:21000 check
+      server impalad_5 impalad5_ip:21000 check
+    # server alias_name impaladIP:21000 check
+
+  listen impalajdbc :21051
+      mode tcp
+      option tcplog
+      balance source
+      server impalad_jdbc_01 impalad1_ip:21050 check
+      server impalad_jdbc_02 impalad2_ip:21050 check
+      server impalad_jdbc_03 impalad3_ip:21050 check
+      server impalad_jdbc_04 impalad4_ip:21050 check
+      server impalad_jdbc_05 impalad5_ip:21050 check
+    # server alias_name impaladIP:21050 check
+  保存退出wq
+
+  运行haproxy –f /etc/haproxy/impala_haproxy.cfg 让代理生效
+  impala-shell -i haproxy_running_ip:21001 可连接代理
+  jdbc程序原来连接21050改为连接21051,地址改为haproxy_running_ip
+  保证haproxy运行稳定要做的灾备工作
+    1.将代理程序加入开机自动运行：root用户下chmod +x /etc/rc.d/rc.local并向该文件添加/sbin/haproxy –f /etc/haproxy/impala_haproxy.cfg
+    2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）
+```
 
 
 总结：
