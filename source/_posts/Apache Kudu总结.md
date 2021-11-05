@@ -959,6 +959,38 @@ Check failed: _s.ok() Bad status: Service unavailable: Cannot initialize clock: 
 原因：ntp同步问题，可能是ntpd进程未启动、或/etc/sysconfig/ntpd带有-x参数、或所有节点都同步到一台公用ntp服务器但该ntp服务器有问题
 解决：1.检查ntpd进程是否存在 2.去掉/etc/sysconfig/ntpd中-x参数(默认只有-g) 3.配置/etc/ntp.conf将集群内所有节点时钟同步到集群内的某一台节点 再重启Kudu即可
 
+7.Kudu客户端报错提示服务端需要认证
+具体堆栈如下：
+```log
+org.apache.kudu.client.NonRecoverableException: cannot re-acquire authentication token after 5 attempts (Couldn't find a valid master in (master1:7051,master2:7051,master3:7051). Exceptions received: [org.apache.kudu.client.NonRecoverableException: server requires authentication, but client Kerberos credentials (TGT) have expired. Authentication tokens were not used because this connection will be used to acquire a new token and therefore requires primary credentials, org.apache.kudu.client.NonRecoverableException: server requires authentication, but client Kerberos credentials (TGT) have expired. Authentication tokens were not used because this connection will be used to acquire a new token and therefore requires primary credentials, org.apache.kudu.client.NonRecoverableException: server requires authentication, but client Kerberos credentials (TGT) have expired. Authentication tokens were not used because this connection will be used to acquire a new token and therefore requires primary credentials])
+        at org.apache.kudu.client.KuduException.transformException(KuduException.java:110)
+        at org.apache.kudu.client.KuduClient.joinAndHandleException(KuduClient.java:413)
+        at org.apache.kudu.client.KuduScanner.nextRows(KuduScanner.java:72)
+        at com.smy.crm.common.kudu.KuduApiHelperNew.select(KuduApiHelperNew.java:182)
+        at com.smy.crm.common.kudu.KuduApiHelper.select(KuduApiHelper.java:161)
+        at com.smy.crm.tag.util.TagKuduUtil.findCustAllTagFromNarrow(TagKuduUtil.java:302)
+        at com.smy.crm.tag.manager.TagKuduManager.findCustAllTag(TagKuduManager.java:332)
+        at com.smy.crm.tag.rule.TagRealTimeExecute.execute(TagRealTimeExecute.java:105)
+        at com.smy.crm.tag.mq.AutoTagMqConsumer.lambda$startNewConsumer$0(AutoTagMqConsumer.java:78)
+        at org.apache.rocketmq.client.impl.consumer.ConsumeMessageConcurrentlyService$ConsumeRequest.run(ConsumeMessageConcurrentlyService.java:411)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+```
+查看kudu配置发现服务端--rpc_authentication参数值为required而未按官网说的默认是optional
+所以未认证或认证过期的长连接就会连接失败导致程序挂掉
+参考Kudu官网介绍如下：
+```text
+Kudu authentication with Kerberos
+Kudu can be configured to enforce secure authentication among servers, and between clients and servers. Authentication prevents untrusted actors from gaining access to Kudu, and securely identifies connecting users or services for authorization checks. Authentication in Kudu is designed to interoperate with other secure Hadoop components by utilizing Kerberos.
+Configure authentication on Kudu servers using the --rpc_authentication flag, which can be set to one of the following options:
+required - Kudu will reject connections from clients and servers who lack authentication credentials.
+optional - Kudu will attempt to use strong authentication, but will allow unauthenticated connections.
+disabled - Kudu will only allow unauthenticated connections.
+By default, the flag is set to optional. To secure your cluster, set --rpc_authentication to required.
+```
+解决：在gflagfile增加参数：--rpc_authentication=optional
+
+
 
 ## HTAP混合事务分析处理
 HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
