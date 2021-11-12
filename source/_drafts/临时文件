@@ -95,13 +95,20 @@ HDFS元数据浏览
 3.inputfile: 要查看的fsimage文件
    outputfile: 用于保存格式化之后的文件
    process: 使用什么进程解码，XML|Web|...
+示例hdfs oiv -p Delimited -delimiter "," -i  /dfs/nn/current/fsimage_0000000002522319742 -o /data1/test_oiv.csv
+得到的CSV字段
+Path,Replication,ModificationTime,AccessTime,PreferredBlockSize,BlocksCount,FileSize,NSQUOTA,DSQUOTA,Permission,UserName,GroupName
+/user/hive/warehouse/xxx/dt=xxx/xxx.parquet,3,2021-06-27 18:31,2021-10-02 00:13,134217728,1,169711,0,0,-rw-r--r--,hdfs,hive
+可用于分析HDFS文件、目录使用情况，小文件情况
+
 【oev】
 1.用于查看Hadoop 的 edit 文件 
 2.语法
     $> hdfs oev -i inputfile -o outputfile -P process
 3.inputfile: 要查看的edit文件
    outputfile: 用于保存格式化之后的文件
-   process: 使用什么进程解码，XML|Web|...
+   process: 使用什么进程解码，XML|Web|...
+
 
 HDFS查看文件是否存在
 hadoop fs -test -e /data/;echo $?
