@@ -845,6 +845,16 @@ PYTHONPATH="${EGG_PATH}${SHELL_HOME}/gen-py:${SHELL_HOME}/lib:${PYTHONPATH}" \
 2.beeline -d "com.cloudera.impala.jdbc41.Driver" -u "jdbc:impala://one_impalad_ip:21050"
 3.如果报warn：Error: [Simba][JDBC](11975) Unsupported transaction isolation level: 4. (state=HY000,code=11975) 则加beeline参数--isolation=default 
 
+
+### CDH升级JDK版本
+主机-> 选择一台 -> 配置 -> Java 主目录 -> 填上新的jdk路径
+每台节点设置/etc/profile中JAVA_HOME和PATH为新jdk路径（或者修改cloudera-scm-server\cloudera-scm-agent启动脚本上添加export JAVA_HOME=xxx）
+停止服务
+重启CMServer
+重启各节点CM Agent
+在页面重启CMService
+启动服务
+
 ### 部署与CDH6组件版本兼容的开源版Spark 2.x
 CDH不是自带Spark吗，为什么要使用开源版？因为CDH Spark阉割了很多Spark的功能，不支持spark-sql入口和spark-thriftserver入口，还有一些其他功能，可以参考:[]()
 使用Spark2.3.x：下载或编译获得spark2.3.2-bin-hadoop2.6官方tarball可以直接兼容当前CDH个版本。其源码中hive依赖版本为1.2.1.spark2，hadoop版本为2.6.5，作为兼容hive、hadoop的客户端。
@@ -915,6 +925,7 @@ sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thr
 ### 升级与CDH6组件版本兼容的开源版Spark 3.x
 编译https://blog.csdn.net/Young2018/article/details/108856622
 部署https://www.pianshen.com/article/46531976066/
+
 
 
 ## Cloudera Manager使用
