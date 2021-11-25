@@ -480,6 +480,14 @@ mount -t ramfs none /ramfs -o maxsize=8388608
 mkdir -p /tmpfs
 mount tmpfs /tmpfs -t tmpfs -o size=8192m
 
+10. 禁用swap
+立刻禁用swap
+sudo swapoff -a  
+永久禁用swap
+sudo vim /etc/fstab
+将swap分区用#注释掉
+一般不建议禁用swap，避免操作系统内存被打满时没有swap缓冲导致系统OOM，崩溃。
+
 
 ## 总结  
 字颜色大小
