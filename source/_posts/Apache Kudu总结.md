@@ -990,7 +990,38 @@ By default, the flag is set to optional. To secure your cluster, set --rpc_authe
 ```
 解决：在gflagfile增加参数：--rpc_authentication=optional
 
-
+8.Kudu新增节点无法连接
+客户端错误日志
+```text
+org.apache.kudu.client.NonRecoverableException: cannot complete before timeout: KuduRpc(method=GetTableSchema, tablet=null, attempt=10, TimeoutTracker(timeout=30000, elapsed=30020), Trace Summary(27441 ms): Sent(30), Received(27), Delayed(9), MasterRefresh(10), AuthRefresh(0), Truncated: false
+ Sent: (master-xxx1:7051, [ ConnectToMaster, 10 ]), (master-xxx2:7051, [ ConnectToMaster, 10 ]), (master-xxx3:7051, [ ConnectToMaster, 10 ])
+ Received: (master-xxx1:7051, [ NETWORK_ERROR, 9 ]), (master-xxx2:7051, [ NETWORK_ERROR, 9 ]), (master-xxx3:7051, [ NETWORK_ERROR, 9 ])
+ Delayed: (UNKNOWN, [ GetTableSchema, 9 ]))
+```
+Master日志
+```text
+Failed RPC negotiation. Trace:
+1203 17:18:29.304059 (+     0us) reactor.cc:583] Submitting negotiation task for server connection from kudu_client_ip:41573
+1203 17:18:29.304166 (+   107us) server_negotiation.cc:184] Beginning negotiation
+1203 17:18:29.304168 (+     2us) server_negotiation.cc:373] Waiting for connection header
+1203 17:18:29.367151 (+ 62983us) server_negotiation.cc:381] Connection header received
+1203 17:18:29.368056 (+   905us) server_negotiation.cc:337] Received NEGOTIATE NegotiatePB request
+1203 17:18:29.368057 (+     1us) server_negotiation.cc:420] Received NEGOTIATE request from client
+1203 17:18:29.368073 (+    16us) server_negotiation.cc:349] Sending NEGOTIATE NegotiatePB response
+1203 17:18:29.368090 (+    17us) server_negotiation.cc:205] Negotiated authn=SASL
+1203 17:18:29.527892 (+159802us) server_negotiation.cc:337] Received TLS_HANDSHAKE NegotiatePB request
+1203 17:18:29.528938 (+  1046us) server_negotiation.cc:349] Sending TLS_HANDSHAKE NegotiatePB response
+1203 17:18:29.555620 (+ 26682us) server_negotiation.cc:337] Received TLS_HANDSHAKE NegotiatePB request
+1203 17:18:29.555806 (+   186us) server_negotiation.cc:349] Sending TLS_HANDSHAKE NegotiatePB response
+1203 17:18:29.555827 (+    21us) server_negotiation.cc:589] Negotiated TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 TLSv1.2 Kx=ECDH Au=RSA Enc=AESGCM(256) Mac=AEAD
+1203 17:18:29.649572 (+ 93745us) negotiation.cc:304] Negotiation complete: Network error: Server connection negotiation failed: server connection from kudu_client_ip:41573: BlockingRecv error: failed to read from TLS socket (remote: kudu_client_ip:41573): Cannot send after transport endpoint shutdown (error 108)
+Metrics: {"server-negotiator.queue_time_us":79,"thread_start_us":42,"threads_started":1}
+```
+原因及解决
+[kudu-master_trusted_subnets](http://kudu.apache.org/docs/configuration_reference.html#kudu-master_trusted_subnets)
+客户端所在机器不在默认信任子网内（白名单），导致连接无权限。如果不考虑安全性可以设置--trusted_subnets=0.0.0.0/0，如若考虑安全性，可以在默认值基础上增加新节点所在子网地址。
+例：--trusted_subnets=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,172.17.0.0/8
+注：该参数为KuduMaster参数，需要设置在“gflagfile 的 Master 高级配置代码段（安全阀）”
 
 ## HTAP混合事务分析处理
 HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
