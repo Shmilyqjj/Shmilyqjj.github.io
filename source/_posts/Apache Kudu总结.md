@@ -1019,9 +1019,10 @@ Metrics: {"server-negotiator.queue_time_us":79,"thread_start_us":42,"threads_sta
 ```
 原因及解决
 [kudu-master_trusted_subnets](http://kudu.apache.org/docs/configuration_reference.html#kudu-master_trusted_subnets)
+[kudu-tserver_trusted_subnets](http://kudu.apache.org/docs/configuration_reference.html#kudu-tserver_trusted_subnets)
 客户端所在机器不在默认信任子网内（白名单），导致连接无权限。如果不考虑安全性可以设置--trusted_subnets=0.0.0.0/0，如若考虑安全性，可以在默认值基础上增加新节点所在子网地址。
 例：--trusted_subnets=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,172.17.0.0/8
-注：该参数为KuduMaster参数，需要设置在“gflagfile 的 Master 高级配置代码段（安全阀）”
+注：需要设置在“gflagfile 的 Kudu 服务高级配置代码段（安全阀）”
 
 ## HTAP混合事务分析处理
 HTAP，即Hybrid Transactional Analytical Processing，我们知道OLAP、OLTP，而HTAP就是结合两者场景，既需要联机事务处理有需要联机分析处理，这也是Kudu的场景。
