@@ -427,6 +427,26 @@ mysql -uroot -p123456
 sudo systemctl enable mysqld.service  # 设置开机启动mysql server (可选)
 ```
 
+### 支持Ubuntu系安装包(.deb包)
+git clone https://github.com/helixarch/debtap
+cd debtap
+sudo cp debtap /usr/local/bin
+（前三步可以用yay -S debtap或yaourt -S debtap代替）
+sudo debtap -u  更新软件包
+如果sudo debtap -u过程下载很慢，需要换源
+```text
+vim /usr/bin/debtap
+替换：http://ftp.debian.org/debian/dists
+https://mirrors.ustc.edu.cn/debian/dists
+
+替换：http://archive.ubuntu.com/ubuntu/dists
+https://mirrors.ustc.edu.cn/ubuntu/dists/
+```
+然后就可以操作安装.deb包了
+debtap xxx.deb （一路下一步，证书选GPL）得到解析后的安装包(Final Package)
+sudo pacman -U 解析后的安装包
+
+
 ### 开发工具安装
 ```shell
 # JetBrains全家桶 命令行方式安装
