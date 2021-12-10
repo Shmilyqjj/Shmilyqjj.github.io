@@ -502,6 +502,19 @@ systemctl start libvirtd
 usermod -a -G kvm shmily
 启动qem/virt-manager
 
+### 安卓应用支持
+参考UOS(Deepin)对于安卓应用支持的解决方案，采用XDroid作为安卓应用支持软件。
+先下载XDroid软件：[官网下载XDroid](https://www.linzhuotech.com/Product/download)
+执行tar -zxvf xDroidInstall-x86_64-vxxxx.tar.gz 解压
+执行 ./xDroidInstall-x86_64-vxxxx.run 安装XDroid
+安装后重启一到两次即可完成安装
+应用商城
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-38.png) 
+已安装应用
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-39.png) 
+使用Android APP
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-40.png) 
+
 
 ## 系统界面美化
 Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高，是桌面控的福音。下面做一些简单的界面设置。
