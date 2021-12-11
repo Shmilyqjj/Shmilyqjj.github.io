@@ -116,7 +116,10 @@ git remote add origin https://{username}:{password}@github.com/{username}/projec
   alias spark-shell="winpty spark-shell.cmd"
   alias pyspark="winpty pyspark.cmd"
   # 有哪些windows下的命令不能用就加
-
+git删除远程仓库的文件(不删除本地文件)
+git rm -r --cached .idea  #--cached不会把本地的.idea删除
+git commit -m 'delete .idea dir'
+git push -u origin master
 
 
 
