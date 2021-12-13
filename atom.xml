@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2021-04-05T05:13:27.452Z</updated>
+  <updated>2021-12-13T15:17:16.756Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>基于Manjaro KDE版打造美观舒适开发环境</title>
+    <link href="https://shmily-qjj.top/3f34ebe3/"/>
+    <id>https://shmily-qjj.top/3f34ebe3/</id>
+    <published>2021-07-07T03:22:00.000Z</published>
+    <updated>2021-12-13T15:17:16.756Z</updated>
+    
+    <summary type="html">
+    
+      Manjaro Linux安装部署与美化
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Linux" scheme="https://shmily-qjj.top/tags/Linux/"/>
+    
+      <category term="Manjaro" scheme="https://shmily-qjj.top/tags/Manjaro/"/>
+    
+  </entry>
   
   <entry>
     <title>Presto-基于内存的高效SQL交互查询引擎</title>
@@ -43,7 +65,7 @@
     <link href="https://shmily-qjj.top/BigdataExceptionsSummary/"/>
     <id>https://shmily-qjj.top/BigdataExceptionsSummary/</id>
     <published>2021-01-30T04:50:00.000Z</published>
-    <updated>2021-07-17T14:39:14.715Z</updated>
+    <updated>2021-12-13T15:17:16.757Z</updated>
     
     <summary type="html">
     
@@ -65,7 +87,7 @@
     <link href="https://shmily-qjj.top/1ae37d82/"/>
     <id>https://shmily-qjj.top/1ae37d82/</id>
     <published>2021-01-17T02:18:30.000Z</published>
-    <updated>2021-05-02T15:51:58.328Z</updated>
+    <updated>2021-12-13T15:17:16.755Z</updated>
     
     <summary type="html">
     
@@ -199,7 +221,7 @@
     <link href="https://shmily-qjj.top/5f26355/"/>
     <id>https://shmily-qjj.top/5f26355/</id>
     <published>2020-07-05T04:26:08.000Z</published>
-    <updated>2021-06-18T04:13:30.578Z</updated>
+    <updated>2021-12-13T15:17:16.753Z</updated>
     
     <summary type="html">
     
@@ -427,26 +449,6 @@
       <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
     
       <category term="Hive" scheme="https://shmily-qjj.top/tags/Hive/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>人声混音总结</title>
-    <link href="https://shmily-qjj.top/d2c4813b/"/>
-    <id>https://shmily-qjj.top/d2c4813b/</id>
-    <published>2019-12-21T07:06:06.000Z</published>
-    <updated>2020-04-12T14:15:48.000Z</updated>
-    
-    <summary type="html">
-    
-      记录翻唱混音技巧的小本本
-    
-    </summary>
-    
-      <category term="音乐" scheme="https://shmily-qjj.top/categories/%E9%9F%B3%E4%B9%90/"/>
-    
-    
-      <category term="人声混音" scheme="https://shmily-qjj.top/tags/%E4%BA%BA%E5%A3%B0%E6%B7%B7%E9%9F%B3/"/>
     
   </entry>
   

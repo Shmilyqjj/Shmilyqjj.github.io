@@ -4,6 +4,8 @@
   <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
   <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
   <meta charset="utf-8">
+  <!-- baidu站长工具认证 -->
+  <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
   <title itemprop="name">CentOS7安装CDH6安装与排坑 | 佳境的小本本</title>
@@ -770,10 +772,7 @@ innodb_buffer_pool_size = 128M
 innodb_thread_concurrency = 8
 innodb_flush_method = O_DIRECT
 innodb_log_file_size = 512M
-sql_mode=STRICT_ALL_TABLES
-
-# disable_ssl
-skip_ssl</code></pre>
+sql_mode=STRICT_ALL_TABLES</code></pre>
 <p>重启Mysql服务<br>systemctl restart mysqld.service</p>
 <p>登录Mysql并查看是否修改成功<br>mysql -hlocalhost -P3306 -uroot  -p123456<br>show variables like “%character%”;<br>show variables like “%collation%”;<br>如图即为配置成功<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.jpg" alt="alt CDH-09">  </p>
 <p>创建CM的数据库并增加数据库所属用户的远程登陆权限：  </p>
@@ -828,7 +827,7 @@ FLUSH PRIVILEGES;
  cp screenFetch/screenfetch-dev /usr/local/bin/screenfetch
  chmod 777 /usr/local/bin/screenfetch</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-11.jpg" alt="alt CDH-11">  </p>
-<p>我的配置暂时这样，如果后续有什么需要改进我再更新。<br>更多安全与防火墙配置参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/thinktik/article/details/81046318">安全与防火墙配置</a><br>有关linux用户和组的详细文章:<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pengyunjing/p/8543026.html">Linux用户和组</a>  </p>
+<p>更多安全与防火墙配置参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/thinktik/article/details/81046318">安全与防火墙配置</a><br>有关linux用户和组的详细文章:<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pengyunjing/p/8543026.html">Linux用户和组</a>  </p>
 <p>开启ntpd时间同步：参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zx8167107/article/details/78753134">ntp本地服务器搭建</a><br>1.创建本地NTP时间服务器</p>
 <pre><code class="text">vim /etc/ntp.conf
 注释掉：
@@ -865,7 +864,7 @@ server cdh101  指明本地ntp服务器地址</code></pre>
 <li>使用SecureCRT可以正常连接到机器  </li>
 <li>ifconfig 或 ip addr命令查看ip地址成功改过来了<br>则配置成功  </li>
 </ol>
-<h3 id="三-配置免密登录"><a href="#三-配置免密登录" class="headerlink" title="三.配置免密登录"></a>三.配置免密登录</h3><p>在四台机器分别操作：<br>ssh-keygen  并连续敲三下回车</p>
+<h3 id="三-配置免密登录-可选-非必须"><a href="#三-配置免密登录-可选-非必须" class="headerlink" title="三.配置免密登录[可选 非必须]"></a>三.配置免密登录[可选 非必须]</h3><p>在四台机器分别操作：<br>ssh-keygen  并连续敲三下回车</p>
 <p>在66机器上<br>ssh-copy-id cdh066   建立 cdh066自身免密<br>ssh-copy-id cdh067   建立 cdh066 -&gt; cdh067单向免密<br>ssh-copy-id cdh068   建立 cdh066 -&gt; cdh068单向免密<br>ssh-copy-id cdh069   建立 cdh066 -&gt; cdh069单向免密  </p>
 <p>在67机器上<br>ssh-copy-id cdh066   建立 cdh067 -&gt; cdh066单向免密<br>ssh-copy-id cdh067   建立 cdh066自身免密<br>ssh-copy-id cdh068   建立 cdh067 -&gt; cdh068单向免密<br>ssh-copy-id cdh069   建立 cdh067 -&gt; cdh069单向免密  </p>
 <p>在68机器上<br>ssh-copy-id cdh066   建立 cdh068 -&gt; cdh066单向免密<br>ssh-copy-id cdh067   建立 cdh068 -&gt; cdh067单向免密<br>ssh-copy-id cdh068   建立 cdh068自身免密<br>ssh-copy-id cdh069   建立 cdh068 -&gt; cdh069单向免密  </p>
@@ -899,7 +898,7 @@ type=rpm-md
  yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server --skip-broken --nogpgcheck</code></pre>
 <p>下载parcel包，：<a target="_blank" rel="noopener" href="https://archive.cloudera.com/cdh6/6.3.1/parcels/">Index of cdh6/6.3.1/parcels/</a><br>该链接目前需要有License的Cloudera帐号才可以下载了。</p>
 <pre><code class="shell">cd /opt/cloudera/parcel-repo
-sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk &#39;&#123; print $1 &#125;&#39; &gt;CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
+sha1sum CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel | awk &#39;&#123; print $1 &#125;&#39; &gt; CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel.sha
 chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*</code></pre>
 <p>初始化数据库<br>该步骤很重要，可以在第一次启动ClouderaManager前检测数据库连接是否有问题，是否会影响到CMServer初始化。<br>通过该脚本输出的日志可以定位到错误原因，并修改mysql中不合理的配置文件，修改系统环境配置错误的地方。</p>
 <pre><code class="shell"># （scm_prepare_database.sh 库类型 scm库名称 scm库连接的用户名 密码 -h服务端所在地址）
@@ -917,7 +916,8 @@ chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*</code></pre>
 <p>开始安装服务 如图，选<strong>自定义服务</strong><br>根据集群环境和需求选择合适的服务和搭配。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.4.JPG" alt="alt CDH-22.4"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG" alt="alt CDH-22.5">   </p>
 <p>填上之前建的数据库，选的服务不同要求也不同<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG" alt="alt CDH-22.6">  </p>
 <p>最后部署成功，启动服务：<br>因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG" alt="alt CDH-24"><br>后续文章更新内容采用新电脑64GB内存i7-9750h物理机环境，能正常运行CDH服务：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-31.JPG" alt="alt CDH-31">  </p>
-<p>ClockOffset的报警：<br>集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，请参考：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39158271/article/details/80207291">集群NTP服务配置</a> 中的 <strong>配置内网NTP-Clients</strong> 部分。</p>
+<p>ClockOffset的报警：<br>集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，重新参考之前NTP时钟同步的配置。</p>
+<p>企业级部署时，需要在安装好各角色后，依次设置里面每个角色(包括CMServer)的dir、path等路径，将一些日志、dump路径等放在数据盘。</p>
 <h3 id="五-Flink集成"><a href="#五-Flink集成" class="headerlink" title="五.Flink集成"></a>五.Flink集成</h3><p>集成官方Flink-1.9.0到CDH管理<br>下载相应的csd文件和parcels文件到本地：<br><a target="_blank" rel="noopener" href="https://archive.cloudera.com/csa/1.0.0.0/csd/">csd下载地址</a><br><a target="_blank" rel="noopener" href="https://archive.cloudera.com/csa/1.0.0.0/parcels/">parcels下载地址</a><br>下载后得到如下：</p>
 <pre><code class="text">FLINK-1.9.0-csa1.0.0.0-cdh6.3.0.jar
 FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha
@@ -1004,6 +1004,7 @@ pip3 install koalas -i https://pypi.doubanio.com/simple</code></pre>
 <pre><code class="python">PYTHONPATH=&quot;$&#123;EGG_PATH&#125;$&#123;SHELL_HOME&#125;/gen-py:$&#123;SHELL_HOME&#125;/lib:$&#123;PYTHONPATH&#125;&quot; \
   exec python2.7 $&#123;SHELL_HOME&#125;/impala_shell.py &quot;$@&quot;</code></pre>
 <h3 id="beeline连接Impala"><a href="#beeline连接Impala" class="headerlink" title="beeline连接Impala"></a>beeline连接Impala</h3><p>1.拷贝ImpalaJDBC41.jar到/opt/cloudera/parcels/CDH-6.3.1-1.cdh6.3.1.p0.1470567/lib/hive/auxlib<br>2.beeline -d “com.cloudera.impala.jdbc41.Driver” -u “jdbc:impala://one_impalad_ip:21050”<br>3.如果报warn：Error: [Simba]<a href="11975">JDBC</a> Unsupported transaction isolation level: 4. (state=HY000,code=11975) 则加beeline参数–isolation=default </p>
+<h3 id="CDH升级JDK版本"><a href="#CDH升级JDK版本" class="headerlink" title="CDH升级JDK版本"></a>CDH升级JDK版本</h3><p>主机-&gt; 选择一台 -&gt; 配置 -&gt; Java 主目录 -&gt; 填上新的jdk路径<br>每台节点设置/etc/profile中JAVA_HOME和PATH为新jdk路径（或者修改cloudera-scm-server\cloudera-scm-agent启动脚本上添加export JAVA_HOME=xxx）<br>停止服务<br>重启CMServer<br>重启各节点CM Agent<br>在页面重启CMService<br>启动服务</p>
 <h3 id="部署与CDH6组件版本兼容的开源版Spark-2-x"><a href="#部署与CDH6组件版本兼容的开源版Spark-2-x" class="headerlink" title="部署与CDH6组件版本兼容的开源版Spark 2.x"></a>部署与CDH6组件版本兼容的开源版Spark 2.x</h3><p>CDH不是自带Spark吗，为什么要使用开源版？因为CDH Spark阉割了很多Spark的功能，不支持spark-sql入口和spark-thriftserver入口，还有一些其他功能，可以参考:<a href=""></a><br>使用Spark2.3.x：下载或编译获得spark2.3.2-bin-hadoop2.6官方tarball可以直接兼容当前CDH个版本。其源码中hive依赖版本为1.2.1.spark2，hadoop版本为2.6.5，作为兼容hive、hadoop的客户端。<br>使用Spark2.4.x: 下载或编译获得spark2.4.8-bin-hadoop2.7官方tarball，不可直接兼容，需要替换jar包：</p>
 <pre><code class="shell">echo &quot;export SPARK_HOME=/opt/spark/spark-2.4.8-bin-hadoop2.7&quot; &gt;&gt; /etc/profile;source /etc/profile
 rm -f $SPARK_HOME:/jars/hadoop-yarn*

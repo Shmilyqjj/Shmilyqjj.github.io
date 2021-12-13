@@ -4,6 +4,8 @@
   <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
   <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
   <meta charset="utf-8">
+  <!-- baidu站长工具认证 -->
+  <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
   <title itemprop="name">大数据平台常见异常处理汇总 | 佳境的小本本</title>
@@ -459,6 +461,21 @@
 </li>
 <li><p>ExecutorLost、Task Lost<br>报错：<br>1.[<font size="3" color="red">executor lost</font>] WARN TaskSetManager: Lost task 1.0 in stage 0.0 (TID 1, aa.local): ExecutorLostFailure (executor lost)<br>2.[<font size="3" color="red">task lost</font>] WARN TaskSetManager: Lost task 69.2 in stage 7.0 (TID 1145, 192.168.47.217): java.io.IOException: Connection from /xx.xxx.xx.xxx:xxxxx closed<br>3.[<font size="3" color="red">timeout</font>] java.util.concurrent.TimeoutException: Futures timed out after [120 second<br>ERROR TransportChannelHandler: Connection to /xxx.xxx.xx.xxx:xxxxx has been quiet for 120000 ms while there are outstanding requests. Assuming connection is dead; please adjust spark.network.timeout if this is wrong<br>原因：节点资源不足、网络延迟波动、GC导致Executor运行慢等原因<br>解决：①spark.network.timeout的值（默认为120s,配置所有网络传输的延时），根据情况改成300(5min)或更高 ②分别增加各类超时参数<br>spark.core.connection.ack.wait.timeout<br>spark.akka.timeout<br>spark.storage.blockManagerSlaveTimeoutMs<br>spark.shuffle.io.connectionTimeout<br>spark.rpc.askTimeout or spark.rpc.lookupTimeout</p>
 </li>
+<li><p>SparkThriftServer无法链接jdbc,后台报错Task has been rejected by ExecutorService<br>报错：<br>2021-08-01 02:26:32.028 WARN  [Thread-43] [10.139.53.62] org.apache.thrift.server.TThreadPoolServer.serve(TThreadPoolServer.java:185) :- Task has been rejected by ExecutorService 9 times till timedout, reason: java.util.concurrent.RejectedExecutionException: Task org.apache.thrift.server.TThreadPoolServer$WorkerProcess@6b4f8abf rejected from java.util.concurrent.ThreadPoolExecutor@48ca75d3[Running, pool size = 500, active threads = 500, queued tasks = 0, completed tasks = 917]<br>原因：每次连接都是一个socket连接，都会提交一个Runnable对象到ExecutorService线程池，线程池默认最大500,连接不使用且未关闭就会占用一个线程，占满就无法再连接<br>解决：hive-site.xml调整：<br>hive.server2.session.check.interval 6h-&gt;1h<br>hive.server2.idle.session.timeout 7d-&gt;1d<br>hive.server2.thrift.max.worker.threads (500-&gt;800) (根据用户量大概估，一个用户可能多个Socket/JDBC连接)<br>目的：避免因socket连接对象线程池被占满导致无法连接jdbc</p>
+<pre><code class="xml">&lt;property&gt;
+ &lt;name&gt;hive.server2.session.check.interval&lt;/name&gt;
+ &lt;value&gt;1h&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+ &lt;name&gt;hive.server2.idle.session.timeout&lt;/name&gt;
+ &lt;value&gt;1d&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+ &lt;name&gt;hive.server2.thrift.max.worker.threads&lt;/name&gt;
+ &lt;value&gt;800&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+<p>注意：hive.server2.session.check.interval &lt; hive.server2.idle.operation.timeout &lt; hive.server2.idle.session.timeout</p>
+</li>
 </ol>
 <h2 id="HDFS相关"><a href="#HDFS相关" class="headerlink" title="HDFS相关"></a>HDFS相关</h2><ol>
 <li><p>数据块丢失且命令无法修复<br>起因：多张表查询发现如下报错，提示块丢失<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-01.png" alt="alt"><br>分析：CM界面看HDFS丢失块，发现有2500多，大批量块丢失可能的原因：<br>    1.DataNode与NameNode未通信，DataNode进程未启动<br>    2.DataNode数据磁盘损坏，数据丢失<br> 3.一个文件的全部副本丢失<br>解决过程：<br>尝试修复丢失块：hdfs debug recoverLease -path <path-of-the-file> -retries <retry times><br>显示修复成功，但使用hadoop fs -text <file_name> 还是报MissingBlock无法读取<br>使用fsck检测坏块 hdfs fsck /user/hive/warehouse<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-02.png" alt="alt"><br>发现绝大多数block名称都带有172.xxx.xxx.11 定位到可能是172.xxx.xxx.11节点的DataNode可能存在问题<br>通过CM日志和机器上进程状态判断172.xxx.xxx.11的DataNode已与NameNode保持心跳，运行正常，进而怀疑磁盘坏了（概率太小）<br>查看CM配置和机器磁盘，发现少配置了些硬盘路径，原因是在配置新节点磁盘路径时误修改整个配置组的磁盘路径，导致该配置组中所有DataNode缺少磁盘，进而出现块丢失且无法修复的问题。<br>解决：还原磁盘配置，滚动重启该配置组中的DataNode，将不同机器配置分成多个配置组，重新修改配置<br>重启过程中丢失块数一直在减少：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-03.png" alt="alt"><br>最终恢复正常<br>总结：<br>1.CM上修改配置一定要慎重，注意修改配置组中某台节点的配置会影响整个配置组中所有节点的配置<br>2.CM显示DataNode重启成功只是进程启动成功，但日志出现“Total time to add all replicas to map”字眼才是真正完成启动<br>3.<a target="_blank" rel="noopener" href="https://hdfs-site/dfshealth.html#tab-overview">https://hdfs-site/dfshealth.html#tab-overview</a> 从HDFS WebUI获取更多信息（丢失块的信息一目了然）</p>
@@ -513,6 +530,8 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
 <li><p>如果可能，可以减小HDFS垃圾回收时间。</p>
 </li>
 <li><p>查看HDFS WebUI-&gt;Snaoshot栏，删除无用的快照，避免快照变化文件占用大量空间和Blocks。</p>
+</li>
+<li><p>HDFS DataNode磁盘切换<br>停止DN、JN -&gt; 将/dfs目录移至目标磁盘，并修改hdfs对应的磁盘为目标路径（对应节点的dfs.journalnode.edits.dir和dfs.datanode.data.dir） -&gt; 启动DN、JN</p>
 </li>
 </ol>
 <h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>

@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <!-- baidu站长工具认证 -->
+  <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">基于Manjaro KDE版打造美观舒适开发环境 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp,https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/Manjaro-Cover.png);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/Manjaro-Cover.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      基于Manjaro KDE版打造美观舒适开发环境</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2021-7-7<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="基于Manjaro-KDE版打造美观舒适开发环境"><a href="#基于Manjaro-KDE版打造美观舒适开发环境" class="headerlink" title="基于Manjaro KDE版打造美观舒适开发环境"></a>基于Manjaro KDE版打造美观舒适开发环境</h1><h2 id="系统安装与初始化配置"><a href="#系统安装与初始化配置" class="headerlink" title="系统安装与初始化配置"></a>系统安装与初始化配置</h2><h3 id="安装系统"><a href="#安装系统" class="headerlink" title="安装系统"></a>安装系统</h3><p>到<a target="_blank" rel="noopener" href="https://manjaro.org/">Manjaro官网</a>下载最新ManjaroLinux发行版（本文基于Manjaro KDE Plasma 5.21.5版本）<br>到<a target="_blank" rel="noopener" href="http://rufus.ie/">Rufus官网</a>下载镜像克隆工具，使用Rufus克隆Manjaro镜像到U盘，模式选择UEFI</p>
+<p>系统BIOS设置项：<br>Boot顺序将系统安装盘改为第一项<br>关闭安全启动Security Boot =&gt; 否则无法引导进入Linux<br>SATA模式由Raid On切换为AHCI =&gt; 若系统有NVME硬盘则需要此操作，避免Linux无法识别到NVME硬盘（双系统用户先进入Windows-&gt;cmd运行msconfig-&gt;引导-&gt;勾选安全引导-&gt;重启的过程中会修复硬盘的AHCI驱动避免因切换AHCI导致无法启动Windows系统-&gt;重启后再取消勾选安全引导）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-01.JPG" alt="alt "><br>双显卡用户注意事项(单显卡忽略此步骤)：<br>Nvidia+Intel双显卡笔记本安装需要这步：安装前给内核传参=&gt;按e在quiet后加：acpi_osi=! acpi_osi=”Windows 2009”  按F10启动，否则会卡死无法进入桌面<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-02.JPG" alt="alt "><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-03.JPG" alt="alt "> </p>
+<p>双击 Install Manjaro Linux打开安装向导<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-01.png" alt="alt "><br>时区选择Asia/ShangHai<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-02.png" alt="alt "><br>键盘默认即可<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-03.png" alt="alt "><br>接下来是关键步骤 磁盘要选手动分区<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-04.png" alt="alt "><br>磁盘空间规划：<br>/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）<br>在空闲区域创建分区 步骤如下：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-05.png" alt="alt "><br>数据分区最终结果如下：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-06.png" alt="alt "><br>启动分区(EFI分区) 如下设置：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-07.png" alt="alt "><br>最后设置系统管理员用户<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-08.png" alt="alt "><br>安装完成后 可以重启</p>
+<p>双显卡用户注意事项(单显卡忽略此步骤)：<br>重启第一次进入系统也需要按e在quiet后加：acpi_osi=! acpi_osi=”Windows 2009”  按F10启动，否则会卡死无法进入桌面<br>进入系统后：<br>sudo vim /boot/grub/grub.cfg 在所有quiet后加acpi_osi=! acpi_osi=”Windows 2009”参数，下次开机则不需要再加内核参数<br>（若系统更新了内核，grub.cfg也会被更新，需要重新加内核参数进入系统，重新修改grub.cfg文件）<br>建议每次更新系统执行如下脚本(update_grub.sh)自动增加内核参数：</p>
+<pre><code class="shell">#!/bin/bash
+echo &quot;双显卡笔记本更新Manjaro系统后需要添加grub参数避免无法开机&quot;
+if [[ $(whoami) != root ]]; then
+  echo -e &quot;\033[41;37m[ERROR] Need sudo or root privilege.\033[0m&quot;
+  exit 1
+fi
+GRUB_CFG=&quot;/boot/grub/grub.cfg&quot;
+GRUB_CFG_BACKUP=&quot;$GRUB_CFG&quot;_bak
+echo &quot;Backup path: $GRUB_CFG_BACKUP&quot;
+cp $GRUB_CFG $GRUB_CFG_BACKUP
+if [ -n &quot;$(grep &quot;Windows 2009&quot; $GRUB_CFG)&quot; ]; then
+  echo &quot;Grub config is ok,no update.&quot;
+else
+  echo &quot;Grub config need to be updated.Go to update it.&quot;
+  # 防止不能加载显卡不能进桌面
+  sed -i &#39;s/quiet/quiet acpi_osi=! acpi_osi=&quot;Windows 2009&quot;/g&#39; $GRUB_CFG
+  # 开机等待界面超时时间设为3s
+  sed -i &#39;s/timeout=10/timeout=3/g&#39; $GRUB_CFG
+fi
+echo -e &quot;\033[42;3mAll Done. Result:\033[0m&quot;
+cat $GRUB_CFG | grep &quot;quiet&quot;
+cat $GRUB_CFG | grep &quot;timeout=&quot;</code></pre>
+<p>双显卡用户目前无论安装任何Linux发行版都很坑，对于Manjaro,奉上设置显卡切换的教程：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/102525227">Manjaro 笔记本配置Intel与Nvidia双显卡切换，防踩坑教程</a> </p>
+<p>至此 Manjaro Linux系统安装完成</p>
+<h3 id="初始化系统"><a href="#初始化系统" class="headerlink" title="初始化系统"></a>初始化系统</h3><p>安装必备系统镜像源</p>
+<pre><code class="shell">cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+# 更新镜像排名
+sudo pacman-mirrors -i -c China -m rank 
+cp /etc/pacman.conf /etc/pacman.conf.backup
+# 添加ArchLinux中文社区源
+sudo vi /etc/pacman.conf
+  [archlinuxcn]
+  SigLevel = Optional TrustedOnly
+  #清华源
+  Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+  #中科大源
+  #Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+# 配置生效
+sudo pacman-mirrors -g
+# 更新pacman数据库全面更新系统并签名
+sudo pacman -Syyu &amp;&amp; sudo pacman -S archlinuxcn-keyring
+# 安装一些常用的包
+sudo pacman -S acpi vim</code></pre>
+<p>根据个人习惯创建一些目录<br>（我的习惯并不好，把一部分项目文件放在/opt下，/opt本身是用于安装一些大型软件的。正常情况下，一个用户的个人文件放在家目录下比较规范）</p>
+<pre><code class="shell">su root
+chmod 1777 /opt
+# 存放我的应用
+mkdir /opt/apps
+chmod 1777 -R /opt/apps/
+usermod -a -G root shmily 
+# 用户代码项目存放目录
+su shmily
+sudo mkdir -p /opt/Projects/
+sudo mkdir -p /opt/Projects/OpenSourceProjects
+sudo mkdir -p /opt/Projects/MyProjects
+sudo mkdir -p /opt/Projects/EnterpriseProjects
+sudo chmod 1777 -R /opt/Projects/
+# 系统环境所需目录
+sudo mkdir -p /opt/Env/
+# 工具目录
+sudo mkdir -p /opt/Tools/</code></pre>
+<p>配置免密</p>
+<pre><code class="shell"># sudo免密 避免频繁输入密码 以我用户名shmily为例(sudo su只切用户不带root的环境变量 sudo su -带root环境变量跟root用户一样)
+sudo vim /etc/sudoers
+shmily ALL=(ALL) NOPASSWD: ALL
+清徐%sudo ALL=(ALL) ALL前的注释#
+sudo vim /etc/sudoers.d/10-installer
+在%wheel ALL=(ALL) ALL行后添加如下配置
+shmily ALL=(ALL) NOPASSWD: ALL
+%shmily ALL=(ALL) NOPASSWD: ALL</code></pre>
+<p>软件商店勾选启用AUR和Snap源<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-09.png" alt="alt "></p>
+<h3 id="中文输入法安装"><a href="#中文输入法安装" class="headerlink" title="中文输入法安装"></a>中文输入法安装</h3><p>输入法首选安装:<br>sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color</p>
+<pre><code class="shell">sudo vim ~/.pam_environment （在当前桌面登陆的用户下执行）
+INPUT_METHOD  DEFAULT=fcitx5
+GTK_IM_MODULE DEFAULT=fcitx5
+QT_IM_MODULE  DEFAULT=fcitx5
+XMODIFIERS    DEFAULT=\@im=fcitx5</code></pre>
+<p><strong><u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u></strong><br>注销重新登陆后生效<br>配置输入法：<br>将拼音上移，作为默认输入法<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-10.png" alt="alt "><br>设置shift按键为切换中英文输入的按键<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-11.png" alt="alt "><br>共享输入状态 避免输入法切换混乱<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-12.png" alt="alt "><br>如何更新主题 换主题<a target="_blank" rel="noopener" href="https://github.com/hosxy/Fcitx5-Material-Color">Fcitx5-Material-Color</a><br><strong>说明：</strong>fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。<br>提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。<br>注意：对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR,该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量。<br><strong>其他可选输入法组件：</strong><br>sunpinyin+sunpinyin-data<br>fcitx-sunpinyin<br>ibus-sunpinyin<br>kcm-fcitx</p>
+<h3 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h3><pre><code class="shell">git config --global user.name &quot;shmily&quot;
+git config --global user.email 710552907@qq.com
+git config --global http.version HTTP/1.1
+git config --global core.autocrlf false
+git config --global core.safecrlf false
+git config --global core.autocrlf input #提交时转换为LF，检出时不转换
+git config http.proxy socks5://127.0.0.1:7891  # 因为我的Clash代理sock端口是7891
+git config --global --add remote.origin.proxy &quot;&quot;
+git config --global core.editor &quot;vim&quot;</code></pre>
+<h3 id="开机自启脚本部署"><a href="#开机自启脚本部署" class="headerlink" title="开机自启脚本部署"></a>开机自启脚本部署</h3><p>su root<br>vim /etc/systemd/system/rc-local.service 创建该文件</p>
+<pre><code class="shell">[Unit]
+Description=&quot;/etc/rc.local Compatibility&quot; 
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+StandardInput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p>vim /etc/rc.local 创建该文件</p>
+<pre><code class="shell">#!/bin/sh
+# /etc/rc.local
+if test -d /etc/rc.local.d; then
+    for rcscript in /etc/rc.local.d/*.sh; do
+        test -r &quot;$&#123;rcscript&#125;&quot; &amp;&amp; sh $&#123;rcscript&#125;
+    done
+    unset rcscript
+fi</code></pre>
+<p>chmod a+x /etc/rc.local<br>mkdir /etc/rc.local.d<br>systemctl enable rc-local.service<br>自定义脚本放在/etc/rc.local.d/里就可以了</p>
+<h3 id="系统常规优化"><a href="#系统常规优化" class="headerlink" title="系统常规优化"></a>系统常规优化</h3><pre><code class="shell"># 1.启用TRIM会帮助清理SSD中的块，从而延长SSD的使用寿命
+ sudo systemctl enable fstrim.timer
+# 2.安装中文字体
+ sudo pacman -S wqy-zenhei
+ sudo pacman -S wqy-bitmapfont
+ sudo pacman -S wqy-microhei
+ sudo pacman -S ttf-wps-fonts
+ sudo pacman -S adobe-source-han-sans-cn-fonts
+ sudo pacman -S adobe-source-han-serif-cn-fonts
+# ls -l命令简写ll
+ sudo vim /etc/profile和~/.bashrc
+ alias ls=&#39;ls --color&#39;
+ alias ll=&#39;ls -l --color&#39;</code></pre>
+<h3 id="双系统优化"><a href="#双系统优化" class="headerlink" title="双系统优化"></a>双系统优化</h3><p>Windows+Linux双系统可以加如下参数使Windows把硬件时间当作UTC（避免双系统切换导致的时间错乱）<br>Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1</p>
+<h2 id="安装应用和工具"><a href="#安装应用和工具" class="headerlink" title="安装应用和工具"></a>安装应用和工具</h2><h3 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h3><pre><code class="shell"># 微信、TIM
+sudo pacman -S yay
+yay --aururl https://aur.tuna.tsinghua.edu.cn --save
+sudo pacman -Sy base-devel
+yay -S com.qq.weixin.spark
+yay -S com.qq.tim.spark
+增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
+env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
+env WINEPREFIX=/home/shmily/.deepinwine/Spark-TIM/ deepin-wine5 winecfg
+-------------------------------------------------------------------------------------------------------
+sudo pacman -S google-chrome  # Chrome
+sudo pacman -S netease-cloud-music  # 网易云音乐
+yay -S tenvideo # 腾讯视频
+sudo pacman -S unrar unzip p7zip  # 解压
+### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
+sudo pacman -S gimp  # 修图
+sudo pacman -S neofetch screenfetch  # 输出系统信息
+yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
+### 远程桌面连接工具remmina
+sudo pacman -S remmina
+安装工程会提示
+remmina 的可选依赖
+    freerdp: RDP plugin
+    libsecret: Secret plugin [已安装]
+    libvncserver: VNC plugin
+    libxkbfile: NX plugin [已安装]
+    nxproxy: NX plugin
+    spice-gtk: Spice plugin
+    telepathy-glib: Telepathy plugin
+    xorg-server-xephyr: XDMCP plugin
+    gnome-terminal: external tools
+选择自己想要的依赖，如RDP远程桌面连接:
+sudo pacman -S freerdp
+-------------------------------------------------------------------------------------------------------
+# 企业微信安装
+https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
+用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
+cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
+sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
+增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
+env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
+-------------------------------------------------------------------------------------------------------
+软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
+软件仓库安装:timeshift (系统可能已经自带了)
+软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
+# 安装文件同步工具 多端同步
+sudo pacman -S syncthing
+# 参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
+# 启动Syncthing的快捷方式syncthing-start.desktop
+[Desktop Entry]
+Name=Start Syncthing
+GenericName=File synchronization
+Comment=Starts the main syncthing process in the background.
+Exec=/usr/bin/syncthing serve --no-browser --logfile=default
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;daemon;
+Categories=Network;FileTransfer;P2P
+# 查看Syncthing UI的快捷方式syncthing-ui.desktop
+[Desktop Entry]
+Name=Syncthing Web UI
+GenericName=File synchronization UI
+Comment=Opens Syncthing&#39;s Web UI in the default browser (Syncthing must already be started).
+Exec=/usr/bin/syncthing -browser-only
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;interface;
+Categories=Network;FileTransfer;P2P
+# 生效快捷方式
+sudo desktop-file-install syncthing-start.desktop
+sudo desktop-file-install syncthing-ui.desktop</code></pre>
+<h3 id="Clash科学上网"><a href="#Clash科学上网" class="headerlink" title="Clash科学上网"></a>Clash科学上网</h3><p><a target="_blank" rel="noopener" href="https://github.com/Dreamacro/clash/releases">下载Clash</a></p>
+<pre><code class="shell">cd ~/下载
+gunzip clash-linux-amd64-v1.6.5.gz
+mkdir /opt/apps/Clash
+mv clash-linux-amd64-v1.6.5 /opt/apps/Clash/
+cd /opt/apps/Clash
+chmod +x clash-linux-amd64-v1.6.5
+./clash-linux-amd64-v1.6.5 直到出现INFO[0003] Mixed(http+socks5) proxy listening at: 127.0.0.1:7890即可关闭
+ls ~/.config/clash 会有config.yaml  Country.mmdb 如果没出现上述INFO日志则可能是Country.mmdb下载失败，可以手动下载
+sudo touch /usr/share/applications/Clash.desktop
+chmod a+x /usr/share/applications/Clash.desktop
+cat&gt;/usr/share/applications/Clash.desktop&lt;&lt;EOF
+[Desktop Entry]
+Name=Clash For Linux
+Comment=clash-for-linux
+Encoding=UTF-8
+Exec=/opt/apps/Clash/clash-linux-amd64-v1.6.5
+Icon=/opt/apps/Clash/logo_64.png
+Categories=System;Application;Network;
+StartupNotify=true
+Terminal=false
+Type=Application
+EOF
+# 生效我们的代理配置文件
+cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml</code></pre>
+<p><strong>使用WebUI管理连接</strong>：<br>根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过<a target="_blank" rel="noopener" href="http://clash.razord.top进行策略组节点的切换/">http://clash.razord.top进行策略组节点的切换</a><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-13.png" alt="alt "></p>
+<p>只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-14.png" alt="alt "><br><strong>必要时可以使用系统全局代理</strong>：<br>进入系统设置-&gt;网络设置-&gt;使用系统代理服务器配置(或使用手动设置的代理服务器)-&gt;http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-15.png" alt="alt "><br><strong>配置Clash开机自启</strong>：</p>
+<pre><code class="shell">cp /usr/share/applications/Clash.desktop ~/.config/autostart/</code></pre>
+<h3 id="截屏录屏"><a href="#截屏录屏" class="headerlink" title="截屏录屏"></a>截屏录屏</h3><ol>
+<li>深度录屏<br>sudo pacman -S deepin-screen-recorder<br>ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用<br>添加截图功能到系统全局快捷方式:设置-&gt;快捷键-&gt;自定义快捷键-&gt;编辑-&gt;新建-&gt;全局快捷键-&gt;命令/URL-&gt;命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A</li>
+<li>kazam<br>sudo pacman -S kazam 可以截图和录屏的工具</li>
+<li>深度截图<br>sudo pacman -S deepin-screenshot</li>
+<li>自带截图工具Spectacle<br>日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-16.png" alt="alt "><br>主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口</li>
+</ol>
+<h3 id="开发环境安装"><a href="#开发环境安装" class="headerlink" title="开发环境安装"></a>开发环境安装</h3><pre><code class="shell">sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
+sudo pacman -S nodejs
+sudo pacman -S npm
+sudo pacman -S make
+sudo pacman -S cmake
+sudo pacman -S clang
+sudo pacman -S maven
+----------------------------------------------------------------------------------
+# Java、Scala环境安装
+# 下载jdk-8u181-linux-x64.tar.gz
+# 卸载系统默认jdk（系统默认使用Java8会导致部分依赖java运行的软件出现不兼容现象，建议将系统JAVA_HOME改为jdk11+版本）
+sudo archlinux-java unset  # 否则不会从环境变量读java地址
+sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
+# 下载scala-2.12.12.tgz
+sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
+sudo vim /etc/profile
+export JAVA8_HOME=/opt/Env/jdk1.8.0_181
+export JAVA_HOME=/opt/Env/jdk-11.0.11
+export PATH=$PATH:$JAVA_HOME/bin
+export SCALA_HOME=/opt/Env/scala-2.12.12
+export PATH=$PATH:$SCALA_HOME/bin
+source /etc/profile
+-------------------------------------------------------------------
+Python源切换
+sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
+----------------------------------------------------------------------------------------
+Mysql安装：
+pacman -Si mysql     # 查看仓库中的MySQL版本号
+sudo pacman -S mysql  # 安装mysql
+sudo mkdir /opt/mysql-data
+sudo chmod 1777 /opt/mysql-data
+sudo mysqld --initialize --user=shmily --basedir=/usr --datadir=/opt/mysql-data --character-set-server=UTF8MB4
+vim /etc/mysql/my.cnf  修改datadir=/opt/mysql-data
+chmod -R 777 /opt/mysql-data
+sudo systemctl start mysqld.service
+systemctl status mysqld.service
+初始密码登陆  
+alter user &#39;root&#39;@&#39;localhost&#39; identified with mysql_native_password by &#39;123456&#39;
+mysql -uroot -p123456
+sudo systemctl enable mysqld.service  # 设置开机启动mysql server (可选)</code></pre>
+<h3 id="支持Ubuntu系安装包-deb包"><a href="#支持Ubuntu系安装包-deb包" class="headerlink" title="支持Ubuntu系安装包(.deb包)"></a>支持Ubuntu系安装包(.deb包)</h3><p>git clone <a target="_blank" rel="noopener" href="https://github.com/helixarch/debtap">https://github.com/helixarch/debtap</a><br>cd debtap<br>sudo cp debtap /usr/local/bin<br>（前三步可以用yay -S debtap或yaourt -S debtap代替）<br>sudo debtap -u  更新软件包<br>如果sudo debtap -u过程下载很慢，需要换源</p>
+<pre><code class="text">vim /usr/bin/debtap
+替换：http://ftp.debian.org/debian/dists
+https://mirrors.ustc.edu.cn/debian/dists
+
+替换：http://archive.ubuntu.com/ubuntu/dists
+https://mirrors.ustc.edu.cn/ubuntu/dists/</code></pre>
+<p>然后就可以操作安装.deb包了<br>debtap xxx.deb （一路下一步，证书选GPL）得到解析后的安装包(Final Package)<br>sudo pacman -U 解析后的安装包</p>
+<h3 id="开发工具安装"><a href="#开发工具安装" class="headerlink" title="开发工具安装"></a>开发工具安装</h3><pre><code class="shell"># JetBrains全家桶 命令行方式安装
+sudo pacman -S intellij-idea-ultimate-edition  # 安装IDEA最新旗舰版
+sudo pacman -S pycharm-community-edition # 安装PyCharm
+sudo pacman -S goland  # 安装Goland
+# JetBrains全家桶 手动下载方式安装 [推荐]
+# 以GoLand为例
+tar -zxvf goland-xxx.tar.gz -C /opt/apps/
+mv /opt/apps/goland-2021.3.4 /opt/apps/GoLand
+cd /opt/apps/GoLand
+touch GoLand.desktop 内容如下
+[Desktop Entry]
+Name=GoLand
+Comment=GoLand
+Exec=/opt/apps/GoLand/bin/goland.sh
+Icon=/opt/apps/GoLand/bin/goland.png
+Terminal=false
+Type=Application
+Categories=Development
+然后执行sudo desktop-file-install GoLand.desktop 安装快捷方式
+-----------------------------------------------------------------------
+# 安装VSCode(yay -S visual-studio-code-bin)：
+# 首先官网去下载安装包vscode官网https://code.visualstudio.com 得到code-stable-xxxxxxx.tar.gz
+tar -zxvf code-stable-x64-1623937300.tar.gz -C /opt/apps/
+sudo chmod +x /opt/apps/VSCode-linux-x64/code
+ln -s /opt/apps/VSCode-linux-x64/code /usr/local/bin/code
+touch /usr/share/applications/VSCode.desktop
+chmod +x /usr/share/applications/VSCode.desktop
+cp /opt/apps/VSCode-linux-x64/resources/app/resources/linux/code.png /usr/share/icons/
+cat&gt;/usr/share/applications/VSCode.desktop&lt;&lt;EOF
+[Desktop Entry]
+Name=Visual Studio Code
+Comment=Multi-platform code editor for Linux
+Exec=/opt/apps/VSCode-linux-x64/code
+Icon=/usr/share/icons/code.png
+Type=Application
+StartupNotify=true
+Categories=TextEditor;Development;Utility;
+MimeType=text/plain;
+EOF
+-----------------------------------------------------------------------
+# Typora markdown工具
+yay -S typora 
+# Sublime安装 参考https://www.sublimetext.com/docs/3/linux_repositories.html#pacman
+激活码：
+----- BEGIN LICENSE -----
+Member J2TeaM
+Single User License
+EA7E-1011316
+D7DA350E 1B8B0760 972F8B60 F3E64036
+B9B4E234 F356F38F 0AD1E3B7 0E9C5FAD
+FA0A2ABE 25F65BD8 D51458E5 3923CE80
+87428428 79079A01 AA69F319 A1AF29A4
+A684C2DC 0B1583D4 19CBD290 217618CD
+5653E0A0 BACE3948 BB2EE45E 422D2C87
+DD9AF44B 99C49590 D2DBDEE1 75860FD2
+8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
+------ END LICENSE ------​</code></pre>
+<h3 id="虚拟机软件安装"><a href="#虚拟机软件安装" class="headerlink" title="虚拟机软件安装"></a>虚拟机软件安装</h3><p>安装VirtualBox:<br>mhwd-kernel -li  (当前系统是linux510，则安装linux510-virtualbox-host-modules)<br>sudo pacman -Syu virtualbox linux510-virtualbox-host-modules<br>重启或执行sudo vboxreload</p>
+<p>安装KVM（备选）：<br>pacman -S qemu libvirt ovmf virt-manager<br>（kvm负责CPU和内存的虚拟化，qemu向Guest OS模拟硬件，ovmf为虚拟机启用UEFI支持，libvirt提供管理虚拟机和其它虚拟化功能的工具和API，virt-manager是管理虚拟机的GUI）<br>systemctl enable libvirtd<br>systemctl start libvirtd<br>usermod -a -G kvm shmily<br>启动qem/virt-manager</p>
+<h3 id="安卓应用支持"><a href="#安卓应用支持" class="headerlink" title="安卓应用支持"></a>安卓应用支持</h3><p>参考UOS(Deepin)对于安卓应用支持的解决方案，采用XDroid作为安卓应用支持软件。<br>先下载XDroid软件：<a target="_blank" rel="noopener" href="https://www.linzhuotech.com/Product/download">官网下载XDroid</a><br>执行tar -zxvf xDroidInstall-x86_64-vxxxx.tar.gz 解压<br>执行 ./xDroidInstall-x86_64-vxxxx.run 安装XDroid<br>安装后重启一到两次即可完成安装<br>应用商城<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-38.png" alt="alt "><br>已安装应用<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-39.png" alt="alt "><br>使用Android APP<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-40.png" alt="alt "> </p>
+<h2 id="系统界面美化"><a href="#系统界面美化" class="headerlink" title="系统界面美化"></a>系统界面美化</h2><p>Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高，是桌面控的福音。下面做一些简单的界面设置。</p>
+<h3 id="Dock栏"><a href="#Dock栏" class="headerlink" title="Dock栏"></a>Dock栏</h3><p>sudo pacman -S latte-dock<br>根据偏好设置latte dock<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-17.png" alt="alt "><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-18.png" alt="alt "><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-19.png" alt="alt "><br>效果<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-20.png" alt="alt "> </p>
+<h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh-my-zsh"></a>oh-my-zsh</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-21.png" alt="alt "> </p>
+<pre><code class="shell">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;
+#安装powerlevel10k主题
+sudo pacman -Sy --noconfirm zsh-theme-powerlevel10k
+#配置powerlevel10k
+echo &#39;source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme&#39; &gt;&gt;! ~/.zshrc
+#使配置立即生效
+source ~/.zshrc
+# 按提示设置即可 设置时建议不要带图标，因为在其他用到zsh的终端上可能会出现乱码或方框，很不美观，可以在其他用到zsh的终端上重新执行p10k configure命令来设置更合适的样式。
+# 安装语法高亮插件
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+echo &quot;source $ZSH_CUSTOM/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh&quot; &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc
+source ~/.zshrc</code></pre>
+<h3 id="命令行终端"><a href="#命令行终端" class="headerlink" title="命令行终端"></a>命令行终端</h3><p>可选代替Konsole的更好看的命令行终端<br>Tabby(原Terminus)：<a target="_blank" rel="noopener" href="https://github.com/Eugeny/tabby">https://github.com/Eugeny/tabby</a><br>继续配置Konsole:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+</tr>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+</tr>
+<tr>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+</tr>
+</tbody></table>
+<h3 id="全局主题"><a href="#全局主题" class="headerlink" title="全局主题"></a>全局主题</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-Desktop.png" alt="alt "> </p>
+<p>打开设置-&gt;外观-&gt;全局主题<br>之所以喜欢用Mac的全局主题（McSur-dark）是因为它的任务栏比较好看比较精致<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-28.png" alt="alt "> </p>
+<h3 id="窗口"><a href="#窗口" class="headerlink" title="窗口"></a>窗口</h3><p>窗口选择了这款，按钮比较简洁，是和Mac相近的，但按钮位置在右边，我还是比较习惯这种按键位置。点击主题上的按钮可以调节主题按键大小，下方可以调节窗口边框大小<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-29.png" alt="alt "><br>窗口配色方案我选的Ambiance-ISH，亮色看起来更敞亮，心情更好。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-30.png" alt="alt "> </p>
+<h3 id="登陆页"><a href="#登陆页" class="headerlink" title="登陆页"></a>登陆页</h3><p>登陆页面只有每次开机时才会出现，锁屏是单独的锁屏页面。<br>打开设置-&gt;开机与关机-&gt;登录屏幕(SDDM) 在这里设置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-33.png" alt="alt "><br>效果：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-32.png" alt="alt "> </p>
+<h3 id="欢迎屏幕"><a href="#欢迎屏幕" class="headerlink" title="欢迎屏幕"></a>欢迎屏幕</h3><p>开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-31.png" alt="alt "> </p>
+<h3 id="锁屏界面"><a href="#锁屏界面" class="headerlink" title="锁屏界面"></a>锁屏界面</h3><p>每次锁屏(Meta+L)后都会显示这个页面。<br>打开设置-&gt;工作区行为-&gt;锁屏-&gt;外观：配置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-34.png" alt="alt "> </p>
+<h3 id="桌面特效"><a href="#桌面特效" class="headerlink" title="桌面特效"></a>桌面特效</h3><p>这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。<br>打开设置-&gt;工作区行为-&gt;桌面特效<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-35.png" alt="alt "><br>主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效</p>
+<h2 id="系统使用小技巧与问题处理"><a href="#系统使用小技巧与问题处理" class="headerlink" title="系统使用小技巧与问题处理"></a>系统使用小技巧与问题处理</h2><h3 id="解决无法写和更新NTFS盘数据的问题："><a href="#解决无法写和更新NTFS盘数据的问题：" class="headerlink" title="解决无法写和更新NTFS盘数据的问题："></a>解决无法写和更新NTFS盘数据的问题：</h3><p>创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：</p>
+<pre><code class="shell">#!/bin/bash
+# Fix NTFS Disk which can not be writen on linux system.
+# Usage: sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
+DEFAULT_MOUNT_POINT=$1
+TARGET_MOUNT_POINT=$2
+if [ &quot;$(whoami)&quot; != &quot;root&quot; ];then
+  echo User root is necessary.
+  exit 1
+fi
+current_point=$(df -h | grep $DEFAULT_MOUNT_POINT | awk &#39;&#123;print $1&#125;&#39;)
+echo &quot;Remounting point $current_point from $DEFAULT_MOUNT_POINT to $TARGET_MOUNT_POINT&quot;
+sudo ntfsfix $current_point
+sudo umount $DEFAULT_MOUNT_POINT
+sudo mkdir -p $TARGET_MOUNT_POINT
+sudo chmod 1777 $TARGET_MOUNT_POINT
+sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
+echo &quot;All Done&quot;</code></pre>
+<p>将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment</p>
+<h3 id="内存清理"><a href="#内存清理" class="headerlink" title="内存清理"></a>内存清理</h3><p>sudo echo 1 &gt; /proc/sys/vm/drop_caches<br>sudo echo 2 &gt; /proc/sys/vm/drop_caches<br>sudo echo 3 &gt; /proc/sys/vm/drop_caches</p>
+<h3 id="搜索工具"><a href="#搜索工具" class="headerlink" title="搜索工具"></a>搜索工具</h3><p>Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-36.png" alt="alt "> </p>
+<h3 id="解决thermal误报导致自动关机"><a href="#解决thermal误报导致自动关机" class="headerlink" title="解决thermal误报导致自动关机"></a>解决thermal误报导致自动关机</h3><p>报错kernel: thermal thermal_zone3: critical temperature reached (125 C), shutting down  直接被关机<br>sudo chmod 665 /sys/class/thermal/thermal_zone3/mode<br>sudo echo “disabled” &gt; /sys/class/thermal/thermal_zone3/mode<br>这个参数需要每次系统启动时重新写入,放入开机启动脚本路径/etc/rc.local.d/</p>
+<h3 id="必须掌握的系统备份和恢复技巧"><a href="#必须掌握的系统备份和恢复技巧" class="headerlink" title="必须掌握的系统备份和恢复技巧"></a>必须掌握的系统备份和恢复技巧</h3><p>Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。<br>注意：系统检测到有大更新时，不要急于更新，要首先使用timeshift做一个快照，再更新。原因是部分情况下，系统更新后看似没问题，但实际上软件的依赖库版本发生了变化，导致有部分软件无法正常运行了，这种情况不易发现。要养成先快照再升级的习惯。<br>系统备份和还原两种方式：<br>使用tar压缩包打包备份系统 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/smlile-you-me/p/13601039.html">https://www.cnblogs.com/smlile-you-me/p/13601039.html</a><br>使用timeshift的快照备份和还原系统</p>
+<ol>
+<li><p>按照向导设置：选择快照类型:RSYNC-&gt;选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)-&gt;选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)-&gt;用户主目录(默认全部)</p>
+</li>
+<li><p>点击创建 会立刻运行快照创建程序，创建完如图<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-37.png" alt="alt "> </p>
+</li>
+<li><p>家目录有些文件可能不需要备份，需要排除一部分文件：设定-&gt;筛选 可以自定义不对特定模式的文件创建快照</p>
+</li>
+<li><p>恢复快照: 选中要恢复的快照 点击恢复即可</p>
+</li>
+<li><p>当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:<br>通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 </p>
+<pre><code class="shell"># 查看可还原的还原点
+sudo timeshift --list  
+/dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
+
+Device : /dev/nvme0n1p9
+UUID   : d4fa3365-62fe-4488-ba18-b36ddac64c4d
+Path   : /run/timeshift/backup
+Mode   : RSYNC
+Status : OK
+2 snapshots, 75.5 GB free
+
+Num     Name                 Tags  Description  
+------------------------------------------------------------------------------
+0    &gt;  2021-08-12_12-24-49  O                  
+1    &gt;  2021-08-12_14-00-01  M                  
+# 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
+sudo timeshift --restore --snapshot &#39;2021-08-12_14-00-01&#39; --skip-grub</code></pre>
+</li>
+<li><p>无法进入系统也无法进入tty命令行<br>参照文章开始的部分创建Manjaro安装盘，进入LiveCD桌面，安装timeshift 按上一步的步骤进行恢复<br>恢复完成后桌面无法加载程序快捷方式-&gt;解决：yay -Syuu执行系统更新即可</p>
+</li>
+</ol>
+<h3 id="使用Wine运行Windows程序"><a href="#使用Wine运行Windows程序" class="headerlink" title="使用Wine运行Windows程序"></a>使用Wine运行Windows程序</h3><p><strong>Wine （“Wine Is Not an Emulator” 的首字母缩写）</strong>是一个能够在多种POSIX-compliant操作系统（诸如Linux，macOS及BSD等）上运行Windows应用的兼容层。Wine不是像虚拟机或者模拟器一样模仿内部的Windows逻辑，而是將Windows API调用翻译成为动态的POSIX调用，免除了性能和其他一些行为的内存占用，让你能够干净地集合Windows应用到你的桌面。<br>安装wine 忽略 之前的步骤已经有wine了<br>sudo pacman -S wine wine_gecko wine-mono<br>sudo pacman -S lib32-mesa lib32-nvidia-utils<br><strong>中文显示问题修复：</strong><br>  在windows下拷贝字体文件——simsun.ttc（c:\windows\fonts\simsun.ttc），复制到<br>~/.wine/drive_c/windows/Fonts下；<br>然后，编辑reg文件，文件内容如下：</p>
+<pre><code class="text">REGEDIT4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\NT\CurrentVersion\FontSubstitutes]
+&quot;Arial&quot;=&quot;simsun&quot;
+&quot;Arial CE,238&quot;=&quot;simsun&quot;
+&quot;Arial CYR,204&quot;=&quot;simsun&quot;
+&quot;Arial Greek,161&quot;=&quot;simsun&quot;
+&quot;Arial TUR,162&quot;=&quot;simsun&quot;
+&quot;Courier New&quot;=&quot;simsun&quot;
+&quot;Courier New CE,238&quot;=&quot;simsun&quot;
+&quot;Courier New CYR,204&quot;=&quot;simsun&quot;
+&quot;Courier New Greek,161&quot;=&quot;simsun&quot;
+&quot;Courier New TUR,162&quot;=&quot;simsun&quot;
+&quot;FixedSys&quot;=&quot;simsun&quot;
+&quot;Helv&quot;=&quot;simsun&quot;
+&quot;Helvetica&quot;=&quot;simsun&quot;
+&quot;MS Sans Serif&quot;=&quot;simsun&quot;
+&quot;MS Shell Dlg&quot;=&quot;simsun&quot;
+&quot;MS Shell Dlg 2&quot;=&quot;simsun&quot;
+&quot;System&quot;=&quot;simsun&quot;
+&quot;Tahoma&quot;=&quot;simsun&quot;
+&quot;Times&quot;=&quot;simsun&quot;
+&quot;Times New Roman CE,238&quot;=&quot;simsun&quot;
+&quot;Times New Roman CYR,204&quot;=&quot;simsun&quot;
+&quot;Times New Roman Greek,161&quot;=&quot;simsun&quot;
+&quot;Times New Roman TUR,162&quot;=&quot;simsun&quot;
+&quot;Tms Rmn&quot;=&quot;simsun&quot;
+</code></pre>
+<p>（注：按照windows的格式，最后一行之后要敲回车符）保存文件名为fonts.reg，保存在<del>/.wine下；然后导入regedit：打开gnome-terminal，输入指令  cd ~/.wine ; regedit fonts.reg 最后，打开regedit，</del>/.wine/drive_c/windows/regedit.exe,依次找到 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes，将该键下的MS Shell Dlg和MS Shell Dlg2键值删除。</p>
+<p><strong>Wine使用</strong><br>Wine运行程序: wine xxx.exe<br>msi安装包运行: msiexec -i &lt;msi安装包&gt;</p>
+<p><strong>Deepin-wine</strong><br>Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件如微信、TIM/QQ、网易云音乐等有着更好的兼容性和使用体验。<br>注意，Deepin-Wine是32位的，并且其依赖于Wine，因此本机上安装的Wine最好是32位的，否则Deepin-Wine使用命令时会有不便。<br>安装(忽略 之前的步骤已有此依赖) yaourt deepin-wine<br>使用方法与wine基本一致</p>
+<p>更多Wine进阶使用可以了解<a target="_blank" rel="noopener" href="https://www.winehq.org/">Wine官方网站</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/buildcourage/article/details/80871141">Linux使用Wine</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/333951476/answer/1280162871">Manjaro Gnome 下fcitx5的安装</a><br><a target="_blank" rel="noopener" href="https://github.com/hosxy/Fcitx5-Material-Color">Fcitx5-Material-Color</a><br><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/">ArchLinux Wiki</a><br><a target="_blank" rel="noopener" href="https://github.com/syncthing/syncthing">Syncthing</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/uniondong/article/details/98392738">Manjaro安装Mysql8.0（血泪篇）</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/orginly/p/14806538.html">archlinux Timeshift系统备份与还原</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/zbgjhy88/article/details/85110956">轻松上手Manjaro之Manjaro下使用Wine</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/4c197c46/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Presto/Presto-Cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                Presto-基于内存的高效SQL交互查询引擎</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>

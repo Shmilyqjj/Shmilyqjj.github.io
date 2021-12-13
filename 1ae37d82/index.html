@@ -4,6 +4,8 @@
   <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
   <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
   <meta charset="utf-8">
+  <!-- baidu站长工具认证 -->
+  <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
   <title itemprop="name">Impala-基于内存的高效SQL交互查询引擎 | 佳境的小本本</title>
@@ -600,20 +602,87 @@ remainder_of_query;</code></pre>
 shell &lt;shell&gt;  不退出impala-shell执行系统命令
 profile 分析Query执行，以便于性能调优（比-p更多的信息）</code></pre>
 <h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ol>
-<li>文件格式推荐parquet，查询效率高</li>
-<li>避免碎片文件，注意文件的大小</li>
-<li>根据实际的文件大小和个数选择分区的粒度</li>
-<li>分区key选择最小的整数类型代替字符串类型，降低元数据占用内存大小</li>
-<li>使用COMPUTE STATS命令进行表、分区的性能分析（收集统计信息），提高表的查询效率<pre><code class="SQL">COMPUTE STATS [db_name.]table_name
+<li><p>文件格式推荐parquet，查询效率高</p>
+</li>
+<li><p>避免碎片文件，注意文件的大小</p>
+</li>
+<li><p>根据实际的文件大小和个数选择分区的粒度</p>
+</li>
+<li><p>分区key选择最小的整数类型代替字符串类型，降低元数据占用内存大小</p>
+</li>
+<li><p>使用COMPUTE STATS命令进行表、分区的性能分析（收集统计信息），提高表的查询效率</p>
+<pre><code class="SQL">COMPUTE STATS [db_name.]table_name
 COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]</code></pre>
 </li>
-<li>最小化返回Client端的数据量</li>
-<li>使用explain+SQL命令确认执行计划是否高效</li>
-<li>执行查询后使用summary命令确认硬件消耗（物理性能特性），输出的信息包括哪个阶段耗时最多，以及每一阶段估算的内存消耗、行数与实际的差异</li>
-<li>执行查询后使用profile命令显示详细性能信息，输出的信息包括内存、CPU、I/O以及网络消耗的详细信息，可根据该信息进行调优</li>
-<li>使用profile查看是否有hdfs块倾斜，合理分配block大小</li>
-<li>充分利用Impala Query Hint优化查询效率</li>
-<li>Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下</li>
+<li><p>最小化返回Client端的数据量</p>
+</li>
+<li><p>使用explain+SQL命令确认执行计划是否高效</p>
+</li>
+<li><p>执行查询后使用summary命令确认硬件消耗（物理性能特性），输出的信息包括哪个阶段耗时最多，以及每一阶段估算的内存消耗、行数与实际的差异</p>
+</li>
+<li><p>执行查询后使用profile命令显示详细性能信息，输出的信息包括内存、CPU、I/O以及网络消耗的详细信息，可根据该信息进行调优</p>
+</li>
+<li><p>使用profile查看是否有hdfs块倾斜，合理分配block大小</p>
+</li>
+<li><p>充分利用Impala Query Hint优化查询效率</p>
+</li>
+<li><p>Join时大表放在最左面；效率最高的Join放在最前面；定期对表收集统计信息, 或者在大量DML操作后主动收集统计信息；单条SQL的Join数尽量不超过4否则效率低下</p>
+</li>
+<li><p>impalad无法启动EERROR是WebServer: Could not start on address 0.0.0.0:25000 解决： lsof -i :25000 拿到PID并kill这个PID</p>
+</li>
+<li><p>节点访问负载均衡–之前提到每个Impalad都是Coordinator，所有任务都提交到一台Coordinator会存在单点性能及单点故障问题，所以为提高任务提交吞吐量避免单点问题，可配置负载均衡的地址访问impalaDaemon,参考<a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/impala_proxy.html#tut_proxy">Using Impala through a Proxy for High Availability</a>官方文档或<a target="_blank" rel="noopener" href="https://arjunkrajan.wordpress.com/2017/07/28/configuring-impala-load-balancer-in-mapr-cluster/">Configuring Impala Load Balancer</a>博客，配置如下：</p>
+<pre><code class="shell">yum -y install haproxy
+cp /etc/haproxy/haproxy.cfg /etc/haproxy/impala_haproxy.cfg
+vim /etc/haproxy/impala_haproxy.cfg
+注释掉main frontend which proxys to the backends后面的所有内容
+注释掉如下行：
+timeout http-requests 10s
+timeout queue  1m
+timeout http-keep-alive  10s
+timeout check  10s
+
+修改如下行:
+  timeout connect 5000
+  timeout client 3600s
+  timeout server 3600s
+
+增加如下行：
+listen stats :25002
+  balance
+  mode http
+  stats enable
+  stats auth username:password
+
+listen impala :21001
+  mode tcp
+  option tcplog
+  balance leastconn
+  server impalad_1 impalad1_ip:21000 check
+  server impalad_2 impalad2_ip:21000 check
+  server impalad_3 impalad3_ip:21000 check
+  server impalad_4 impalad4_ip:21000 check
+  server impalad_5 impalad5_ip:21000 check
+# server alias_name impaladIP:21000 check
+
+listen impalajdbc :21051
+  mode tcp
+  option tcplog
+  balance source
+  server impalad_jdbc_01 impalad1_ip:21050 check
+  server impalad_jdbc_02 impalad2_ip:21050 check
+  server impalad_jdbc_03 impalad3_ip:21050 check
+  server impalad_jdbc_04 impalad4_ip:21050 check
+  server impalad_jdbc_05 impalad5_ip:21050 check
+# server alias_name impaladIP:21050 check
+保存退出wq
+
+运行haproxy –f /etc/haproxy/impala_haproxy.cfg 让代理生效
+impala-shell -i haproxy_running_ip:21001 可连接代理
+jdbc程序原来连接21050改为连接21051,地址改为haproxy_running_ip
+保证haproxy运行稳定要做的灾备工作
+1.将代理程序加入开机自动运行：root用户下chmod +x /etc/rc.d/rc.local并向该文件添加/sbin/haproxy –f /etc/haproxy/impala_haproxy.cfg
+2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）</code></pre>
+</li>
 </ol>
 <p>总结：</p>
 <ol>
