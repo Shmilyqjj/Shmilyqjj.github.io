@@ -13,8 +13,8 @@ tags:
   - WaterDrop
   - SeaTunnel
   - 数据同步
-keywords: ClickHouse
-description: SeaTunnel
+keywords: SeaTunnel
+description: SeaTunnel数据抽取工具
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Phoenix/Kudu2ClickHouse.jpg
 date: 2021-12-15 16:30:00
@@ -37,4 +37,4 @@ date: 2021-12-15 16:30:00
 
 
 
-[]()
+[seatunnel-github](https://github.com/InterestingLab/seatunnel)
