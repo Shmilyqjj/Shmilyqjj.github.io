@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2021-12-13T15:17:16.756Z</updated>
+  <updated>2021-12-23T12:21:38.311Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SeaTunnel开源数据同步平台</title>
+    <link href="https://shmily-qjj.top/84534d72/"/>
+    <id>https://shmily-qjj.top/84534d72/</id>
+    <published>2021-12-15T08:30:00.000Z</published>
+    <updated>2021-12-23T12:21:38.311Z</updated>
+    
+    <summary type="html">
+    
+      SeaTunnel数据抽取工具
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="WaterDrop" scheme="https://shmily-qjj.top/tags/WaterDrop/"/>
+    
+      <category term="SeaTunnel" scheme="https://shmily-qjj.top/tags/SeaTunnel/"/>
+    
+      <category term="数据同步" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5/"/>
+    
+  </entry>
   
   <entry>
     <title>基于Manjaro KDE版打造美观舒适开发环境</title>
@@ -427,28 +451,6 @@
     
     
       <category term="数据库" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hive3.x初探</title>
-    <link href="https://shmily-qjj.top/7fbbfd34/"/>
-    <id>https://shmily-qjj.top/7fbbfd34/</id>
-    <published>2019-12-27T07:18:25.000Z</published>
-    <updated>2021-02-03T03:00:57.189Z</updated>
-    
-    <summary type="html">
-    
-      了解Hive 3.x
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
-    
-      <category term="Hive" scheme="https://shmily-qjj.top/tags/Hive/"/>
     
   </entry>
   
