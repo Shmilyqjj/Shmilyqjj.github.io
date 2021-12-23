@@ -28,7 +28,7 @@ SeaTunnel is a very easy-to-use ultra-high-performance distributed data integrat
 SeaTunnel是一个简单易用且高效的开源数据集成平台（前身是WaterDrop），支持离线和实时数据同步。支持多种Source、Output、Filter组件以及自行开发输入输出插件和过滤器插件。SeaTunnel配置简单，基于已有的Spark、Flink环境几分钟就可以部署完成。因其有各种灵活的插件支持，只需要花几分钟编写一个配置文件即可完成一个数据同步任务的开发。
 
 SeaTunnel架构
-![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/SeaTunnel-01.png)  
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-01.png)  
 
 SeaTunnel特性：
 1. 简单易用，配置灵活，低代码
@@ -56,7 +56,7 @@ SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6
 
 准备kudu表
 Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）
-![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/SeaTunnel-02.png)  
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-02.png)  
 
 
 预先创建目标ClickHouse表
