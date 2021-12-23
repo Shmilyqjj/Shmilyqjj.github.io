@@ -17,6 +17,7 @@ keywords: SeaTunnel
 description: SeaTunnel数据抽取工具
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-cover.jpg
+abbrlink: 84534d72
 date: 2021-12-15 16:30:00
 ---
 
