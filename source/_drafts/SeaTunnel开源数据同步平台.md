@@ -1,0 +1,227 @@
+---
+title: SeaTunnel开源数据同步平台
+author: 佳境
+avatar: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
+authorLink: shmily-qjj.top
+authorAbout: 你自以为的极限，只是别人的起点
+authorDesc: 你自以为的极限，只是别人的起点
+categories:
+  - 技术
+comments: true
+tags:
+  - WaterDrop
+  - SeaTunnel
+  - 数据同步
+keywords: SeaTunnel
+description: SeaTunnel数据抽取工具
+photos: >-
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-cover.jpg
+date: 2021-12-15 16:30:00
+---
+
+# SeaTunnel开源数据同步平台
+
+## SeaTunnel简介
+SeaTunnel is a very easy-to-use ultra-high-performance distributed data integration platform that supports real-time synchronization of massive data.
+SeaTunnel是一个简单易用且高效的开源数据集成平台（前身是WaterDrop），支持离线和实时数据同步。支持多种Source、Output、Filter组件以及自行开发输入输出插件和过滤器插件。SeaTunnel配置简单，基于已有的Spark、Flink环境几分钟就可以部署完成。因其有各种灵活的插件支持，只需要花几分钟编写一个配置文件即可完成一个数据同步任务的开发。
+
+SeaTunnel架构
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/SeaTunnel-01.png)  
+
+SeaTunnel特性：
+1. 简单易用，配置灵活，低代码
+2. 支持实时数据流和离线数据同步
+3. 高性能分布式、海量数据处理能力
+4. 模块化、插件化，易于扩展
+5. 支持通过SQL做ETL操作
+
+SeaTunnel支持的组件：
+**Input plugin：** Fake, File, HDFS, Kafka, S3, Hive, Kudu, MongoDB, JDBC, Alluxio, Socket, self-developed Input plugin
+**Filter plugin：** Add, Checksum, Convert, Date, Drop, Grok, Json, Kv, Lowercase, Remove, Rename, Repartition, Replace, Sample, Split, Sql, Table, Truncate, Uppercase, Uuid, Self-developed Filter plugin
+**Output plugin:** Elasticsearch, File, Hdfs, Jdbc, Kafka, Mysql, S3, Stdout, self-developed Output plugin
+支持的所有组件可以参考[SeaTunnel通用配置](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base)
+
+## 使用SeaTunnel
+使用SeaTunnel将Kudu数据导入ClickHouse
+下载SeaTunnel:[SeaTunnel二进制包](https://github.com/InterestingLab/SeaTunnel/releases)
+```shell
+unzip seatunnel-1.5.5.zip
+cd seatunnel-1.5.5
+# 修改seatunnel环境配置
+vim config/seatunnel-env.sh
+SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6
+```
+
+准备kudu表
+Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/SeaTunnel-02.png)  
+
+
+预先创建目标ClickHouse表
+```clickhouse-sql
+CREATE TABLE test.ch_table
+(
+    `cust_no` String,
+    `tag_code` String,
+    `update_datetime` Date
+)
+ENGINE = MergeTree
+ORDER BY cust_no;
+```
+
+
+参考[**seatunnel-docs-configuration**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base) 配置数据抽取任务
+vim config/kudu2ch.batch.conf内容如下
+```config
+spark {
+  spark.app.name = "kudu2ch"
+  # executor的数量
+  spark.executor.instances = 2
+  # 每个excutor核数 (并行度,数据量大可以适当增大到ClickHouse服务器核数一半以下,尽量不要影响ClickHouse)
+  spark.executor.cores = 1
+  # 每个excutor内存
+  spark.executor.memory = "1g"
+}
+input {
+ kudu{
+   kudu_master="kudu_master1_ip:7051,kudu_master2_ip:7051,kudu_master3_ip:7051"
+   kudu_table="impala::kudu_db.kudu_table"
+  # 对应输出中需要指定source_table_name="kudu_table_source"
+   result_table_name="kudu_table_source"
+ }
+}
+filter {
+}
+output {
+ clickhouse {
+    # 指定从哪个源抽取数据
+    source_table_name="kudu_table_source"
+    host = "ch_jdbc_ip:8123"
+    clickhouse.socket_timeout = 50000
+    database = "test"
+    table = "ch_table"
+    fields = ["cust_no","tag_code","update_datetime"]
+    username = "default"
+    password = "123456"
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ }
+}
+```
+执行抽取任务：
+```shell
+/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master local[3] --deploy-mode client --config /opt/seatunnel-1.5.5/config/kudu2ch.batch.conf
+```
+
+排错1：
+```log
+Caused by: ru.yandex.clickhouse.except.ClickHouseException: ClickHouse exception, code: 210, host: ch_jdbc_ip, port: 8123; Connect to ch_jdbc_ip:8123 [/ch_jdbc_ip] failed: Connection refused (Connection refused)
+```
+原因：CH Server端未开启远程访问权限
+解决：开启CH Server支持远程访问的权限
+
+排错2：
+```log
+2021-12-22 15:23:47 ERROR TaskSetManager:70 - Task 2 in stage 0.0 failed 1 times; aborting job
+Exception in thread "main" java.lang.Exception: org.apache.spark.SparkException: Job aborted due to stage failure: Task 2 in stage 0.0 failed 1 times, most recent failure: Lost task 2.0 in stage 0.0 (TID 2, localhost, executor driver): java.lang.ClassCastException: java.sql.Timestamp cannot be cast to java.lang.String
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse.renderBaseTypeStatement(Clickhouse.scala:351)
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse.io$github$interestinglab$waterdrop$output$batch$Clickhouse$$renderStatementEntry(Clickhouse.scala:373)
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse$$anonfun$io$github$interestinglab$waterdrop$output$batch$Clickhouse$$renderStatement$1.apply$mcVI$sp(Clickhouse.scala:403)
+        at scala.collection.immutable.Range.foreach$mVc$sp(Range.scala:160)
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse.io$github$interestinglab$waterdrop$output$batch$Clickhouse$$renderStatement(Clickhouse.scala:391)
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse$$anonfun$process$2.apply(Clickhouse.scala:187)
+        at io.github.interestinglab.waterdrop.output.batch.Clickhouse$$anonfun$process$2.apply(Clickhouse.scala:162)
+        at org.apache.spark.rdd.RDD$$anonfun$foreachPartition$1$$anonfun$apply$29.apply(RDD.scala:935)
+        at org.apache.spark.rdd.RDD$$anonfun$foreachPartition$1$$anonfun$apply$29.apply(RDD.scala:935)
+        at org.apache.spark.SparkContext$$anonfun$runJob$5.apply(SparkContext.scala:2074)
+        at org.apache.spark.SparkContext$$anonfun$runJob$5.apply(SparkContext.scala:2074)
+        at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)
+        at org.apache.spark.scheduler.Task.run(Task.scala:109)
+        at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:345)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+```
+原因：如果Kudu中表字段格式为Timestamp，需要在写入ClickHouse前先将Timestamp类型数据转换为字符串格式否则会写入错误。
+相关Git Issue: [SeaTunnel-848](https://github.com/InterestingLab/seatunnel/issues/848)
+相关文档：[](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/output-plugins/Clickhouse?id=clickhouse%e7%b1%bb%e5%9e%8b%e5%af%b9%e7%85%a7%e8%a1%a8)
+解决：写入ClickHouse之前需要通过SeaTunnel中的 [**Filter插件**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugin) 中的 [**SQL**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Sql) 或者 [**Convert**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Convert) 插件将各字段转换为对应格式，否则会产生报错
+修改配置
+vim config/kudu2ch.batch.conf内容如下
+```config
+spark {
+  spark.app.name = "kudu2ch"
+  # executor的数量
+  spark.executor.instances = 2
+  # 每个excutor核数 (并行度,数据量大可以适当增大到ClickHouse服务器核数一半以下,尽量不要影响ClickHouse)
+  spark.executor.cores = 1
+  # 每个excutor内存
+  spark.executor.memory = "1g"
+}
+input {
+ kudu{
+   kudu_master="kudu_master1_ip:7051,kudu_master2_ip:7051,kudu_master3_ip:7051"
+   kudu_table="impala::kudu_db.kudu_table"
+  # 对应输出中需要指定source_table_name="kudu_table_source"
+   result_table_name="kudu_table_source"
+ }
+}
+filter {
+  sql {
+       sql = "select cust_no,tag_code,date_format(update_datetime, 'yyyy-MM-dd') as update_datetime from kudu_k_tab_sb_source"
+  }
+}
+output {
+ clickhouse {
+    # 指定从哪个源抽取数据
+    source_table_name="kudu_table_source"
+    host = "ch_jdbc_ip:8123"
+    clickhouse.socket_timeout = 50000
+    database = "test"
+    table = "ch_table"
+    fields = ["cust_no","tag_code","update_datetime"]
+    username = "default"
+    password = "123456"
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ }
+}
+```
+若使用Convert模块，Filter中内容
+```text
+filter {
+  date{
+      source_field = "update_datetime"
+      target_field = "update_datetime"
+      source_time_format = "UNIX"
+      target_time_format = "yyyy-MM-dd HH:mm:ss"
+  }
+}
+```
+执行抽取任务：
+```shell
+/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master local[3] --deploy-mode client --config /opt/seatunnel-1.5.5/config/kudu2ch.batch.conf
+```
+
+数据验证:
+Kudu:
++----------+
+| count(1) |
++----------+
+| 714218   |
++----------+
+Fetched 1 row(s) in 2.39s
+
+ClickHouse:
+Query id: 8d6bc13d-c49d-408a-8e07-3d2691e3ebbb
+┌─count()─┐
+│  714218 │
+└─────────┘
+1 rows in set. Elapsed: 0.003 sec. 
+
+
+## 参考:
+[SeaTunnel-github](https://github.com/InterestingLab/seatunnel)
+[SeaTunnel-docs-configuration](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base) 
+[使用WaterDrop将Kudu数据抽取到Clickhouse](https://blog.csdn.net/qq_40105563/article/details/119247369)
