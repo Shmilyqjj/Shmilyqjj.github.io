@@ -44,6 +44,7 @@ SeaTunnel支持的组件：
 支持的所有组件可以参考[SeaTunnel通用配置](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base)
 
 ## 使用SeaTunnel
+### 安装部署SeaTunnel
 使用SeaTunnel将Kudu数据导入ClickHouse
 下载SeaTunnel:[SeaTunnel二进制包](https://github.com/InterestingLab/SeaTunnel/releases)
 ```shell
@@ -54,6 +55,7 @@ vim config/seatunnel-env.sh
 SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6
 ```
 
+### SeaTunnel将Kudu表导入ClickHouse
 准备kudu表
 Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-02.png)  
@@ -65,7 +67,7 @@ CREATE TABLE test.ch_table
 (
     `cust_no` String,
     `tag_code` String,
-    `update_datetime` Date
+    `update_datetime` DateTime
 )
 ENGINE = MergeTree
 ORDER BY cust_no;
@@ -221,6 +223,89 @@ Query id: 8d6bc13d-c49d-408a-8e07-3d2691e3ebbb
 └─────────┘
 1 rows in set. Elapsed: 0.003 sec. 
 
+但DateTime类型相差8小时，因为ClickHouse的DateTime时区问题，故可以在sql中对update_datetime字段值减去8*3600秒
+```config
+filter {
+  sql {
+       sql = "select cust_no, tag_code, date_format(cast(cast(update_datetime as int) - 8*3600 as timestamp), 'yyyy-MM-dd HH:mm:ss') as update_datetime from kudu_k_tab_sb_source"
+  }
+}
+```
+一开始想设置ClickHouse中DateTime时区为DateTime('Asia/Hong_Kong')，但SeaTunnel不支持这格式，只能用默认的DateTime格式
+
+### SeaTunnel将Impala表导入ClickHouse
+SeaTunnel支持Input类型没有Impala但有JDBC，支持任何JDBC数据源，Impala也属于JDBC数据源。
+通过SeaTunnel可以将Impala管理的Kudu表、Hive表数据导出到其他存储引擎。
+
+准备Impala Hive表
+Impala表 default.qjj_test
++------+--------+---------+
+| name | type   | comment |
++------+--------+---------+
+| id   | int    |         |
+| name | string |         |
++------+--------+---------+
+
+创建对应目标ClickHouse表
+```sql
+CREATE TABLE default.qjj_test
+(
+    `id` int,
+    `name` String
+)
+ENGINE = MergeTree
+ORDER BY id;
+```
+
+参考[**SeaTunnel-docs-JDBC**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc)编写任务配置文件
+配置文件/opt/seatunnel-1.5.5/config/impala2ch.batch.conf如下:
+```config
+spark {
+  spark.app.name = "impala-jdbc-2-clickhouse-jdbc"
+  spark.executor.instances = 2
+  spark.executor.cores = 1
+  # 每个excutor内存
+  spark.executor.memory = "2g"
+}
+input {
+ jdbc {
+     driver = "com.cloudera.impala.jdbc41.Driver"
+     url = "jdbc:impala://impalad_ip:21050/default"
+     table = "(select * from qjj_test) as source_table"
+     # 或者直接写表名也可以table = "qjj_test"
+     result_table_name = "impala_table_source"
+     user = ""
+     password = ""
+ }
+}
+filter {
+}
+output {
+ clickhouse {
+    source_table_name="impala_table_source"
+    host = "ch_jdbc_ip:8123"
+    clickhouse.socket_timeout = 50000
+    database = "default"
+    table = "qjj_test"
+    username = "default"
+    password = "123456"
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ }
+}
+```
+将jdbc-jar放入seatunnel目录的plugins/my_plugins/lib目录
+Impala-jdbc下载地址：[Donwload ImpalaJDBC41.jar](https://github.com/Shmilyqjj/Shmily/blob/master/LearnGroovy/src/main/lib/ImpalaJDBC41.jar)
+```shell
+cd seatunnel-1.5.6/
+mkdir -p plugins/my_plugins/lib
+cd plugins/my_plugins/lib
+cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .
+```
+执行抽取任务：
+```shell
+/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master yarn --deploy-mode cluster --config /opt/seatunnel-1.5.5/config/impala2ch.batch.conf
+```
 
 ## 参考:
 [SeaTunnel-github](https://github.com/InterestingLab/seatunnel)
