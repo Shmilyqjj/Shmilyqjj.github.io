@@ -306,6 +306,57 @@ cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .
 ```shell
 /opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master yarn --deploy-mode cluster --config /opt/seatunnel-1.5.5/config/impala2ch.batch.conf
 ```
+此时可以正常抽取数据了，但通过观察程序WebUI发现无论给了多少ExecutorCore，只有一个Task，这样低的并行度会极大影响数据抽取效率，所以需要在配置上做改进：
+参考[**SeaTunnel-Spark-jdbc-string**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=jdbc-string) 得知SeaTunnel支持SparkJDBC的所有参数:[**spark-sql-data-sources-jdbc**](https://spark.apache.org/docs/2.4.0/sql-data-sources-jdbc.html)
+
+配置修改思路是将原来的只有一个并行度增加到多个并行度
+所以使用partitionColumn, lowerBound, upperBound和numPartitions这四个参数进行调优，注意要对分区字段值数据有一定了解，选择合适的分区字段和lowerBound, upperBound很关键。当然这样并行加载数据源也将并行初始化多个连接，Spark源码中提醒到不要并行度过大，否则容易把外部存储搞垮。
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-03.png)  
+
+partitionColumn, lowerBound, upperBound和numPartitions这四个参数能决定Spark读取JDBC数据源的并行度及策略，lowerBound是分区字段取值的下限(包含)，upperBound是上限(不包含)，numPatitions是我们希望按照多少分区来加载JDBC。
+注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来，若这两个参数设置不合理，可能导致数据向这两个分区倾斜。
+具体实现逻辑可以看Spark中JdbcRelationProvider和JDBCRelation两个核心类。
+
+根据配置样例[SeaTunnel-JDBC-Example](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=example) 修改配置如下：
+```config
+spark {
+  spark.app.name = "impala-jdbc-2-clickhouse-jdbc"
+  spark.executor.instances = 2
+  spark.executor.cores = 1
+  # 每个excutor内存
+  spark.executor.memory = "2g"
+}
+input {
+ jdbc {
+     driver = "com.cloudera.impala.jdbc41.Driver"
+     url = "jdbc:impala://impalad_ip:21050/default"
+     table = "(select * from qjj_test) as source_table"
+     # 或者直接写表名也可以table = "qjj_test"
+     result_table_name = "impala_table_source"
+     user = ""
+     password = ""
+     jdbc.partitionColumn = "id"
+     jdbc.numPartitions = "20"
+     jdbc.lowerBound = 0
+     jdbc.upperBound = 2000000
+ }
+}
+filter {
+}
+output {
+ clickhouse {
+    source_table_name="impala_table_source"
+    host = "ch_jdbc_ip:8123"
+    clickhouse.socket_timeout = 50000
+    database = "default"
+    table = "qjj_test"
+    username = "default"
+    password = "123456"
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ }
+}
+```
 
 ## 参考:
 [SeaTunnel-github](https://github.com/InterestingLab/seatunnel)
