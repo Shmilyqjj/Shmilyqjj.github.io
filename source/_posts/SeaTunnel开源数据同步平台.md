@@ -314,15 +314,15 @@ cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-03.png)  
 
 partitionColumn, lowerBound, upperBound和numPartitions这四个参数能决定Spark读取JDBC数据源的并行度及策略，lowerBound是分区字段取值的下限(包含)，upperBound是上限(不包含)，numPatitions是我们希望按照多少分区来加载JDBC。
-注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来，若这两个参数设置不合理，可能导致数据向这两个分区倾斜。
+注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来。
 具体实现逻辑可以看Spark中JdbcRelationProvider和JDBCRelation两个核心类。
 
 根据配置样例[SeaTunnel-JDBC-Example](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=example) 修改配置如下：
 ```config
 spark {
   spark.app.name = "impala-jdbc-2-clickhouse-jdbc"
-  spark.executor.instances = 2
-  spark.executor.cores = 1
+  spark.executor.instances = 5
+  spark.executor.cores = 2
   # 每个excutor内存
   spark.executor.memory = "2g"
 }
@@ -357,6 +357,55 @@ output {
  }
 }
 ```
+再次执行，观察WebUI发现并行度已经提高了，写入速度也变快了。
+
+跑到后面发现有发生数据倾斜，可能是因partitionColumn参数设置不合理导致数据倾斜，要注意尽量选择不同范围数据分布均匀的字段作为分区字段，否则极易发生数据倾斜。但通过观察原表数据，发现没有数据在不同范围内分布均匀的字段，所以需要自己造一个分布均匀的字段。可以对字段做MOD(ASCII(SUBSTR(字段名,-1)), 分区数)操作。
+修改配置如下：
+```config
+spark {
+  spark.app.name = "impala-jdbc-2-clickhouse-jdbc"
+  # 提高了分区数 相应的在jdbc允许的jdbc连接数范围内调大executor核数 以更高的并行度跑数据
+  spark.executor.instances = 30
+  spark.executor.cores = 2
+  # 每个excutor内存
+  spark.executor.memory = "2g"
+}
+input {
+ jdbc {
+     driver = "com.cloudera.impala.jdbc41.Driver"
+     url = "jdbc:impala://impalad_ip:21050/default"
+     # 注意table的值是交给数据源jdbc去运行的而非Spark，不能使用SparkSQL函数，只能使用数据源支持的函数  次数将数据打散成300个区  可以使用不同的数据打散方式 最好先groupby测一下是否将数据均匀打散
+     table = "(select id,name,(cast(rand() * 300 as int)) as spark_partition_column from qjj_test) as source_table"
+     result_table_name = "impala_table_source"
+     user = ""
+     password = ""
+     jdbc.partitionColumn = "spark_partition_column"
+     jdbc.numPartitions = "300"
+     jdbc.lowerBound = 0
+     jdbc.upperBound = 300
+ }
+}
+filter {
+  sql {
+       # 上面处理后多出来个字段，忽略掉该字段
+       sql = "select id,name from impala_table_source"
+  }
+}
+output {
+ clickhouse {
+    source_table_name="impala_table_source"
+    host = "ch_jdbc_ip:8123"
+    clickhouse.socket_timeout = 50000
+    database = "default"
+    table = "qjj_test"
+    username = "default"
+    password = "123456"
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ }
+}
+```
+
 
 ## 参考:
 [SeaTunnel-github](https://github.com/InterestingLab/seatunnel)
