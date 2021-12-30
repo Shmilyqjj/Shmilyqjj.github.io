@@ -462,19 +462,19 @@
 <li>支持通过SQL做ETL操作</li>
 </ol>
 <p>SeaTunnel支持的组件：<br><strong>Input plugin：</strong> Fake, File, HDFS, Kafka, S3, Hive, Kudu, MongoDB, JDBC, Alluxio, Socket, self-developed Input plugin<br><strong>Filter plugin：</strong> Add, Checksum, Convert, Date, Drop, Grok, Json, Kv, Lowercase, Remove, Rename, Repartition, Replace, Sample, Split, Sql, Table, Truncate, Uppercase, Uuid, Self-developed Filter plugin<br><strong>Output plugin:</strong> Elasticsearch, File, Hdfs, Jdbc, Kafka, Mysql, S3, Stdout, self-developed Output plugin<br>支持的所有组件可以参考<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base">SeaTunnel通用配置</a></p>
-<h2 id="使用SeaTunnel"><a href="#使用SeaTunnel" class="headerlink" title="使用SeaTunnel"></a>使用SeaTunnel</h2><p>使用SeaTunnel将Kudu数据导入ClickHouse<br>下载SeaTunnel:<a target="_blank" rel="noopener" href="https://github.com/InterestingLab/SeaTunnel/releases">SeaTunnel二进制包</a></p>
+<h2 id="使用SeaTunnel"><a href="#使用SeaTunnel" class="headerlink" title="使用SeaTunnel"></a>使用SeaTunnel</h2><h3 id="安装部署SeaTunnel"><a href="#安装部署SeaTunnel" class="headerlink" title="安装部署SeaTunnel"></a>安装部署SeaTunnel</h3><p>使用SeaTunnel将Kudu数据导入ClickHouse<br>下载SeaTunnel:<a target="_blank" rel="noopener" href="https://github.com/InterestingLab/SeaTunnel/releases">SeaTunnel二进制包</a></p>
 <pre><code class="shell">unzip seatunnel-1.5.5.zip
 cd seatunnel-1.5.5
 # 修改seatunnel环境配置
 vim config/seatunnel-env.sh
 SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6</code></pre>
-<p>准备kudu表<br>Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-02.png" alt="alt ">  </p>
+<h3 id="SeaTunnel将Kudu表导入ClickHouse"><a href="#SeaTunnel将Kudu表导入ClickHouse" class="headerlink" title="SeaTunnel将Kudu表导入ClickHouse"></a>SeaTunnel将Kudu表导入ClickHouse</h3><p>准备kudu表<br>Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-02.png" alt="alt ">  </p>
 <p>预先创建目标ClickHouse表</p>
 <pre><code class="clickhouse-sql">CREATE TABLE test.ch_table
 (
     `cust_no` String,
     `tag_code` String,
-    `update_datetime` Date
+    `update_datetime` DateTime
 )
 ENGINE = MergeTree
 ORDER BY cust_no;</code></pre>
@@ -589,6 +589,149 @@ output &#123;
 <pre><code class="shell">/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master local[3] --deploy-mode client --config /opt/seatunnel-1.5.5/config/kudu2ch.batch.conf</code></pre>
 <p>数据验证:<br>Kudu:<br>+———-+<br>| count(1) |<br>+———-+<br>| 714218   |<br>+———-+<br>Fetched 1 row(s) in 2.39s</p>
 <p>ClickHouse:<br>Query id: 8d6bc13d-c49d-408a-8e07-3d2691e3ebbb<br>┌─count()─┐<br>│  714218 │<br>└─────────┘<br>1 rows in set. Elapsed: 0.003 sec. </p>
+<p>但DateTime类型相差8小时，因为ClickHouse的DateTime时区问题，故可以在sql中对update_datetime字段值减去8*3600秒</p>
+<pre><code class="config">filter &#123;
+  sql &#123;
+       sql = &quot;select cust_no, tag_code, date_format(cast(cast(update_datetime as int) - 8*3600 as timestamp), &#39;yyyy-MM-dd HH:mm:ss&#39;) as update_datetime from kudu_k_tab_sb_source&quot;
+  &#125;
+&#125;</code></pre>
+<p>一开始想设置ClickHouse中DateTime时区为DateTime(‘Asia/Hong_Kong’)，但SeaTunnel不支持这格式，只能用默认的DateTime格式</p>
+<h3 id="SeaTunnel将Impala表导入ClickHouse"><a href="#SeaTunnel将Impala表导入ClickHouse" class="headerlink" title="SeaTunnel将Impala表导入ClickHouse"></a>SeaTunnel将Impala表导入ClickHouse</h3><p>SeaTunnel支持Input类型没有Impala但有JDBC，支持任何JDBC数据源，Impala也属于JDBC数据源。<br>通过SeaTunnel可以将Impala管理的Kudu表、Hive表数据导出到其他存储引擎。</p>
+<p>准备Impala Hive表<br>Impala表 default.qjj_test<br>+——+——–+———+<br>| name | type   | comment |<br>+——+——–+———+<br>| id   | int    |         |<br>| name | string |         |<br>+——+——–+———+</p>
+<p>创建对应目标ClickHouse表</p>
+<pre><code class="sql">CREATE TABLE default.qjj_test
+(
+    `id` int,
+    `name` String
+)
+ENGINE = MergeTree
+ORDER BY id;</code></pre>
+<p>参考<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc"><strong>SeaTunnel-docs-JDBC</strong></a>编写任务配置文件<br>配置文件/opt/seatunnel-1.5.5/config/impala2ch.batch.conf如下:</p>
+<pre><code class="config">spark &#123;
+  spark.app.name = &quot;impala-jdbc-2-clickhouse-jdbc&quot;
+  spark.executor.instances = 2
+  spark.executor.cores = 1
+  # 每个excutor内存
+  spark.executor.memory = &quot;2g&quot;
+&#125;
+input &#123;
+ jdbc &#123;
+     driver = &quot;com.cloudera.impala.jdbc41.Driver&quot;
+     url = &quot;jdbc:impala://impalad_ip:21050/default&quot;
+     table = &quot;(select * from qjj_test) as source_table&quot;
+     # 或者直接写表名也可以table = &quot;qjj_test&quot;
+     result_table_name = &quot;impala_table_source&quot;
+     user = &quot;&quot;
+     password = &quot;&quot;
+ &#125;
+&#125;
+filter &#123;
+&#125;
+output &#123;
+ clickhouse &#123;
+    source_table_name=&quot;impala_table_source&quot;
+    host = &quot;ch_jdbc_ip:8123&quot;
+    clickhouse.socket_timeout = 50000
+    database = &quot;default&quot;
+    table = &quot;qjj_test&quot;
+    username = &quot;default&quot;
+    password = &quot;123456&quot;
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ &#125;
+&#125;</code></pre>
+<p>将jdbc-jar放入seatunnel目录的plugins/my_plugins/lib目录<br>Impala-jdbc下载地址：<a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/LearnGroovy/src/main/lib/ImpalaJDBC41.jar">Donwload ImpalaJDBC41.jar</a></p>
+<pre><code class="shell">cd seatunnel-1.5.6/
+mkdir -p plugins/my_plugins/lib
+cd plugins/my_plugins/lib
+cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .</code></pre>
+<p>执行抽取任务：</p>
+<pre><code class="shell">/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master yarn --deploy-mode cluster --config /opt/seatunnel-1.5.5/config/impala2ch.batch.conf</code></pre>
+<p>此时可以正常抽取数据了，但通过观察程序WebUI发现无论给了多少ExecutorCore，只有一个Task，这样低的并行度会极大影响数据抽取效率，所以需要在配置上做改进：<br>参考<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=jdbc-string"><strong>SeaTunnel-Spark-jdbc-string</strong></a> 得知SeaTunnel支持SparkJDBC的所有参数:<a target="_blank" rel="noopener" href="https://spark.apache.org/docs/2.4.0/sql-data-sources-jdbc.html"><strong>spark-sql-data-sources-jdbc</strong></a></p>
+<p>配置修改思路是将原来的只有一个并行度增加到多个并行度<br>所以使用partitionColumn, lowerBound, upperBound和numPartitions这四个参数进行调优，注意要对分区字段值数据有一定了解，选择合适的分区字段和lowerBound, upperBound很关键。当然这样并行加载数据源也将并行初始化多个连接，Spark源码中提醒到不要并行度过大，否则容易把外部存储搞垮。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-03.png" alt="alt ">  </p>
+<p>partitionColumn, lowerBound, upperBound和numPartitions这四个参数能决定Spark读取JDBC数据源的并行度及策略，lowerBound是分区字段取值的下限(包含)，upperBound是上限(不包含)，numPatitions是我们希望按照多少分区来加载JDBC。<br>注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来。<br>具体实现逻辑可以看Spark中JdbcRelationProvider和JDBCRelation两个核心类。</p>
+<p>根据配置样例<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=example">SeaTunnel-JDBC-Example</a> 修改配置如下：</p>
+<pre><code class="config">spark &#123;
+  spark.app.name = &quot;impala-jdbc-2-clickhouse-jdbc&quot;
+  spark.executor.instances = 5
+  spark.executor.cores = 2
+  # 每个excutor内存
+  spark.executor.memory = &quot;2g&quot;
+&#125;
+input &#123;
+ jdbc &#123;
+     driver = &quot;com.cloudera.impala.jdbc41.Driver&quot;
+     url = &quot;jdbc:impala://impalad_ip:21050/default&quot;
+     table = &quot;(select * from qjj_test) as source_table&quot;
+     # 或者直接写表名也可以table = &quot;qjj_test&quot;
+     result_table_name = &quot;impala_table_source&quot;
+     user = &quot;&quot;
+     password = &quot;&quot;
+     jdbc.partitionColumn = &quot;id&quot;
+     jdbc.numPartitions = &quot;20&quot;
+     jdbc.lowerBound = 0
+     jdbc.upperBound = 2000000
+ &#125;
+&#125;
+filter &#123;
+&#125;
+output &#123;
+ clickhouse &#123;
+    source_table_name=&quot;impala_table_source&quot;
+    host = &quot;ch_jdbc_ip:8123&quot;
+    clickhouse.socket_timeout = 50000
+    database = &quot;default&quot;
+    table = &quot;qjj_test&quot;
+    username = &quot;default&quot;
+    password = &quot;123456&quot;
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ &#125;
+&#125;</code></pre>
+<p>再次执行，观察WebUI发现并行度已经提高了，写入速度也变快了。</p>
+<p>跑到后面发现有发生数据倾斜，可能是因partitionColumn参数设置不合理导致数据倾斜，要注意尽量选择不同范围数据分布均匀的字段作为分区字段，否则极易发生数据倾斜。但通过观察原表数据，发现没有数据在不同范围内分布均匀的字段，所以需要自己造一个分布均匀的字段。可以对字段做MOD(ASCII(SUBSTR(字段名,-1)), 分区数)操作。<br>修改配置如下：</p>
+<pre><code class="config">spark &#123;
+  spark.app.name = &quot;impala-jdbc-2-clickhouse-jdbc&quot;
+  # 提高了分区数 相应的在jdbc允许的jdbc连接数范围内调大executor核数 以更高的并行度跑数据
+  spark.executor.instances = 30
+  spark.executor.cores = 2
+  # 每个excutor内存
+  spark.executor.memory = &quot;2g&quot;
+&#125;
+input &#123;
+ jdbc &#123;
+     driver = &quot;com.cloudera.impala.jdbc41.Driver&quot;
+     url = &quot;jdbc:impala://impalad_ip:21050/default&quot;
+     # 注意table的值是交给数据源jdbc去运行的而非Spark，不能使用SparkSQL函数，只能使用数据源支持的函数  次数将数据打散成300个区  可以使用不同的数据打散方式 最好先groupby测一下是否将数据均匀打散
+     table = &quot;(select id,name,(cast(rand() * 300 as int)) as spark_partition_column from qjj_test) as source_table&quot;
+     result_table_name = &quot;impala_table_source&quot;
+     user = &quot;&quot;
+     password = &quot;&quot;
+     jdbc.partitionColumn = &quot;spark_partition_column&quot;
+     jdbc.numPartitions = &quot;300&quot;
+     jdbc.lowerBound = 0
+     jdbc.upperBound = 300
+ &#125;
+&#125;
+filter &#123;
+  sql &#123;
+       # 上面处理后多出来个字段，忽略掉该字段
+       sql = &quot;select id,name from impala_table_source&quot;
+  &#125;
+&#125;
+output &#123;
+ clickhouse &#123;
+    source_table_name=&quot;impala_table_source&quot;
+    host = &quot;ch_jdbc_ip:8123&quot;
+    clickhouse.socket_timeout = 50000
+    database = &quot;default&quot;
+    table = &quot;qjj_test&quot;
+    username = &quot;default&quot;
+    password = &quot;123456&quot;
+    # 每批次写入ClickHouse数据条数
+    bulk_size = 20000
+ &#125;
+&#125;</code></pre>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p><a target="_blank" rel="noopener" href="https://github.com/InterestingLab/seatunnel">SeaTunnel-github</a><br><a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base">SeaTunnel-docs-configuration</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40105563/article/details/119247369">使用WaterDrop将Kudu数据抽取到Clickhouse</a></p>
 
         </div>
