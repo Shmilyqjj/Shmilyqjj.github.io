@@ -29,6 +29,41 @@ date: 2021-12-10 16:10:00
 ### ClickHouse架构原理 
 
 ## ClickHouse使用
+### 表引擎
+* HDFS表引擎
+直接使用ClickHouse作为HDFS的客户端管理HDFS上的数据。
+Parquet(HDFS)与ClickHouse数据类型对应关系:
+
+| Parquet(Insert) | ClickHouse | Parquet(SELECT) |
+| ---- | ---- | ---- |
+| UINT8,BOOL | UInt8 | UINT8 |
+| INT8 | Int8 | INT8 |
+| UINT16 | UInt16 | UINT16 |
+| INT16 | Int16 | INT16 |
+| UINT32 | UInt32 | UINT32 |
+| INT32 | Int32 | INT32 |
+| UINT64 | UInt64 | UINT64 |
+| INT64 | Int64 | INT64 |
+| FLOAT,HALF_FLOAT | Float32 | FLOAT |
+| DOUBLE | Float64 | DOUBLE |
+| DATE32 | Date | UINT16 |
+| DATE64,TIMESTAMP | DateTime | UINT32 |
+| STRING,BINARY | String | STRING |
+| — | FixedString | STRING |
+| DECIMAL | Decimal | DECIMAL |
+使用HDFS表引擎读取一个Parquet文件
+```sql
+-- 读取HDFS上的单个Parquet文件作为一张表  
+create table hdfs_table (name String,age int) engine = HDFS('hdfs://192.168.1.102:8020/user/hive/warehouse/test_parquet/000000_0','Parquet');
+select * from hdfs_table;
+```
+使用HDFS表引擎读取Hive分区表
+```sql
+-- 读取HDFS上的正则匹配到的文件作为一张表  
+create table hdfs_partitioned_table (id int,name String) engine = HDFS('hdfs://192.168.1.102:8020/user/hive/warehouse/parquet_partitioned_table1/dt=2016*/*','Parquet');
+select * from hdfs_partitioned_table limit 1000;
+```
+
 ### 单机ClickHouse安装
 ```shell
 # 检查是否支持SSE4.2指令集 否则无法使用CH
