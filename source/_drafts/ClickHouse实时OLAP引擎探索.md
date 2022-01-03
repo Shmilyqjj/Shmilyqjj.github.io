@@ -63,6 +63,7 @@ select * from hdfs_table;
 create table hdfs_partitioned_table (id int,name String) engine = HDFS('hdfs://192.168.1.102:8020/user/hive/warehouse/parquet_partitioned_table1/dt=2016*/*','Parquet');
 select * from hdfs_partitioned_table limit 1000;
 ```
+限制：若字段存在Null值则无法查询出来
 
 ### 单机ClickHouse安装
 ```shell
