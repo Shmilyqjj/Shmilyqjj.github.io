@@ -533,6 +533,11 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
 </li>
 <li><p>HDFS DataNode磁盘切换<br>停止DN、JN -&gt; 将/dfs目录移至目标磁盘，并修改hdfs对应的磁盘为目标路径（对应节点的dfs.journalnode.edits.dir和dfs.datanode.data.dir） -&gt; 启动DN、JN</p>
 </li>
+<li><p>HDFS远程Kerberos客户端连接非Kerberos集群报错：<br>hdfs dfs -ls hdfs://remote_nn_ip:8020/user/hive/warehouse/</p>
+<pre><code class="text">ls: Failed on local exception: java.io.IOException: Server asks us to fall back to SIMPLE auth, but this client is configured to only allow secure connections.; Host Details : local host is: &quot;client_host/client_ip&quot;; destination host is: &quot;remote_nn_ip&quot;:8020; </code></pre>
+<p>原因:本地客户端采用Kerberos认证，但远程Server未开启Kerberos认证，远程为SIMPLE认证<br>解决:<br>设置ipc.client.fallback-to-simple-auth-allowed=true参数即可 参数加在dfs后面 如下</p>
+<pre><code class="shell">hdfs dfs -D ipc.client.fallback-to-simple-auth-allowed=true -ls hdfs://remote_nn_ip:8020/user/hive/warehouse/</code></pre>
+</li>
 </ol>
 <h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
 <li><p>HiveMetaStore状态不良导DDLSQL耗时200s以上<br>HMS进程报错：<font size="3" color="red">hive metastore server Failed to sync requested HMS notifications up to the event ID xxx</font><br>原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。<br>开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。<br>解决：<br> ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。<br> ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）</p>
@@ -701,7 +706,7 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2021 佳境Shmily<br>
+      &copy; 2022 佳境Shmily<br>
       powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
