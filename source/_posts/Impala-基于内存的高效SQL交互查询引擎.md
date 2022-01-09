@@ -156,6 +156,13 @@ impala-shell -i host指定Coordinator
 进入Impala-shell后：
 shell <shell>  不退出impala-shell执行系统命令
 profile 分析Query执行，以便于性能调优（比-p更多的信息）
+-------------------------------------------------------------
+示例1:获取一张表的完整建表语句
+impala-shell -i 192.168.1.101:21000 -q "show create table default.xxxxx" -B --output_delimiter="\t"
+示例2:执行多条SQL
+impala-shell -i 192.168.1.101:21000 -q "drop table if exists default.xxxxx;set PARQUET_FILE_SIZE=128m;create table default.xxxxx_new stored as parquet as select * from default.xxxxx where time > '2021-12-01 00:00:00.000000000' and time <= '2021-12-02 00:00:00.000000000';select count(1) from default.xxxxx_new"
+示例3：后台执行sql文件中的所有sql
+nohup impala-shell -i 192.168.1.101:21000 -f /tmp/export.sql &
 ```
 
 ## 最佳实践
