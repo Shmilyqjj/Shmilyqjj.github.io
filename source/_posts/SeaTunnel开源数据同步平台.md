@@ -148,7 +148,7 @@ Exception in thread "main" java.lang.Exception: org.apache.spark.SparkException:
 ```
 原因：如果Kudu中表字段格式为Timestamp，需要在写入ClickHouse前先将Timestamp类型数据转换为字符串格式否则会写入错误。
 相关Git Issue: [SeaTunnel-848](https://github.com/InterestingLab/seatunnel/issues/848)
-相关文档：[](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/output-plugins/Clickhouse?id=clickhouse%e7%b1%bb%e5%9e%8b%e5%af%b9%e7%85%a7%e8%a1%a8)
+相关文档：[ClickHouse类型对照表](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/output-plugins/Clickhouse?id=clickhouse%e7%b1%bb%e5%9e%8b%e5%af%b9%e7%85%a7%e8%a1%a8)
 解决：写入ClickHouse之前需要通过SeaTunnel中的 [**Filter插件**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugin) 中的 [**SQL**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Sql) 或者 [**Convert**](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Convert) 插件将各字段转换为对应格式，否则会产生报错
 修改配置
 vim config/kudu2ch.batch.conf内容如下
@@ -232,6 +232,7 @@ filter {
 }
 ```
 一开始想设置ClickHouse中DateTime时区为DateTime('Asia/Hong_Kong')，但SeaTunnel不支持这格式，只能用默认的DateTime格式
+注意：SeaTunnel抽取Kudu的SparkTask数等于Kudu表的Tablet数，建议给定Spark程序并行度为Tablet数的三分之一或二分之一。
 
 ### SeaTunnel将Impala表导入ClickHouse
 SeaTunnel支持Input类型没有Impala但有JDBC，支持任何JDBC数据源，Impala也属于JDBC数据源。
@@ -405,7 +406,21 @@ output {
  }
 }
 ```
+对于使用Impala JDBC进行数据抽取的情况，查询的并行度需要根据服务器数量和资源情况设置，连接并行度不应过大，Impalad对单池内存大小有限制。并行度太高会报如下错误：
+```error
+Caused by: java.sql.SQLException: [Cloudera][ImpalaJDBCDriver](500051) ERROR processing query/statement. Error Code: 0, SQL state: ExecQueryFInstances rpc query_id=42464c52f2e2c5dc:fe9ecfe800000000 failed: Failed to get minimum memory reservation of 272.00 MB on daemon data02.smycluster.sa:22000 for query 42464c52f2e2c5dc:fe9ecfe800000000 due to following error: Failed to increase reservation by 272.00 MB because it would exceed the applicable reservation limit for the "Process" ReservationTracker: reservation_limit=39.10 GB reservation=38.91 GB used_reservation=0 child_reservations=38.91 GB
+The top 5 queries that allocated memory under this tracker are:
+Query(8a4d40e3a6968443:7ae87ca100000000): Reservation=28.67 GB ReservationLimit=36.80 GB OtherMemory=21.24 MB Total=28.69 GB Peak=28.79 GB
+Query(bb4dc7b08c698bc3:f4036eb000000000): Reservation=1.06 GB ReservationLimit=36.80 GB OtherMemory=93.62 MB Total=1.15 GB Peak=2.39 GB
+Query(8a41df2c931faaec:ae30808c00000000): Reservation=1.06 GB ReservationLimit=36.80 GB OtherMemory=68.75 MB Total=1.13 GB Peak=1.37 GB
+Query(604eddfbd1fd2de5:b7493a7400000000): Reservation=1.06 GB ReservationLimit=36.80 GB OtherMemory=66.37 MB Total=1.13 GB Peak=1.38 GB
+Query(4c4ff283b5e12385:903c399c00000000): Reservation=1.06 GB ReservationLimit=36.80 GB OtherMemory=47.71 MB Total=1.11 GB Peak=1.39 GB
+Memory is likely oversubscribed. Reducing query concurrency or configuring admission control may help avoid this error.
+```
+在海量数据且资源配置不佳的情况下，使用Impala JDBC导出数据并不是很好的选择，Impala本身不适合跑批，跑批稳定性差，无容错机制。
+对于这样的场景可以将Impala表数据导出成Parquet文件，再Load到ClickHouse。也可以导出Parquet表到HDFS，再使用ClickHouse映射HDFS引擎表从而获取数据。
 
+2022.1月-SeaTunnel正式进入Apache孵化器，我认为这是个比较优秀的项目，是个低代码实现数据抽取的高效平台，有兴趣可以多关注这个项目。
 
 ## 参考:
 [SeaTunnel-github](https://github.com/InterestingLab/seatunnel)
