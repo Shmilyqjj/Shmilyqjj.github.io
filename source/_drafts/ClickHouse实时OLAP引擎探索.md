@@ -15,21 +15,106 @@ tags:
 keywords: ClickHouse
 description: 高效率MPP架构分布式OLAP实时分析引擎
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Phoenix/ClickHouse-cover.jpg
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/ClickHouse/ClickHouse-cover.jpeg
 date: 2021-12-10 16:10:00
 ---
 
 # ClickHouse实时OLAP引擎探索  
 ## ClickHouse简介
-
-### 适用场景与优势
+### 适用场景
+适用场景：
+1.读多写少
+2.数据大批写入，每个批次>1000rows
+3.列式读取，每次读取访问少量列
+4.业务数据制作成大宽表，包含大量列
+5.并发查询量较少的场景
+6.单个查询运行时数据吞吐量高
+7.避免大表关联
+8.查询结果数据量明显小于源数据，数据被过滤或聚合后能够被盛放在单台服务器的内存中
+9.丰富的表引擎支持多种数据分析场景
+10.支持数据分片
+11.向量化执行引擎
 
 ### ClickHouse的不足
+1.并发查询能力一般，ClickHouseServer会耗费大量资源执行单条SQL
+2.不要求事务性，事务能力差
+3.支持但不擅长按行删除数据
 
 ### ClickHouse架构原理 
 
+
 ## ClickHouse使用
+### SQL
+```sql
+-- CRUD
+-- 建库
+CREATE DATABASE [IF NOT EXISTS] db_name [ON CLUSTER cluster] [ENGINE = engine(...)]
+-- 建表
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [DEFAULT|MATERIALIZED|ALIAS expr1] [compression_codec] [TTL expr1],
+    name2 [type2] [DEFAULT|MATERIALIZED|ALIAS expr2] [compression_codec] [TTL expr2],
+    ...
+) ENGINE = engine
+```
+
+```sql
+-- 对DateTime64类型求min,max
+select toDateTime(min(toUInt64(time))),toDateTime(max(toUInt64(time))) from db.table;
+```
+
+
+### 数据导入
+1. Parquet文件导入
+导入Parquet文件前提前建表，建表后按如下命令导入数据
+```shell
+cat xxx.parquet | clickhouse-client --port 9009 --query="INSERT INTO default.table_name FORMAT Parquet"
+clickhouse-client -h 192.168.1.102 --port 9009 --query="INSERT INTO default.table_name FORMAT Parquet" < xxx.parquet
+```
+若数据存在空值，需要建表时在数据类型上加Nullable()，也就是String -> Nullable(String)，否则会报如下错误
+```error
+Code: 349. DB::Exception: Cannot convert NULL value to non-Nullable type: while converting column `p_operate_time` from type Nullable(Int64) to type Int64: While executing ParquetBlockInputFormat: data for INSERT was parsed from stdin: (in query: INSERT INTO default.event_ros_p1_imported FORMAT Parquet). (CANNOT_INSERT_NULL_IN_ORDINARY_COLUMN)
+```
+导入Parquet文件时，单个文件越大，字段数越多，消耗峰值内存越多，速度越慢。建议Parquet文件大小不要过大，字段不要过多，否则可能会报如下错误：
+```error
+Received exception from server (version 21.12.3):
+Code: 241. DB::Exception: Received from ch_server:9030. DB::Exception: Memory limit (for query) exceeded: would use 46.57 GiB (attempt to allocate chunk of 9437184 bytes), maximum: 46.57 GiB. (MEMORY_LIMIT_EXCEEDED)
+(query: INSERT INTO default.event_ros_p1 FORMAT Parquet)
+```
+解决办法是缩小单个Parquet文件的大小，或者尽量减少列数，若列数和文件大小不可控，可以增加如下参数，提高ClickHouse客户端使用的瞬时峰值内存，使得文件可以成功导入(此处设置为90G但实际导入时客户端仅仅使用到几个G左右的内存，若90G不够可以继续加到110G，不会对机器产生影响)。
+```shell
+clickhouse-client --port 9030 --input_format_allow_errors_num 5 --max_memory_usage=90000000000 --query="INSERT INTO default.table_name FORMAT Parquet" < xxx.parquet
+```
+导入Parquet文件时报如下错误，可能需要检查parquet文件是否已损坏，通过md5sum进行校验是否损坏。
+```error
+Code: 36. DB::Exception: Invalid: Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.: While executing ParquetBlockInputFormat: data for INSERT was parsed from stdin: (in query: INSERT INTO default.event_ros_p3 FORMAT Parquet). (BAD_ARGUMENTS)
+```
+表已有数据量较大时，再导入Parquet文件可能会有如下报错：
+```error
+Code: 32. DB::Exception: Attempt to read after eof: while receiving packet from xxx.xx.xxx.xx:9010: (in query: INSERT INTO db_name.table_name FORMAT Parquet). (ATTEMPT_TO_READ_AFTER_EOF)
+# 再次执行会报：
+Code: 210. DB::NetException: Connection refused (xxx.xx.xxx.xx:9010). (NETWORK_ERROR)
+```
+解决:降低写入的并行度，若允许数据不按顺序导入，可以加--max_insert_threads=32参数（ClickHouse默认是单线程导入文件，默认值为0）
+```shell
+clickhouse-client -h xxx.xx.xxx.xx --port 9010 --input_format_allow_errors_num 5 --max_memory_usage=90000000000 --max_insert_threads=32 --query="INSERT INTO db_name.table_name  FORMAT Parquet" < /data3/xxx-xxx.parquet
+```
+
+注意：Parquet中的时间字段精确到毫秒，但导入ClickHouse的DateTime64(3)类型字段时毫秒的精度会丢失，全部变为000。且因时区问题，Parquet时间数据导入ClickHouse的DateTime64(3)类型后，时间默认会+8小时。
+
+2. Hive、Impala数据导入 
+Hive数据可以通过[SeaTunnel](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v2/) 程序导入。编写配置文件即可抽取到ClickHouse。
+Impala数据导入可以先创建一张Impala的Parquet格式临时表，创建前设置set PARQUET_FILE_SIZE=128m;参数，避免Parquet文件过大，再将parquet文件load到本地并导入ClickHouse。
+
 ### 表引擎
+ClickHouse支持多种使用场景，拥有多种表引擎以适应不同的使用场景，表引擎的作用：
+1.决定表存储在哪里以及以何种方式存储
+2.支持哪些查询以及如何支持
+3.并发数据访问
+4.索引的使用
+5.是否可以执行多线程请求
+6.数据复制相关能力
+
 * HDFS表引擎
 直接使用ClickHouse作为HDFS的客户端管理HDFS上的数据。
 Parquet(HDFS)与ClickHouse数据类型对应关系:
@@ -63,8 +148,40 @@ select * from hdfs_table;
 create table hdfs_partitioned_table (id int,name String) engine = HDFS('hdfs://192.168.1.102:8020/user/hive/warehouse/parquet_partitioned_table1/dt=2016*/*','Parquet');
 select * from hdfs_partitioned_table limit 1000;
 ```
-限制：若字段存在Null值则无法查询出来
+Kerberos认证问题及配置：
+如果HDFS端是要求Kerberos认证的，需要配置如下参数，查询该HDFS引擎表会报如下错误
+```error
+Code: 210. DB::Exception: Received from ch_host:9900. DB::Exception: Unable to connect to HDFS: SIMPLE authentication is not enabled.  Available:[TOKEN, KERBEROS]. (NETWORK_ERROR)
+```
+所以在配置里指定HDFS的Principal和Keytab来认证Kerberos，认证的用户需要具有HDFS读权限
+```config
+<hdfs>
+  <hadoop_kerberos_keytab>/hadoop/bigdata/kerberos/ch.keytab</hadoop_kerberos_keytab>
+  <hadoop_kerberos_principal>hive@HIVETEST.COM</hadoop_kerberos_principal>
+  <hadoop_security_authentication>kerberos</hadoop_security_authentication>
+</hdfs>
+```
+重启Server再次重试，如果报如下错误
+```error
+Received exception from server (version 21.12.2):
+Code: 36. DB::Exception: Received from ch_host:9900. DB::Exception: kinit failure: kinit -R -t "/hadoop/bigdata/kerberos/ch.keytab" -k hive@HIVETEST.COM|| kinit -t "/hadoop/bigdata/kerberos/ch.keytab" -k hive@HIVETEST.COM. (BAD_ARGUMENTS)
+```
+此时要注意认证程序是用clickhouse-server进程启动的用户去执行的，默认是clickhouse用户，该用户没有/hadoop/bigdata/kerberos/ch.keytab的访问权限所以报这个错误。解决
+```shell
+chown clickhouse:clickhouse /hadoop/bigdata/kerberos/ch.keytab
+chmod 660 /hadoop/bigdata/kerberos/ch.keytab
+```
 
+* Memory引擎
+Memory引擎,数据存储在内存中，Server重启后数据会丢失
+```sql
+create table test(
+    id Int32,
+    name String
+) engine=Memory;
+```
+
+## ClickHouse安装部署
 ### 单机ClickHouse安装
 ```shell
 # 检查是否支持SSE4.2指令集 否则无法使用CH
@@ -249,9 +366,11 @@ select * from distribute_table;
 **分片**用来解决数据水平切分的问题，通过分片把一份完整的数据进行切分，不同的分片分布到不同的节点上，然后通过Distributed表引擎把数据拼接起来一起使用。同一分片内的数据可以有多个副本。
 CH分布式是表级别的分布式，实际使用中，大部分表做了高可用，但没有使用分片，避免降低查询性能以及操作集群的复杂性。
 
-
 ## ClickHouse最佳实践与优化
+### 配置优化
+```json
 
+```
 
 
 
@@ -261,3 +380,5 @@ CH分布式是表级别的分布式，实际使用中，大部分表做了高可
 
 ## 参考
 [ClickHouse中文文档](https://clickhouse.com/docs/zh/)
+[clickhouse输入输出格式之Parquet](https://blog.csdn.net/lyq7269/article/details/114982515)
+[ClickHouse快速入门](https://zhuanlan.zhihu.com/p/240767797)
