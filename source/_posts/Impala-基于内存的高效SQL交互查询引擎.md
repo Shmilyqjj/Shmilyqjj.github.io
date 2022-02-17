@@ -237,6 +237,8 @@ COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]
     1.将代理程序加入开机自动运行：root用户下chmod +x /etc/rc.d/rc.local并向该文件添加/sbin/haproxy –f /etc/haproxy/impala_haproxy.cfg
     2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）
 ```
+15. 限制Impala生成Parquet文件大小
+![alt Impala-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-09.png) 
 
 
 总结：
