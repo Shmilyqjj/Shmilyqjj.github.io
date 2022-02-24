@@ -640,7 +640,7 @@ Spark问题：
     减少存储空间和减少网络传输（缺点：序列化和反序列化消耗CPU）
 5.MR和Spark的Shuffle异同？
     Hadoop是从Map(Spark的ShuffleMapTask)输出partition，不同分区数据送到不同的Reduce(Spark下一个Stage的ShuffleMapTask或者ResultTask)
-    HadoopMR的Shuffle是基于归并排序，Spark的Shuffle基于Hash
+    HadoopMR的Shuffle是基于归并排序，Spark的Shuffle基于Hash（旧版本 新版本是基于Sort的shuffle）
     HadoopMR的Shuffle是Map端分片数据通过网络收集到reduce端，Spark的shuffle是stage间
 6.reduceByKey和groupByKey区别？
     reduceByKey用于对每个key对应的多个value进行merge操作，最重要的是它能够在本地先进行merge操作，并且merge操作可以通过函数自定义。（在数据移动之前聚合）
@@ -669,7 +669,23 @@ Spark问题：
     运算时间很长或运算量太大才能得到的 RDD，computing chain 过长或依赖其他 RDD 很多的 RDD，用checkpoint，写磁盘。
     cache 机制是每计算出一个要 cache 的 partition 就直接将其 cache 到内存了。但 checkpoint 没有使用这种第一次计算得到就存储的方法，而是等到 job 结束后另外启动专门的 job 去完成 checkpoint 。 也就是说需要 checkpoint 的 RDD 会被计算两次。因此，在使用 rdd.checkpoint() 的时候，建议加上 rdd.cache()， 这样第二次运行的 job 就不用再去计算该 rdd 了，直接读取 cache 写磁盘。
     rdd.persist(StorageLevel.DISK_ONLY) 与 checkpoint 也有区别。前者虽然可以将 RDD 的 partition 持久化到磁盘，但该 partition 由 blockManager 管理，一旦Driver结束就被清理掉了，checkpoint的rdd不会被清理掉，可以被下一个Driver使用。
-13.SparkSQL的几种Join：
+13.SparkSQL的几种Join（Join的种类和区别）：
+    BroadcastHashJoin： 将小表广播到各个参与计算的节点后，在每个节点执行单机HashJoin(HashJoin是单机join算法)
+    ShuffleHashJoin：：表数据较大没法实现广播时，将表数据按关联key分布到集群各个节点后，分别在各个节点执行HashJoin算法，得到数据
+    SortMergeJoin：：表数据根据关联Key分散到各个节点后，在各个节点sort,sort后再执行HashJoin,但因为新版本Spark的Join算法本身就是sort-based,所以不需要再额外排序了，Shuffle后直接关联并merge相同结果（目前的Spark >1.2的spark.shuffle.manager都是sort以前是hash）
+    Spark 0.8及以前 Hash Based Shuffle
+    Spark 0.8.1 为Hash Based Shuffle引入File Consolidation机制
+    Spark 0.9 引入ExternalAppendOnlyMap
+    Spark 1.1 引入Sort Based Shuffle，但默认仍为Hash Based Shuffle
+    Spark 1.2 默认的Shuffle方式改为Sort Based Shuffle
+    Spark 1.4 引入Tungsten-Sort Based Shuffle
+    Spark 1.6 Tungsten-sort并入Sort Based Shuffle
+    Spark 2.0 Hash Based Shuffle退出历史舞台
+    SortShuffle分两种模式：普通机制和ByPass机制 当shuffle read task的数量小于等于spark.shuffle.sort.bypassMergeThreshold参数的值时（默认为200），就会启用bypass机制
+    普通机制：Shuffle时先写内存数据结构Map或Array中，达到一定临界值后会溢写磁盘，写之前会先把内存中的数据排序后再写系统内存缓冲区，缓冲区满写入磁盘；一个task将所有数据写入内存数据结构的过程中，会发生多次磁盘溢写操作，也就会产生多个临时文件。最后会将之前所有的临时磁盘文件都进行合并，这就是merge过程，此时会将之前所有临时磁盘文件中的数据读取出来，然后依次写入最终的磁盘文件之中。此外，由于一个task就只对应一个磁盘文件，也就意味着该task为下游stage的task准备的数据都在这一个文件中，因此还会单独写一份索引文件，其中标识了下游各个task的数据在文件中的start offset与end offset。
+    ByPass与普通机制的区别：第一，磁盘写机制不同；第二，不会进行排序。也就是说，启用该机制的最大好处在于，shuffle write过程中，不需要进行数据的排序操作，也就节省掉了这部分的性能开销。
+    Spark shuffle机制演进史及原理说明：https://blog.csdn.net/panfelix/article/details/107320530?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8.nonecase&utm_relevant_index=15
+
     https://blog.csdn.net/wlk_328909605/article/details/82933552
     https://www.cnblogs.com/feiyumo/p/7417870.html
     https://www.cnblogs.com/suanec/p/7560399.html
