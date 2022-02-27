@@ -419,6 +419,11 @@ Memory is likely oversubscribed. Reducing query concurrency or configuring admis
 ```
 在海量数据且资源配置不佳的情况下，使用Impala JDBC导出数据并不是很好的选择，Impala本身不适合跑批，跑批稳定性差，无容错机制。
 对于这样的场景可以将Impala表数据导出成Parquet文件，再Load到ClickHouse。也可以导出Parquet表到HDFS，再使用ClickHouse映射HDFS引擎表从而获取数据。
+```error
+org.apache.kudu.client.NonRecoverableException: Scanner 10150be3c0b944829d4eea1bc2251e24 not found (it may have expired)
+```
+原因及解决：网络策略处有问题或者带宽过低，对带宽做了限制，取消限制即可  若担心带宽问题 可以降低并行度抽取
+
 
 2022.1月-SeaTunnel正式进入Apache孵化器，我认为这是个比较优秀的项目，是个低代码实现数据抽取的高效平台，有兴趣可以多关注这个项目。
 

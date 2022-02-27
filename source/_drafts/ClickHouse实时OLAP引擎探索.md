@@ -81,7 +81,7 @@ Received exception from server (version 21.12.3):
 Code: 241. DB::Exception: Received from ch_server:9030. DB::Exception: Memory limit (for query) exceeded: would use 46.57 GiB (attempt to allocate chunk of 9437184 bytes), maximum: 46.57 GiB. (MEMORY_LIMIT_EXCEEDED)
 (query: INSERT INTO default.event_ros_p1 FORMAT Parquet)
 ```
-解决办法是缩小单个Parquet文件的大小，或者尽量减少列数，若列数和文件大小不可控，可以增加如下参数，提高ClickHouse客户端使用的瞬时峰值内存，使得文件可以成功导入(此处设置为90G但实际导入时客户端仅仅使用到几个G左右的内存，若90G不够可以继续加到110G，不会对机器产生影响)。
+解决办法是缩小单个Parquet文件的大小，或者尽量减少列数，若列数和文件大小不可控，可以增加如下参数，提高ClickHouse客户端使用的瞬时峰值内存，使得文件可以成功导入(此处设置为90G但实际导入时客户端仅仅使用到几个G左右的内存，若90G不够可以继续加到110G，不会对机器产生影响)。导入文件的过程是事务的，如果该Parquet文件导入过程中失败，则数据不会导入进去。
 ```shell
 clickhouse-client --port 9030 --input_format_allow_errors_num 5 --max_memory_usage=90000000000 --query="INSERT INTO default.table_name FORMAT Parquet" < xxx.parquet
 ```
@@ -110,6 +110,11 @@ Code: 8. DB::Exception: Column 'p_test1' is not presented in input data.: While 
 2. Hive、Impala数据导入 
 Hive数据可以通过[SeaTunnel](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v2/) 程序导入。编写配置文件即可抽取到ClickHouse。
 Impala数据导入可以先创建一张Impala的Parquet格式临时表，创建前设置set PARQUET_FILE_SIZE=128m;参数，避免Parquet文件过大，再将parquet文件load到本地并导入ClickHouse。
+
+3. Kudu数据导入
+可以使用SeaTunnel开源工具将Kudu数据导入ClickHouse，可以参考我的另一篇博客：[SeaTunnel开源数据同步平台](https://shmily-qjj.top/84534d72/)
+
+
 
 ### 表引擎
 ClickHouse支持多种使用场景，拥有多种表引擎以适应不同的使用场景，表引擎的作用：
@@ -364,6 +369,13 @@ INSERT INTO distribute_table VALUES(1,'test1'),(2,'test2'),(3,'test3'),(4,'test4
 select * from local_table; 
 -- 查询全部数据
 select * from distribute_table; 
+-- 删除分布式表
+drop table shard01_db.local_table on cluster cluster_name;   -- 删除副本01的表
+drop table shard02_db.local_table on cluster cluster_name;   -- 删除副本02的表
+drop table default.distribute_table on cluster cluster_name; -- 删除分布式表
+-- 清空分布式表数据
+truncate table shard01_db.local_table on cluster cluster_name; -- 清空副本01的表的数据
+truncate table shard02_db.local_table on cluster cluster_name; -- 清空副本02的表的数据
 ```
 使用JDBC连接ClickHouse代码[**ClickHouseJDBC**](https://github.com/Shmilyqjj/Shmily/blob/master/ClickHouse/src/main/java/ClickHouseJDBC.groovy)
 
