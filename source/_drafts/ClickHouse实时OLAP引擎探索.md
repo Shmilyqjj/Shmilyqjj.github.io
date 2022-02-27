@@ -99,6 +99,11 @@ Code: 210. DB::NetException: Connection refused (xxx.xx.xxx.xx:9010). (NETWORK_E
 ```shell
 clickhouse-client -h xxx.xx.xxx.xx --port 9010 --input_format_allow_errors_num 5 --max_memory_usage=90000000000 --max_insert_threads=32 --query="INSERT INTO db_name.table_name  FORMAT Parquet" < /data3/xxx-xxx.parquet
 ```
+如果ClickHouse表的Schema发生变化，导致与Parquet文件中的Schema不一致就会发生报错，无法导入
+```error
+Code: 8. DB::Exception: Column 'p_test1' is not presented in input data.: While executing ParquetBlockInputFormat: data for INSERT was parsed from stdin: (in query: INSERT INTO db.table FORMAT Parquet). (THERE_IS_NO_COLUMN)
+```
+解决：INSERT INTO db.table(col1,col2,...,colN) FORMAT Parquet 指定Parquet已有的字段插入即可
 
 注意：Parquet中的时间字段精确到毫秒，但导入ClickHouse的DateTime64(3)类型字段时毫秒的精度会丢失，全部变为000。且因时区问题，Parquet时间数据导入ClickHouse的DateTime64(3)类型后，时间默认会+8小时。
 
