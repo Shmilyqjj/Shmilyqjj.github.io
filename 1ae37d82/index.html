@@ -600,7 +600,14 @@ remainder_of_query;</code></pre>
 -h 帮助
 进入Impala-shell后：
 shell &lt;shell&gt;  不退出impala-shell执行系统命令
-profile 分析Query执行，以便于性能调优（比-p更多的信息）</code></pre>
+profile 分析Query执行，以便于性能调优（比-p更多的信息）
+-------------------------------------------------------------
+示例1:获取一张表的完整建表语句
+impala-shell -i 192.168.1.101:21000 -q &quot;show create table default.xxxxx&quot; -B --output_delimiter=&quot;\t&quot;
+示例2:执行多条SQL
+impala-shell -i 192.168.1.101:21000 -q &quot;drop table if exists default.xxxxx;set PARQUET_FILE_SIZE=128m;create table default.xxxxx_new stored as parquet as select * from default.xxxxx where time &gt; &#39;2021-12-01 00:00:00.000000000&#39; and time &lt;= &#39;2021-12-02 00:00:00.000000000&#39;;select count(1) from default.xxxxx_new&quot;
+示例3：后台执行sql文件中的所有sql
+nohup impala-shell -i 192.168.1.101:21000 -f /tmp/export.sql &amp;</code></pre>
 <h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ol>
 <li><p>文件格式推荐parquet，查询效率高</p>
 </li>
@@ -682,6 +689,8 @@ jdbc程序原来连接21050改为连接21051,地址改为haproxy_running_ip
 保证haproxy运行稳定要做的灾备工作
 1.将代理程序加入开机自动运行：root用户下chmod +x /etc/rc.d/rc.local并向该文件添加/sbin/haproxy –f /etc/haproxy/impala_haproxy.cfg
 2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）</code></pre>
+</li>
+<li><p>限制Impala生成Parquet文件大小<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Impala/Impala-09.png" alt="alt Impala-09"> </p>
 </li>
 </ol>
 <p>总结：</p>

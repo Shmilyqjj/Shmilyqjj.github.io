@@ -538,7 +538,7 @@ Exception in thread &quot;main&quot; java.lang.Exception: org.apache.spark.Spark
         at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
         at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
         at java.lang.Thread.run(Thread.java:748)</code></pre>
-<p>原因：如果Kudu中表字段格式为Timestamp，需要在写入ClickHouse前先将Timestamp类型数据转换为字符串格式否则会写入错误。<br>相关Git Issue: <a target="_blank" rel="noopener" href="https://github.com/InterestingLab/seatunnel/issues/848">SeaTunnel-848</a><br>相关文档：<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/output-plugins/Clickhouse?id=clickhouse%e7%b1%bb%e5%9e%8b%e5%af%b9%e7%85%a7%e8%a1%a8">ClickHouse类型对照表</a><br>解决：写入ClickHouse之前需要通过SeaTunnel中的 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugin"><strong>Filter插件</strong></a> 中的 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Sql"><strong>SQL</strong></a> 或者 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Convert"><strong>Convert</strong></a> 插件将各字段转换为对应格式，否则会产生报错<br>修改配置<br>vim config/kudu2ch.batch.conf内容如下</p>
+<p>原因：如果Kudu中表字段格式为Timestamp，需要在写入ClickHouse前先将Timestamp类型数据转换为字符串格式否则会写入错误。<br>相关Git Issue: <a target="_blank" rel="noopener" href="https://github.com/InterestingLab/seatunnel/issues/848">SeaTunnel-848</a><br>相关文档：<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/output-plugins/Clickhouse?id=clickhouse%e7%b1%bb%e5%9e%8b%e5%af%b9%e7%85%a7%e8%a1%a8">ClickHouse类型对照表</a><br>解决：写入ClickHouse之前需要通过SeaTunnel中的 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugin"><strong>Filter插件</strong></a> 中的 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Sql"><strong>SQL</strong></a> 或者 <a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/filter-plugins/Convert"><strong>Convert</strong></a> 插件将各字段转换为对应格式，否则会产生报错<br>注意：若配置中有filter插件且需要filter生效，则不要在output指定source_table_name这个选项，若指定了source_table_name的值等于input中result_table_name的值，则会绕过filter(filter不生效)<br>修改配置<br>vim config/kudu2ch.batch.conf内容如下</p>
 <pre><code class="config">spark &#123;
   spark.app.name = &quot;kudu2ch&quot;
   # executor的数量
@@ -558,13 +558,13 @@ input &#123;
 &#125;
 filter &#123;
   sql &#123;
-       sql = &quot;select cust_no,tag_code,date_format(update_datetime, &#39;yyyy-MM-dd&#39;) as update_datetime from kudu_k_tab_sb_source&quot;
+       sql = &quot;select cust_no,tag_code,date_format(update_datetime, &#39;yyyy-MM-dd&#39;) as update_datetime from kudu_table_source&quot;
   &#125;
 &#125;
 output &#123;
  clickhouse &#123;
     # 指定从哪个源抽取数据
-    source_table_name=&quot;kudu_table_source&quot;
+    # source_table_name=&quot;kudu_table_source&quot;
     host = &quot;ch_jdbc_ip:8123&quot;
     clickhouse.socket_timeout = 50000
     database = &quot;test&quot;
@@ -592,7 +592,7 @@ output &#123;
 <p>但DateTime类型相差8小时，因为ClickHouse的DateTime时区问题，故可以在sql中对update_datetime字段值减去8*3600秒</p>
 <pre><code class="config">filter &#123;
   sql &#123;
-       sql = &quot;select cust_no, tag_code, date_format(cast(cast(update_datetime as int) - 8*3600 as timestamp), &#39;yyyy-MM-dd HH:mm:ss&#39;) as update_datetime from kudu_k_tab_sb_source&quot;
+       sql = &quot;select cust_no, tag_code, date_format(cast(cast(update_datetime as int) - 8*3600 as timestamp), &#39;yyyy-MM-dd HH:mm:ss&#39;) as update_datetime from kudu_table_source&quot;
   &#125;
 &#125;</code></pre>
 <p>一开始想设置ClickHouse中DateTime时区为DateTime(‘Asia/Hong_Kong’)，但SeaTunnel不支持这格式，只能用默认的DateTime格式<br>注意：SeaTunnel抽取Kudu的SparkTask数等于Kudu表的Tablet数，建议给定Spark程序并行度为Tablet数的三分之一或二分之一。</p>
@@ -721,7 +721,7 @@ filter &#123;
 &#125;
 output &#123;
  clickhouse &#123;
-    source_table_name=&quot;impala_table_source&quot;
+    # source_table_name=&quot;impala_table_source&quot;
     host = &quot;ch_jdbc_ip:8123&quot;
     clickhouse.socket_timeout = 50000
     database = &quot;default&quot;
@@ -742,6 +742,8 @@ Query(604eddfbd1fd2de5:b7493a7400000000): Reservation=1.06 GB ReservationLimit=3
 Query(4c4ff283b5e12385:903c399c00000000): Reservation=1.06 GB ReservationLimit=36.80 GB OtherMemory=47.71 MB Total=1.11 GB Peak=1.39 GB
 Memory is likely oversubscribed. Reducing query concurrency or configuring admission control may help avoid this error.</code></pre>
 <p>在海量数据且资源配置不佳的情况下，使用Impala JDBC导出数据并不是很好的选择，Impala本身不适合跑批，跑批稳定性差，无容错机制。<br>对于这样的场景可以将Impala表数据导出成Parquet文件，再Load到ClickHouse。也可以导出Parquet表到HDFS，再使用ClickHouse映射HDFS引擎表从而获取数据。</p>
+<pre><code class="error">org.apache.kudu.client.NonRecoverableException: Scanner 10150be3c0b944829d4eea1bc2251e24 not found (it may have expired)</code></pre>
+<p>原因及解决：网络策略处有问题或者带宽过低，对带宽做了限制，取消限制即可  若担心带宽问题 可以降低并行度抽取</p>
 <p>2022.1月-SeaTunnel正式进入Apache孵化器，我认为这是个比较优秀的项目，是个低代码实现数据抽取的高效平台，有兴趣可以多关注这个项目。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p><a target="_blank" rel="noopener" href="https://github.com/InterestingLab/seatunnel">SeaTunnel-github</a><br><a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/base">SeaTunnel-docs-configuration</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40105563/article/details/119247369">使用WaterDrop将Kudu数据抽取到Clickhouse</a></p>
 
