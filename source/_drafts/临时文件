@@ -1814,9 +1814,12 @@ HBase性能优化方法总结
 5. hbase hbck -fixHdfsHoles 修复region缺失，利用缺失的rowkey范围边界，生成新的region目录以及regioninfo填补这个空洞。
 6. hbase hbck -fixMeta 修复meta表信息，利用regioninfo信息，重新生成对应meta row填写到meta表中，并为其填写默认的分配regionserver。
 7. hbase hbck -fixAssignments 把这些offline的region触发上线，当region开始重新open 上线的时候，会被重新分配到真实的RegionServer上 , 并更新meta表上对应的行信息。
-
 -----------------------------------------------------------------------------
 Java相关
+
+Java程序参数自定义（以Spark Driver端为例）
+--driver-java-options "-DmaxHTableNum=100"  程序端获取：System.getProperty("maxHTableNum").toInt
+
 
 java并发中锁的原理之对象头：https://www.jianshu.com/p/a32de78b7d04
 

@@ -61,6 +61,10 @@ CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
 ```sql
 -- 对DateTime64类型求min,max
 select toDateTime(min(toUInt64(time))),toDateTime(max(toUInt64(time))) from db.table;
+-- 根据条件删除数据（异步）
+alter table db.table delete where col=111;
+-- 根据条件删除分布式表的本地表的数据（异步）
+alter table db.table on cluster cluster_name delete where col=111;
 ```
 
 
