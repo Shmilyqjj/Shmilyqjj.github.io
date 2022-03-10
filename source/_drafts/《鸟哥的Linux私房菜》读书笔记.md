@@ -389,6 +389,7 @@ nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台
 3. 文本批量替换
 sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
 sed -i s/sourceWord/targetWord/g $(find /hadoop/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -rl "keywords")  批量替换/hadoop目录下所有包含keyword关键字的shell和python脚本中内容sourceWord替换为targetWord
+sed "s/xxxxx/12345/g" test.txt > test1.txt 将test.txt中的内容xxxxx批量替换为12345并将替换后的内容生成新文件test1.txt(原test.txt内容不变)
 
 4. nc使用
 安装yum install nmap-ncat.x86_64
@@ -487,6 +488,25 @@ sudo swapoff -a
 sudo vim /etc/fstab
 将swap分区用#注释掉
 一般不建议禁用swap，避免操作系统内存被打满时没有swap缓冲导致系统OOM，崩溃。
+
+12. 数组
+```shell
+# 初始化一个数组arr包含五个元素 aaa bbb ccc ddd eee
+arr=(aaa bbb ccc ddd eee)
+# 遍历arr
+for elem in "${arr[@]}";do
+  echo "elem is $elem"
+done
+# 利用下标遍历arr
+for((i=0;i<${#arr[@]};i++)) do
+    echo "elem$i is ${arr[i]}"
+done
+# 将命令的结果初始化为数组
+TABLES=($(impala-shell -i 192.168.1.101 -d default -q "show tables" -B | awk '{print $1}'))
+files=($(ls -l . | awk '{print $9}'))
+```
+
+
 
 
 ## 总结  
