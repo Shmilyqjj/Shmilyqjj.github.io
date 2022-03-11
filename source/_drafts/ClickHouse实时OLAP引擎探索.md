@@ -394,9 +394,21 @@ CH分布式是表级别的分布式，实际使用中，大部分表做了高可
 ```
 
 
+## ClickHouse异常处理
+1. 删分布式表后立刻重建表(表名相同字段不同)报错
+```error
+There was an error on [xxx.xx.xxx.xx:9030]: Code: 122. DB::Exception: Table columns structure in ZooKeeper is different from local table structure.
+```
+原因：ClickHouse删表操作后，ZK中的信息会立刻更新，但Clickhouse还有缓存，导致建表失败
+解决：隔一段时间再创建表
 
+2. 建表语句有重名字段
+```error
+There was an error on [xxx.xx.xxx.xx:9030]: Code: 44. DB::Exception: Cannot add column p__lib: column with this name already exists. (ILLEGAL_COLUMN) 
+```
+解决：排查重名字段，去掉即可
 
-
+ 
 
 
 ## 参考
