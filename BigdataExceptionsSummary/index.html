@@ -476,6 +476,28 @@
 &lt;/property&gt;</code></pre>
 <p>注意：hive.server2.session.check.interval &lt; hive.server2.idle.operation.timeout &lt; hive.server2.idle.session.timeout</p>
 </li>
+<li><p>Spark SQL解析错误unresolved object, tree: ArrayBuffer(a).*</p>
+<pre><code class="error">Error executing query, currentState RUNNING, 
+org.apache.spark.sql.catalyst.analysis.UnresolvedException: Invalid call to toAttribute on unresolved object, tree: ArrayBuffer(a).*
+     at org.apache.spark.sql.catalyst.analysis.Star.toAttribute(unresolved.scala:245)
+     at org.apache.spark.sql.catalyst.plans.logical.Project$$anonfun$output$1.apply(basicLogicalOperators.scala:52)
+     at org.apache.spark.sql.catalyst.plans.logical.Project$$anonfun$output$1.apply(basicLogicalOperators.scala:52)
+     at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+     at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+     at scala.collection.immutable.List.foreach(List.scala:392)
+     at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+     at scala.collection.immutable.List.map(List.scala:296)
+......</code></pre>
+<p>SQL:</p>
+<pre><code class="sql">select xxx from table_a a
+LEFT JOIN table_b b ON a.cust_no = b.cust_no
+LEFT JOIN table_e e ON a.cust_no = e.cust_no
+LEFT JOIN table_f f ON a.cust_no = f.cust_no
+LEFT JOIN table_g g ON a.cust_no = g.cust_no
+.....
+LEFT JOIN table_n n ON a.cust_no = n.cust_no;</code></pre>
+<p>原因：Spark2.4版本Catalyse模块的一个Bug，table_b<del>table_n中但凡有一张表不存在都会抛该异常，而非NoSuchTableException。底层表不存在，就无法将“unresolved object”转换为“resolved object”，于是报了该错误。<br>解决：确保table_b</del>table_n中每个表都存在即可解决。</p>
+</li>
 </ol>
 <h2 id="HDFS相关"><a href="#HDFS相关" class="headerlink" title="HDFS相关"></a>HDFS相关</h2><ol>
 <li><p>数据块丢失且命令无法修复<br>起因：多张表查询发现如下报错，提示块丢失<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-01.png" alt="alt"><br>分析：CM界面看HDFS丢失块，发现有2500多，大批量块丢失可能的原因：<br>    1.DataNode与NameNode未通信，DataNode进程未启动<br>    2.DataNode数据磁盘损坏，数据丢失<br> 3.一个文件的全部副本丢失<br>解决过程：<br>尝试修复丢失块：hdfs debug recoverLease -path <path-of-the-file> -retries <retry times><br>显示修复成功，但使用hadoop fs -text <file_name> 还是报MissingBlock无法读取<br>使用fsck检测坏块 hdfs fsck /user/hive/warehouse<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-02.png" alt="alt"><br>发现绝大多数block名称都带有172.xxx.xxx.11 定位到可能是172.xxx.xxx.11节点的DataNode可能存在问题<br>通过CM日志和机器上进程状态判断172.xxx.xxx.11的DataNode已与NameNode保持心跳，运行正常，进而怀疑磁盘坏了（概率太小）<br>查看CM配置和机器磁盘，发现少配置了些硬盘路径，原因是在配置新节点磁盘路径时误修改整个配置组的磁盘路径，导致该配置组中所有DataNode缺少磁盘，进而出现块丢失且无法修复的问题。<br>解决：还原磁盘配置，滚动重启该配置组中的DataNode，将不同机器配置分成多个配置组，重新修改配置<br>重启过程中丢失块数一直在减少：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-03.png" alt="alt"><br>最终恢复正常<br>总结：<br>1.CM上修改配置一定要慎重，注意修改配置组中某台节点的配置会影响整个配置组中所有节点的配置<br>2.CM显示DataNode重启成功只是进程启动成功，但日志出现“Total time to add all replicas to map”字眼才是真正完成启动<br>3.<a target="_blank" rel="noopener" href="https://hdfs-site/dfshealth.html#tab-overview">https://hdfs-site/dfshealth.html#tab-overview</a> 从HDFS WebUI获取更多信息（丢失块的信息一目了然）</p>
