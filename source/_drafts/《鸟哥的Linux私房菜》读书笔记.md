@@ -506,8 +506,14 @@ TABLES=($(impala-shell -i 192.168.1.101 -d default -q "show tables" -B | awk '{p
 files=($(ls -l . | awk '{print $9}'))
 ```
 
-
-
+13. 日志检索
+```shell
+# 按时间切分日志  
+## 取2022-03-22 13:20~2022-03-22 15:59分的日志  注意 所取日志中如果没有筛选范围的上界但有下界，可能筛选不到日志
+sed -n '/2022-03-22 13:20/,/2022-03-22 15:59/p' hbase-cmf-hbase2-REGIONSERVER.out.1 > rs.hbase01.log  
+## 取2022-03-22 14:06~2022-03-22 15:59分的日志
+sed -n '/2022-03-22 14:06/,/2022-03-22 15:59/p' hbase-cmf-hbase2-REGIONSERVER.log.out >> rs.hbase01.log
+```
 
 ## 总结  
 字颜色大小
