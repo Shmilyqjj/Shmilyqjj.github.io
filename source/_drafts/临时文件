@@ -1006,6 +1006,38 @@ Calcite解析SQL使用：https://blog.csdn.net/u011250186/article/details/106856
 https://github.com/edp963/wormhole
 
 
+Flink三个重要的时间概念：
+Event Time 事件真正发生的时间
+Processing Time 数据进入Flink的时间
+Ingestion Time 数据摄入时间
+
+Flink API
+SQL/TableAPI -> DataStreamAPI(streams\windows) -> ProcessFunction(event\state\time)
+灵活程度表达能力依次降低、抽象能力依次提高
+
+Flink部署：Standalone、Yarn(session/per-job)、Mesos、K8s
+
+
+
+Flink特点
+Flink是Stateful的有状态计算，有状态是指数据流过计算引擎会不断把状态记录下来，比如计算PV\UV记录页面点击总数或用户访问总数这样的状态。与之对应的是无状态，无状态计算就是数据来一条过滤一条，不在计算引擎保留任何信息。
+可伸缩性高、极致的流式处理性能（本地状态存取大幅降低网络IO提高性能）
+本地状态存取要保证容灾支持Failover：定期将本地状态归档到远程持久化存储，出问题可以恢复(checkpoint)
+7*24小时高可用：一致性Checkpoint、高效Checkpoint；本身提供了运维监控接口(WEBUI\Metric)
+两种集合；
+BoundedStream 有界流
+UnBoundedStream 无界流
+
+Flink有状态计算的挑战
+状态容错
+状态维护
+EventTime处理
+状态保存与迁移
+
+
+
+
+
 ###################################################
 Kafka相关
 CDH-配置 Kafka MirrorMaker 实现 Kafka 集群消息同步：https://blog.csdn.net/weixin_43215250/article/details/100521107
