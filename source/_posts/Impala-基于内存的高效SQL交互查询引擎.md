@@ -153,9 +153,19 @@ impala-shell -i host指定Coordinator
 -p 获取执行计划
 -o 保存执行结果到文件
 -h 帮助
+-r (--refresh_after_connect) 建立连接后刷新 Impala 元数据
+-c 查询执行失败时继续执行
+-B（--delimited） 去格式化输出
+--output_delimiter=character 	指定分隔符
+--print_header 打印列名
+输出建表语句：impala-shell -i impalad:21000 -q "show create table db.table" -B --output_delimiter="\t"
 进入Impala-shell后：
+explain <sql> 显示执行计划
 shell <shell>  不退出impala-shell执行系统命令
-profile 分析Query执行，以便于性能调优（比-p更多的信息）
+profile 分析上一条Query执行，以便于性能调优（比-p更多的信息）
+refresh <tablename> 增量刷新元数据库
+invalidate metadata 全量刷新元数据库（慎用）（同于 impala-shell -r）
+history 历史命令
 -------------------------------------------------------------
 示例1:获取一张表的完整建表语句
 impala-shell -i 192.168.1.101:21000 -q "show create table default.xxxxx" -B --output_delimiter="\t"
