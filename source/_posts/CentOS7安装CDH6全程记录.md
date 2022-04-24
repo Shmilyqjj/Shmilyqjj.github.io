@@ -922,6 +922,71 @@ sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thr
 [启用Kerberos] sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thrift  --master yarn --executor-memory 8g --executor-cores 5 --num-executors 20  --hiveconf hive.server2.authentication.kerberos.keytab /hadoop/bigdata/kerberos/keytab/hiveserver2_cdh02.keytab
 ```
 
+### CDH集群修改IP
+将原来的192.168.1.x网段修改为10.2.5.x网段
+在Hyper-V创建新的虚拟网卡 模拟网卡地址变更
+![alt CDH-32](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-32.JPG)  
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-33.JPG)  
+打开控制面板->查看网络连接->找到Cluster 设置IP和DNS
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-34.JPG)  
+设置外网共享 让虚拟机可以连接外部网络
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-35.JPG)
+重新回到上一步设置IP和DNS
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-34.JPG)  
+修改虚拟机设置网络设置
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-36.JPG)
+停止所有cloudera服务
+```shell
+systemctl stop cloudera-scm-server;systemctl stop cloudera-scm-agent;systemctl stop supervisord
+```
+修改各节点ip和hosts（以CDH101为例）
+```shell
+# 修改网卡配置
+vim /etc/sysconfig/network-scripts/ifcfg-eth0  内容如下
+TYPE=Ethernet
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=static
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+# IPV6INIT=yes
+# IPV6_AUTOCONF=yes
+# IPV6_DEFROUTE=yes
+# IPV6_FAILURE_FATAL=no
+# IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=eth0
+UUID=b6de3f15-8829-44bc-8743-d3cab3cfb62f
+DEVICE=eth0
+ONBOOT=yes
+# IPV6_PRIVACY=no
+NM_CONTROLLED=yes
+IPADDR=10.2.5.101
+NETMASK=255.0.0.0
+GATEWAY=10.2.5.2
+# DNS1=10.2.5.1
+DNS2=10.2.5.2
+# 修改hosts
+vim /etc/hosts 内容如下
+10.2.5.101 cdh101
+10.2.5.102 cdh102
+10.2.5.103 cdh103
+10.2.5.104 cdh104
+```
+修改CM库的hosts表中IP_ADDRESS字段为新IP
+```sql
+update scm.HOSTS set IP_ADDRESS = '10.2.5.101' where IP_ADDRESS = '192.168.1.101';
+update scm.HOSTS set IP_ADDRESS = '10.2.5.102' where IP_ADDRESS = '192.168.1.102';
+update scm.HOSTS set IP_ADDRESS = '10.2.5.103' where IP_ADDRESS = '192.168.1.103';
+update scm.HOSTS set IP_ADDRESS = '10.2.5.104' where IP_ADDRESS = '192.168.1.104';
+```
+修改/etc/hosts下对应的ip映射 
+修改Agent配置文件中server_host字段vim /etc/cloudera-scm-agent/config.ini 值为cmserver的hostname
+然后poweroff关机
+修改虚拟机网卡，替换为DNS为10.2.5.2的新的虚拟网卡
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-37.JPG)
+启动节点，在页面重启ClouderaManagerService、部署各个组件的客户端配置即可
+
+
 ### 升级与CDH6组件版本兼容的开源版Spark 3.x
 编译https://blog.csdn.net/Young2018/article/details/108856622
 部署https://www.pianshen.com/article/46531976066/

@@ -423,7 +423,7 @@ Memory is likely oversubscribed. Reducing query concurrency or configuring admis
 ```error
 org.apache.kudu.client.NonRecoverableException: Scanner 10150be3c0b944829d4eea1bc2251e24 not found (it may have expired)
 ```
-原因及解决：网络策略处有问题或者带宽过低，对带宽做了限制，取消限制即可  若担心带宽问题 可以降低并行度抽取
+原因及解决：通常我们需要知道，当带宽占用接近总带宽的90%时，丢包情形就会发生。网络策略有问题或者带宽过低，对带宽做了限制，都会导致这样的问题，取消限制即可。若担心带宽问题，可以适当降低并行度抽取。
 
 
 2022.1月-SeaTunnel正式进入Apache孵化器，我认为这是个比较优秀的项目，是个低代码实现数据抽取的高效平台，有兴趣可以多关注这个项目。

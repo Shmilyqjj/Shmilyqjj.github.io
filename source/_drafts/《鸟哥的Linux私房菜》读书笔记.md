@@ -390,6 +390,7 @@ nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台
 sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
 sed -i s/sourceWord/targetWord/g $(find /hadoop/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -rl "keywords")  批量替换/hadoop目录下所有包含keyword关键字的shell和python脚本中内容sourceWord替换为targetWord
 sed "s/xxxxx/12345/g" test.txt > test1.txt 将test.txt中的内容xxxxx批量替换为12345并将替换后的内容生成新文件test1.txt(原test.txt内容不变)
+sed 's/$/ \necho $(date) /g' test > test1   test文件里每行下面加一行echo $(date) 并将结果写入test1文件
 
 4. nc使用
 安装yum install nmap-ncat.x86_64
@@ -513,6 +514,50 @@ files=($(ls -l . | awk '{print $9}'))
 sed -n '/2022-03-22 13:20/,/2022-03-22 15:59/p' hbase-cmf-hbase2-REGIONSERVER.out.1 > rs.hbase01.log  
 ## 取2022-03-22 14:06~2022-03-22 15:59分的日志
 sed -n '/2022-03-22 14:06/,/2022-03-22 15:59/p' hbase-cmf-hbase2-REGIONSERVER.log.out >> rs.hbase01.log
+```
+
+14. strace调试分析工具
+strace是个功能强大的Linux调试分析诊断工具，可用于跟踪程序执行时进程系统调用(system call)和所接收的信号，尤其是针对源码不可读或源码无法再编译的程序。在Linux系统中，用户进程不能直接访问计算机硬件设备。当进程需要访问硬件设备(如读取磁盘文件或接收网络数据等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可跟踪进程产生的系统调用，包括参数、返回值和执行所消耗的时间。若strace没有任何输出，并不代表此时进程发生阻塞；也可能程序进程正在执行某些不需要与系统其它部分发生通信的事情。strace从内核接收信息。
+strace command  执行名称为command的命令或程序并跟踪系统调用
+strace -p PID 跟踪PID进程系统调用情况
+strace -c -p PID 统计PID进程系统调用次数与用时，按CTRL+C结束统计
+
+15. 计算加减乘除
+```shell
+整数混合运算
+echo $(expr 3 * 2 + 2 / 2 + 1)
+echo $[(1+1+1+1)*3/2]
+浮点数运算 结果限制小数点后四位 计算10.3除以3.3
+echo $(echo "scale=4;10.3/3.3"|bc)
+```
+
+16. 时间相关命令
+```shell
+date +%s  时间戳
+echo $(date "+%Y-%m-%d %H-%M-%S")  时间输出YYYY-MM-DD HH:MM:SS格式
+echo $(date "+%Y-%m-%d %H-%M-%S" --date="-1 day")  昨日此刻
+DATE_DIFF=$(expr $(expr $(date +%s) - $(date -d '2022-03-29' +%s)) / 86400)   距2022-03-29已过多少天
+```
+
+17. 内存管理相关命令
+```shell
+free -h 查看系统内存使用情况
+ps -p 340113 -o rss,vsz  查看PID的实际使用物理常驻内存(RSS)和使用的虚拟内存(vsz) 
+echo N > /proc/sys/vm/drop_caches  释放内存(N=1/2/3) 该操作会清理缓存，建议先sync（sync 命令将所有未写的系统缓冲区写到磁盘中，包含已修改的 i-node、已延迟的块 I/O 和读写映射文件）
+```
+
+18. 压缩包创建与解压
+```shell
+# tar压缩包创建
+tar -zcvf xxx.tar.gz /tmp/data
+# tar压缩包解压
+tar -zxvf xxx.tar.gz -C /tmp/data
+# -c 产生.tar打包文件 -v显示详细信息 -f指定压缩后的文件名 -z打包同时压缩 -x解包.tar文件
+# zip压缩包创建
+zip xxx.zip /tmp/data/*.log
+zip xxx.zip file1 file2 ... fileN
+# zip压缩包解压
+unzip xxx.zip
 ```
 
 ## 总结  

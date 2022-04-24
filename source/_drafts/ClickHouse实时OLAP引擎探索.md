@@ -63,14 +63,34 @@ CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
 select toDateTime(min(toUInt64(time))),toDateTime(max(toUInt64(time))) from db.table;
 -- 根据条件删除数据（异步）
 alter table db.table delete where col=111;
--- 根据条件删除分布式表的本地表的数据（异步）
+-- 根据条件删除分布式表的本地表的数据（异步）（不推荐）
 alter table db.table on cluster cluster_name delete where col=111;
+-- 删除分布式表的分区 分区是两个字段组成 一级分区值为19087，二级分区值为0
+ALTER TABLE db.table_local ON CLUSTER cluster_name DROP PARTITION (19087,0);
 ```
 
 
 ### 数据导入
 1. Parquet文件导入
-导入Parquet文件前提前建表，建表后按如下命令导入数据
+
+| Parquet data type (INSERT) | ClickHouse data type | Parquet data type (SELECT) |
+|----|----|----|
+| UINT8,BOOL | UInt8 | UINT8 |
+| INT8 | Int8 | INT8 |
+| UINT16 | UInt16 | UINT16 |
+| INT16 | Int16 | INT16 |
+| UINT32 | UInt32 | UINT32 |
+| INT32 | Int32 | INT32 |
+| UINT64 | UInt64 | UINT64 |
+| INT64 | Int64 | INT64 |
+| FLOAT,HALF_FLOAT | Float32 | FLOAT |
+| DOUBLE | Float64 | DOUBLE |
+| DATE32 | Date | UINT16 |
+| DATE64,TIMESTAMP | DateTime | UINT32 |
+| STRING,BINARY | String | STRING |
+| DECIMAL | Decimal | DECIMAL |
+| — | FixedString | STRING |
+| DATE32, TIME32, FIXED_SIZE_BINARY, JSON, UUID, ENUM | 不支持 | 不支持 |
 ```shell
 cat xxx.parquet | clickhouse-client --port 9009 --query="INSERT INTO default.table_name FORMAT Parquet"
 clickhouse-client -h 192.168.1.102 --port 9009 --query="INSERT INTO default.table_name FORMAT Parquet" < xxx.parquet
@@ -119,6 +139,11 @@ Impala数据导入可以先创建一张Impala的Parquet格式临时表，创建�
 可以使用SeaTunnel开源工具将Kudu数据导入ClickHouse，可以参考我的另一篇博客：[SeaTunnel开源数据同步平台](https://shmily-qjj.top/84534d72/)
 
 
+### 数据导出
+1. 导出数据到Parquet文件
+```shell
+clickhouse-client --query="SELECT * FROM tsv_demo FORMAT Parquet" > parquet_demo.parquet
+```
 
 ### 表引擎
 ClickHouse支持多种使用场景，拥有多种表引擎以适应不同的使用场景，表引擎的作用：
@@ -392,6 +417,36 @@ CH分布式是表级别的分布式，实际使用中，大部分表做了高可
 ```json
 
 ```
+
+## ClickHouse集群运维
+### SQL
+```sql
+查看存储磁盘配置：
+SELECT
+name,path,formatReadableSize(free_space) AS free,
+formatReadableSize(total_space) AS total,
+formatReadableSize(keep_free_space) AS reserved
+FROM system.disks;
+查看压缩率：
+select
+    sum(rows) as "总行数",
+    formatReadableSize(sum(data_uncompressed_bytes)) as "原始大小",
+    formatReadableSize(sum(data_compressed_bytes)) as "压缩大小",
+    round(sum(data_compressed_bytes) / sum(data_uncompressed_bytes) * 100, 0) "压缩率"
+from system.parts;
+表存储情况查询：
+SELECT table,disk_name,path
+ FROM system.parts
+ where database = 'default' and table = 'table_name';
+SELECT sum(rows) / 2,formatReadableSize(sum(bytes_on_disk)) AS size
+ FROM system.parts
+ where database = 'default' and table = 'table_name';
+```
+
+### Config
+查看本机压缩算法：
+metrika.xml 文件的<method></method>  标签， 默认lz4；
+
 
 
 ## ClickHouse异常处理
