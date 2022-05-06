@@ -671,7 +671,7 @@ Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用
 5. 当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:
 通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 
   ```shell
-  # 查看可还原的还原点
+  *** 查看可还原的还原点
   sudo timeshift --list  
   /dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
 
@@ -686,7 +686,7 @@ Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用
   ------------------------------------------------------------------------------
   0    >  2021-08-12_12-24-49  O                  
   1    >  2021-08-12_14-00-01  M                  
-  # 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
+  *** 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
   sudo timeshift --restore --snapshot '2021-08-12_14-00-01' --skip-grub
   ```
 
