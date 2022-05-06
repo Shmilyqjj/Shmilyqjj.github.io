@@ -64,10 +64,70 @@ Ingestion Time：数据摄入时间
 
 ### Flink API
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-04.png)  
-SQL/TableAPI -> DataStreamAPI(streams\windows) -> ProcessFunction(event\state\time)
-灵活程度表达能力依次降低、抽象能力依次提高
-Flink应用程序由用户自定义算子转换而来的流式 dataflows 所组成。这些流式 dataflows 形成了有向图，以一个或多个源（source）开始，并以一个或多个汇（sink）结束。
+Flink根据处理数据集类型不同分为支持流计算的DataStreamAPI，和支持批计算的DataSetAPI。Flink应用程序由用户自定义算子转换而来的流式Dataflows所组成。这些流式Dataflows形成了有向图，以一个或多个源（source）开始，并以一个或多个汇（sink）结束。
+**灵活程度表达能力依次降低、抽象能力依次提高：SQL/TableAPI -> DataStreamAPI(streams\windows) -> ProcessFunction(event\state\time)**
+* SQL API
+  类似SparkSQL，使用SQL进行逻辑处理，聚焦业务逻辑，避免受限于复杂的编程接口。
+* Table API
+  类似Spark Dataframe，Flink将内存中的Datastream、Dataset数据集在原有基础上增加Schema信息，将数据抽象成表结构，然后通过Table API提供的接口方法(GroupByKey\Join等)进行处理。Table API转化为Datastream和Dataset数据处理过程中应用了大量优化规则，Table可以与Datastream\Dataset互相转换。
+* Datastream\Dataset API
+  类似Spark RDD弹性分布式数据集，提供了map、filter、aggregations、window等方法，支持Java、Scala、Python等多种开发语言。
+* Stateful Stream Process API
+  Flink中处理有状态流的最底层接口，用户可以通过Stateful Stream Process API操作状态、时间等底层数据，灵活性强，学习成本高，可以实现复杂逻辑。一般用于Flink二次开发以及深度封装。
+
+Scala、Java、Python三种语言均可以开发Flink Application
+使用Flink提供的Quickstart Shell来创建Flink项目模板：
+```shell
+curl https://flink.apache.org/q/quickstart-SNAPSHOT.sh | bash -s 1.13.6
+mvn clean package  
+```
+Flink DataStream转换：
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-14.png)  
+其中keyBy是最常用的算子，作用是将整个流按照不同的key分散，并行执行计算。如果不执行keyBy分组，所有数据得到一个大的AllWindowedStream，执行keyBy后，数据窗口分散为多个小的WindowedStream，同时keyBy后，每个节点分到不同的key的状态，将大的状态拆分为小的状态，每个节点都维持自己的状态，不需要关心其他节点的状态。KeyBy使用的前提是假设key数远大于并发度，假设流只有一个key，最终仍然是单个并行度跑。
+
+Flink数据类型支持：
+Flink是强数据类型的，Scala中也是通过隐式转换达到强类型的。强数据类型的DataStream方便Flink引擎提高不同数据类型序列化、反序列化效率。
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-15.png)  
+
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-05.png)  
+
+Flink命令行
+```shell
+cd $FLINK_HOME
+# Flink 任务提交 
+bin/flink run examples/streaming/TopSpeedWindowing.jar [args]
+# Flink任务列表查看
+[root@node1 ~]# flink list
+Waiting for response...
+------------------ Running/Restarting Jobs -------------------
+05.05.2022 20:17:44 : c55d09b0f6dcd06b5630c17da14dae96 : CarTopSpeedWindowingExample (RUNNING)
+--------------------------------------------------------------
+No scheduled jobs.
+# Flink停止某个任务 
+## 分为stop和cancel  
+## stop是优雅地退出，一个job能被stop，是其所有source都是stoppable的，即实现了StoppableFunction接口
+[root@node1 ~]# flink stop c55d09b0f6dcd06b5630c17da14dae96
+Suspending job "c55d09b0f6dcd06b5630c17da14dae96" with a savepoint.
+Savepoint completed. Path: file:/tmp/flink-tmp/savepoints/savepoint-c55d09-70d0bdadd368
+## cancel是强制退出 加-s可以指定一个savepoint目录 cancel会立刻调用算子的cancel方法尽快取消它们，如果算子调用cancel后没停止，Flink会开始中断算子线程的执行直到所有算子停止。
+[root@node1 flink-1.13.6]# bin/flink cancel -m 127.0.0.1:8081 -s /tmp/flink-tmp/savepoints/17fc85c10edc883dd34d15a3b12f432f 17fc85c10edc883dd34d15a3b12f432f
+DEPRECATION WARNING: Cancelling a job with savepoint is deprecated. Use "stop" instead.
+Cancelling job 17fc85c10edc883dd34d15a3b12f432f with savepoint to /tmp/flink-tmp/savepoints/17fc85c10edc883dd34d15a3b12f432f.
+Cancelled job 17fc85c10edc883dd34d15a3b12f432f. Savepoint stored in file:/tmp/flink-tmp/savepoints/17fc85c10edc883dd34d15a3b12f432f/savepoint-17fc85-04cf00276efc.
+# Flink手动触发Savepoint
+bin/flink savepoint -m 172.0.0.1:8081 3584bb94ea0c7cfcc5fbfc24ea5205cb /tmp/flink-tmp/savepoints/3584bb94ea0c7cfcc5fbfc24ea5205cb
+# Flink从Savepoint启动任务  (JM日志可看到关键词Starting job xxx from savepoint xxx)
+bin/flink run -d -s /tmp/flink-tmp/savepoints/17fc85c10edc883dd34d15a3b12f432f/savepoint-17fc85-04cf00276efc examples/streaming/TopSpeedWindowing.jar
+# Flink 查看执行计划  将结果json复制到https://flink.apache.org/visualizer/ 可查看逻辑计划DAG图（与实际运行时WebUI上的物理计划不同）
+bin/flink info examples/streaming/TopSpeedWindowing.jar
+```
+
+Flink RestAPI
+可以用于监控任务状态以及提交任务，常用于任务状态监控。API参考如下文档：
+**[Flink REST API Doc](https://nightlies.apache.org/flink/flink-docs-release-1.15/docs/ops/rest_api/)**
+
+
+
 
 ### Flink有状态计算的挑战
 1. 状态容错
@@ -107,7 +167,7 @@ state.value()\state.update(xxx)  本地状态的读写
 3. 状态保存、迁移与恢复
 驱动关键业务服务的流应用是经常需要维护的。比如需要修复系统漏洞，改进功能，或开发新功能。然而升级一个有状态的流应用并不是简单的事情，因为在我们为了升级一个改进后版本而简单停止当前流应用并重启时，我们还不能丢失掉当前流应用的所处于的状态信息。
 Savepoint就是解决这个难题的功能。
-**Savepoint**：可以理解成一个手动触发保存的Checkpoint；区别是checkpoint是周期性自动触发、Savepoint是手动触发。
+**Savepoint**：可以理解成一个手动触发保存的Checkpoint；区别是checkpoint是周期性自动触发、Savepoint是手动触发;Checkpoint是在作业failover时自动使用无需用户指定、Savepoint一般用于程序版本更新、Bug修复、ABTest等场景，需要用户手动指定；Checkpoint是增量的，每次耗时短数据量小、Savepoint是全量的，每次时间长数据量大。
 流式Flink程序停服维护前进行Savepoint，维护两个小时后重启程序，可以Restore从Savepoint恢复执行程序。因为Savepoint保存着程序退出时Kafka Offset，所以恢复时，会从退出时的Offset继续消费，并利用Event-Time机制赶上最新数据（如果是用ProcessingTime机制，则停机时间段的事件处理结果都在当前的处理时间的窗口，数据不准确，所以这也是Flink支持事件时间的好处）。
 Savepoint特点：
 便于升级应用服务版本、方便集群服务移植、方便Flink版本升级、增加应用并行服务的扩展性、便于A/B测试及假设分析场景对比结果、暂停和恢复服务、归档服务
@@ -132,12 +192,175 @@ Flink通过Watermarks让计算引擎知道当前这个Window的所有数据是�
 * Flink资源划分
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-10.png)
 Task是Flink中资源调度的最小单位，相当于Thread
-Flink程序分为三个角色：Client、JobManager、TaskManager
-Client:Flink Program，提交Flink作业的命令行工具，将用户的代码经过Optimizer/GraphBuilder编译成Dataflow Graph，通过ActorSystem传递给JobManager。
-JobManager:接收客户端请求，负责协调Task的分布式执行，包括调度Task，Checkpoint管理及触发，Job Failover时协调Task从检查点恢复，Task心跳监控和状态管理。
-TaskManager:负责计算的节点，执行Dataflow Graph中的Tasks，TaskManager上有多个TaskSlot(线程)，用于执行某个SubTask的容器(槽)。TaskManager还负责对资源的管理，包括Memory管理、Network管理、Actor管理。
+Flink程序分为三个角色：**Client**、**JobManager**、**TaskManager**
+**Client**:Flink Program，提交Flink作业的命令行工具，将用户的代码经过Optimizer/GraphBuilder编译成Dataflow Graph，与JobManager构建Akka连接，提交Job(Dataflow)，通过和JobManager交互，获取任务状态。
+**JobManager**:接收客户端请求，负责协调Task的分布式执行，包括调度Task，资源管理，Checkpoint管理及触发，Job Failover时协调Task从检查点恢复，Task心跳监控和状态管理。
+**TaskManager**:负责计算的节点，从JobManager接收到Dataflow Graph，并执行Dataflow Graph中的Tasks，TaskManager上有多个TaskSlot(线程)，用于执行某个SubTask的容器(槽)。TaskManager还负责对资源的管理，包括Memory管理、Network管理、Actor管理。
+如下图，Flink Task由不同算子组成：
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-12.png)
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-11.png)
-有多少TaskSlot(Thread)就可以跑多少个SubTask。
+Flink是多线程的，多个任务Task之间通过Taskslot共享系统资源。有多少TaskSlot(Thread)就可以跑多少个SubTask，TaskSlot是SubTask的容器，可以运行各种SubTask，既可以是map、也可以是keyBy+Window还可以是sink等等。
+
+## Flink部署  
+Flink的部署模式：Standalone、Yarn(session/per-job)、Mesos、K8s
+**Flink On Yarn模式部署：**
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-13.png)
+推荐Flink On Yarn模式，有以下好处：
+ 1. 资源按需使用，集群资源利用率高
+ 2. 任务有优先级，按优先级作业
+ 3. 基于Yarn的调度可以自动化处理各个角色的Failover自动拉起（JM和TM都由YarnNodeManager监控，JM挂会被YarnRM重新调度到其他机器，TM挂时JM收到信息会重新向YarnRM申请资源以重新启动TM）
+```shell
+# 准备HDFS目录
+hadoop fs -mkdir -p /tmp/flink/completed-jobs
+hadoop fs -chmod 1777 /tmp/flink/completed-jobs
+hadoop fs -chmod 1777 /tmp/flink
+hadoop fs -mkdir -p /tmp/flink/ha
+hadoop fs -chmod 1777 /tmp/flink/ha
+# 准备系统环境变量
+/etc/profile 添加
+export FLINK_HOME=/opt/modules/flink/flink-1.12.1
+export PATH=$PATH:$FLINK_HOME/bin
+export HADOOP_CONF_DIR="/etc/alternatives/hadoop-conf"
+export HADOOP_HOME="/opt/cloudera/parcels/CDH/lib/hadoop"
+export HBASE_CONF_DIR="/etc/hbase/conf"
+export HADOOP_CLASSPATH=`hadoop classpath`
+source /etc/profile
+# 对yarn配置做一定修改
+yarn.resourcemanager.am.max-attempts Yarn集群应用的重试次数上限 默认2改为100 
+# 修改flink-conf.yaml
+cd $FLINK_HOME
+vim conf/flink-conf.yaml 修改如下参数
+# 配置Java环境 保证每个NodeManager节点JDK路径正确
+env.java.home: /usr/java/jdk1.8.0_181
+containerized.master.env.JAVA_HOME: /usr/java/jdk1.8.0_181
+containerized.taskmanager.env.JAVA_HOME: /usr/java/jdk1.8.0_181
+# 配置Flink yarn-session资源  根据机器资源情况调节
+jobmanager.rpc.address: cdh103
+jobmanager.rpc.port: 6123
+jobmanager.heap.size: 1024m
+taskmanager.heap.size: 2048m
+taskmanager.numberOfTaskSlots: 3
+parallelism.default: 1
+# 配置高可用（Flink中的HA一般指JobManager的HA）
+high-availability: zookeeper
+high-availability.storageDir: hdfs:///tmp/flink/ha
+high-availability.zookeeper.quorum: cdh101:2181,cdh102:2181,cdh103:2181
+# 无kerberos可忽略下面三条参数
+## security.kerberos.login.use-ticket-cache: true
+## security.kerberos.login.keytab: /opt/kerberos/hive.keytab
+## security.kerberos.login.principal: hive
+# 配置HistoryServer
+jobmanager.archive.fs.dir: hdfs:///tmp/flink/completed-jobs
+historyserver.web.address: cdh103
+historyserver.web.port: 8082
+historyserver.archive.fs.dir: hdfs:///tmp/flink/completed-jobs
+historyserver.archive.fs.refresh-interval: 10000
+# 优化参数
+yarn.application-attempts: 10 Flink Job级别的JobManager重启次数限制
+# 至此 基本环境配置完成
+```
+以上参数含义
+```text
+jobmanager.rpc.address JobManager所在节点
+jobmanager.rpc.port JobManager端口
+jobmanager.heap.size   每个TaskManager可用内存
+taskmanager.heap.size 每个JobManager可用堆内存
+taskmanager.numberOfTaskSlots  每个TaskManager并行度，每个TaskManager分配Slot个数，设置Flink程序具有的并发能力
+parallelism.default  Job运行的默认TaskManager并行度Slot，不能高于TaskManager并行度即Slot数  例：运行程序默认的并行度为1，9个TaskSlot只用了1个，有8个空闲，同时提交9个任务才会将Slot用完，否则浪费
+jobmanager.archive.fs.dir：flink job运行完成后的日志存放目录
+historyserver.archive.fs.dir：flink history进程的hdfs监控目录
+historyserver.web.address：flink history进程所在的主机
+historyserver.web.port：flink history进程的占用端口
+historyserver.archive.fs.refresh-interval：刷新受监视目录的时间间隔（以毫秒为单位）
+注意jobmanager.archive.fs.dir要和historyserver.archive.fs.dir值一样
+```
+
+启动Flink HistoryServer 
+HistoryServer用于了解Flink过去完成任务的状态，以及有状态作业的恢复（保存了最后一次的Checkpoint地址）
+```shell
+cd $FLINK_HOME
+bin/historyserver.sh start
+```
+
+提交Flink任务
+Flink on Yarn有两种任务提交方式，分别是Yarn-Session提交和Flink-Per-Job
+```
+* Yarn-Session模式：
+ 需要先启动Session，然后再提交Job到这个集群。
+ bin/yarn-session.sh -n 4 -jm 1024 -tm 3072 -s 3 -nm flink-yarn-session -d
+```text
+参数说明：
+-n 指定taskmanager个数
+-jm jobmanager所占用的内存，单位为MB
+-tm taskmanager所占用的内存，单位为MB  
+-s 每个taskmanager可使用的cpu核数  Slot数，Slot数对资源的隔离仅仅是对内存进行隔离，策略是均分，比如TaskManager内存4G有两个Slot则每个Slot有2可用内存
+-nm 指定Application的名称
+-d 后台启动
+```
+提交Job
+bin/flink run -m cdh104:4055 examples/batch/WordCount.jar  (启动session后的JobManager Web Interface地址)
+ 
+ ```text
+ 1.启动Session后，yarn首先会分配一个Container,用于启动APPlicationMaster和JobManager，所占用内存为-jm指定的内存大小，cpu为1核
+ 2.没有启动Job之前，Jobmanager不会启动TaskManager，Jobmanager会根据Job的并行度，即所占用的Slots，来动态的分配TaskManager  
+ 3.提交任务到APPlicationMaster
+ 4.任务运行完成，TaskManager资源释放
+ ```
+ 
+ * Flink-Per-Job模式(推荐)：
+ 不需要启动Session集群，直接将任务提交到Yarn运行。
+ bin/flink run -m yarn-cluster examples/batch/WordCount.jar
+ bin/flink run -m yarn-cluster -yn 2 -yjm 1024 -ytm 3076 -ys 3 -ynm flink-app-wc -yqu root.default -c com.qjj.flink.Test01 ~/jar/wc-1.0-SNAPSHOT.jar
+注意：
+```text
+ Flin On Yarn启动有FlinkYarnSessionCli和YarnSessionClusterEntrypoint两个进程
+ FlinkYarnSessionCli进程：在yarn-session提交的主机上存在，该节点在提交job时可以不指定-m参数
+ YarnSessionClusterEntrypoint进程：代表yarn-session集群入口，实际就是JobManager节点，也是Yarn的ApplicationMaster节点。这两个进程可能会出现在同一节点上，也可能在不同的节点上。
+```
+
+**Flink Standalone模式部署：**
+```shell
+# 解压tar包
+cd $FLINK_HOME
+# vim conf/flink-conf.yaml  修改taskmanager.numberOfTaskSlots等参数
+# vim conf/workers 修改为如下 表示本地启动三个TaskManager
+localhost
+localhost
+localhost
+# 执行启动Standalone集群
+bin/start-cluster.sh
+# 访问WebUI: localhost:8081
+# jps查看进程
+17122 Jps   
+15572 TaskManagerRunner   （TaskManager进程）
+15272 StandaloneSessionClusterEntrypoint （JobManager进程）
+16216 TaskManagerRunner
+15885 TaskManagerRunner
+# 执行关闭Standalone集群
+bin/stop-cluster.sh
+# 配置高可用HA：在多个节点配置多个JobManager，并配置zk来通过zk实现高可用
+# vim conf/flink-conf.yaml 
+指定high-availability: zookeeper 并添加zk地址（high-availability.zookeeper.quorum: zk1:2181,zk2:2181,zk3:2181）
+指定high-availability.storageDir: hdfs:///flink/ha/
+注意HA模式下jobmanager.rpc.address和jobmanager.rpc.port配置无效，具体地址是通过争抢zk的锁获得
+# vim conf/masters 添加多个JobManager节点host
+```
+
+ Flink日志配置
+ ```text
+ -rw-r--r-- 1 shmily 1001  2946 Feb  3 21:23 log4j-cli.properties  （Flink命令行的日志配置 如Flink run）
+-rw-r--r-- 1 shmily 1001  3070 Feb  3 21:23 log4j-console.properties 
+-rw-r--r-- 1 shmily 1001  2723 Feb  3 21:23 log4j.properties （所有JobManager和TaskManager的日志配置）
+-rw-r--r-- 1 shmily 1001  2070 Feb  3 21:23 log4j-session.properties  （YarnSession启动时日志配置）
+-rw-r--r-- 1 shmily 1001  2740 Feb  3 21:23 logback-console.xml
+-rw-r--r-- 1 shmily 1001  1550 Sep  9  2020 logback-session.xml
+-rw-r--r-- 1 shmily 1001  2331 Feb  3 21:23 logback.xml
+-rw-r--r-- 1 shmily 1001  1434 Jul 20  2018 zoo.cfg  （Flink自带ZookeeperServer的配置）
+# Flink既支持log4j又支持logback，log4j-console.properties对应logback-console.xml以此类推
+# 如果决定用logback就删掉对应log4j配置文件即可，如果用log4j，不用删logback因为log4j优先级更高
+ ```
+
+
 
 
 
@@ -169,115 +392,6 @@ Flink全面解析：https://www.cnblogs.com/javazhiyin/p/13597319.html
 
 
 
-
-## Flink部署  
-Flink的部署模式：Standalone、Yarn(session/per-job)、Mesos、K8s
-Flink On Yarn模式部署：
-```shell
-# 准备HDFS目录
-hadoop fs -mkdir -p /tmp/flink/completed-jobs
-hadoop fs -chmod 1777 /tmp/flink/completed-jobs
-hadoop fs -chmod 1777 /tmp/flink
-hadoop fs -mkdir -p /tmp/flink/ha
-hadoop fs -chmod 1777 /tmp/flink/ha
-# 准备系统环境变量
-/etc/profile 添加
-export FLINK_HOME=/opt/modules/flink/flink-1.12.1
-export PATH=$PATH:$FLINK_HOME/bin
-export HADOOP_CONF_DIR="/etc/alternatives/hadoop-conf"
-export HADOOP_HOME="/opt/cloudera/parcels/CDH/lib/hadoop"
-export HBASE_CONF_DIR="/etc/hbase/conf"
-export HADOOP_CLASSPATH=`hadoop classpath`
-source /etc/profile
-# 修改flink-conf.yaml
-cd $FLINK_HOME
-vim conf/flink-conf.yaml 修改如下参数
-# 配置Java环境 保证每个NodeManager节点JDK路径正确
-env.java.home: /usr/java/jdk1.8.0_181
-containerized.master.env.JAVA_HOME: /usr/java/jdk1.8.0_181
-containerized.taskmanager.env.JAVA_HOME: /usr/java/jdk1.8.0_181
-# 配置Flink yarn-session资源  根据机器资源情况调节
-jobmanager.rpc.address: cdh103
-jobmanager.rpc.port: 6123
-jobmanager.heap.size: 1024m
-taskmanager.heap.size: 2048m
-taskmanager.numberOfTaskSlots: 3
-parallelism.default: 1
-# 配置高可用
-high-availability: zookeeper
-high-availability.storageDir: hdfs:///tmp/flink/ha
-high-availability.zookeeper.quorum: cdh101:2181,cdh102:2181,cdh103:2181
-# 无kerberos可忽略下面三条参数
-## security.kerberos.login.use-ticket-cache: true
-## security.kerberos.login.keytab: /opt/kerberos/hive.keytab
-## security.kerberos.login.principal: hive
-# 配置HistoryServer
-jobmanager.archive.fs.dir: hdfs:///tmp/flink/completed-jobs
-historyserver.web.address: cdh103
-historyserver.web.port: 8082
-historyserver.archive.fs.dir: hdfs:///tmp/flink/completed-jobs
-historyserver.archive.fs.refresh-interval: 10000
-# 至此 基本环境配置完成
-```
-以上参数含义
-```text
-jobmanager.rpc.address JobManager所在节点
-jobmanager.rpc.port JobManager端口
-jobmanager.heap.size   每个TaskManager可用内存
-taskmanager.heap.size 每个JobManager可用堆内存
-taskmanager.numberOfTaskSlots  每个TaskManager并行度，每个TaskManager分配Slot个数，设置Flink程序具有的并发能力
-parallelism.default  Job运行的默认TaskManager并行度Slot，不能高于TaskManager并行度即Slot数  例：运行程序默认的并行度为1，9个TaskSlot只用了1个，有8个空闲，同时提交9个任务才会将Slot用完，否则浪费
-jobmanager.archive.fs.dir：flink job运行完成后的日志存放目录
-historyserver.archive.fs.dir：flink history进程的hdfs监控目录
-historyserver.web.address：flink history进程所在的主机
-historyserver.web.port：flink history进程的占用端口
-historyserver.archive.fs.refresh-interval：刷新受监视目录的时间间隔（以毫秒为单位）
-注意jobmanager.archive.fs.dir要和historyserver.archive.fs.dir值一样
-```
-
-启动Flink HistoryServer
-```shell
-cd $FLINK_HOME
-bin/historyserver.sh start
-```
-
-提交Flink任务
-Flink on Yarn有两种任务提交方式，分别是Yarn-Session提交和Flink-Per-Job
-```
-* Yarn-Session模式：
-**需要先启动Session，然后再提交Job到这个集群。**
-bin/yarn-session.sh -n 4 -jm 1024 -tm 3072 -s 3 -nm flink-yarn-session -d
-```text
-参数说明：
--n 指定taskmanager个数
--jm jobmanager所占用的内存，单位为MB
--tm taskmanager所占用的内存，单位为MB  
--s 每个taskmanager可使用的cpu核数  Slot数，Slot数对资源的隔离仅仅是对内存进行隔离，策略是均分，比如TaskManager内存4G有两个Slot则每个Slot有2可用内存
--nm 指定Application的名称
--d 后台启动
-```
-提交Job
-bin/flink run -m cdh104:4055 examples/batch/WordCount.jar  (启动session后的JobManager Web Interface地址)
- 
- ```text
- 1.启动Session后，yarn首先会分配一个Container,用于启动APPlicationMaster和JobManager，所占用内存为-jm指定的内存大小，cpu为1核
- 2.没有启动Job之前，Jobmanager不会启动TaskManager，Jobmanager会根据Job的并行度，即所占用的Slots，来动态的分配TaskManager  
- 3.提交任务到APPlicationMaster
- 4.任务运行完成，TaskManager资源释放
- ```
- 
- * Flink-Per-Job模式(推荐)：
- **不需要启动Session集群，直接将任务提交到Yarn运行。**
- bin/flink run -m yarn-cluster examples/batch/WordCount.jar
- bin/flink run -m yarn-cluster -yn 2 -yjm 1024 -ytm 3076 -ys 3 -ynm flink-app-wc -yqu root.default -c com.qjj.flink.Test01 ~/jar/wc-1.0-SNAPSHOT.jar
-
- Flin On Yarn启动有FlinkYarnSessionCli和YarnSessionClusterEntrypoint两个进程
- FlinkYarnSessionCli进程：在yarn-session提交的主机上存在，该节点在提交job时可以不指定-m参数
- YarnSessionClusterEntrypoint进程：代表yarn-session集群入口，实际就是JobManager节点，也是Yarn的ApplicationMaster节点。这两个进程可能会出现在同一节点上，也可能在不同的节点上。
-
-
-
-
 * 字体
 *斜体文本*
 _斜体文本_
@@ -303,6 +417,12 @@ ___粗斜体文本___
             + 最多第三层嵌套
             - 最多第三层嵌套
 
+
+
+
+
+
 ## 参考
-[Flink官方文档](https://flink.apache.org/)
 《Flink原理、实战与性能优化》
+[Flink官方文档](https://flink.apache.org/)
+

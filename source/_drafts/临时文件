@@ -1119,6 +1119,8 @@ hive查看分区:show partitions table_name;
 ALTER TABLE test_table DROP PARTITION (dt_batch='2016-08-08', hour='10');  # hive删除分区的方法
 ALTER TABLE test_table DROP PARTITION (dt_batch>'20200620',dt_batch<'20201231'); hive批量删除分区
 
+# yyyyMMdd转yyyy-MM-dd
+SELECT DATE_FORMAT(CAST(UNIX_TIMESTAMP('20161025', 'yyyyMMdd') AS TIMESTAMP), 'yyyy-MM-dd');
 
 Hive合并多个分区为一个分区:
 create table if not exists test_new(id int,name string,age int) partitioned by(dt string) row format delimited fields terminated by ',' stored as textfile;

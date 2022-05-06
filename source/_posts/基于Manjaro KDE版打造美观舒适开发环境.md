@@ -287,29 +287,7 @@ sudo pacman -S freerdp
 设置shell欢迎语 登陆Shell环境 会自动输出
 ```shell
 cat <<EOT >/etc/motd
- 
-                                  _oo0oo_
-                                 088888880
-                                 88" . "88
-                                 (| -_- |)
-                                  0\ = /0
-                               ___/'---'\___
-                             .' \\\\|     |// '.
-                            / \\\\|||  :  |||// \\
-                           /_ ||||| -:- |||||- \\
-                          |   | \\\\\\  -  /// |   |
-                          | \_|  ''\---/''  |_/ |
-                          \  .-\__  '-'  __/-.  /
-                        ___'. .'  /--.--\  '. .'___
-                     ."" '<  '.___\_<|>_/___.' >'  "".
-                    | | : '-  \'.;'\ _ /';.'/ - ' : | |
-                    \  \ '_.   \_ __\ /__ _/   .-' /  /
-                ====='-.____'.___ \_____/___.-'____.-'=====
-                                  '=---='
- 
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                        佛祖保佑    iii    永不死机
- 
+QJJ加油，你最月半！ 
 EOT
 ```
 -------------------------------------------------------------------------------------------------------
@@ -324,10 +302,11 @@ env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
 软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
 软件仓库安装:timeshift (系统可能已经自带了)
 软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
+
 # 安装文件同步工具 多端同步
 sudo pacman -S syncthing
-# 参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
-# 启动Syncthing的快捷方式syncthing-start.desktop
+参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
+启动Syncthing的快捷方式syncthing-start.desktop
 [Desktop Entry]
 Name=Start Syncthing
 GenericName=File synchronization
@@ -338,7 +317,7 @@ Terminal=false
 Type=Application
 Keywords=synchronization;daemon;
 Categories=Network;FileTransfer;P2P
-# 查看Syncthing UI的快捷方式syncthing-ui.desktop
+查看Syncthing UI的快捷方式syncthing-ui.desktop
 [Desktop Entry]
 Name=Syncthing Web UI
 GenericName=File synchronization UI
@@ -349,7 +328,7 @@ Terminal=false
 Type=Application
 Keywords=synchronization;interface;
 Categories=Network;FileTransfer;P2P
-# 生效快捷方式
+生效快捷方式
 sudo desktop-file-install syncthing-start.desktop
 sudo desktop-file-install syncthing-ui.desktop
 ```
