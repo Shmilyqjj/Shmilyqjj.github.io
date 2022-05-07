@@ -385,8 +385,28 @@ nohup sh xx.sh > /data/logs/log_$(date +%Y-%m-%d) 2>&1 &  不间断(nohup)后台
 0 表示stdin标准输入，用户键盘输入的内容
 1 表示stdout标准输出，输出到显示屏的内容
 2 表示stderr标准错误，报错内容
+还有一种方法通过screen命令在一个screen窗口中前台运行，即使shell退出，但screen仍然存在，持续运行
+创建一个名为qjj的screen窗口: screen -S qjj
+前台执行某个命令
+Ctrl+A+D保持会话退出
+查看已有的screen：screen -ls
+恢复到qjj这个screen：screen -r qjj
+```shell
+-A 　将所有的视窗都调整为目前终端机的大小。
+-d 　将指定的screen作业离线。
+-h 　指定视窗的缓冲区行数。
+-m 　即使目前已在作业中的screen作业，仍强制建立新的screen作业。
+-r 　恢复离线的screen作业。
+-R 　先试图恢复离线的作业。若找不到离线的作业，即建立新的screen作业。
+-s 　指定建立新视窗时，所要执行的shell。
+-S 　指定screen作业的名称。
+-v 　显示版本信息。
+-x 　恢复之前离线的screen作业。
+-ls或--list 　显示目前所有的screen作业。
+-wipe 　检查目前所有的screen作业，并删除已经无法使用的screen作业。
+```
 
-3. 文本批量替换
+1. 文本批量替换
 sed -i 's/\r//g' *.sh  替换文件中所有/r/n中的/r为空
 sed -i s/sourceWord/targetWord/g $(find /hadoop/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -rl "keywords")  批量替换/hadoop目录下所有包含keyword关键字的shell和python脚本中内容sourceWord替换为targetWord
 sed "s/xxxxx/12345/g" test.txt > test1.txt 将test.txt中的内容xxxxx批量替换为12345并将替换后的内容生成新文件test1.txt(原test.txt内容不变)
