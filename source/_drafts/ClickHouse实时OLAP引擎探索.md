@@ -129,7 +129,7 @@ Code: 8. DB::Exception: Column 'p_test1' is not presented in input data.: While 
 ```
 解决：INSERT INTO db.table(col1,col2,...,colN) FORMAT Parquet 指定Parquet已有的字段插入即可
 
-注意：Parquet中的时间字段精确到毫秒，但导入ClickHouse的DateTime64(3)类型字段时毫秒的精度会丢失，全部变为000。且因时区问题，Parquet时间数据导入ClickHouse的DateTime64(3)类型后，时间默认会+8小时。
+注意：Parquet中的时间字段精确到毫秒，但导入ClickHouse的DateTime64(3)类型字段时毫秒的精度会丢失，全部变为000，解决办法是time字段转成string[cast(time as String)]，导入Ck后进度就不会丢失了。因时区问题，Parquet时间数据导入ClickHouse的DateTime64(3)类型后，时间默认会+8小时。
 
 2. Hive、Impala数据导入 
 Hive数据可以通过[SeaTunnel](https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v2/) 程序导入。编写配置文件即可抽取到ClickHouse。

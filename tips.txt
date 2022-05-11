@@ -50,6 +50,15 @@ lymtics，可以是英文句子LoveyoumorethanIcansay的首字母缩写
   博文分类封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/....    （jpg only）
   博文标签封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Tags_Images/....        （jpg only）
   主页横幅图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/....          （webp only）
+4.图床工具托管图片 PicGo 
+下载：https://github.com/Molunerfinn/PicGo（https://molunerfinn.com/PicGo/）
+配置Github图床：
+  设定仓库名：Shmilyqjj/BlogImages-1
+  设定分支名：master
+  设定Token: ***********************************
+  指定存储路径：cdn_sources/Blog_Images/PicGo/
+  设定自定义域名：https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-1@master
+配置gitee图床：下载gitee插件  参考https://blog.csdn.net/a1274654/article/details/109789570
 
 
 

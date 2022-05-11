@@ -372,6 +372,15 @@ drop table A_old;
 Hive分区表小文件合并，可以直接在当前分区上进行操作 不需要临时表
 insert overwrite table xxx_partition_table partition(dt=xxx) select xx,xx,xx from xxx_partition_table where dt=xxx distribute by cust_no;
 
+切分字符串，炸开成列
+select posexplode(split('1,2,3',',')) as (idx,value);   -- 带下标
+select explode(split('1,2,3',',')) ;  -- 不带下标
+
+使用SparkSQL Hint广播a、c两个表
+SELECT
+    /*+ BROADCAST(a,c) */
+    col1,col2 from ....
+
 
 spark动态资源分配，没用到Executor时回收资源
 开启动态资源调整需要（on yarn情况下）
@@ -1035,6 +1044,33 @@ Kafka相关
 CDH-配置 Kafka MirrorMaker 实现 Kafka 集群消息同步：https://blog.csdn.net/weixin_43215250/article/details/100521107
 滴滴开源Logi-KafkaManager 一站式Kafka监控与管控平台：https://mp.weixin.qq.com/s/N2fZSnzy7yiH5p-svdpJWg
 Kafka监控（kafka-manager）：https://www.cnblogs.com/zlslch/p/7252484.html
+
+Kafka配额管理-限速
+producer_byte_rate。生产者单位时间（每秒）内可以发布到单台broker的字节数。
+consumer_byte_rate。消费者单位时间（每秒）内可以从单台broker拉取的字节数。
+bin/kafka-configs.sh，支持针对user，client-id，(user,client-id)等三种纬度设置配额（也是通过修改zk来实现的）
+例子：
+1.user+clientid。例如，user为”user1”，clientid为”clientA”
+bin/kafka-configs.sh  --zookeeper localhost:2181 --alter --add-config 'producer_byte_rate=1024,consumer_byte_rate=2048' --entity-type users --entity-name user1 --entity-type clients --entity-name clientA
+2.配置user。例如，user为”user1”
+bin/kafka-configs.sh  --zookeeper localhost:2181 --alter --add-config 'producer_byte_rate=1024,consumer_byte_rate=2048' --entity-type users --entity-name user1
+3.配置client-id。例如，client-id为”clientA”
+bin/kafka-configs.sh  --zookeeper localhost:2181 --alter --add-config 'producer_byte_rate=1024,consumer_byte_rate=2048' --entity-type clients --entity-name clientA
+如果连接超过了配额值会怎么样呢？kafka给出的处理方式是：延时回复给业务方，不使用特定返回码。
+
+Kafka缩容https://xie.infoq.cn/article/c0d28a5e6c9ccb18e72faca2e
+
+Kafka集群迁移：
+1.容忍数据丢失，需要平滑迁移的情况下：可以用MirrorMaker做镜像同步，同步后offset会丢失，导致数据可能出现丢失或者重复消费的情况。但这种方式操作简单，只需要在镜像后切换生产者IP\消费者IP即可。
+(sh /home/pirate/programs/kafka/bin/kafka-run-class.sh -daemon -name tutorials -loggc  kafka.tools.MirrorMaker --consumer.config /home/pirate/programs/kafka/config/mirror-consumer.properties --producer.config /home/pirate/programs/kafka/config/mirror-producer.properties --whitelist 'udplog-role-create|udplog-role-login|udplog-role-logout'
+,在此命令中，需要配置消费端和生产端ip端口，config/mirrormaker-consumer.properties 指向 CLUSTER_ONPREM 中的引导代理；例如，bootstrap.servers=localhost:9092。config/mirrormaker-producer.properties 指向 CLUSTER_AWSMSK 中的引导代理；例如，bootstrap.servers=10.0.0.237:9092,10.0.2.196:9092,10.0.1.233:909)
+2.不容忍数据丢失，需要平滑迁移的情况下：新集群增加Kafka实例，手动迁移副本，基于分区重分配（kafka-reassign-partitions脚本）：https://xie.infoq.cn/article/c0d28a5e6c9ccb18e72faca2e
+  配套的zk迁移就比较简单了，起新节点加入zk集群，稳定后关停旧节点。
+  新增N个broker加入集群，将所有topic分区只分配给新broker，执行分配任务后，kafka将旧broker的分区数据复制到新broker，新broker成为各分区的leader，随后kafka删除旧broker上的分区数据；
+  整个过程中客户端应用正常生产消费消息，执行结束后使用新的消费者组从头消费可以获取到全部历史消息。
+  停止旧broker后，正在运行的客户端应用正常生产消费消息，新建客户端连接旧broker失败，连接新broker则正常。
+3.基于修改了源码的MirrorMaker：https://blog.csdn.net/x763795151/article/details/121070563
+
 
 
 ###################################################
