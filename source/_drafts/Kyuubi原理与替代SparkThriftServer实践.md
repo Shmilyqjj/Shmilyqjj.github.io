@@ -252,11 +252,25 @@ Kyuubi申请到Spark引擎后，默认空闲30min后自动回收。
 
 ### Kyuubi生产环境的高级配置
 在上面基础配置的基础上增加生产环境所需的高级配置，包括安全性配置，用户的配置，授权配置等。
-```shell
-# Kerberos认证
+Kerberos认证
+```config
 kyuubi.kinit.keytab=/hadoop/bigdata/kerberos/keytab/hive.keytab
 kyuubi.kinit.principal=hive/xxx@XXX.COM
 ```
+
+采用LDAP认证 使用LDAP认证登陆Kyuubi
+```config
+kyuubi.authentication=LDAP
+##kyuubi.authentication.ldap.base.dn=
+kyuubi.authentication.ldap.domain=xxxx.com
+kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
+```
+使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。
+查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。
+还要确保Linux上有该用户，否则引擎无法申请成功。
+如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。
+
+
 
 ### 问题与异常处理
 1. 执行spark sql后一直卡住，后台报错User: root is not allowed to impersonate anonymous
