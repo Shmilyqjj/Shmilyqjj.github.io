@@ -38,19 +38,28 @@ Spark ThriftServer原生不支持多租户、权限管理、且稳定性一般�
 Kyuubi的愿景是建立在Apache Spark和Data Lake技术之上，理想的统一数据湖管理平台。支持纯SQL方式处理数据，实现在同统一平台上使用一份数据副本和一个SQL接口，完成ETL、分析、BI......等工作。
 
 ## Kyuubi对比SparkThriftServer的优势  
-1. 支持资源隔离
+1. 支持资源隔离（STS只能提交到一个Yarn Queue）
 2. 支持多客户端并发和授权
-3. 支持数据和元数据的访问权限控制，保证数据安全
+3. 支持数据和元数据的访问权限控制，保证数据安全（STS是单用户的）
 4. 用户级别的SparkApplication实例申请
 5. 支持多个计算引擎，如Flink、Presto等
+6. 两级弹性资源管理（Kyuubi的资源弹性管理+Spark应用自身动态资源管理）
+7. 可自动扩展的查询并发能力（单个STS并发查询能力有限、并发高时就会出现资源紧张，资源抢占，任务等待、卡死...）
 
 ## Kyuubi原理
 ### Kyuubi架构图
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-01.png)
 在Kyuubi中，客户端的连接是作为**KyuubiSession**来维护的。
 Kyuubi Session的创建可以分为轻量级和重量级两种情况。大多数会话创建都是轻量级、用户无感知的。唯一的重量级情况是用户的共享域中没有实例化或缓存的SparkContext，这种情况通常发生在用户第一次连接或长时间未连接时。这种一次性创建会话的成本，在多数AdHoc场景下也能接受。
+
 Kyuubi维护SparkContext的方式是松散耦合的，这些SparkContext既可以是本地Client模式创建的，也可以是Yarn、K8S集群上的Cluster模式创建的。高可用模式下，SparkContext也可以由其他机器上的Kyuubi实例创建并共享出来。
-SparkContexts被创建后由Kyuubi托管，它们有自己的生命周期，一定条件下会被自动创建和回收。SparkContext的状态不受Kyuubi进程故障转移的影响。
+
+Kyuubi可以创建和托管多个SparkContexts实例，它们有自己的生命周期，一定条件下会被自动创建和回收，如果一段时间没有任务负载，资源会全部释放。SparkContext的状态不受Kyuubi进程故障转移的影响。
+
+### Kyuubi HA
+Kyuubi基于ZK实现高可用和负载均衡：
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-02.png)
+
 
 ## 部署Kyuubi On CDH6.3.2
 ### Spark 3.2.2 On CDH6.3.2编译与部署
