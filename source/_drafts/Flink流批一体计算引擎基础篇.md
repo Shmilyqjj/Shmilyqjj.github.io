@@ -53,6 +53,32 @@ Apache Flink is a framework and distributed processing engine for stateful compu
 6.实时报表分析 -- 双十一实时交易额、实时大屏，助力快速提取数据更多价值
 7.实时监控系统 -- 对应用指标收集与分析，实现对系统的实时监控告警
 
+## 流处理架构的演变
+流式处理和批处理都有各自的优势，流处理实时性好，但受到网络以及其他原因，可能造成数据乱序、数据错误；批处理虽然实时性差，但计算结果精确。
+既要保证计算结果的精确性，又需要很高的实时性，所以出现了大数据**lambda架构**：
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-16.png)  
+实时计算保证了指标的实时性，同时批处理保证了结果的准确性，但弊端是一个数据需求要维护两套系统，同一份数据经过两条链路处理，耗费计算资源，开发和维护成本高。
+随后出现了**Lambda架构的演进版本Kappa架构**
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-17.webp)  
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Flink/Flink-18.webp)  
+Kappa架构基于Lambda的改进是删除了BatchLayer，改为使用流式计算程序消费消息队列中的存量数据实现数据重算，重算后替换数仓或数据湖中的数据视图，将旧的数据视图删除。
+**Kappa架构的处理过程:**
+```text
+1.设置Kafka数据日志的保留期（Retention Period）。这里的保留期指的是你希望能够重新处理的历史数据的时间区间
+  如果你希望重新处理最多一年的历史数据，那就可以把Kafka中的保留期设置为365天。
+  如果你希望能够处理所有的历史数据，那就可以把Kafka中的保留期设置为“永久（Forever）”
+2.如果我们需要改进现有的逻辑算法，那就表示我们需要对历史数据进行重新处理
+  我们需要做的就是重新启动一个Kafka作业实例（Instance）。这个作业实例将从头开始，重新计算保留好的历史数据，并将结果输出到一个新的数据视图中。
+  我们知道Kafka的底层是使用Log Offset来判断现在已经处理到哪个数据块了，所以只需要将Log Offset设置为0，新的作业实例就会从头开始处理历史数据。
+3.当这个新的数据视图处理过的数据进度赶上了旧的数据视图时，我们的应用便可以切换到从新的数据视图中读取。
+4.停止旧版本的作业实例，并删除旧的数据视图。
+```
+Kappa架构将离线和实时代码统一为一套逻辑，降低了维护成本，但也有缺点：①回溯数据时间长对消息中间件的压力非常大，一次性回溯大量历史数据对计算资源的需求也较大 ②抛弃了SpeedLayer的同时也就抛弃了离线计算稳定可靠的特点。
+以上两种架构都有弊端，Flink实现**批流一体**，一个框架实现Lambda架构SpeedLayer和BatchLayer两种功能，结合了Lambda、Kappa架构的优点。
+|  | Lambda架构 | Kappa架构 | 批流一体 |
+|----|----|----|----|
+| 优点 | 1. 架构简单 2.结合离线批处理和实时流处理优点 3.稳定且实时计算成本可控 4. 离线数据易于订正 | 1.只需维护实时处理模块 2.无须合并离线和实时数据 | 1.Flink低延迟高吞吐 2.精确一次的状态一致性保证 3.维护成本低 |
+| 缺点 | 1. 离线和实时数据很难保证一致 2.需要维护2套代码 | 1.强依赖消息中间件 2.实时数据处理存在消息丢失 3.数据回溯资源消耗大，吞吐量比批处理低 | 抛弃了批处理的数据准确性 |
 
 ## Flink原理与基础
 ### Flink三个重要的时间概念
@@ -256,7 +282,7 @@ historyserver.web.port: 8082
 historyserver.archive.fs.dir: hdfs:///tmp/flink/completed-jobs
 historyserver.archive.fs.refresh-interval: 10000
 # 优化参数
-yarn.application-attempts: 10 Flink Job级别的JobManager重启次数限制
+yarn.application-attempts: 10 （Flink Job级别的JobManager重启次数限制）
 # 至此 基本环境配置完成
 ```
 以上参数含义
@@ -284,10 +310,11 @@ bin/historyserver.sh start
 
 提交Flink任务
 Flink on Yarn有两种任务提交方式，分别是Yarn-Session提交和Flink-Per-Job
-```
 * Yarn-Session模式：
+```
  需要先启动Session，然后再提交Job到这个集群。
- bin/yarn-session.sh -n 4 -jm 1024 -tm 3072 -s 3 -nm flink-yarn-session -d
+ bin/yarn-session.sh -d -nm ys
+ bin/yarn-session.sh -n 4 -jm 1024 -tm 2048 -s 2 -d -nm flink-yarn-session 
 ```text
 参数说明：
 -n 指定taskmanager个数
@@ -307,15 +334,22 @@ bin/flink run -m cdh104:4055 examples/batch/WordCount.jar  (启动session后的J
  4.任务运行完成，TaskManager资源释放
  ```
  
- * Flink-Per-Job模式(推荐)：
+ * Flink-Per-Job模式(推荐-生产常用-更加稳定)：
  不需要启动Session集群，直接将任务提交到Yarn运行。
- bin/flink run -m yarn-cluster examples/batch/WordCount.jar
+ bin/flink run -d -t yarn-per-job examples/batch/WordCount.jar  (-t type:perJob模式)
+ bin/flink run -m yarn-cluster examples/batch/WordCount.jar  （旧版本）
  bin/flink run -m yarn-cluster -yn 2 -yjm 1024 -ytm 3076 -ys 3 -ynm flink-app-wc -yqu root.default -c com.qjj.flink.Test01 ~/jar/wc-1.0-SNAPSHOT.jar
 注意：
 ```text
  Flin On Yarn启动有FlinkYarnSessionCli和YarnSessionClusterEntrypoint两个进程
  FlinkYarnSessionCli进程：在yarn-session提交的主机上存在，该节点在提交job时可以不指定-m参数
  YarnSessionClusterEntrypoint进程：代表yarn-session集群入口，实际就是JobManager节点，也是Yarn的ApplicationMaster节点。这两个进程可能会出现在同一节点上，也可能在不同的节点上。
+```
+
+* 应用模式：
+per-job模式是单个job创建一个集群，应用模式是一个应用创建一个集群。
+```shell
+bin/flink run-application -t yarn-application examples/batch/WordCount.jar
 ```
 
 **Flink Standalone模式部署：**
@@ -425,4 +459,5 @@ ___粗斜体文本___
 ## 参考
 《Flink原理、实战与性能优化》
 [Flink官方文档](https://flink.apache.org/)
+[大数据架构回顾-Kappa架构](https://www.likecs.com/show-237608.html)
 
