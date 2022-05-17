@@ -213,6 +213,8 @@ sbin/start-history-server.sh
 bin/spark-sql --master yarn 
 ```
 **至此Spark3.2.2 On CDH6.3.2编译部署完毕**
+注意Yarn外部ShuffleService一定确保开启
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-06.png)
 
 ### Kyuubi On Spark3基础部署
 更多配置参考：[Kyuubi-Deployment-Settings](https://kyuubi.apache.org/docs/latest/deployment/settings.html)
@@ -266,6 +268,7 @@ kyuubi.authentication.ldap.domain=xxxx.com
 kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
 ```
 使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-03.png)
 查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。
 还要确保Linux上有该用户，否则引擎无法申请成功。
 如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。
@@ -293,7 +296,70 @@ Error: org.apache.kyuubi.KyuubiSQLException: Timeout(180000 ms) to launched SPAR
 ......
 22/05/08 14:37:17 INFO retry.RetryInvocationHandler: org.apache.hadoop.security.authorize.AuthorizationException: User: root is not allowed to impersonate anonymous, while invoking ApplicationClientProtocolPBClientImpl.getClusterMetrics over null after 5 failover attempts. Trying to failover after sleeping for 37639ms.
 ```
-解决：避免使用root用户启动Kyuubi Server。可使用hive、hdfs用户启动。
+解决：避免使用root用户启动Kyuubi Server。可使用hive、hdfs用户启动，或单独建立一个kyuubi用户启动KyuubiServer。
+
+2. 用户无目录以及NM节点没用户导致引擎无法运行
+```error
+Caused by: org.apache.kyuubi.KyuubiSQLException: Timeout(180000 ms) to launched SPARK_SQL engine with /data3/bigdata/spark/spark-3.2.2-bin-hadoop-3.0.0-cdh6.3.2/bin/spark-submit \
+        --class org.apache.kyuubi.engine.spark.SparkSQLEngine \
+        --conf spark.kyuubi.authentication.ldap.url=ldap://xxx.xx.xxx.xx \
+        --conf spark.kyuubi.ha.zookeeper.quorum=zk1:2181,zk2:2181,zk3:2181 \
+        --conf spark.kyuubi.client.ip=xxx.xx.xxx.xx \
+        --conf spark.kyuubi.kinit.principal=hive/hive02.c6.com@XXX.COM \
+        --conf spark.kyuubi.engine.submit.time=1652671391562 \
+        --conf spark.app.name=kyuubi_USER_SPARK_SQL_k00877_default_ff13fda9-1a01-4322-8d40-d3bc098d78e4 \
+        --conf spark.kyuubi.ha.zookeeper.acl.enabled=true \
+        --conf spark.kyuubi.ha.engine.ref.id=ff13fda9-1a01-4322-8d40-d3bc098d78e4 \
+        --conf spark.master=yarn \
+        --conf spark.yarn.tags=KYUUBI \
+        --conf spark.kyuubi.ha.zookeeper.namespace=/kyuubi_1.5.1-incubating_USER_SPARK_SQL/k00877/default \
+        --conf spark.kyuubi.kinit.keytab=/hadoop/bigdata/kerberos/keytab/hiveserver2_hive02_c6.keytab \
+        --conf spark.kyuubi.authentication.ldap.domain=smyoa.com \
+        --proxy-user k00877 /data3/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/externals/engines/spark/kyuubi-spark-sql-engine_2.12-1.5.1-incubating.jar. 
+        at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]
+        ......
+Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.hadoop.security.AccessControlException: Permission denied: user=k00877, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.check(FSPermissionChecker.java:400)
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:256)
+        at org.apache.sentry.hdfs.SentryINodeAttributesProvider$SentryPermissionEnforcer.checkPermission(SentryINodeAttributesProvider.java:86)
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:194)
+```
+尝试在HDFS上创建对应用户目录  (这里也可以修改Spark在文件系统中当前用户的主目录-提交应用的缓存目录：spark.yarn.stagingDir)
+```shell
+hdfs dfs -mkdir /user/k00877/
+hdfs dfs -chown k00877:k00877 /user/k00877/
+```
+再次尝试创建引擎，报错如下
+```error
+------------ Kyuubi Server error
+Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
+ See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
+        at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]
+        at org.apache.kyuubi.engine.ProcBuilder.$anonfun$start$1(ProcBuilder.scala:165) ~[kyuubi-server_2.12-1.5.1-incubating.jar:1.5.1-incubating]
+------------ Engine log: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
+For more detailed output, check the application tracking page: http://xxxxx:8088/cluster/app/application_1637826239096_34377 Then click on links to logs of each attempt.
+. Failing the application.
+org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
+Failing this attempt.Diagnostics: [2022-05-16 13:00:12.276]Application application_1637826239096_34377 initialization failed (exitCode=255) with output: main : command provided 0
+main : run as user is k00877
+main : requested yarn user is k00877
+User k00877 not found
+......
+```
+在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。
+解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png)
+
+3. 使用LDAP登录的用户无HDFS上表数据的访问权限
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png)
+分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png)
+当前用户q00885没有该目录的任何读权限。
+解决：
+```shell
+使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://172.18.204.199:10000/default" -nhive -pxxxxx
+
+```
 
 
 ## 参考
