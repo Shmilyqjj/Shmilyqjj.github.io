@@ -545,13 +545,7 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=50450ms
 GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=52462ms
 2021-07-14 09:45:30,759 WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 53999ms
 GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</code></pre>
-<p>原因：加载FSImage到堆内存的过程中由于堆内存不足导致无法启动。<br>解决：</p>
-</li>
-<li><p>增加NameNode堆内存，启动后查看HDFS WebUI-&gt;Overview-&gt;Summary查看主NN堆内存使用情况和目前Blocks数量，对NN内存需求重新做评估，调整合适的堆大小。根据Block数量和增量精细化计算NN的堆内存，避免再次OOM。</p>
-</li>
-<li><p>如果可能，可以减小HDFS垃圾回收时间。</p>
-</li>
-<li><p>查看HDFS WebUI-&gt;Snaoshot栏，删除无用的快照，避免快照变化文件占用大量空间和Blocks。</p>
+<p>原因：加载FSImage到堆内存的过程中由于堆内存不足导致无法启动。<br>解决：<br>①增加NameNode堆内存，启动后查看HDFS WebUI-&gt;Overview-&gt;Summary查看主NN堆内存使用情况和目前Blocks数量，对NN内存需求重新做评估，调整合适的堆大小。根据Block数量和增量精细化计算NN的堆内存，避免再次OOM。<br>②如果可能，可以减小HDFS垃圾回收时间。<br>③查看HDFS WebUI-&gt;Snaoshot栏，删除无用的快照，避免快照变化文件占用大量空间和Blocks。</p>
 </li>
 <li><p>HDFS DataNode磁盘切换<br>停止DN、JN -&gt; 将/dfs目录移至目标磁盘，并修改hdfs对应的磁盘为目标路径（对应节点的dfs.journalnode.edits.dir和dfs.datanode.data.dir） -&gt; 启动DN、JN</p>
 </li>
@@ -560,11 +554,26 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
 <p>原因:本地客户端采用Kerberos认证，但远程Server未开启Kerberos认证，远程为SIMPLE认证<br>解决:<br>设置ipc.client.fallback-to-simple-auth-allowed=true参数即可 参数加在dfs后面 如下</p>
 <pre><code class="shell">hdfs dfs -D ipc.client.fallback-to-simple-auth-allowed=true -ls hdfs://remote_nn_ip:8020/user/hive/warehouse/</code></pre>
 </li>
-<li><p>HDFS无法上传文件<br>```log</p>
-</li>
-</ol>
-<p>– hdfs dfs -copyFromLocal xxx /tmp/<br>22/05/16 18:10:05 WARN hdfs.DataStreamer: DataStreamer Exception<br>org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /tmp/qjj.<em>COPYING</em> could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.<br>        at org.apache.hadoop.hdfs.server.blockmanagement.BlockManager.chooseTarget4NewBlock(BlockManager.java:2102)<br>        at org.apache.hadoop.hdfs.server.namenode.FSDirWriteFileOp.chooseTargetForNewBlock(FSDirWriteFileOp.java:294)<br>        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:2673)<br>        at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.addBlock(NameNodeRpcServer.java:872)<br>        at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.addBlock(ClientNamenodeProtocolServerSideTranslatorPB.java:550)<br>        at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)<br>        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:523)<br>        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:991)<br>        at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:869)<br>        at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:815)<br>        at java.security.AccessController.doPrivileged(Native Method)<br>        at javax.security.auth.Subject.doAs(Subject.java:422)<br>        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1875)<br>        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2675)</p>
-<pre><code>    at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1499)
+<li><p>HDFS无法上传文件</p>
+<pre><code class="log"># hdfs dfs -copyFromLocal xxx /tmp/
+22/05/16 18:10:05 WARN hdfs.DataStreamer: DataStreamer Exception
+org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /tmp/qjj._COPYING_ could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.
+    at org.apache.hadoop.hdfs.server.blockmanagement.BlockManager.chooseTarget4NewBlock(BlockManager.java:2102)
+    at org.apache.hadoop.hdfs.server.namenode.FSDirWriteFileOp.chooseTargetForNewBlock(FSDirWriteFileOp.java:294)
+    at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:2673)
+    at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.addBlock(NameNodeRpcServer.java:872)
+    at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.addBlock(ClientNamenodeProtocolServerSideTranslatorPB.java:550)
+    at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+    at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:523)
+    at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:991)
+    at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:869)
+    at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:815)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:422)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1875)
+    at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2675)
+
+    at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1499)
     at org.apache.hadoop.ipc.Client.call(Client.java:1445)
     at org.apache.hadoop.ipc.Client.call(Client.java:1355)
     at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:228)
@@ -584,56 +593,45 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
     at org.apache.hadoop.hdfs.DFSOutputStream.addBlock(DFSOutputStream.java:1085)
     at org.apache.hadoop.hdfs.DataStreamer.locateFollowingBlock(DataStreamer.java:1865)
     at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1668)
-    at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:716)</code></pre>
-<p>copyFromLocal: File /tmp/qjj.<em>COPYING</em> could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.<br>– 服务端日志<br>上午10点15:18.249分 INFO    BlockPlacementPolicy<br>Not enough replicas was chosen. Reason:{NOT_ENOUGH_STORAGE_SPACE=3}<br>上午10点15:18.249分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology<br>上午10点15:18.250分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology<br>上午10点15:18.250分 WARN    BlockStoragePolicy<br>Failed to place enough replicas: expected size is 2 but only 0 storage types can be selected (replication=3, selected=[], unavailable=[DISK, ARCHIVE], removed=[DISK, DISK], policy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]})<br>上午10点15:18.250分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) All required storage types are unavailable:  unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}</p>
-<pre><code>执行hdfs dfsadmin -report结果发现DFS Used%超过了100%
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-06.png) 
-原因：dfs.datanode.du.reserved参数被同事修改成了3072GB，这个参数是指该DataNode上单个数据盘预留的空间，单节点上有8块盘，每块少3T，总共少了24T，DN节点存储容量也随之下降。修改后，磁盘剩余空间不足3072G，则该DataNode无法写入。
-解决：降低dfs.datanode.du.reserved，重启DN节点。
-
-## Hive相关
-1. HiveMetaStore状态不良导DDLSQL耗时200s以上
-HMS进程报错：&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;hive metastore server Failed to sync requested HMS notifications up to the event ID xxx&lt;/font&gt;
-原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。
-开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。
-解决：
-    ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。
-    ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）
-
-2. HBase外部表报&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;Unexpected end-of-input&lt;/font&gt;
-起因：使用Hive创建HBase外部表时正常，但使用HBase外部表时报Unexpected end-of-input: was expecting closing
-分析过程：翻阅源码部分发现异常是在解析外部表创建JSON时发生，于是对比建表语句和Hive元数据库中的TABLE_PARAMS表信息得到原因
-原因：创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而使用该表的时候会读元数据，但因为元数据不完整而报错。
-解决：
-①分多次建表
-②改varchar(4000)为longtext然后重建表（影响无法评估，没尝试）
-
-3. Hive和Spark查询Hive表报java.net.UnknownHostException: nameservice1
-分析：由于机器HDFS HA配置发生变动，关掉了高可用，所以nameservice变成了ip:8020，报这个错，首先检查了/etc/hadoop/conf/hdfs-site.xml里面无dfs.nameservices配置，证明配置文件没问题。使用hivecli，desc formatted某几张表，发现表的LOCATION均为hdfs://nameservice1/xx 找到了问题的原因，元数据错误，所以需要去Hive元数据库批量修改元数据。
-解决：连接到Hive metastore元数据库，批量修改LOCATION：
-update hive.SDS set LOCATION=concat(&quot;hdfs://ip:8020&quot;,substring(LOCATION,20,length(LOCATION)-19)) where LOCATION like &quot;hdfs://nameservice1%&quot;; 
-update hive.DBS set DB_LOCATION_URI=concat(&quot;hdfs://ip:8020&quot;,substring(DB_LOCATION_URI,20,length(DB_LOCATION_URI)-19)) where DB_LOCATION_URI like &quot;hdfs://nameservice1%&quot;;
-无需重启服务即可生效，问题解决。
-
-
-## Yarn相关
-1. 应用提交报&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;Retrying connect to server 0.0.0.0&lt;/font&gt;  
-原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确
-解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml
-```yarn-site.xml
- &lt;property&gt;
-     &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
-     &lt;value&gt;master:8032&lt;/value&gt;
- &lt;/property&gt;
- &lt;property&gt;
-     &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
-     &lt;value&gt;master:8030&lt;/value&gt;
- &lt;/property&gt;
- &lt;property&gt;
-     &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
-     &lt;value&gt;master:8031&lt;/value&gt;
- &lt;/property&gt;</code></pre>
-<ol start="2">
+    at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:716)
+copyFromLocal: File /tmp/qjj._COPYING_ could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.
+# 服务端日志
+上午10点15:18.249分 INFO    BlockPlacementPolicy    
+Not enough replicas was chosen. Reason:&#123;NOT_ENOUGH_STORAGE_SPACE=3&#125;
+上午10点15:18.249分 WARN    BlockPlacementPolicy    
+Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[], storagePolicy=BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology
+上午10点15:18.250分 WARN    BlockPlacementPolicy    
+Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK], storagePolicy=BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology
+上午10点15:18.250分 WARN    BlockStoragePolicy      
+Failed to place enough replicas: expected size is 2 but only 0 storage types can be selected (replication=3, selected=[], unavailable=[DISK, ARCHIVE], removed=[DISK, DISK], policy=BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;)
+上午10点15:18.250分 WARN    BlockPlacementPolicy    
+Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;, newBlock=false) All required storage types are unavailable:  unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;</code></pre>
+<p>执行hdfs dfsadmin -report结果发现DFS Used%超过了100%<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-06.png" alt="alt"><br>原因：dfs.datanode.du.reserved参数被同事修改成了3072GB，这个参数是指该DataNode上单个数据盘预留的空间，单节点上有8块盘，每块少3T，总共少了24T，DN节点存储容量也随之下降。修改后，磁盘剩余空间不足3072G，则该DataNode无法写入。<br>解决：降低dfs.datanode.du.reserved，重启DN节点。</p>
+</li>
+</ol>
+<h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
+<li><p>HiveMetaStore状态不良导DDLSQL耗时200s以上<br>HMS进程报错：<font size="3" color="red">hive metastore server Failed to sync requested HMS notifications up to the event ID xxx</font><br>原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。<br>开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。<br>解决：<br> ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。<br> ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）</p>
+</li>
+<li><p>HBase外部表报<font size="3" color="red">Unexpected end-of-input</font><br>起因：使用Hive创建HBase外部表时正常，但使用HBase外部表时报Unexpected end-of-input: was expecting closing<br>分析过程：翻阅源码部分发现异常是在解析外部表创建JSON时发生，于是对比建表语句和Hive元数据库中的TABLE_PARAMS表信息得到原因<br>原因：创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而使用该表的时候会读元数据，但因为元数据不完整而报错。<br>解决：<br>①分多次建表<br>②改varchar(4000)为longtext然后重建表（影响无法评估，没尝试）</p>
+</li>
+<li><p>Hive和Spark查询Hive表报java.net.UnknownHostException: nameservice1<br>分析：由于机器HDFS HA配置发生变动，关掉了高可用，所以nameservice变成了ip:8020，报这个错，首先检查了/etc/hadoop/conf/hdfs-site.xml里面无dfs.nameservices配置，证明配置文件没问题。使用hivecli，desc formatted某几张表，发现表的LOCATION均为hdfs://nameservice1/xx 找到了问题的原因，元数据错误，所以需要去Hive元数据库批量修改元数据。<br>解决：连接到Hive metastore元数据库，批量修改LOCATION：<br>update hive.SDS set LOCATION=concat(“hdfs://ip:8020”,substring(LOCATION,20,length(LOCATION)-19)) where LOCATION like “hdfs://nameservice1%”;<br>update hive.DBS set DB_LOCATION_URI=concat(“hdfs://ip:8020”,substring(DB_LOCATION_URI,20,length(DB_LOCATION_URI)-19)) where DB_LOCATION_URI like “hdfs://nameservice1%”;<br>无需重启服务即可生效，问题解决。</p>
+</li>
+</ol>
+<h2 id="Yarn相关"><a href="#Yarn相关" class="headerlink" title="Yarn相关"></a>Yarn相关</h2><ol>
+<li><p>应用提交报<font size="3" color="red">Retrying connect to server 0.0.0.0</font><br>原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确<br>解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml</p>
+<pre><code class="yarn-site.xml">&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
+  &lt;value&gt;master:8032&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
+  &lt;value&gt;master:8030&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
+  &lt;value&gt;master:8031&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+</li>
 <li><p>内存不足Container退出<br>报错：<font size="3" color="red">Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.Dump of the process-tree for container_e23_1574819880505_43157_01_000001</font><br>分析：”physical memory used”为物理内存占用（应用已占满9G），”virtual memory used”为虚拟内存占用，18.9GB是取决于yarn.nodemanager.vmem-pmem-ratio（yarn-site.xml中设置的虚拟内存和物理内存比例，默认2.1），报错是因为物理内存不足，是任务设置的内存少了<br>解决思路：<br>①如果资源充足，增加任务并行度分担任务负载<br>②增大任务可用资源（注意不要超过单台NM可分配上限yarn.scheduler.maximum-allocation-mb的值）<br>③适当增大yarn.nodemanager.vmem-pmem-ratio，适当调高虚拟内存比例<br>④[不建议]取消内存的检查：在yarn-site.xml或者程序中中设置yarn.nodemanager.vmem-check-enabled为false</p>
 </li>
 <li><p>yarn logs无法正常输出日志<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-01.png" alt="alt"><br>原因：yarn.nodemanager.remote-app-log-dir要设置为/tmp/logs 不能修改为其他盘<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-02.png" alt="alt"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-03.png" alt="alt"><br>修改后历史Application查看日志恢复正常。</p>
