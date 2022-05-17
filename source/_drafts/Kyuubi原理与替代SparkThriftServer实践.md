@@ -56,9 +56,21 @@ Kyuubi维护SparkContext的方式是松散耦合的，这些SparkContext既可�
 
 Kyuubi可以创建和托管多个SparkContexts实例，它们有自己的生命周期，一定条件下会被自动创建和回收，如果一段时间没有任务负载，资源会全部释放。SparkContext的状态不受Kyuubi进程故障转移的影响。
 
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-02.png)
+Kyuubi支持不同共享级别的引擎共享。如果设置了USER级别的share.level，同一用户与Kyuubi建立的多个连接会复用同一个Engine，实现用户级别的资源隔离。
+
+### Kyuubi资源隔离共享级别
+| 共享级别 | 参数 | 说明 |
+|----|----|----|
+| CONNECTION | kyuubi.engine.share.level=CONNECTION | 每个连接都创建一个独立的Engine |
+| USER | kyuubi.engine.share.level=USER | 同一用户的多个连接共享一个Engine，一个用户对应一个Engine |
+| GROUP | kyuubi.engine.share.level=GROUP | 属于相同主组的所有用户创建的所有连接共享同一个Engine，引擎以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER | 
+| SERVER | kyuubi.engine.share.level=SERVER | 每个KyuubiServer中的连接共用一个Engine |
+
 ### Kyuubi HA
 Kyuubi基于ZK实现高可用和负载均衡：
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-02.png)
+
+
 
 
 ## 部署Kyuubi On CDH6.3.2
@@ -240,6 +252,12 @@ vim kyuubi-defaults.conf
   spark.master=yarn
   kyuubi.ha.zookeeper.acl.enabled=true
   kyuubi.ha.zookeeper.quorum=cdh101:2181,cdh102:2181,cdh103:2181
+  kyuubi.engine.share.level=USER
+  kyuubi.session.engine.idle.timeout=PT1H
+  spark.dynamicAllocation.enabled=true
+  spark.dynamicAllocation.minExecutors=1
+  spark.dynamicAllocation.maxExecutors=10
+  spark.dynamicAllocation.executorIdleTimeout=120
 ```
 **启动与连接Kyuubi**
 ```shell
@@ -358,9 +376,45 @@ User k00877 not found
 解决：
 ```shell
 使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://172.18.204.199:10000/default" -nhive -pxxxxx
-
+-- 查看q00885所属角色
+SHOW ROLE GRANT GROUP group q00885;
++--------+---------------+-------------+----------+--+
+|  role  | grant_option  | grant_time  | grantor  |
++--------+---------------+-------------+----------+--+
+| admin  | false         | 0           | --       |
+| d_bd   | false         | 0           | --       |
++--------+---------------+-------------+----------+--+
+-- 授权权限给d_bd角色
+grant select on table t_sai_t_model_log to role d_bd;
+-- 查看d_bd角色有哪些权限
+SHOW GRANT ROLE d_bd;
++-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+|              database               |                 table                  | partition  | column  | principal_name  | principal_type  | privilege  | grant_option  |   grant_time   | grantor  |
++-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+| default                             | xxxxxxxxxx                |            |         | d_bd            | ROLE            | SELECT     | false         | 1629844007000  | --       |
+| default                             | t_sai_t_model_log                      |            |         | d_bd            | ROLE            | SELECT     | false         | 1652777345000  | --       |
+| default                             | xxxxxxxxxx       |            |         | d_bd            | ROLE            | SELECT     | false         | 1634268085000  | --       |
++-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+-- 先回收权限，测试另一种方法：设置acl
+revoke select on table t_sai_t_model_log from role d_bd;
+-- 给表数据路径增加ACL权限
+hdfs dfs -setfacl -R -m group:q00885:r-x /user/hive/warehouse/t_sai_t_model_log
+设置ACL后再用getfacl查看ACL列表，设置没生效，是因为我们集群用了Sentry管理ACL，直接对目录设置ACL不会生效，所以还需使用hive的grant+revoke方式授权。
 ```
-
+再次使用q00885即可查询。
+```text
+权限列表: 
+ALL SERVER, TABLE, DB, URI, COLLECTION, CONFIG
+INSERT  DB, TABLE
+SELECT  DB, TABLE, COLUMN
+授权与回收：
+GRANT ROLE <role name> [, <role name>] TO GROUP <group name> [,GROUP <group name>]
+GRANT <privilege> [, <privilege> ] ON <object type> <object name> TO ROLE <role name> [,ROLE <role name>]
+GRANT SELECT <column name> ON TABLE <table name> TO ROLE <role name>;
+REVOKE ROLE <role name> [, <role name>] FROM GROUP <group name> [,GROUP <group name>]
+REVOKE <privilege> [, <privilege> ] ON <object type> <object name> FROM ROLE <role name> [,ROLE <role name>]
+REVOKE SELECT <column name> ON TABLE <table name> FROM ROLE <role name>;
+```
 
 ## 参考
 [Apache Kyuubi Documents](https://kyuubi.apache.org/docs/latest/index.html)
