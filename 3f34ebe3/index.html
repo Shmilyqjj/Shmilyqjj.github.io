@@ -614,48 +614,21 @@ remmina 的可选依赖
     gnome-terminal: external tools
 选择自己想要的依赖，如RDP远程桌面连接:
 sudo pacman -S freerdp
--------------------------------------------------------------------------------------------------------
-# 企业微信安装
-https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
-用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
-cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
-sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
-增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
-env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
--------------------------------------------------------------------------------------------------------
-软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
-软件仓库安装:timeshift (系统可能已经自带了)
-软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
-# 安装文件同步工具 多端同步
-sudo pacman -S syncthing
-# 参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
-# 启动Syncthing的快捷方式syncthing-start.desktop
-[Desktop Entry]
-Name=Start Syncthing
-GenericName=File synchronization
-Comment=Starts the main syncthing process in the background.
-Exec=/usr/bin/syncthing serve --no-browser --logfile=default
-Icon=syncthing
-Terminal=false
-Type=Application
-Keywords=synchronization;daemon;
-Categories=Network;FileTransfer;P2P
-# 查看Syncthing UI的快捷方式syncthing-ui.desktop
-[Desktop Entry]
-Name=Syncthing Web UI
-GenericName=File synchronization UI
-Comment=Opens Syncthing&#39;s Web UI in the default browser (Syncthing must already be started).
-Exec=/usr/bin/syncthing -browser-only
-Icon=syncthing
-Terminal=false
-Type=Application
-Keywords=synchronization;interface;
-Categories=Network;FileTransfer;P2P
-# 生效快捷方式
-sudo desktop-file-install syncthing-start.desktop
-sudo desktop-file-install syncthing-ui.desktop</code></pre>
-<h3 id="Clash科学上网"><a href="#Clash科学上网" class="headerlink" title="Clash科学上网"></a>Clash科学上网</h3><p><a target="_blank" rel="noopener" href="https://github.com/Dreamacro/clash/releases">下载Clash</a></p>
-<pre><code class="shell">cd ~/下载
+设置shell欢迎语 登陆Shell环境 会自动输出
+```shell
+cat &lt;&lt;EOT &gt;/etc/motd
+QJJ加油，你最月半！ 
+EOT</code></pre>
+<hr>
+<h1 id="企业微信安装"><a href="#企业微信安装" class="headerlink" title="企业微信安装"></a>企业微信安装</h1><p><a target="_blank" rel="noopener" href="https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/">https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/</a> 下载deb包<br>用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/<br>cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg<br>sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications<br>增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：<br>env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg</p>
+<hr>
+<p>软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用)<br>软件仓库安装:timeshift (系统可能已经自带了)<br>软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘</p>
+<h1 id="安装文件同步工具-多端同步"><a href="#安装文件同步工具-多端同步" class="headerlink" title="安装文件同步工具 多端同步"></a>安装文件同步工具 多端同步</h1><p>sudo pacman -S syncthing<br>参考<a target="_blank" rel="noopener" href="https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop%E5%88%9B%E5%BB%BA%E5%BF%AB%E6%8D%B7%E6%96%B9%E5%BC%8F">https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式</a><br>启动Syncthing的快捷方式syncthing-start.desktop<br>[Desktop Entry]<br>Name=Start Syncthing<br>GenericName=File synchronization<br>Comment=Starts the main syncthing process in the background.<br>Exec=/usr/bin/syncthing serve –no-browser –logfile=default<br>Icon=syncthing<br>Terminal=false<br>Type=Application<br>Keywords=synchronization;daemon;<br>Categories=Network;FileTransfer;P2P<br>查看Syncthing UI的快捷方式syncthing-ui.desktop<br>[Desktop Entry]<br>Name=Syncthing Web UI<br>GenericName=File synchronization UI<br>Comment=Opens Syncthing’s Web UI in the default browser (Syncthing must already be started).<br>Exec=/usr/bin/syncthing -browser-only<br>Icon=syncthing<br>Terminal=false<br>Type=Application<br>Keywords=synchronization;interface;<br>Categories=Network;FileTransfer;P2P<br>生效快捷方式<br>sudo desktop-file-install syncthing-start.desktop<br>sudo desktop-file-install syncthing-ui.desktop</p>
+<pre><code>
+### Clash科学上网
+[下载Clash](https://github.com/Dreamacro/clash/releases)
+```shell
+cd ~/下载
 gunzip clash-linux-amd64-v1.6.5.gz
 mkdir /opt/apps/Clash
 mv clash-linux-amd64-v1.6.5 /opt/apps/Clash/
@@ -873,7 +846,7 @@ echo &quot;All Done&quot;</code></pre>
 <li><p>恢复快照: 选中要恢复的快照 点击恢复即可</p>
 </li>
 <li><p>当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:<br>通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 </p>
-<pre><code class="shell"># 查看可还原的还原点
+<pre><code class="shell">*** 查看可还原的还原点
 sudo timeshift --list  
 /dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
 
@@ -888,7 +861,7 @@ Num     Name                 Tags  Description
 ------------------------------------------------------------------------------
 0    &gt;  2021-08-12_12-24-49  O                  
 1    &gt;  2021-08-12_14-00-01  M                  
-# 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
+*** 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
 sudo timeshift --restore --snapshot &#39;2021-08-12_14-00-01&#39; --skip-grub</code></pre>
 </li>
 <li><p>无法进入系统也无法进入tty命令行<br>参照文章开始的部分创建Manjaro安装盘，进入LiveCD桌面，安装timeshift 按上一步的步骤进行恢复<br>恢复完成后桌面无法加载程序快捷方式-&gt;解决：yay -Syuu执行系统更新即可</p>

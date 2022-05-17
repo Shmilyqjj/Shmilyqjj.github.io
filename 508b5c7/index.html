@@ -459,22 +459,21 @@
 
  当在java代码中添加一些注释信息后，.class的MD5不一样了。因为javac可以指定输出一些额外内容到.class
  javac -g:lines 强制生成LineNumberTable | javac -g:vars 强制生成LocalVariableTable | javac -g 生成所有debug信息
- 当然如果使用IDEA，可以使用jclasslib Bytecode viewerb插件（插件商店搜索即可）
-</code></pre>
+ 当然如果使用IDEA，可以使用jclasslib Bytecode viewerb插件（插件商店搜索即可）</code></pre>
 <p>JVM的程序运行是在栈上完成的，运行main方法自动分配一个栈帧，退出方法体时候再弹出相应栈帧。从javap得到的结果看，大多数字节码指令是不断操作栈帧。<br>整个过程：<strong>Java 文件-&gt;编译器-&gt;字节码-&gt;JVM-&gt;机器码</strong><br>整个过程：<strong>Hello.java -&gt; Hello.class -&gt; Java类加载器(JVM中) -&gt; 执行引擎(JVM中) -&gt; 通过操作系统接口解释执行+JIT</strong></p>
 <p>如下有两段代码：我们可以通过字节码文件判断它们的执行结果</p>
-<pre><code class="java"> public class A{  # 第一段
+<pre><code class="java"> public class A&#123;  # 第一段
     static int a = 0;
-    static {
+    static &#123;
         a = 1;
         b = 1;
-    }
+    &#125;
     static int b = 0;
-    public static void main(String[] args) {
+    public static void main(String[] args) &#123;
         System.out.println(a);
         System.out.println(b);
-    }
- }
+    &#125;
+ &#125;
 //执行结果：1 0
 //字节码如下：
        0: iconst_0
@@ -487,18 +486,18 @@
       13: putstatic     #5                  // Field b:I
       16: return
 --------------------------------------------------------------------------------------------------
- public class A{  # 第二段
+ public class A&#123;  # 第二段
     static int a = 0;
-    static {
+    static &#123;
         a = 1;
         b = 1;
-    }
+    &#125;
     static int b;
-    public static void main(String[] args) {
+    public static void main(String[] args) &#123;
         System.out.println(a);
         System.out.println(b);
-    }
- }
+    &#125;
+ &#125;
 //执行结果：1 1
 //字节码如下：
        0: iconst_0
@@ -507,14 +506,12 @@
        5: putstatic     #3                  // Field a:I
        8: iconst_1
        9: putstatic     #5                  // Field b:I
-      12: return
-</code></pre>
-<p>其他信息：<br>stack=1, locals=0, args_size=0中<br>stack表示该方法最大操作数栈深度为4，JVM根据这个分配栈帧中操作栈深度，<br>locals变量存储了局部变量的存储空间，单位是Slot(槽)，<br>args_size指方法参数个数<br>其他字节码指令表可参照：<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html</a></p>
+      12: return</code></pre>
+<p>其他信息：<br>stack=1, locals=0, args_size=0中<br>stack表示该方法最大操作数栈深度为4，JVM根据这个分配栈帧中操作栈深度，<br>locals变量存储了局部变量的存储空间，单位是Slot(槽)，<br>args_size指方法参数个数<br>其他字节码指令表可参照：<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html">https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html</a></p>
 <h2 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>JVM（JAVA虚拟机）是一个规范，定义了.class文件的结构，加载机制，数据存储，运行时栈等内容。<br>JDK8以后Java是编译与解释混合执行模式。<br>JDK8以后JVM的技术实现是HotSpot(包含一个解释器和两个编译器)。<br>两个编译器：可以动态编译，含server模式和client模式。<br>    client模式是一种轻量级编译器，也叫C1编译器，占用内存小，启动快，但是执行效率没有server模式高，默认状态下不进行动态编译，适用于桌面应用程序。<br>    server模式是一种重量级编译器，也叫C2编译器，启动慢，占用内存大，执行效率高，默认是开启动态编译的，适合服务器应用。</p>
 <pre><code class="text"> -XX:RewriteFrequentPairs   用于开启动态编译。
  -Xint:禁用JIT编译，UYZNGSUYZNGS即禁用两个编译器，纯解释执行。
- -Xcomp:纯编译执行，如果方法无法编译，则回退到解释执行模式解释无法编译的代码。
-</code></pre>
+ -Xcomp:纯编译执行，如果方法无法编译，则回退到解释执行模式解释无法编译的代码。</code></pre>
 <h3 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h3><ul>
 <li>JVM内存区域如何划分？<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-01.png" alt="alt JVM-01"><br>Java内存布局一直在调整，Java8开始彻底移除了持久代，使用MetaSpace(元空间)来代替。 =&gt; -XX:PermSize和-XX:MaxPermSize失效</li>
 </ul>
@@ -531,57 +528,54 @@
 </ul>
 </li>
 <li>元空间：存放类名与字段(类的元数据)，运行时常量池，JIT优化。<br>  先对比一下JDK8和以前版本的方法区<br>  <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-03.png" alt="alt JVM-03"><br>  Perm区(永久代)在JDK8废除，用元空间来取代。<strong>好处：元空间的出现解决了类和类加载器元数据过多导致的OOM问题，它是非堆区，使用操作系统内存，不会出现方法区内存溢出，省去了GC扫描压缩的开销，每个加载器有专门的存储空间；坏处：无限制使用操作系统内存会导致操作系统崩溃，所以一般要加-XX:MaxMetaspaceSize参数来控制大小。元空间不支持压缩，有内存碎片问题。</strong><br>  <strong>方法区</strong>：包含在元空间中。方法区存储：<strong>类信息、静态（static）变量，常量（final），编译后的代码等数据</strong>。是线程共享的。<br>  元空间内存管理由元空间虚拟机完成。</li>
-<li>程序计数器：<strong>[JVM中唯一不会OOM的区域]</strong>在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了<strong>异常处理，跳转，循环分支</strong>的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。</li>
+<li>程序计数器：**[JVM中唯一不会OOM的区域]<strong>在多线程切换的情况下，Java通过程序计数器来记录字节码执行到什么地方，这样能保证切换回来时能够从原来的地方继续执行。（相当于字节码的行号指示器）。程序计数器实现了</strong>异常处理，跳转，循环分支**的功能。因为每个线程都有其独立的程序计数器，所以是线程私有的。</li>
 </ul>
 <h3 id="JVM类加载机制"><a href="#JVM类加载机制" class="headerlink" title="JVM类加载机制"></a>JVM类加载机制</h3><p>类加载过程：<strong>加载-&gt;验证-&gt;准备-&gt;解析-&gt;初始化</strong>  大多数情况按这个流程加载。<br><strong>加载</strong>：将类的同名.class文件加载到方法区<br><strong>验证</strong>：检查.class是否合规。如果.class不合规，抛异常。如果任何.class都能加载就不安全了。<br><strong>准备</strong>：为一些类变量分配内存，并初始化为默认值。此时，实例对象还没有分配内存，所以这些动作是在方法区上进行的。</p>
 <pre><code class="java"> 类加载的准备阶段会给类变量分配内存和初始化默认值。所以下面这段，我们不手动给a赋值也能编译通过。
- public class test_java {
+ public class test_java &#123;
     static int a;
-    public static void main(String[] args) {
+    public static void main(String[] args) &#123;
         System.out.println(a);  // output:0
-    }
- }
+    &#125;
+ &#125;
  类变量有两个阶段可以被赋值，一是类加载准备阶段，二是初始化阶段。而局部变量只有一次初始化，如果没赋初值，不能使用，下面代码编译不通过。
- public class test_java {
-    public static void main(String[] args) {
+ public class test_java &#123;
+    public static void main(String[] args) &#123;
         int a;
         System.out.println(a);
-    }
- }
-</code></pre>
+    &#125;
+ &#125;</code></pre>
 <p><strong>解析</strong>：保证引用的完整性。做了：类或接口解析，类方法解析，接口方法解析，字段解析。</p>
 <pre><code class="text">这个阶段相关的报错信息：
 java.lang.NoSuchFieldError  根据继承关系从上往下没找到相关字段时报错
 java.lang.IllegalAccessError  不具备访问权限时报错
-java.lang.NoSuchMethodError  找不到相关方法时报错
-</code></pre>
+java.lang.NoSuchMethodError  找不到相关方法时报错</code></pre>
 <p><strong>初始化</strong>：初始化成员变量，这一步才开始执行字节码。</p>
-<pre><code class="java">public class A {
-    static{
+<pre><code class="java">public class A &#123;
+    static&#123;
         System.out.println(1);
-    }
-    public A(){
+    &#125;
+    public A()&#123;
         System.out.println(&quot;A&quot;);
-    }
+    &#125;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) &#123;
         A ab = new B();
         ab = new B();
-    }
-}
+    &#125;
+&#125;
 
-class B extends A{
-    static {
+class B extends A&#123;
+    static &#123;
         System.out.println(&quot;2&quot;);
-    }
-    public B(){
+    &#125;
+    public B()&#123;
         System.out.println(&quot;B&quot;);
-    }
+    &#125;
 
 //执行结果: 1 2 A B A B   原因:初始化子类先调用父类无参构造，static在类加载的准备阶段执行一次，不重复执行。
 //static只会执行一次，对应cint方法
-//对象初始化调用构造方法，每次新建对象都会执行，对应init方法
-</code></pre>
+//对象初始化调用构造方法，每次新建对象都会执行，对应init方法</code></pre>
 <p>如果你自己写一个java.lang包，改写了String类，编译后发现没起作用。JRE不能被轻易篡改，否则可能会有安全问题。这就是类加载机制在起作用。<br><strong>类加载机制流程</strong>：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-04.png" alt="alt JVM-04">  </p>
 <p><strong>双亲委派机制</strong>：当某个类加载器需要加载某个.class文件时，它首先把这个任务委托给他的上级类加载器，递归这个操作，如果上级的类加载器没有加载，才会去真正加载这个类。<br>比如Object类，毫无疑问会交给最上层的类加载器加载，保证只有一个被加载的Object类。如果没有双亲委派机制，会有多个Object类，很混乱。<br>类加载器运行有先后顺序的，下面是类加载器的种类：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-05.png" alt="alt JVM-05">  </p>
 <ul>
@@ -594,22 +588,27 @@ class B extends A{
 <ul>
 <li><p>可以覆盖HashMap类的实现吗？<br>可以，用到Java的endorsed技术，我们可以把自己的HashMap类打成jar放在-Djava.endorsed.dirs指定的目录，类名和包名应该与jdk原生的一致。这个目录下的jar会被优先加载，比rt.jar优先级更高。</p>
 </li>
-<li><p>哪些地方打破了Java的类加载机制?<br>举例子：<br>1.tomcat使用war包发布应用，由WebAppClassLoader类加载器优先加载，它加载自己目录的.class但不传递给父类加载器，但它可以通过SharedClassLoader实现共享和分离。<br>2.Java的SPI机制，例子：Mysql的JDBC。使用JDBC Driver前使用Class.forName(“com.mysql.jdbc.driver)，但如果删除这行代码也能正确加载到驱动类，因为使用ServiceLoader来动态装载。</p>
+<li><p>哪些地方打破了Java的类加载机制?<br>举例子：</p>
 </li>
-<li><p>如何加载远程.class文件，怎么加密.class文件？<br>通过实现一个新的自定义类加载器。</p>
-</li>
+</ul>
+<p>1.tomcat使用war包发布应用，由WebAppClassLoader类加载器优先加载，它加载自己目录的.class但不传递给父类加载器，但它可以通过SharedClassLoader实现共享和分离。<br>2.Java的SPI机制，例子：Mysql的JDBC。使用JDBC Driver前使用Class.forName(“com.mysql.jdbc.driver)，但如果删除这行代码也能正确加载到驱动类，因为使用ServiceLoader来动态装载。</p>
+<ul>
+<li>如何加载远程.class文件，怎么加密.class文件？<br>通过实现一个新的自定义类加载器。</li>
 </ul>
 <h3 id="JVM的GC"><a href="#JVM的GC" class="headerlink" title="JVM的GC"></a>JVM的GC</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-06.png" alt="alt JVM-06"><br><strong>GC Roots</strong>：可达性分析法，是GC实现的一种方法(另一种是引用计数法)，GC Roots是一组活跃的引用，程序在接下来的运行中能直接或间接引用或能被引用的对象。从GC Roots不断向下追溯遍历，会产生Reference Chain引用链。GC Roots遍历过程是找出所有活对象，并把其余空间认定为无用，而不是找到死对象。如果一个对象连续两次遍历过程中跟GC Roots没有任何直接或间接引用，则会被GC掉。<br>GC Roots包括：</p>
 <ul>
 <li>活动线程相关的各种引用</li>
 <li>类的静态变量的引用</li>
 <li>JNI引用</li>
-<li>GC Roots是引用不是对象<br><strong>引用级别（引用链的表现）</strong>：</li>
+<li>GC Roots是引用不是对象</li>
+<li>*引用级别（引用链的表现）**：</li>
 <li>强引用：[有用且必须]内存不足直到抛OOM，这种强引用的对象也不会被回收。 - 容易造成内存泄露(比如一个User类没有字段info，用HashMap&lt;User,String&gt;存，用完User但因为被HashMap使用而未能回收，就造成内存泄露)</li>
 <li>软引用：[有用非必须]维护一些可有可无的对象，内存足够的时候不会被回收，内存不足会回收。如果回收了软引用对象后内存还不够则抛出OOM。</li>
-<li>弱引用：[可能有用非必须]引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。</li>
+<li>弱引用：[可能有用非必须]引用的对象相比软引用，要更加无用一些，生命周期更短。GC时无论内存是否充足都会回收弱引用关联的对象。不过由于垃圾回收器是一个优先级较低的线程，所以并不一定能迅速发现弱引用对象。</li>
 <li>虚引用：[无用]形同虚设的引用，任何时候都可被回收。  </li>
 </ul>
+<p><strong>WeakReference与SoftReference的区别?</strong><br>虽然WeakReference与SoftReference都有利于提高GC和内存的效率，但是WeakReference一旦失去最后一个强引用，就会被GC回收，而软引用虽然不能阻止被回收，但是可以拖延到JVM内存不足的时候再被回收。</p>
+<p><strong>为何要有多种不同引用级别?</strong><br><em>利用软引用和弱引用解决OOM问题_：用一个HashMap来保存图片的路径和相应图片对象关联的软引用之间的映射关系，在内存不足时，JVM会自动回收这些缓存图片对象所占用的空间，从而有效地避免了OOM的问题.<br>_通过软引用实现Java对象的高速缓存</em>:比如我们创建了Person类，如果每次需要查询一个人的信息,哪怕是几秒中之前刚刚查询过的，都要重新构建一个实例，这将引起大量Person对象的消耗,并且由于这些对象的生命周期相对较短,会引起多次GC影响性能。此时,通过软引用和HashMap的结合可以构建高速缓存,提高性能。</p>
 <pre><code class="java"> //强引用
  Shmily shmily = new Shmily();
 
@@ -629,8 +628,7 @@ class B extends A{
  //所有以上对象出了强引用之外，一旦被回收，get方法返回null。
  //以上创建软引用，弱引用的对象softReference和weakReference还都属于强引用，用完也需要回收避免内存溢出，方法如下：
  ReferenceQueue referenceQueue = new ReferenceQueue();
- PhantomReference&lt;Shmily&gt; phantomReference = new PhantomReference&lt;Shmily&gt;(softReference, referenceQueue);
-</code></pre>
+ PhantomReference&lt;Shmily&gt; phantomReference = new PhantomReference&lt;Shmily&gt;(softReference, referenceQueue);</code></pre>
 <p><strong>可能发生OOM的内存区域</strong>：除了程序计数器，都有可能。但主要是发生在堆上。<br><strong>OOM发生原因</strong>：</p>
 <ul>
 <li>内存不足需要扩容。</li>
@@ -666,11 +664,43 @@ class B extends A{
 <li>FullGC  全堆垃圾回收（如元空间引起的年轻代和老年代回收）<br>触发条件：①调用System.gc ②老年代空间不足(可能无足够连续空间) ③担保机制失败(Eden大对象无法存入老年代，因为检测到老年代无足够连续内存空间) ④Minor GC后进入老年代的平均大小大于老年代可用内存</li>
 <li>Mixed GC[G1收集器特有] 收集整个YoungGeneration和部分OldGeneration</li>
 </ul>
-<p>Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。</p>
-<font size="3" color="red"><strong>年轻代的GC</strong>：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。<br>年轻代分为<strong>Eden:From Survivor:To Survivor = 8:1:1</strong>三个空间。对象首先在Eden区，如果<strong>Eden区满了就会触发MinorGC</strong>。<br><u>单数次MinorGC:在MinorGC后，存活的对象进入Form Survivor区。双数次MinorGC，Eden和From Survivor区一起清理，存活对象被复制到To区，并清空From区。</u><br>从上面可以得知每次GC都有一个Survivor区空闲，由于Eden:From Survivor:To Survivor = 8:1:1，年轻代GC复制算法只浪费了10%的内存空间，同时做到了高效，无碎片和节约空间。<br>扩展：TLAB(Thread Local Allocation Buffer)，是JVM给每个线程单独开辟的区域，用来加速对象分配。在Eden区分多个TLAB，TLAB通常比较小，对象优先分配在TLAB上，对象较大才会在Eden区分配。TLAB是一种优化，类似于逃逸分析的对象在栈上分配的优化。<br><br><font size="3" color="red"><strong>老年代的GC</strong>：老年代一般使用<strong>标记整理和标记清除算法</strong></font>。因为老年代很多对象存活率高，占用较大，不方便复制。<br><strong>对象怎么进入老年代</strong>：<br>1. <strong>达到一定年龄</strong><br>每次发生MinorGC，对象年龄加1，达到阈值(最大值是15可通过‐XX:+MaxTenuringThreshold调)，进入老年代。<br>2. <strong>分配担保机制</strong><br>因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次Eden+其中一个Survivor存活的对象大小都小于另一个Survivor区空间，通过分配担保机制，另一个Survivor区放不下的对象直接进入老年代。JVM每次MinorGC前会检查老年代最大可用连续内存空间是否大于新生代对象的总空间，如果是的话确保MinorGC是安全的。<br>3. <strong>大对象直接进入老年代</strong><br>超过一定大小的对象直接进入老年代。(通过-XX:PretenureSizeThreshold设置，默认0表示都要先走年轻代)<br>4. <strong>动态年龄判定</strong><br>为了使内存分配更灵活，JVM不一定要求对象年龄达到MaxTenuringThreshold(15)才晋升为老年代，若Survivor区相同年龄对象总大小大于Survivor区空间的一半，则大于等于这个年龄的对象将会在MinorGC时移到老年代。<br><br><font size="3" color="red"><strong>JVM常见垃圾回收器</strong>：</font><br>如果垃圾收集算法是JVM垃圾回收的方法论，那垃圾回收器就是上述算法的实现。<br><em> 年轻代垃圾回收器<br>    1. Serial垃圾回收器<br>    单线程的垃圾回收器，垃圾回收时暂停一切用户线程，使用复制算法。<br>    优点：简单轻量级，使用资源少。<br>    场景：用于客户端应用，因为客户端应用不会频繁创建对象。<br>    2. ParNew垃圾回收器<br>    Serial回收器的多线程版本，多条GC线程并行回收，垃圾回收时仍暂停一切用户线程<br>    优点：多CPU环境下收集效率高些，GC停顿时间缩短。<br>    场景：多CPU场景下使用，ParNew适合交互多计算少的场景。<br>    3. Parallel Scavenge垃圾回收器<br>    多线程回收器<br>    场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。
-</em> 老年代垃圾回收器<br>    1. Serial Old垃圾回收器<br>    与年轻代的Serial垃圾回收器对应，也是单线程，使用标记-整理算法。<br>    优点：简单轻量级，使用资源少。<br>    场景：也适用于客户端应用<br>    2. Parallel Old垃圾回收器<br>    Parallel Scavenge垃圾回收器的老年代版本。<br>    场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。<br>    3.CMS垃圾回收器<br>    以最短GC时间为目标，用户线程与GC线程可并发执行，垃圾回收过程用户不会感到明显卡顿。<br>    长期来看G1、ZGC等更高级的垃圾回收器是趋势。<br><em> CMS垃圾回收器<br>    全称：Mostly Concurrent Mark and Sweep Garbage Collector（主要并发­标记­清除­垃圾收集器）<br>    CMS在年轻代使用复制算法，在老年代使用标记-清除算法。它把耗时的GC操作通过多线程并发执行的。<br>    优点：避免老年代GC出现长时间卡顿<br>    缺点：对老年代的回收没整理阶段，产生内存碎片随时间推移增多时必须要FullGC才能清理。可能会导致大对象创建失败。<br>    场景：不希望GC停顿时间长且CPU资源较充足<br>    回收过程：1.初始标记阶段：只标记GC Roots直接关联的对象和年轻代中的引用，不向下追溯，缩短了标记时GC暂停时间。2.并发标记阶段，并发地追溯可达对象，持续时间较长但跟用户线程并行执行。3.并发预清理，这个过程会清理dirty状态的老年代对象。4.可选的预清理。5.最终标记，会GC暂停。6.并发清理，用户线程重新激活，删除不可达对象。<br>    关于CMS的碎片整理问题：两个参数<br>        UseCMSCompactAtFullCollection（默认开启）：FullGC时压缩，整理内存碎片，会造成较长时间停顿。<br>        CMSFullGCsBeforeCompaction：每隔几次FullGC后执行一次带压缩的FullGC。<br>    总结CMS中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font><br>        初始标记阶段-较短停顿<br>        最终标记阶段-较短停顿<br>        老年代的回收-较长停顿<br>        Full GC阶段-较长停顿
-</em> G1垃圾回收器<br>    全称：Garbage First（尽可能多地收集垃圾以减少FullGC）<br>    目前比较好的收集器，关注低延迟，用于替代CMS的功能更强大的新型收集器。<br>    引入了分区概念，弱化了分带概念<br>    优点：避免老年代GC出现长时间卡顿，同时与CMS相比解决了CMS产生碎片的缺陷。<br>    缺点：<br>    场景：不希望GC停顿时间长且CPU资源较充足<br>    回收过程：<br>    关于CMS的碎片整理问题：两个参数<br><br>    总结G1中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font>
-
+<p>Java的大部分对象生命周期都不长，它们位于年轻代(Young Generation)，而生命周期较长的位于老年代(Old Generation)。<br><font size="3" color="red"><strong>年轻代的GC</strong>：年轻代使用复制算法</font>，因为年轻代大部分对象生命周期短，如果发生GC只会有少量对象存活，复制这部分对象是高效的。<br>年轻代分为<strong>Eden:From Survivor:To Survivor = 8:1:1</strong>三个空间。对象首先在Eden区，如果<strong>Eden区满了就会触发MinorGC</strong>。<br><u>单数次MinorGC:在MinorGC后，存活的对象进入Form Survivor区。双数次MinorGC，Eden和From Survivor区一起清理，存活对象被复制到To区，并清空From区。</u><br>从上面可以得知每次GC都有一个Survivor区空闲，由于Eden:From Survivor:To Survivor = 8:1:1，年轻代GC复制算法只浪费了10%的内存空间，同时做到了高效，无碎片和节约空间。<br>扩展：TLAB(Thread Local Allocation Buffer)，是JVM给每个线程单独开辟的区域，用来加速对象分配。在Eden区分多个TLAB，TLAB通常比较小，对象优先分配在TLAB上，对象较大才会在Eden区分配。TLAB是一种优化，类似于逃逸分析的对象在栈上分配的优化。</p>
+<p><font size="3" color="red"><strong>老年代的GC</strong>：老年代一般使用<strong>标记整理和标记清除算法</strong></font>。因为老年代很多对象存活率高，占用较大，不方便复制。<br><strong>对象怎么进入老年代</strong>：</p>
+<ol>
+<li><strong>达到一定年龄</strong><br>每次发生MinorGC，对象年龄加1，达到阈值(最大值是15可通过‐XX:+MaxTenuringThreshold调)，进入老年代。</li>
+<li><strong>分配担保机制</strong><br>因为Survivor区只占年轻代10%的空间，发生MinorGC时无法保证每次Eden+其中一个Survivor存活的对象大小都小于另一个Survivor区空间，通过分配担保机制，另一个Survivor区放不下的对象直接进入老年代。JVM每次MinorGC前会检查老年代最大可用连续内存空间是否大于新生代对象的总空间，如果是的话确保MinorGC是安全的。</li>
+<li><strong>大对象直接进入老年代</strong><br>超过一定大小的对象直接进入老年代。(通过-XX:PretenureSizeThreshold设置，默认0表示都要先走年轻代)</li>
+<li><strong>动态年龄判定</strong><br>为了使内存分配更灵活，JVM不一定要求对象年龄达到MaxTenuringThreshold(15)才晋升为老年代，若Survivor区相同年龄对象总大小大于Survivor区空间的一半，则大于等于这个年龄的对象将会在MinorGC时移到老年代。</li>
+</ol>
+<p><font size="3" color="red"><strong>JVM常见垃圾回收器</strong>：</font><br>如果垃圾收集算法是JVM垃圾回收的方法论，那垃圾回收器就是上述算法的实现。</p>
+<ul>
+<li><p>年轻代垃圾回收器</p>
+<ol>
+<li>Serial垃圾回收器<br>单线程的垃圾回收器，垃圾回收时暂停一切用户线程，使用复制算法。<br>优点：简单轻量级，使用资源少。<br>场景：用于客户端应用，因为客户端应用不会频繁创建对象。</li>
+<li>ParNew垃圾回收器<br>Serial回收器的多线程版本，多条GC线程并行回收，垃圾回收时仍暂停一切用户线程<br>优点：多CPU环境下收集效率高些，GC停顿时间缩短。<br>场景：多CPU场景下使用，ParNew适合交互多计算少的场景。</li>
+<li>Parallel Scavenge垃圾回收器<br>多线程回收器<br>场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。</li>
+</ol>
+</li>
+<li><p>老年代垃圾回收器</p>
+<ol>
+<li>Serial Old垃圾回收器<br>与年轻代的Serial垃圾回收器对应，也是单线程，使用标记-整理算法。<br>优点：简单轻量级，使用资源少。<br>场景：也适用于客户端应用</li>
+<li>Parallel Old垃圾回收器<br>Parallel Scavenge垃圾回收器的老年代版本。<br>场景：多CPU下使用，追求CPU吞吐量，适用于交互少计算多的场景。</li>
+<li>CMS垃圾回收器<br>以最短GC时间为目标，用户线程与GC线程可并发执行，垃圾回收过程用户不会感到明显卡顿。<br>长期来看G1、ZGC等更高级的垃圾回收器是趋势。</li>
+</ol>
+</li>
+<li><p>CMS垃圾回收器<br>  全称：Mostly Concurrent Mark and Sweep Garbage Collector（主要并发­标记­清除­垃圾收集器）<br>  CMS在年轻代使用复制算法，在老年代使用标记-清除算法。它把耗时的GC操作通过多线程并发执行的。<br>  优点：避免老年代GC出现长时间卡顿<br>  缺点：对老年代的回收没整理阶段，产生内存碎片随时间推移增多时必须要FullGC才能清理。可能会导致大对象创建失败。<br>  场景：不希望GC停顿时间长且CPU资源较充足<br>  回收过程：1.初始标记阶段：只标记GC Roots直接关联的对象和年轻代中的引用，不向下追溯，缩短了标记时GC暂停时间。2.并发标记阶段，并发地追溯可达对象，持续时间较长但跟用户线程并行执行。3.并发预清理，这个过程会清理dirty状态的老年代对象。4.可选的预清理。5.最终标记，会GC暂停。6.并发清理，用户线程重新激活，删除不可达对象。<br>  关于CMS的碎片整理问题：两个参数</p>
+<pre><code>  UseCMSCompactAtFullCollection（默认开启）：FullGC时压缩，整理内存碎片，会造成较长时间停顿。
+  CMSFullGCsBeforeCompaction：每隔几次FullGC后执行一次带压缩的FullGC。</code></pre>
+<p>  总结CMS中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font></p>
+<pre><code>  初始标记阶段-较短停顿
+  最终标记阶段-较短停顿
+  老年代的回收-较长停顿
+  Full GC阶段-较长停顿</code></pre>
+</li>
+<li><p>G1垃圾回收器<br>  全称：Garbage First（尽可能多地收集垃圾以减少FullGC）<br>  目前比较好的收集器，关注低延迟，用于替代CMS的功能更强大的新型收集器。<br>  引入了分区概念，弱化了分带概念<br>  优点：避免老年代GC出现长时间卡顿，同时与CMS相比解决了CMS产生碎片的缺陷。<br>  缺点：<br>  场景：不希望GC停顿时间长且CPU资源较充足<br>  回收过程：<br>  关于CMS的碎片整理问题：两个参数</p>
+<p>  总结G1中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font></p>
+</li>
+</ul>
 <p><strong>GC小技巧</strong></p>
 <ol>
 <li>GC日志查看<br> 加-XX:+PrintGCDetails参数 查看GC日志，有关GC日志的解析后续我会单写一个博客。<br> 使用Sun公司的gchisto，gcviewer离线分析工具<br> 使用JDK自带的JConsole<br> 使用jstat -gcutil pid命令<br> 使用JvisualVM工具</li>
@@ -689,19 +719,18 @@ $ java -XX:+PrintCommandLineFlags -version
 -XX:+UseParallelOldGC 新生代和老年代都使用并行收集器
 -XX:+UseConcMarkSweepGC，表示年轻代使用 ParNew，老年代的用 CMS
 -XX:+UseG1GC 使用 G1垃圾回收器
--XX:+UseZGC 使用 ZGC 垃圾回收器
-</code></pre>
+-XX:+UseZGC 使用 ZGC 垃圾回收器</code></pre>
 <p>常量池分静态常量池和运行时常量池，静态常量池在 .class 中，运行时常量池在方法区中。<br>字符串池在JDK 1.7 之后被分离到堆区。<br>String str = new String(“Hello world”) 创建了 2 个对象，一个驻留在字符串池，一个分配在 Java 堆，str 指向堆上的实例。<br>String.intern() 能在运行时向字符串池添加常量。<br>为什么String为final：1.为了实现字符串池：创建字符串常量时，JVM会检测字符串常量池，如果已存在，直接返回常量池中的实例的引用，如果不存在就实例化并放入字符串常量池。因为String为Final类型，我们可以十分肯定字符串常量池不存在两个相同的字符串。2.为了线程安全：因为它不可变，本身就是线程安全的3.节约内存4.HashMap的key往往用String是因为String不可变，在被创建时HashCode就被缓存了不需要重新计算。</p>
 <p>GC是怎么判断对象是被标记的？<br>通过枚举根节点的方式，通过jvm提供的一种oopMap的数据结构，简单来说就是不要再通过去遍历内存里的东西，而是通过OOPMap的数据结构去记录该记录的信息,比如说它可以不用去遍历整个栈，而是扫描栈上面引用的信息并记录下来。<br>总结:通过OOPMap把栈上代表引用的位置全部记录下来，避免全栈扫描，加快枚举根节点的速度，除此之外还有一个极为重要的作用，可以帮HotSpot实现准确式GC【这边的准确关键就是类型，可以根据给定位置的某块数据知道它的准确类型，HotSpot是通过oopMap外部记录下这些信息，存成映射表一样的东西】。</p>
 <p>CMS收集器是否会扫描年轻代？<br>会，在初始标记的时候会扫描新生代。虽然cms是老年代收集器，但是我们知道年轻代的对象是可以晋升为老年代的，为了空间分配担保，还是有必要去扫描年轻代。</p>
 <h2 id="小标题1"><a href="#小标题1" class="headerlink" title="小标题1"></a>小标题1</h2><h2 id="小标题2"><a href="#小标题2" class="headerlink" title="小标题2"></a>小标题2</h2><h2 id="原理（中标题）"><a href="#原理（中标题）" class="headerlink" title="原理（中标题）"></a>原理（中标题）</h2><ul>
-<li>字体<br><em>斜体文本</em><br><em>斜体文本</em><br><strong>粗体文本</strong><br><strong>粗体文本</strong><br><strong><em>粗斜体文本</em></strong><br><strong><em>粗斜体文本</em></strong><br><u>带下划线文本</u></li>
+<li>字体</li>
+<li>斜体文本*<br><em>斜体文本</em></li>
+<li>*粗体文本**<br><strong>粗体文本</strong></li>
+<li>*<em>粗斜体文本**</em><br><strong><em>粗斜体文本</em></strong><br><u>带下划线文本</u></li>
 </ul>
-<p>字颜色大小</p>
-<p><font size="3" color="red">This is some text!</font></p>
-<p><font size="2" color="blue">This is some text!</font></p>
-<p><font face="verdana" color="green" size="3">This is some text!</font></p>
-<h2 id="一些常用Java命令"><a href="#一些常用Java命令" class="headerlink" title="一些常用Java命令"></a>一些常用Java命令</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/1e4011617650" target="_blank" rel="noopener">Java双亲委派机制及其作用</a><br><a href="https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31" target="_blank" rel="noopener">拉勾网</a><br><a href="https://www.cnblogs.com/duanxz/p/3520829.html" target="_blank" rel="noopener">MetaSpace整体介绍</a><br><a href="https://www.jianshu.com/p/76959115d486" target="_blank" rel="noopener">深入理解JMM和GC</a></p>
+<p>字颜色大小<br><font size="3" color="red">This is some text!</font><br><font size="2" color="blue">This is some text!</font><br><font face="verdana" color="green"  size="3">This is some text!</font></p>
+<h2 id="一些常用Java命令"><a href="#一些常用Java命令" class="headerlink" title="一些常用Java命令"></a>一些常用Java命令</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1e4011617650">Java双亲委派机制及其作用</a><br><a target="_blank" rel="noopener" href="https://kaiwu.lagou.com/course/courseInfo.htm?courseId=31#/content?courseId=31">拉勾网</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/duanxz/p/3520829.html">MetaSpace整体介绍</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/76959115d486">深入理解JMM和GC</a></p>
 
         </div>
         <!-- .entry-content -->

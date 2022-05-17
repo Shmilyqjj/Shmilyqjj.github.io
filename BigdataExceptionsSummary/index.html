@@ -560,31 +560,83 @@ GC pool &#39;ConcurrentMarkSweep&#39; had collection(s): count=1 time=54179ms</c
 <p>原因:本地客户端采用Kerberos认证，但远程Server未开启Kerberos认证，远程为SIMPLE认证<br>解决:<br>设置ipc.client.fallback-to-simple-auth-allowed=true参数即可 参数加在dfs后面 如下</p>
 <pre><code class="shell">hdfs dfs -D ipc.client.fallback-to-simple-auth-allowed=true -ls hdfs://remote_nn_ip:8020/user/hive/warehouse/</code></pre>
 </li>
-</ol>
-<h2 id="Hive相关"><a href="#Hive相关" class="headerlink" title="Hive相关"></a>Hive相关</h2><ol>
-<li><p>HiveMetaStore状态不良导DDLSQL耗时200s以上<br>HMS进程报错：<font size="3" color="red">hive metastore server Failed to sync requested HMS notifications up to the event ID xxx</font><br>原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。<br>开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。<br>解决：<br> ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。<br> ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）</p>
-</li>
-<li><p>HBase外部表报<font size="3" color="red">Unexpected end-of-input</font><br>起因：使用Hive创建HBase外部表时正常，但使用HBase外部表时报Unexpected end-of-input: was expecting closing<br>分析过程：翻阅源码部分发现异常是在解析外部表创建JSON时发生，于是对比建表语句和Hive元数据库中的TABLE_PARAMS表信息得到原因<br>原因：创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而使用该表的时候会读元数据，但因为元数据不完整而报错。<br>解决：<br>①分多次建表<br>②改varchar(4000)为longtext然后重建表（影响无法评估，没尝试）</p>
-</li>
-<li><p>Hive和Spark查询Hive表报java.net.UnknownHostException: nameservice1<br>分析：由于机器HDFS HA配置发生变动，关掉了高可用，所以nameservice变成了ip:8020，报这个错，首先检查了/etc/hadoop/conf/hdfs-site.xml里面无dfs.nameservices配置，证明配置文件没问题。使用hivecli，desc formatted某几张表，发现表的LOCATION均为hdfs://nameservice1/xx 找到了问题的原因，元数据错误，所以需要去Hive元数据库批量修改元数据。<br>解决：连接到Hive metastore元数据库，批量修改LOCATION：<br>update hive.SDS set LOCATION=concat(“hdfs://ip:8020”,substring(LOCATION,20,length(LOCATION)-19)) where LOCATION like “hdfs://nameservice1%”;<br>update hive.DBS set DB_LOCATION_URI=concat(“hdfs://ip:8020”,substring(DB_LOCATION_URI,20,length(DB_LOCATION_URI)-19)) where DB_LOCATION_URI like “hdfs://nameservice1%”;<br>无需重启服务即可生效，问题解决。</p>
+<li><p>HDFS无法上传文件<br>```log</p>
 </li>
 </ol>
-<h2 id="Yarn相关"><a href="#Yarn相关" class="headerlink" title="Yarn相关"></a>Yarn相关</h2><ol>
-<li><p>应用提交报<font size="3" color="red">Retrying connect to server 0.0.0.0</font><br>原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确<br>解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml</p>
-<pre><code class="yarn-site.xml">&lt;property&gt;
-  &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
-  &lt;value&gt;master:8032&lt;/value&gt;
-&lt;/property&gt;
-&lt;property&gt;
-  &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
-  &lt;value&gt;master:8030&lt;/value&gt;
-&lt;/property&gt;
-&lt;property&gt;
-  &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
-  &lt;value&gt;master:8031&lt;/value&gt;
-&lt;/property&gt;</code></pre>
-</li>
+<p>– hdfs dfs -copyFromLocal xxx /tmp/<br>22/05/16 18:10:05 WARN hdfs.DataStreamer: DataStreamer Exception<br>org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /tmp/qjj.<em>COPYING</em> could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.<br>        at org.apache.hadoop.hdfs.server.blockmanagement.BlockManager.chooseTarget4NewBlock(BlockManager.java:2102)<br>        at org.apache.hadoop.hdfs.server.namenode.FSDirWriteFileOp.chooseTargetForNewBlock(FSDirWriteFileOp.java:294)<br>        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:2673)<br>        at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.addBlock(NameNodeRpcServer.java:872)<br>        at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.addBlock(ClientNamenodeProtocolServerSideTranslatorPB.java:550)<br>        at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)<br>        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:523)<br>        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:991)<br>        at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:869)<br>        at org.apache.hadoop.ipc.Server$RpcCall.run(Server.java:815)<br>        at java.security.AccessController.doPrivileged(Native Method)<br>        at javax.security.auth.Subject.doAs(Subject.java:422)<br>        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1875)<br>        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2675)</p>
+<pre><code>    at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1499)
+    at org.apache.hadoop.ipc.Client.call(Client.java:1445)
+    at org.apache.hadoop.ipc.Client.call(Client.java:1355)
+    at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:228)
+    at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:116)
+    at com.sun.proxy.$Proxy9.addBlock(Unknown Source)
+    at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB.addBlock(ClientNamenodeProtocolTranslatorPB.java:497)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:498)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:422)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeMethod(RetryInvocationHandler.java:165)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invoke(RetryInvocationHandler.java:157)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeOnce(RetryInvocationHandler.java:95)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:359)
+    at com.sun.proxy.$Proxy10.addBlock(Unknown Source)
+    at org.apache.hadoop.hdfs.DFSOutputStream.addBlock(DFSOutputStream.java:1085)
+    at org.apache.hadoop.hdfs.DataStreamer.locateFollowingBlock(DataStreamer.java:1865)
+    at org.apache.hadoop.hdfs.DataStreamer.nextBlockOutputStream(DataStreamer.java:1668)
+    at org.apache.hadoop.hdfs.DataStreamer.run(DataStreamer.java:716)</code></pre>
+<p>copyFromLocal: File /tmp/qjj.<em>COPYING</em> could only be written to 0 of the 1 minReplication nodes. There are 4 datanode(s) running and 4 node(s) are excluded in this operation.<br>– 服务端日志<br>上午10点15:18.249分 INFO    BlockPlacementPolicy<br>Not enough replicas was chosen. Reason:{NOT_ENOUGH_STORAGE_SPACE=3}<br>上午10点15:18.249分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology<br>上午10点15:18.250分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) For more information, please enable DEBUG log level on org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy and org.apache.hadoop.net.NetworkTopology<br>上午10点15:18.250分 WARN    BlockStoragePolicy<br>Failed to place enough replicas: expected size is 2 but only 0 storage types can be selected (replication=3, selected=[], unavailable=[DISK, ARCHIVE], removed=[DISK, DISK], policy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]})<br>上午10点15:18.250分 WARN    BlockPlacementPolicy<br>Failed to place enough replicas, still in need of 2 to reach 3 (unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}, newBlock=false) All required storage types are unavailable:  unavailableStorages=[DISK, ARCHIVE], storagePolicy=BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]}</p>
+<pre><code>执行hdfs dfsadmin -report结果发现DFS Used%超过了100%
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HDFS/HDFS-Problems-06.png) 
+原因：dfs.datanode.du.reserved参数被同事修改成了3072GB，这个参数是指该DataNode上单个数据盘预留的空间，单节点上有8块盘，每块少3T，总共少了24T，DN节点存储容量也随之下降。修改后，磁盘剩余空间不足3072G，则该DataNode无法写入。
+解决：降低dfs.datanode.du.reserved，重启DN节点。
+
+## Hive相关
+1. HiveMetaStore状态不良导DDLSQL耗时200s以上
+HMS进程报错：&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;hive metastore server Failed to sync requested HMS notifications up to the event ID xxx&lt;/font&gt;
+原因分析：查看sentry异常CounterWait源码发现传递的id比currentid大导致一直等待超时，超时时间默认为200s（sentry.notification.sync.timeout.ms）。
+开启了hdfs-sentry acl同步后，hdfs，sentry，HMS三者间权限同步的消息处理。当突然大批量的目录权限消息需要处理，后台线程处理不过来，消息积压滞后就会出现这个异常。这个异常不影响集群使用，只是会导致create，drop table慢需要等200s，这样等待也是为了追上最新的id。我们这次同时出现了HMS参与同步消息处理的线程被异常退出，导致sentry的sentry_hms_notification_id表数据一直没更新，需要重启HMS。如果积压了太多消息，让它慢慢消费处理需要的时间太长，可能一直追不上，这时可以选择丢掉这些消息。
+解决：
+    ①可以通过设置sentry.notification.sync.timeout.ms参数调小超时时间，减小等待时间，积压不多的话可以让它自行消费处理掉。
+    ②丢掉未处理的消息，在sentry的sentry_hms_notification_id表中插入一条最大值(等于当前消息的id，从notification_sequence表中获取) ，重启sentry服务。（notification_log 表存储了消息日志信息）
+
+2. HBase外部表报&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;Unexpected end-of-input&lt;/font&gt;
+起因：使用Hive创建HBase外部表时正常，但使用HBase外部表时报Unexpected end-of-input: was expecting closing
+分析过程：翻阅源码部分发现异常是在解析外部表创建JSON时发生，于是对比建表语句和Hive元数据库中的TABLE_PARAMS表信息得到原因
+原因：创建hbase外部表catalog太长导致schema太长，而hive元数据表mysql里的table_params字段param_value字段类型是varchar(4000)建表时由于schema太长，超过4000字符的部分被截断。而使用该表的时候会读元数据，但因为元数据不完整而报错。
+解决：
+①分多次建表
+②改varchar(4000)为longtext然后重建表（影响无法评估，没尝试）
+
+3. Hive和Spark查询Hive表报java.net.UnknownHostException: nameservice1
+分析：由于机器HDFS HA配置发生变动，关掉了高可用，所以nameservice变成了ip:8020，报这个错，首先检查了/etc/hadoop/conf/hdfs-site.xml里面无dfs.nameservices配置，证明配置文件没问题。使用hivecli，desc formatted某几张表，发现表的LOCATION均为hdfs://nameservice1/xx 找到了问题的原因，元数据错误，所以需要去Hive元数据库批量修改元数据。
+解决：连接到Hive metastore元数据库，批量修改LOCATION：
+update hive.SDS set LOCATION=concat(&quot;hdfs://ip:8020&quot;,substring(LOCATION,20,length(LOCATION)-19)) where LOCATION like &quot;hdfs://nameservice1%&quot;; 
+update hive.DBS set DB_LOCATION_URI=concat(&quot;hdfs://ip:8020&quot;,substring(DB_LOCATION_URI,20,length(DB_LOCATION_URI)-19)) where DB_LOCATION_URI like &quot;hdfs://nameservice1%&quot;;
+无需重启服务即可生效，问题解决。
+
+
+## Yarn相关
+1. 应用提交报&lt;font size=&quot;3&quot; color=&quot;red&quot;&gt;Retrying connect to server 0.0.0.0&lt;/font&gt;  
+原因：应用没有认到yarn-site.xml或者yarn-site.xml配置不正确
+解决：①指定HADOOP_CONF_DIR ②确认yarn-site.xml
+```yarn-site.xml
+ &lt;property&gt;
+     &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
+     &lt;value&gt;master:8032&lt;/value&gt;
+ &lt;/property&gt;
+ &lt;property&gt;
+     &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
+     &lt;value&gt;master:8030&lt;/value&gt;
+ &lt;/property&gt;
+ &lt;property&gt;
+     &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
+     &lt;value&gt;master:8031&lt;/value&gt;
+ &lt;/property&gt;</code></pre>
+<ol start="2">
 <li><p>内存不足Container退出<br>报错：<font size="3" color="red">Diagnostics: Container [pid=91869,containerID=container_e23_1574819880505_43157_01_000001] is running beyond physical memory limits. Current usage: 9.0 GB of 9 GB physical memory used; 12.8 GB of 18.9 GB virtual memory used. Killing container.Dump of the process-tree for container_e23_1574819880505_43157_01_000001</font><br>分析：”physical memory used”为物理内存占用（应用已占满9G），”virtual memory used”为虚拟内存占用，18.9GB是取决于yarn.nodemanager.vmem-pmem-ratio（yarn-site.xml中设置的虚拟内存和物理内存比例，默认2.1），报错是因为物理内存不足，是任务设置的内存少了<br>解决思路：<br>①如果资源充足，增加任务并行度分担任务负载<br>②增大任务可用资源（注意不要超过单台NM可分配上限yarn.scheduler.maximum-allocation-mb的值）<br>③适当增大yarn.nodemanager.vmem-pmem-ratio，适当调高虚拟内存比例<br>④[不建议]取消内存的检查：在yarn-site.xml或者程序中中设置yarn.nodemanager.vmem-check-enabled为false</p>
+</li>
+<li><p>yarn logs无法正常输出日志<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-01.png" alt="alt"><br>原因：yarn.nodemanager.remote-app-log-dir要设置为/tmp/logs 不能修改为其他盘<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-02.png" alt="alt"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Yarn/Yarn-Problems-03.png" alt="alt"><br>修改后历史Application查看日志恢复正常。</p>
 </li>
 </ol>
 <h2 id="HBase相关"><a href="#HBase相关" class="headerlink" title="HBase相关"></a>HBase相关</h2><ol>
@@ -648,7 +700,30 @@ HLog组成：sequenceid是一个Store级别的自增序列号，非常重要，R
 <li>集群新增RS致另一RS异常退出<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-01.png" alt="alt"><br>上线的RegionServer会触发Region移动，报错前有Flush操作，因为Region移动前会先Flush Region<br>异常相关源码：<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/HBase/HBase-Problems-02.png" alt="alt"><br>Flush Memstore到HFile这个过程未发生异常，但Flush一个Memstore后跟踪Memstore总大小未发生变化，即内存清理失败 超过5次就中止这个RS<br>分析：版本BUG</li>
 </ol>
 <h2 id="Kafka相关"><a href="#Kafka相关" class="headerlink" title="Kafka相关"></a>Kafka相关</h2><ol>
-<li>ConsumerRebalanceFailedException异常解决<br>报错：kafka.common.ConsumerRebalanceFailedException: group_xxx-1446432618163-2746a209 can’t rebalance after 5 retries<br>分析：官网给出了异常的相关说明和解决方案<br>consumer rebalancing fails (you will see ConsumerRebalanceFailedException): This is due to conflicts when two consumers are trying to own the same topic partition. The log will show you what caused the conflict (search for “conflict in “).<br>If your consumer subscribes to many topics and your ZK server is busy, this could be caused by consumers not having enough time to see a consistent view of all consumers in the same group. If this is the case, try Increasing rebalance.max.retries and rebalance.backoff.ms.<br>Another reason could be that one of the consumers is hard killed. Other consumers during rebalancing won’t realize that consumer is gone after zookeeper.session.timeout.ms time. In the case, make sure that rebalance.max.retries * rebalance.backoff.ms &gt; zookeeper.session.timeout.ms.<br>简单来说就是同一个topic的同一个分区被多个消费者消费，发生冲突<br>解决：<br>①增加相关topic的partition数<br>②提高kafka的consumer如下两项配置<br>rebalance.backoff.ms=2000<br>rebalance.max.retries=10</li>
+<li><p>ConsumerRebalanceFailedException异常解决<br>报错：kafka.common.ConsumerRebalanceFailedException: group_xxx-1446432618163-2746a209 can’t rebalance after 5 retries<br>分析：官网给出了异常的相关说明和解决方案<br>consumer rebalancing fails (you will see ConsumerRebalanceFailedException): This is due to conflicts when two consumers are trying to own the same topic partition. The log will show you what caused the conflict (search for “conflict in “).<br>If your consumer subscribes to many topics and your ZK server is busy, this could be caused by consumers not having enough time to see a consistent view of all consumers in the same group. If this is the case, try Increasing rebalance.max.retries and rebalance.backoff.ms.<br>Another reason could be that one of the consumers is hard killed. Other consumers during rebalancing won’t realize that consumer is gone after zookeeper.session.timeout.ms time. In the case, make sure that rebalance.max.retries * rebalance.backoff.ms &gt; zookeeper.session.timeout.ms.<br>简单来说就是同一个topic的同一个分区被多个消费者消费，发生冲突<br>解决：<br>①增加相关topic的partition数<br>②提高kafka的consumer如下两项配置<br>rebalance.backoff.ms=2000<br>rebalance.max.retries=10</p>
+</li>
+<li><p>MirrorMaker无故挂掉</p>
+<pre><code class="error"># MirrorMaker挂掉且无法重启，通过日志无法明确原因
+上午10点27:04.393分    ERROR    MirrorMaker$MirrorMakerThread    
+[mirrormaker-thread-0] Mirror maker thread failure due to 
+java.lang.IllegalStateException: Unexpected error code 2 while fetching data
+ at org.apache.kafka.clients.consumer.internals.Fetcher.parseCompletedFetch(Fetcher.java:998)
+ at org.apache.kafka.clients.consumer.internals.Fetcher.fetchedRecords(Fetcher.java:491)
+ at org.apache.kafka.clients.consumer.KafkaConsumer.pollForFetches(KafkaConsumer.java:1238)
+ at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1200)
+ at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:1176)
+ at kafka.tools.MirrorMaker$ConsumerWrapper.receive(MirrorMaker.scala:332)
+ at kafka.tools.MirrorMaker$MirrorMakerThread.run(MirrorMaker.scala:221)
+...
+上午10点27:04.697分    ERROR    MirrorMaker$MirrorMakerThread    
+[mirrormaker-thread-1] Mirror maker thread exited abnormally, stopping the whole mirror maker.
+上午10点27:04.697分    ERROR    MirrorMaker$MirrorMakerThread    
+[mirrormaker-thread-0] Mirror maker thread exited abnormally, stopping the whole mirror maker.
+# 发现source端Kafka Broker错误日志
+[ReplicaManager broker=30] Error processing fetch with max size 10485760 from replica [31] on partition event-topic-2: (fetchOffset=27000304654, logStartOffset=26879257739, maxBytes=11534336, CurrentLeaderEpoch=Optional.empty)
+org.apache.kafka.common.errors.CorruptRecordException: Found record size 0 smaller than minimum record overhead (14) in file /xxx/xxx/0000000000xxxxx.log</code></pre>
+<p>怀疑副本或ISR损坏，查看topic状态<br>kafka-topics –topic event_topic –describe –bootstrap-server s1:9092,s2:9092,s3:9092<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Bigdata-Problems/Kafka/Kafka-Problems-01.png" alt="alt"><br>原因：ISR缺失，ISR无法自动恢复和修复，系统磁盘存在坏道，需要更换磁盘解决；虽然Leader副本是可用的，但MirrorMaker可能卡在坏道处的Offset，尝试跳过Offset消费。如果允许数据丢失一段时间，可以使用新的消费组，从最新的Offset开始消费。<br>解决：换新的MirrorMaker消费组，消费正常，启动正常。后续补充丢失数据。</p>
+</li>
 </ol>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ol>
 <li>Zookeeper日志和快照过大<br>解决1：cd $ZOOKEEPER_HOME;bin/zkCleanup.sh {dataDir} 5;bin/zkCleanup.sh {snapshotDir} 5 并设置成定时调度<br>解决2：从3.4.0开始，zookeeper提供了自动清理snapshot和事务日志的功能，通过配置autopurge.snapRetainCount和autopurge.purgeInterval这两个参数能够实现定时清理了。这两个参数都是在zoo.cfg中配置的：<br> autopurge.purgeInterval 这个参数指定了清理频率，单位是小时，需要填写一个1或更大的整数，默认是0，表示不开启自己清理功能。<br> autopurge.snapRetainCount 这个参数和上面的参数搭配使用，这个参数指定了需要保留的文件数目。默认是保留3个。<br>原理：Zookeeper不会删除旧的快照和日志文件，zkCleanup.sh可以帮助合理清理当前节点的旧的日志和快照文件解决磁盘空间。其中dataDir是特定服务集合的znode存储的永久副本，对znode的所有更改会附加到log日志中，snapshotDir是永久快照。zkCleanup.sh将保留最后一个快照和相关的log日志，清除其他的快照和日志。注意最后一个参数值要大于等于3，日志损坏的情况下保证有3个以上备份。<br>参考:<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/r3.4.6/zookeeperAdmin.html#sc_maintenance">zookeeperAdmin.html#sc_maintenance</a></li>
