@@ -52,7 +52,7 @@ Hadoop相关
 hdfs dfsadmin -setQuota 10000 /tmp/qjj  设置该目录文件数配额为1w（实际9.8k都会少一点）
 hdfs dfsadmin -setSpaceQuota 10G /tmp/qjj  设置该目录空间配额10G
 hdfs dfsadmin -clrQuota /tmp/qjj  清空目录配额限制
-hdfs dfs -setrep 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
+hdfs dfs -setrep -R 2 /hbase/archive/path....  设置hdfs某个目录的副本数为2  降低冗余副本数
 
 hdfs权限管理
 hdfs自身不提供用户和组，其用户和组依赖Linux的用户和组。
@@ -61,6 +61,14 @@ Linux服务器批量（所有数据节点）操作：groupadd supergroup ； use
 
 查看NN状态命令
 hdfs haadmin -getAllServiceState  得到 ip active  ip standby
+
+Distcp
+-D dfs.replication=1 -prbugp 这种配置时dfs.replication=1不一定生效，因为有r参数，数据拷贝时保持原有数据的副本数。所以要想单副本，则把r去掉变为"-pbugp"
+备份任务的distcp命令参考：
+export HADOOP_CONF_DIR=/etc/hadoop/hadoop-conf
+export HADOOP_CLIENT_OPTS="-Xmx8192m $HADOOP_CLIENT_OPTS"
+hadoop distcp -D dfs.replication=1 -pbugp -i -m 400 -update -delete -skipcrccheck -bandwidth 2000 -strategy dynamic -filters /hadoop/bigdata/backup/hive/filter_files.txt hdfs://nameservice1/user/hive/warehouse hdfs://backup_nn_ip/user/hive/warehouse >> /data/tmp/hive_warehouse_backup.log 2>&1
+
 
 小文件产生情况：
 1.流作业
