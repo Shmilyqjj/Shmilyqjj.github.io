@@ -17,6 +17,7 @@ keywords: Kyuubi
 description: Kyuubi统一分析引擎代替ThriftServer提供稳定高效、支持多租户、权限管理、动态资源的分析服务。
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-cover.jpg
+abbrlink: ee1c2df4
 date: 2022-04-29 16:39:12
 ---
 # Kyuubi原理与替代SparkThriftServer实践-基于CDH6
