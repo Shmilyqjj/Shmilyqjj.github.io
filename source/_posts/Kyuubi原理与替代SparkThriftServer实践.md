@@ -38,13 +38,18 @@ Spark ThriftServer原生不支持多租户、权限管理、且稳定性一般�
 Kyuubi的愿景是建立在Apache Spark和Data Lake技术之上，理想的统一数据湖管理平台。支持纯SQL方式处理数据，实现在同统一平台上使用一份数据副本和一个SQL接口，完成ETL、分析、BI......等工作。
 
 ## Kyuubi对比SparkThriftServer的优势  
-1. 支持资源隔离（STS只能提交到一个Yarn Queue）
-2. 支持多客户端并发和授权
-3. 支持数据和元数据的访问权限控制，保证数据安全（STS是单用户的）
-4. 用户级别的SparkApplication实例申请
-5. 支持多个计算引擎，如Flink、Presto等
-6. 两级弹性资源管理（Kyuubi的资源弹性管理+Spark应用自身动态资源管理）
-7. 可自动扩展的查询并发能力（单个STS并发查询能力有限、并发高时就会出现资源紧张，资源抢占，任务等待、卡死...）
+|  | Kyuubi | SparkThriftServer |
+|----|----|----|
+| 资源隔离 | 支持资源隔离 | STS是单个Application，只能提交到一个Yarn Queue；虽然Spark本身也具有一定资源共享能力——FairScheduler通过设置spark.scheduler.pool资源池优先级来为不同用户分配不同资源，但内存IO和CPU等资源的隔离本身应是资源调度系统Yarn或K8S该做的事儿 |
+| 并发和扩展能力 | 支持无限水平扩展的多客户端并发能力，可自动扩展的查询并发能力，慢SQL影响小 | 单个STS并发查询能力有限、并发高时就会出现资源紧张，资源抢占，任务等待、卡死，且Driver单点瓶颈明显，慢SQL影响大 |
+| 资源伸缩性 | 两级弹性资源管理（Kyuubi的资源弹性管理支持自动申请和释放Spark实例+Spark应用自身动态资源管理） | Spark自身动态资源管理 |
+| 授权控制 | 支持数据和元数据的访问权限控制，支持基于Ranger细粒度授权，保证数据安全 | STS是单用户启动的，只有粗粒度授权，无法保证数据安全 | 
+| 实例管理 | 支持连接级别、用户级别、服务级别和组级别的SparkApplication实例申请 | 单个SparkApplication实例 |
+| 执行引擎 | Spark、Flink、Trino(Presto) | Spark |
+| 存储引擎 | Hive+Kudu+DeltaLake+Azure+Presto | Hive+DeltaLake |
+| 高可用性 | 原生基于ZK和Yarn的高可用，KyuubiServer本身支持水平扩展高可用 | 原生不支持，需要手动配置LoadBalancer，但发生切换时视图、hivevar变量、缓存等状态会丢失 |
+| 系统架构 | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-01.png) | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-08.png) |
+
 
 ## Kyuubi原理
 ### Kyuubi架构图
@@ -60,19 +65,38 @@ Kyuubi可以创建和托管多个SparkContexts实例，它们有自己的生命�
 Kyuubi支持不同共享级别的引擎共享。如果设置了USER级别的share.level，同一用户与Kyuubi建立的多个连接会复用同一个Engine，实现用户级别的资源隔离。
 
 ### Kyuubi资源隔离共享级别
-| 共享级别 | 参数 | 说明 |
-|----|----|----|
-| CONNECTION | kyuubi.engine.share.level=CONNECTION | 每个连接都创建一个独立的Engine |
-| USER | kyuubi.engine.share.level=USER | 同一用户的多个连接共享一个Engine，一个用户对应一个Engine |
-| GROUP | kyuubi.engine.share.level=GROUP | 属于相同主组的所有用户创建的所有连接共享同一个Engine，引擎以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER | 
-| SERVER | kyuubi.engine.share.level=SERVER | 每个KyuubiServer中的连接共用一个Engine |
+| 共享级别 | 参数 | 图解 | 说明 |
+|----|----|----|----|
+| CONNECTION | kyuubi.engine.share.level=CONNECTION | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-09.png) | 每个连接都创建一个独立的Engine，连接创建即申请Engine，连接关闭即释放Engine |
+| USER | kyuubi.engine.share.level=USER | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-10.png) | 同一用户的多个连接共享一个Engine，一个用户对应一个Engine，用户连接关闭后不会立刻释放Engine，在无操作达到TTL后释放Engine |
+| GROUP | kyuubi.engine.share.level=GROUP | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-11.png) | 属于相同组的所有用户创建的所有连接共享同一个Engine，以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER，用户组遵循[Hadoop Groups Mapping](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/GroupsMapping.html)，可以通过配置把不同用户映射到一个组。相比USER级别给每个用户都创建引擎，GROUP级别可以减少引擎实例数，节约资源，但引擎是共享的，同组所有用户都复用这个引擎，访问权限控制若要做到细粒度，则需要结合[Apache Ranger](https://ranger.apache.org/)，资源控制的细粒度需要结合[SparkFairScheduler](https://spark.apache.org/docs/latest/job-scheduling.html#fair-scheduler-pools) | 
+| SERVER | kyuubi.engine.share.level=SERVER | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-12.png) | 每个KyuubiServer中的连接共用一个Engine，类似原生ThriftServer的高可用版本 |
+一个KyuubiServer中可以混用多种隔离级别。
+
+比如正常情况下引擎共享级别设置为GROUP，同一个组下的用户只能申请一个引擎；当组里用户太多时，单个引擎也会出现并发瓶颈和资源抢占，针对这种问题，Kyuubi中引入了Subdomain的概念，引擎共享子域（kyuubi.engine.share.level.subdomain）是对引擎资源隔离共享级别的补充，能实现同一个用户、组创建多个引擎。
+Kyuubi的JDBC连接串模板：jdbc:hive2://kyuubi-server-ip:10009/default;?conf1=val1;conf2=var2;...;confN=varN
+Kyuubi的JDBC连接串示例：jdbc:hive2://kyuubi-server-ip:10009/default;?spark.driver.memory=5G;spark.app.name=qjj_kyuubi_application
+Subdomain的使用：
+```shell
+beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuubi_sd1;spark.driver.memory=4G;kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd1" -nq00885 -p******
+beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuubi_sd2;spark.driver.memory=2G;kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2" -nq00885 -p******
+```
+可以看到单个用户启动了两个Engine
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-13.png)
+如果我想创建一个连接复用之前的sd2这个Subdomain，就可以通过以下指定Subdomain的方式进行指定。
+```shell
+beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2" -nq00885 -p******
+```
+参考：[Kyuubi Engine Share Level](https://kyuubi.apache.org/docs/latest/deployment/engine_share_level.html)
 
 ### Kyuubi HA
 Kyuubi基于ZK实现高可用和负载均衡：
+KyuubiServer启动会到ZK注册节点，实现KyuubiServer之间负载均衡和高可用
+每个用户登录默认是default子域，每个子域注册一个永久节点，子域下面申请的Engine会注册临时节点，将Engine信息写入ZK。此外还通过ZK存放一些用户的锁和租约信息。
+![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-14.png)
 
-
-
-
+### Kyuubi监控
+Kyuubi本身支持监控，配置方法参考：[Monitoring Kyuubi - Server Metrics](https://kyuubi.apache.org/docs/latest/monitor/metrics.html)
 
 ## 部署Kyuubi On CDH6.3.2
 ### Spark 3.2.2 On CDH6.3.2编译与部署
@@ -248,7 +272,7 @@ vim kyuubi-env.sh
   export SPARK_HOME=/opt/modules/spark-3.2.2-bin-hadoop-3.0.0-cdh6.3.2
   export HADOOP_CONF_DIR=/etc/hive/conf
   export KYUUBI_JAVA_OPTS="-Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=4096 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:CMSInitiatingOccupancyFraction=70 -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:+UseCondCardMark -XX:MaxDirectMemorySize=1024m  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./logs -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -Xloggc:./logs/kyuubi-server-gc-%t.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=5M -XX:NewRatio=3 -XX:MetaspaceSize=512m"
-# 修改kyuubi-defaults.conf
+# 修改kyuubi-defaults.conf （由于我之前的Spark安装中已经配置了hive-site等配置，这里不需要指定hive相关配置了，正常这里是可以指定hive配置的，参考https://kyuubi.apache.org/docs/latest/deployment/hive_metastore.html）
 vim kyuubi-defaults.conf
   spark.master=yarn
   kyuubi.ha.zookeeper.acl.enabled=true
@@ -292,9 +316,18 @@ kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
 还要确保Linux上有该用户，否则引擎无法申请成功。
 如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。
 
+### 集成Kudu
+[Kyuubi On Kudu](https://kyuubi.apache.org/docs/latest/integrations/kudu.html#)
+
+### Kyuubi的授权：
+Kyuuib当前支持三种授权：
+1.基于存储层面的授权(以上我们使用到的授权方式)
+2.基于SQL标准的授权类似HiveServer2(基于[Submarine:Spark Security](https://mvnrepository.com/artifact/org.apache.submarine/submarine-spark-security)外部插件) 
+3.基于Ranger(官网推荐，也是基于Submarine Spark，只是通过Spark-Ranger来实现更细粒度的访问授权)
 
 
 ### 问题与异常处理
+[Kyuubi Trouble Shooting](https://kyuubi.apache.org/docs/latest/monitor/trouble_shooting.html)
 1. 执行spark sql后一直卡住，后台报错User: root is not allowed to impersonate anonymous
 ```log
 Error: org.apache.kyuubi.KyuubiSQLException: Timeout(180000 ms) to launched SPARK_SQL engine with /opt/modules/spark-3.2.2-bin-hadoop-3.0.0-cdh6.3.2/bin/spark-submit \
