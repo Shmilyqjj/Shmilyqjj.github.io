@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2022-04-20T06:34:03.929Z</updated>
+  <updated>2022-05-27T07:31:02.952Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Kyuubi原理与替代SparkThriftServer实践-基于CDH6</title>
+    <link href="https://shmily-qjj.top/ee1c2df4/"/>
+    <id>https://shmily-qjj.top/ee1c2df4/</id>
+    <published>2022-04-29T08:39:12.000Z</published>
+    <updated>2022-05-27T07:31:02.952Z</updated>
+    
+    <summary type="html">
+    
+      Kyuubi统一分析引擎代替ThriftServer提供稳定高效、支持多租户、权限管理、动态资源的分析服务。
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+      <category term="Spark" scheme="https://shmily-qjj.top/tags/Spark/"/>
+    
+      <category term="Kyuubi" scheme="https://shmily-qjj.top/tags/Kyuubi/"/>
+    
+  </entry>
   
   <entry>
     <title>SeaTunnel开源数据同步平台</title>
@@ -89,7 +113,7 @@
     <link href="https://shmily-qjj.top/BigdataExceptionsSummary/"/>
     <id>https://shmily-qjj.top/BigdataExceptionsSummary/</id>
     <published>2021-01-30T04:50:00.000Z</published>
-    <updated>2022-05-17T11:54:38.645Z</updated>
+    <updated>2022-05-22T11:38:47.843Z</updated>
     
     <summary type="html">
     
@@ -431,26 +455,6 @@
       <category term="个人总结" scheme="https://shmily-qjj.top/tags/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
     
       <category term="2019" scheme="https://shmily-qjj.top/tags/2019/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>数据库事务ACID理解</title>
-    <link href="https://shmily-qjj.top/1f7eb1b3/"/>
-    <id>https://shmily-qjj.top/1f7eb1b3/</id>
-    <published>2019-12-28T12:22:00.000Z</published>
-    <updated>2020-04-12T14:15:48.001Z</updated>
-    
-    <summary type="html">
-    
-      事务的ACID，加深一下印象
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="数据库" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
