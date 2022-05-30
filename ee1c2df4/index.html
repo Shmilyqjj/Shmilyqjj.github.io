@@ -805,34 +805,39 @@ Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.hadoop.security.Acce
 <p>尝试在HDFS上创建对应用户目录  (这里也可以修改Spark在文件系统中当前用户的主目录-提交应用的缓存目录：spark.yarn.stagingDir)</p>
 <pre><code class="shell">hdfs dfs -mkdir /user/k00877/
 hdfs dfs -chown k00877:k00877 /user/k00877/</code></pre>
-<p>再次尝试创建引擎，报错如下<br>```error</p>
+<p>再次尝试创建引擎，报错如下  </p>
+<pre><code class="error">Kyuubi Server error：
+Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
+See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
+     at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]
+     at org.apache.kyuubi.engine.ProcBuilder.$anonfun$start$1(ProcBuilder.scala:165) ~[kyuubi-server_2.12-1.5.1-incubating.jar:1.5.1-incubating]
+Engine log: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
+For more detailed output, check the application tracking page: http://xxxxx:8088/cluster/app/application_1637826239096_34377 Then click on links to logs of each attempt.
+. Failing the application.
+org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
+Failing this attempt.Diagnostics: [2022-05-16 13:00:12.276]Application application_1637826239096_34377 initialization failed (exitCode=255) with output: main : command provided 0
+main : run as user is k00877
+main : requested yarn user is k00877
+User k00877 not found
+......</code></pre>
+<p>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。<br>解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png" alt="alt"></p>
+</li>
+<li><p>使用LDAP登录的用户无HDFS上表数据的访问权限<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png" alt="alt"><br>分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png" alt="alt"><br>当前用户q00885没有该目录的任何读权限。解决方式：</p>
 </li>
 </ol>
-<p>———— Kyuubi Server error<br>Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000<br> See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4<br>        at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]<br>        at org.apache.kyuubi.engine.ProcBuilder.$anonfun$start$1(ProcBuilder.scala:165) ~[kyuubi-server_2.12-1.5.1-incubating.jar:1.5.1-incubating]<br>———— Engine log: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4<br>For more detailed output, check the application tracking page: <a target="_blank" rel="noopener" href="http://xxxxx:8088/cluster/app/application_1637826239096_34377">http://xxxxx:8088/cluster/app/application_1637826239096_34377</a> Then click on links to logs of each attempt.<br>. Failing the application.<br>org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000<br>Failing this attempt.Diagnostics: [2022-05-16 13:00:12.276]Application application_1637826239096_34377 initialization failed (exitCode=255) with output: main : command provided 0<br>main : run as user is k00877<br>main : requested yarn user is k00877<br>User k00877 not found<br>……</p>
-<pre><code>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。
-解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png)
-
-3. 使用LDAP登录的用户无HDFS上表数据的访问权限
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png)
-分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png)
-当前用户q00885没有该目录的任何读权限。
-解决：
-```shell
-使用hive用户登录HiveServer2：beeline -u &quot;jdbc:hive2://172.18.204.199:10000/default&quot; -nhive -pxxxxx
--- 查看q00885所属角色
-SHOW ROLE GRANT GROUP group q00885;
-+--------+---------------+-------------+----------+--+
-|  role  | grant_option  | grant_time  | grantor  |
-+--------+---------------+-------------+----------+--+
-| admin  | false         | 0           | --       |
-| d_bd   | false         | 0           | --       |
-+--------+---------------+-------------+----------+--+
--- 授权权限给d_bd角色
-grant select on table t_sai_t_model_log to role d_bd;
--- 查看d_bd角色有哪些权限
-SHOW GRANT ROLE d_bd;
+<pre><code class="text"> 使用hive用户登录HiveServer2：beeline -u &quot;jdbc:hive2://172.18.204.199:10000/default&quot; -nhive -pxxxxx
+ 查看q00885所属角色
+ SHOW ROLE GRANT GROUP group q00885;
+ +--------+---------------+-------------+----------+--+
+ |  role  | grant_option  | grant_time  | grantor  |
+ +--------+---------------+-------------+----------+--+
+ | admin  | false         | 0           | --       |
+ | d_bd   | false         | 0           | --       |
+ +--------+---------------+-------------+----------+--+
+ 授权权限给d_bd角色
+ grant select on table t_sai_t_model_log to role d_bd;
+ 查看d_bd角色有哪些权限
+ SHOW GRANT ROLE d_bd;
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
 |              database               |                 table                  | partition  | column  | principal_name  | principal_type  | privilege  | grant_option  |   grant_time   | grantor  |
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
@@ -840,11 +845,11 @@ SHOW GRANT ROLE d_bd;
 | default                             | t_sai_t_model_log                      |            |         | d_bd            | ROLE            | SELECT     | false         | 1652777345000  | --       |
 | default                             | xxxxxxxxxx       |            |         | d_bd            | ROLE            | SELECT     | false         | 1634268085000  | --       |
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
--- 先回收权限，测试另一种方法：设置acl
-revoke select on table t_sai_t_model_log from role d_bd;
--- 给表数据路径增加ACL权限
-hdfs dfs -setfacl -R -m group:q00885:r-x /user/hive/warehouse/t_sai_t_model_log
-设置ACL后再用getfacl查看ACL列表，设置没生效，是因为我们集群用了Sentry管理ACL，直接对目录设置ACL不会生效，所以还需使用hive的grant+revoke方式授权。</code></pre>
+ 先回收权限，测试另一种方法：设置acl
+ revoke select on table t_sai_t_model_log from role d_bd;
+ 给表数据路径增加ACL权限
+ hdfs dfs -setfacl -R -m group:q00885:r-x /user/hive/warehouse/t_sai_t_model_log
+ 设置ACL后再用getfacl查看ACL列表，设置没生效，是因为我们集群用了Sentry管理ACL，直接对目录设置ACL不会生效，所以还需使用hive的grant+revoke方式授权。</code></pre>
 <p>再次使用q00885即可查询。</p>
 <pre><code class="text">权限列表: 
 ALL SERVER, TABLE, DB, URI, COLLECTION, CONFIG
