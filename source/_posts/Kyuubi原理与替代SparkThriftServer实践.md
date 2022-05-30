@@ -381,15 +381,15 @@ Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.hadoop.security.Acce
 ```shell
 hdfs dfs -mkdir /user/k00877/
 hdfs dfs -chown k00877:k00877 /user/k00877/
-```
-再次尝试创建引擎，报错如下
+```  
+再次尝试创建引擎，报错如下  
 ```error
------------- Kyuubi Server error
+Kyuubi Server error：
 Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
  See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
         at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]
         at org.apache.kyuubi.engine.ProcBuilder.$anonfun$start$1(ProcBuilder.scala:165) ~[kyuubi-server_2.12-1.5.1-incubating.jar:1.5.1-incubating]
------------- Engine log: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
+Engine log: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
 For more detailed output, check the application tracking page: http://xxxxx:8088/cluster/app/application_1637826239096_34377 Then click on links to logs of each attempt.
 . Failing the application.
 org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
@@ -407,22 +407,22 @@ User k00877 not found
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png)
 分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png)
-当前用户q00885没有该目录的任何读权限。
-解决：
-```shell
-使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://172.18.204.199:10000/default" -nhive -pxxxxx
--- 查看q00885所属角色
-SHOW ROLE GRANT GROUP group q00885;
-+--------+---------------+-------------+----------+--+
-|  role  | grant_option  | grant_time  | grantor  |
-+--------+---------------+-------------+----------+--+
-| admin  | false         | 0           | --       |
-| d_bd   | false         | 0           | --       |
-+--------+---------------+-------------+----------+--+
--- 授权权限给d_bd角色
-grant select on table t_sai_t_model_log to role d_bd;
--- 查看d_bd角色有哪些权限
-SHOW GRANT ROLE d_bd;
+当前用户q00885没有该目录的任何读权限。解决方式：
+
+```text
+ 使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://172.18.204.199:10000/default" -nhive -pxxxxx
+ 查看q00885所属角色
+ SHOW ROLE GRANT GROUP group q00885;
+ +--------+---------------+-------------+----------+--+
+ |  role  | grant_option  | grant_time  | grantor  |
+ +--------+---------------+-------------+----------+--+
+ | admin  | false         | 0           | --       |
+ | d_bd   | false         | 0           | --       |
+ +--------+---------------+-------------+----------+--+
+ 授权权限给d_bd角色
+ grant select on table t_sai_t_model_log to role d_bd;
+ 查看d_bd角色有哪些权限
+ SHOW GRANT ROLE d_bd;
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
 |              database               |                 table                  | partition  | column  | principal_name  | principal_type  | privilege  | grant_option  |   grant_time   | grantor  |
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
@@ -430,12 +430,12 @@ SHOW GRANT ROLE d_bd;
 | default                             | t_sai_t_model_log                      |            |         | d_bd            | ROLE            | SELECT     | false         | 1652777345000  | --       |
 | default                             | xxxxxxxxxx       |            |         | d_bd            | ROLE            | SELECT     | false         | 1634268085000  | --       |
 +-------------------------------------+----------------------------------------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
--- 先回收权限，测试另一种方法：设置acl
-revoke select on table t_sai_t_model_log from role d_bd;
--- 给表数据路径增加ACL权限
-hdfs dfs -setfacl -R -m group:q00885:r-x /user/hive/warehouse/t_sai_t_model_log
-设置ACL后再用getfacl查看ACL列表，设置没生效，是因为我们集群用了Sentry管理ACL，直接对目录设置ACL不会生效，所以还需使用hive的grant+revoke方式授权。
-```
+ 先回收权限，测试另一种方法：设置acl
+ revoke select on table t_sai_t_model_log from role d_bd;
+ 给表数据路径增加ACL权限
+ hdfs dfs -setfacl -R -m group:q00885:r-x /user/hive/warehouse/t_sai_t_model_log
+ 设置ACL后再用getfacl查看ACL列表，设置没生效，是因为我们集群用了Sentry管理ACL，直接对目录设置ACL不会生效，所以还需使用hive的grant+revoke方式授权。
+```  
 再次使用q00885即可查询。
 ```text
 权限列表: 
