@@ -384,7 +384,7 @@ hdfs dfs -chown k00877:k00877 /user/k00877/
 ```  
 再次尝试创建引擎，报错如下  
 ```error
-Kyuubi Server error：
+# Kyuubi Server error：
 Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
  See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
         at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]
