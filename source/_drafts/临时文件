@@ -235,6 +235,8 @@ python编译cython => .so
 ###################################################
 Spark相关
 
+Spark第三方插件：https://spark.apache.org/third-party-projects.html
+
 spark_df.write.saveAsTable(hive_table_name, mode=mode)写入表报错The format of the existing table default.fdm_mx_dz_maidian_var1 is `HiveFileFormat`. It doesn't match the specified format `ParquetFileFormat`.;
 解决方案1：spark_df.write.format("Hive").saveAsTable(hive_table_name, mode=mode)  解决方案2：spark_df.registerTempTable('spark_data');spark.sql('insert into hive_table_name select * from spark_data')
 df.coalesce(10).write.partitionBy("dt").mode(SaveMode.Append).saveAsTable(table_name)  不会覆盖之前的分区 df字段顺序跟表字段顺序不一致时按表字段顺序写入

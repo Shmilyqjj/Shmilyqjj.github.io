@@ -47,6 +47,7 @@ Kyuubi的愿景是建立在Apache Spark和Data Lake技术之上，理想的统�
 | 授权控制 | 支持数据和元数据的访问权限控制，支持基于Ranger细粒度授权，保证数据安全 | STS是单用户启动的，只有粗粒度授权，无法保证数据安全 | 
 | 实例管理 | 支持连接级别、用户级别、服务级别和组级别的SparkApplication实例申请 | 单个SparkApplication实例 |
 | 执行引擎 | Spark、Flink、Trino(Presto) | Spark |
+| 用户语言 | Scala+SQL灵活混合使用 | SQL |
 | 存储引擎 | Hive+Kudu+DeltaLake+Azure+Presto | Hive+DeltaLake |
 | 高可用性 | 原生基于ZK和Yarn的高可用，KyuubiServer本身支持水平扩展高可用 | 原生不支持，需要手动配置LoadBalancer，但发生切换时视图、hivevar变量、缓存等状态会丢失 |
 | 系统架构 | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-01.png) | ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-08.png) |
@@ -316,6 +317,17 @@ kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
 查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。
 还要确保Linux上有该用户，否则引擎无法申请成功。
 如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。
+
+### Scala+SQL混合使用
+```shell
+beeline -u jdbc:hive2://172.18.204.233:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
+CREATE TEMPORARY VIEW qjj_view as select * from qjj_test;
+set kyuubi.operation.language=scala;
+val df = spark.table("qjj_view").where("id > 2 and id < 5");
+df.registerTempTable("qjj_view1")
+spark.sql("set kyuubi.operation.language=sql");
+select count(1),min(id),max(id) from qjj_view1;
+```
 
 ### 集成Kudu
 [Kyuubi On Kudu](https://kyuubi.apache.org/docs/latest/integrations/kudu.html#)
