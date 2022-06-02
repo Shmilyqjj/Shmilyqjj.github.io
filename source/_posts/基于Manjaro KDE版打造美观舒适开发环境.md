@@ -113,6 +113,7 @@ sudo pacman -Syyu && sudo pacman -S archlinuxcn-keyring
 # 安装一些常用的包
 sudo pacman -S acpi vim
 ```
+注意，如果遇到“无效或已损坏的软件包 (PGP 签名)”这样的报错，可以尝试修改“Optional TrustedOnly”为“Optional TrustAll”
 
 根据个人习惯创建一些目录
 （我的习惯并不好，把一部分项目文件放在/opt下，/opt本身是用于安装一些大型软件的。正常情况下，一个用户的个人文件放在家目录下比较规范）
