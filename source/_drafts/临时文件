@@ -142,6 +142,203 @@ Yarn工作流程
 4.应用程序执行完，Application通过RPC协议向ResourceManager注销自己。
 
 
+###################################################
+ES相关 
+（基于Restful、HTTP的请求，可以使用Postman操作）
+1.创建索引
+创建名为shopping的索引
+curl -X PUT http://es_ip:es_port/shopping 
+2.获取索引相关信息
+查看shopping这个索引的信息
+curl http://es_ip:es_port/shopping 
+查看es当前有哪些索引
+curl http://es_ip:es_port/_cat/indices?v 
+3.删除索引
+删除名为shopping的索引
+curl -X DELETE http://es_ip:es_port/shopping 
+4.添加数据（添加文档操作）
+curl -X POST http://es_ip:es_port/shopping/_doc -d '
+{
+    "title": "小米手机",
+    "category": "小米",
+    "images": "xm.img",
+    "price": 3999.98
+}
+'
+或
+curl -X POST http://es_ip:es_port/shopping/_create -d '
+{
+    "title": "小米手机",
+    "category": "小米",
+    "images": "xm.img",
+    "price": 3999.98
+}
+'
+默认情况会返回es生成的_id字段，值是随机生成的，这样数据重复写入不具有幂等性。
+我们也可自定义_id的值，向shopping索引添加文档，指定该文档id为00001，返回结果_id为00001 这个是幂等性的
+curl -X POST http://es_ip:es_port/shopping/_doc/00001 -d '
+{
+    "title": "小米手机",
+    "category": "小米",
+    "images": "xm.img",
+    "price": 3999.98
+}
+'
+5.按id查询
+curl http://es_ip:es_port/shopping/_doc/00001  找到后返回结果中found为true、否则false
+6.全部查询 查询某个索引下的所有数据
+curl http://es_ip:es_port/shopping/_search
+有条件的查询是在全量查询基础之上增加限制参数进行检索。
+7.全量数据更新
+curl -X PUT http://es_ip:es_port/shopping/_doc/00001 -d '
+{
+    "title": "小米手机",
+    "category": "小米",
+    "images": "xm.img",
+    "price": 2999.98
+}
+'
+8.局部数据更新  
+修改shopping索引中id为00001的文档中的title属性
+curl -X POST http://es_ip:es_port/shopping/_update/00001  -d '
+{
+    "doc": {
+        "title": "华为手机"
+    }
+}
+'
+9.删除文档
+删除shopping索引中id为00001的文档
+curl -X DELETE http://es_ip:es_port/shopping/_doc/00001
+10.有条件的查询 
+curl http://es_ip:es_port/shopping/_search?q=category:小米  (这种请求中带中文参数的容易发生乱码，所以尽量用请求体来指定参数)
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match"{
+            "category": "小米"
+        }
+    }
+}
+' 
+全量不分页查询
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match_all"{
+            
+        }
+    }
+}
+' 
+全量分页查询:
+从头开始查，每页查询5条数据
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match_all"{
+            
+        }
+    },
+    "from": 0,
+    "size": 5,
+
+}
+' 
+从第【(页码-1)*每页数据条数】条数据开始查，每页查询5条数据
+比如查询第二页 (2-1)*5 = 5 from值为5  from代表当前数据的游标
+
+分页查询+限制字段输出+排序(分页，输出字段只输出title字段，对价格字段price排序):
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match_all"{
+            
+        }
+    },
+    "from": 0,
+    "size": 5,
+    "_source": ["title"],
+    "sort": {
+        "price" : {
+            "order": "desc"
+        }
+    }
+}
+'
+多条件混合查询
+ curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "bool"{
+            "must": [ 
+                {
+                    "match": {
+                        "category": "小米"
+                    }
+                },
+                {
+                    "match": {
+                        "price": 3999.98
+                    }
+                }
+            ]
+            
+        }
+    }
+}
+'
+must类似sql中的and，返回must集合里的所有条件都成立的结果
+与must不同的是should，类似sql中的or，should集合里的任意一个条件成立，返回匹配到的结果
+范围查询：
+ curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "bool"{
+            "should": [ 
+                {
+                    "match": {
+                        "category": "小米"
+                    }
+                },
+                {
+                    "match": {
+                        "price": 3999.98
+                    }
+                }
+            ],
+            "filter": {
+                "range": {
+                    "price": {
+                        "gt": 2000
+                    }
+                }
+            }
+            
+        }
+    }
+}
+'
+
+ES会将文档数据文字分词拆解，存入倒排索引中，即使使用文字的一部分也能查询到数据。这种检索方式称为“全文检索”。
+默认match关键字是全文检索匹配，match_phrase是完全匹配
+11.高亮显示关键词
+全文检索条件是"category": "小米"，查询结果中高亮字段category
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match"{
+            "category": "小米"
+        }
+    },
+    "highlight": {
+        "fields": { 
+            "category": {}
+        }
+    }
+}
+'
+
 
 ##################################################
 Python相关
