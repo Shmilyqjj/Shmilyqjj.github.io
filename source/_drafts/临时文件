@@ -221,6 +221,34 @@ curl -X GET http://es_ip:es_port/shopping/_search -d '
     }
 }
 ' 
+或
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+    "query":{
+        "match"{
+            "category": {
+	        "query": "小米"
+	    }
+        }
+    }
+}
+' 
+按时间筛选
+curl -X GET http://es_ip:es_port/shopping/_search -d '
+{
+  "query": {
+    "range": {
+      "updateTime": {
+        "gte": "2022-06-06 02:00:00.000",
+        "lte": "2022-06-06 06:00:00.000",
+        "format": "yyyy-MM-dd HH:mm:ss.SSS"
+      }
+    }
+  },
+  "track_total_hits":true
+}
+'
+
 全量不分页查询
 curl -X GET http://es_ip:es_port/shopping/_search -d '
 {
