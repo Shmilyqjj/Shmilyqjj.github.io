@@ -502,6 +502,11 @@
 <td>Spark</td>
 </tr>
 <tr>
+<td>用户语言</td>
+<td>Scala+SQL灵活混合使用</td>
+<td>SQL</td>
+</tr>
+<tr>
 <td>存储引擎</td>
 <td>Hive+Kudu+DeltaLake+Azure+Presto</td>
 <td>Hive+DeltaLake</td>
@@ -754,6 +759,13 @@ kyuubi.kinit.principal=hive/xxx@XXX.COM</code></pre>
 kyuubi.authentication.ldap.domain=xxxx.com
 kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx</code></pre>
 <p>使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-03.png" alt="alt"><br>查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。<br>还要确保Linux上有该用户，否则引擎无法申请成功。<br>如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。</p>
+<h3 id="Scala-SQL混合使用"><a href="#Scala-SQL混合使用" class="headerlink" title="Scala+SQL混合使用"></a>Scala+SQL混合使用</h3><pre><code class="shell">beeline -u jdbc:hive2://172.18.204.233:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
+CREATE TEMPORARY VIEW qjj_view as select * from qjj_test;
+set kyuubi.operation.language=scala;
+val df = spark.table(&quot;qjj_view&quot;).where(&quot;id &gt; 2 and id &lt; 5&quot;);
+df.registerTempTable(&quot;qjj_view1&quot;)
+spark.sql(&quot;set kyuubi.operation.language=sql&quot;);
+select count(1),min(id),max(id) from qjj_view1;</code></pre>
 <h3 id="集成Kudu"><a href="#集成Kudu" class="headerlink" title="集成Kudu"></a>集成Kudu</h3><p><a target="_blank" rel="noopener" href="https://kyuubi.apache.org/docs/latest/integrations/kudu.html#">Kyuubi On Kudu</a></p>
 <h3 id="Kyuubi的授权："><a href="#Kyuubi的授权：" class="headerlink" title="Kyuubi的授权："></a>Kyuubi的授权：</h3><p>Kyuuib当前支持三种授权：<br>1.基于存储层面的授权(以上我们使用到的授权方式)<br>2.基于SQL标准的授权类似HiveServer2(基于<a target="_blank" rel="noopener" href="https://mvnrepository.com/artifact/org.apache.submarine/submarine-spark-security">Submarine:Spark Security</a>外部插件)<br>3.基于Ranger(官网推荐，也是基于Submarine Spark，只是通过Spark-Ranger来实现更细粒度的访问授权)</p>
 <h3 id="问题与异常处理"><a href="#问题与异常处理" class="headerlink" title="问题与异常处理"></a>问题与异常处理</h3><p><a target="_blank" rel="noopener" href="https://kyuubi.apache.org/docs/latest/monitor/trouble_shooting.html">Kyuubi Trouble Shooting</a></p>
@@ -806,7 +818,7 @@ Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.hadoop.security.Acce
 <pre><code class="shell">hdfs dfs -mkdir /user/k00877/
 hdfs dfs -chown k00877:k00877 /user/k00877/</code></pre>
 <p>再次尝试创建引擎，报错如下  </p>
-<pre><code class="error">Kyuubi Server error：
+<pre><code class="error"># Kyuubi Server error：
 Caused by: org.apache.kyuubi.KyuubiSQLException: org.apache.spark.SparkException: Application application_1637826239096_34377 failed 2 times due to AM Container for appattempt_1637826239096_34377_000002 exited with  exitCode: -1000
 See more: /hadoop/bigdata/spark/apache-kyuubi-1.5.1-incubating-bin/work/k00877/kyuubi-spark-sql-engine.log.4
      at org.apache.kyuubi.KyuubiSQLException$.apply(KyuubiSQLException.scala:69) ~[kyuubi-common_2.12-1.5.1-incubating.jar:1.5.1-incubating]

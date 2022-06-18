@@ -499,6 +499,7 @@ sudo pacman-mirrors -g
 sudo pacman -Syyu &amp;&amp; sudo pacman -S archlinuxcn-keyring
 # 安装一些常用的包
 sudo pacman -S acpi vim</code></pre>
+<p>注意，如果遇到“无效或已损坏的软件包 (PGP 签名)”这样的报错，可以尝试修改“Optional TrustedOnly”为“Optional TrustAll”</p>
 <p>根据个人习惯创建一些目录<br>（我的习惯并不好，把一部分项目文件放在/opt下，/opt本身是用于安装一些大型软件的。正常情况下，一个用户的个人文件放在家目录下比较规范）</p>
 <pre><code class="shell">su root
 chmod 1777 /opt
@@ -581,12 +582,24 @@ fi</code></pre>
  alias ls=&#39;ls --color&#39;
  alias ll=&#39;ls -l --color&#39;</code></pre>
 <h3 id="双系统优化"><a href="#双系统优化" class="headerlink" title="双系统优化"></a>双系统优化</h3><p>Windows+Linux双系统可以加如下参数使Windows把硬件时间当作UTC（避免双系统切换导致的时间错乱）<br>Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1</p>
+<h3 id="Linux音频音质优化及蓝牙连接问题解决"><a href="#Linux音频音质优化及蓝牙连接问题解决" class="headerlink" title="Linux音频音质优化及蓝牙连接问题解决"></a>Linux音频音质优化及蓝牙连接问题解决</h3><p>1.蓝牙连接总是失败，极小概率成功：<br>vim /etc/bluetooth/main.conf  修改ControllerMode为bredr</p>
+<pre><code class="conf"># Restricts all controllers to the specified transport. Default value
+# is &quot;dual&quot;, i.e. both BR/EDR and LE enabled (when supported by the HW).
+# Possible values: &quot;dual&quot;, &quot;bredr&quot;, &quot;le&quot;
+# ControllerMode = dual 
+ControllerMode = bredr </code></pre>
+<p>2.音质提升<br>软件包管理器中安装pulseaudio、pulseaudio-bluetooth，以及其他pulseaudio相关包(可自行选择)<br>安装后重启蓝牙服务并启动pulseaudio：</p>
+<pre><code class="shell">systemctl restart bluetooth
+systemctl status bluetooth
+pulseaudio --start   # 将此命令放到开机自启脚本</code></pre>
+<p>目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/PulseAudio">PulseAudio - ArchWiki</a></p>
 <h2 id="安装应用和工具"><a href="#安装应用和工具" class="headerlink" title="安装应用和工具"></a>安装应用和工具</h2><h3 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h3><pre><code class="shell"># 微信、TIM
 sudo pacman -S yay
 yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
+yay -S ocs-url
 增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-TIM/ deepin-wine5 winecfg
@@ -598,6 +611,7 @@ sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
 sudo pacman -S gimp  # 修图
 sudo pacman -S neofetch screenfetch  # 输出系统信息
+-------------------------------------------------------------------------------------------------------
 yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
 ### 远程桌面连接工具remmina
 sudo pacman -S remmina
@@ -614,21 +628,54 @@ remmina 的可选依赖
     gnome-terminal: external tools
 选择自己想要的依赖，如RDP远程桌面连接:
 sudo pacman -S freerdp
+-------------------------------------------------------------------------------------------------------
+### 企业微信安装
+https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
+用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
+cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
+sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications
+增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
+env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
+-------------------------------------------------------------------------------------------------------
 设置shell欢迎语 登陆Shell环境 会自动输出
-```shell
 cat &lt;&lt;EOT &gt;/etc/motd
 QJJ加油，你最月半！ 
-EOT</code></pre>
-<hr>
-<h1 id="企业微信安装"><a href="#企业微信安装" class="headerlink" title="企业微信安装"></a>企业微信安装</h1><p><a target="_blank" rel="noopener" href="https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/">https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/</a> 下载deb包<br>用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/<br>cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg<br>sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop /usr/share/applications<br>增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：<br>env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg</p>
-<hr>
-<p>软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用)<br>软件仓库安装:timeshift (系统可能已经自带了)<br>软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘</p>
-<h1 id="安装文件同步工具-多端同步"><a href="#安装文件同步工具-多端同步" class="headerlink" title="安装文件同步工具 多端同步"></a>安装文件同步工具 多端同步</h1><p>sudo pacman -S syncthing<br>参考<a target="_blank" rel="noopener" href="https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop%E5%88%9B%E5%BB%BA%E5%BF%AB%E6%8D%B7%E6%96%B9%E5%BC%8F">https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式</a><br>启动Syncthing的快捷方式syncthing-start.desktop<br>[Desktop Entry]<br>Name=Start Syncthing<br>GenericName=File synchronization<br>Comment=Starts the main syncthing process in the background.<br>Exec=/usr/bin/syncthing serve –no-browser –logfile=default<br>Icon=syncthing<br>Terminal=false<br>Type=Application<br>Keywords=synchronization;daemon;<br>Categories=Network;FileTransfer;P2P<br>查看Syncthing UI的快捷方式syncthing-ui.desktop<br>[Desktop Entry]<br>Name=Syncthing Web UI<br>GenericName=File synchronization UI<br>Comment=Opens Syncthing’s Web UI in the default browser (Syncthing must already be started).<br>Exec=/usr/bin/syncthing -browser-only<br>Icon=syncthing<br>Terminal=false<br>Type=Application<br>Keywords=synchronization;interface;<br>Categories=Network;FileTransfer;P2P<br>生效快捷方式<br>sudo desktop-file-install syncthing-start.desktop<br>sudo desktop-file-install syncthing-ui.desktop</p>
-<pre><code>
-### Clash科学上网
-[下载Clash](https://github.com/Dreamacro/clash/releases)
-```shell
-cd ~/下载
+EOT
+-------------------------------------------------------------------------------------------------------
+软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
+软件仓库安装:timeshift (系统可能已经自带了)
+软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
+-------------------------------------------------------------------------------------------------------
+# 安装文件同步工具 多端同步
+sudo pacman -S syncthing
+参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
+启动Syncthing的快捷方式syncthing-start.desktop
+[Desktop Entry]
+Name=Start Syncthing
+GenericName=File synchronization
+Comment=Starts the main syncthing process in the background.
+Exec=/usr/bin/syncthing serve --no-browser --logfile=default
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;daemon;
+Categories=Network;FileTransfer;P2P
+查看Syncthing UI的快捷方式syncthing-ui.desktop
+[Desktop Entry]
+Name=Syncthing Web UI
+GenericName=File synchronization UI
+Comment=Opens Syncthing&#39;s Web UI in the default browser (Syncthing must already be started).
+Exec=/usr/bin/syncthing -browser-only
+Icon=syncthing
+Terminal=false
+Type=Application
+Keywords=synchronization;interface;
+Categories=Network;FileTransfer;P2P
+生效快捷方式
+sudo desktop-file-install syncthing-start.desktop
+sudo desktop-file-install syncthing-ui.desktop</code></pre>
+<h3 id="Clash科学上网"><a href="#Clash科学上网" class="headerlink" title="Clash科学上网"></a>Clash科学上网</h3><p><a target="_blank" rel="noopener" href="https://github.com/Dreamacro/clash/releases">下载Clash</a></p>
+<pre><code class="shell">cd ~/下载
 gunzip clash-linux-amd64-v1.6.5.gz
 mkdir /opt/apps/Clash
 mv clash-linux-amd64-v1.6.5 /opt/apps/Clash/
@@ -676,6 +723,9 @@ sudo archlinux-java unset  # 否则不会从环境变量读java地址
 sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
 # 下载scala-2.12.12.tgz
 sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
+# 下载Golang https://golang.google.cn/dl/go1.18.3.linux-amd64.tar.gz
+sudo tar -zxvf go1.18.3.linux-amd64.tar.gz -C /opt/Env/
+mkdir -p /home/shmily/.gopath  
 sudo vim /etc/profile
 export JAVA8_HOME=/opt/Env/jdk1.8.0_181
 export JAVA_HOME=/opt/Env/jdk-11.0.11
@@ -683,6 +733,8 @@ export PATH=$PATH:$JAVA_HOME/bin
 export SCALA_HOME=/opt/Env/scala-2.12.12
 export PATH=$PATH:$SCALA_HOME/bin
 source /etc/profile
+export GO_HOME=/opt/Env/go1.18.3
+export PATH=$PATH:$GO_HOME/bin
 -------------------------------------------------------------------
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -813,6 +865,7 @@ source ~/.zshrc</code></pre>
 <h3 id="欢迎屏幕"><a href="#欢迎屏幕" class="headerlink" title="欢迎屏幕"></a>欢迎屏幕</h3><p>开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-31.png" alt="alt "> </p>
 <h3 id="锁屏界面"><a href="#锁屏界面" class="headerlink" title="锁屏界面"></a>锁屏界面</h3><p>每次锁屏(Meta+L)后都会显示这个页面。<br>打开设置-&gt;工作区行为-&gt;锁屏-&gt;外观：配置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-34.png" alt="alt "> </p>
 <h3 id="桌面特效"><a href="#桌面特效" class="headerlink" title="桌面特效"></a>桌面特效</h3><p>这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。<br>打开设置-&gt;工作区行为-&gt;桌面特效<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-35.png" alt="alt "><br>主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效</p>
+<h3 id="手动安装主题、壁纸、插件"><a href="#手动安装主题、壁纸、插件" class="headerlink" title="手动安装主题、壁纸、插件"></a>手动安装主题、壁纸、插件</h3><p>本节主要使用kpackagetool5命令<br>打开<a target="_blank" rel="noopener" href="https://store.kde.org/">https://store.kde.org/</a>  可以安装一些主题<br>比如安装动态壁纸插件：<br>下载Smart Video Wallpaper插件的tar包：<a target="_blank" rel="noopener" href="https://store.kde.org/p/1316299/">https://store.kde.org/p/1316299/</a><br>kpackagetool5 -t Plasma/Wallpaper -i smartvideowallpaper.tar.gz<br>然后进入壁纸设置选择壁纸类型还有视频路径即可<br>比如安装主题：kpackagetool5 -t Plasma/Theme -i Gently.tar.gz</p>
 <h2 id="系统使用小技巧与问题处理"><a href="#系统使用小技巧与问题处理" class="headerlink" title="系统使用小技巧与问题处理"></a>系统使用小技巧与问题处理</h2><h3 id="解决无法写和更新NTFS盘数据的问题："><a href="#解决无法写和更新NTFS盘数据的问题：" class="headerlink" title="解决无法写和更新NTFS盘数据的问题："></a>解决无法写和更新NTFS盘数据的问题：</h3><p>创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：</p>
 <pre><code class="shell">#!/bin/bash
 # Fix NTFS Disk which can not be writen on linux system.
@@ -899,7 +952,9 @@ sudo timeshift --restore --snapshot &#39;2021-08-12_14-00-01&#39; --skip-grub</c
 <p><strong>Wine使用</strong><br>Wine运行程序: wine xxx.exe<br>msi安装包运行: msiexec -i &lt;msi安装包&gt;</p>
 <p><strong>Deepin-wine</strong><br>Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件如微信、TIM/QQ、网易云音乐等有着更好的兼容性和使用体验。<br>注意，Deepin-Wine是32位的，并且其依赖于Wine，因此本机上安装的Wine最好是32位的，否则Deepin-Wine使用命令时会有不便。<br>安装(忽略 之前的步骤已有此依赖) yaourt deepin-wine<br>使用方法与wine基本一致</p>
 <p>更多Wine进阶使用可以了解<a target="_blank" rel="noopener" href="https://www.winehq.org/">Wine官方网站</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/buildcourage/article/details/80871141">Linux使用Wine</a></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/333951476/answer/1280162871">Manjaro Gnome 下fcitx5的安装</a><br><a target="_blank" rel="noopener" href="https://github.com/hosxy/Fcitx5-Material-Color">Fcitx5-Material-Color</a><br><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/">ArchLinux Wiki</a><br><a target="_blank" rel="noopener" href="https://github.com/syncthing/syncthing">Syncthing</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/uniondong/article/details/98392738">Manjaro安装Mysql8.0（血泪篇）</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/orginly/p/14806538.html">archlinux Timeshift系统备份与还原</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/zbgjhy88/article/details/85110956">轻松上手Manjaro之Manjaro下使用Wine</a></p>
+<h3 id="AUR仓库与软件包查询"><a href="#AUR仓库与软件包查询" class="headerlink" title="AUR仓库与软件包查询"></a>AUR仓库与软件包查询</h3><p><a target="_blank" rel="noopener" href="https://aur.archlinux.org/packages">https://aur.archlinux.org/packages</a></p>
+<h3 id="系统硬件信息查询"><a href="#系统硬件信息查询" class="headerlink" title="系统硬件信息查询"></a>系统硬件信息查询</h3><p>全部硬件信息输出：<br>sudo dmidecode  &gt;&gt; hardware.info</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://wiki.manjaro.org/index.php?title=Main_Page">Manjaro Wiki</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/333951476/answer/1280162871">Manjaro Gnome 下fcitx5的安装</a><br><a target="_blank" rel="noopener" href="https://github.com/hosxy/Fcitx5-Material-Color">Fcitx5-Material-Color</a><br><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/">ArchLinux Wiki</a><br><a target="_blank" rel="noopener" href="https://github.com/syncthing/syncthing">Syncthing</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/uniondong/article/details/98392738">Manjaro安装Mysql8.0（血泪篇）</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/orginly/p/14806538.html">archlinux Timeshift系统备份与还原</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/zbgjhy88/article/details/85110956">轻松上手Manjaro之Manjaro下使用Wine</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43372529/article/details/112190604">Manjaro-KDE安装动态桌面插件</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/hqsiswiliam/article/details/105574212">如何让Ubuntu系统支持LDAC，APTX，AAC编码（提升蓝牙音质）</a><br><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/PulseAudio">PulseAudio - ArchLinux Wiki</a></p>
 
         </div>
         <!-- .entry-content -->
