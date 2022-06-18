@@ -249,6 +249,27 @@ systemctl enable rc-local.service
 Windows+Linux双系统可以加如下参数使Windows把硬件时间当作UTC（避免双系统切换导致的时间错乱）
 Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1
 
+### Linux音频音质优化及蓝牙连接问题解决
+1.蓝牙连接总是失败，极小概率成功：
+vim /etc/bluetooth/main.conf  修改ControllerMode为bredr
+```conf
+# Restricts all controllers to the specified transport. Default value
+# is "dual", i.e. both BR/EDR and LE enabled (when supported by the HW).
+# Possible values: "dual", "bredr", "le"
+# ControllerMode = dual 
+ControllerMode = bredr 
+```
+2.音质提升
+软件包管理器中安装pulseaudio、pulseaudio-bluetooth，以及其他pulseaudio相关包(可自行选择)
+安装后重启蓝牙服务并启动pulseaudio：
+```shell
+systemctl restart bluetooth
+systemctl status bluetooth
+pulseaudio --start   # 将此命令放到开机自启脚本
+```
+目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：[PulseAudio - ArchWiki](https://wiki.archlinux.org/title/PulseAudio)
+
+
 ## 安装应用和工具
 ### 常用软件安装
 ```shell
@@ -258,6 +279,7 @@ yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
 yay -S com.qq.tim.spark
+yay -S ocs-url
 增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-TIM/ deepin-wine5 winecfg
@@ -269,6 +291,7 @@ sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
 sudo pacman -S gimp  # 修图
 sudo pacman -S neofetch screenfetch  # 输出系统信息
+-------------------------------------------------------------------------------------------------------
 yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
 ### 远程桌面连接工具remmina
 sudo pacman -S remmina
@@ -285,14 +308,8 @@ remmina 的可选依赖
     gnome-terminal: external tools
 选择自己想要的依赖，如RDP远程桌面连接:
 sudo pacman -S freerdp
-设置shell欢迎语 登陆Shell环境 会自动输出
-```shell
-cat <<EOT >/etc/motd
-QJJ加油，你最月半！ 
-EOT
-```
 -------------------------------------------------------------------------------------------------------
-# 企业微信安装
+### 企业微信安装
 https://aur.archlinux.org/packages/com.qq.weixin.work.deepin/ 下载deb包
 用Ark打开deb包 解压出data.tar.xz 再解压data.tar.xz中的opt/apps/com.qq.weixin.work.deepin解压到/opt/apps/
 cd /opt/apps/com.qq.weixin.work.deepin 修改/opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.work.deepin.desktop中Icon的值：/opt/apps/com.qq.weixin.work.deepin/entries/icons/hicolor/48x48/apps/com.qq.weixin.work.deepin.svg
@@ -300,10 +317,15 @@ sudo cp /opt/apps/com.qq.weixin.work.deepin/entries/applications/com.qq.weixin.w
 增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
 env WINEPREFIX=/home/shmily/.deepinwine/Deepin-WXWork/ deepin-wine5 winecfg
 -------------------------------------------------------------------------------------------------------
+设置shell欢迎语 登陆Shell环境 会自动输出
+cat <<EOT >/etc/motd
+QJJ加油，你最月半！ 
+EOT
+-------------------------------------------------------------------------------------------------------
 软件仓库安装：Typora，Shotcut，laptop-mode-tools(可选 有tlp可以不用) 
 软件仓库安装:timeshift (系统可能已经自带了)
 软件仓库安装:深度影院 深度相机 BaiduNetDisk百度网盘
-
+-------------------------------------------------------------------------------------------------------
 # 安装文件同步工具 多端同步
 sudo pacman -S syncthing
 参考https://github.com/syncthing/syncthing/tree/main/etc/linux-desktop创建快捷方式
@@ -407,6 +429,9 @@ sudo archlinux-java unset  # 否则不会从环境变量读java地址
 sudo tar -zxvf jdk-8u181-linux-x64.tar.gz -C /opt/Env/
 # 下载scala-2.12.12.tgz
 sudo tar -zxvf scala-2.12.12.tgz -C /opt/Env/
+# 下载Golang https://golang.google.cn/dl/go1.18.3.linux-amd64.tar.gz
+sudo tar -zxvf go1.18.3.linux-amd64.tar.gz -C /opt/Env/
+mkdir -p /home/shmily/.gopath  
 sudo vim /etc/profile
 export JAVA8_HOME=/opt/Env/jdk1.8.0_181
 export JAVA_HOME=/opt/Env/jdk-11.0.11
@@ -414,6 +439,8 @@ export PATH=$PATH:$JAVA_HOME/bin
 export SCALA_HOME=/opt/Env/scala-2.12.12
 export PATH=$PATH:$SCALA_HOME/bin
 source /etc/profile
+export GO_HOME=/opt/Env/go1.18.3
+export PATH=$PATH:$GO_HOME/bin
 -------------------------------------------------------------------
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -619,6 +646,15 @@ Tabby(原Terminus)：https://github.com/Eugeny/tabby
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-35.png) 
 主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效
 
+### 手动安装主题、壁纸、插件
+本节主要使用kpackagetool5命令
+打开https://store.kde.org/  可以安装一些主题
+比如安装动态壁纸插件：
+下载Smart Video Wallpaper插件的tar包：https://store.kde.org/p/1316299/
+kpackagetool5 -t Plasma/Wallpaper -i smartvideowallpaper.tar.gz
+然后进入壁纸设置选择壁纸类型还有视频路径即可
+比如安装主题：kpackagetool5 -t Plasma/Theme -i Gently.tar.gz
+
 ## 系统使用小技巧与问题处理
 ### 解决无法写和更新NTFS盘数据的问题：
 创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：
@@ -747,7 +783,16 @@ Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件�
 
 更多Wine进阶使用可以了解[Wine官方网站](https://www.winehq.org/) [Linux使用Wine](https://blog.csdn.net/buildcourage/article/details/80871141)
 
+### AUR仓库与软件包查询
+https://aur.archlinux.org/packages
+
+### 系统硬件信息查询
+全部硬件信息输出：
+sudo dmidecode  >> hardware.info
+
+
 ## 参考链接
+[Manjaro Wiki](https://wiki.manjaro.org/index.php?title=Main_Page)
 [Manjaro Gnome 下fcitx5的安装](https://www.zhihu.com/question/333951476/answer/1280162871)
 [Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
 [ArchLinux Wiki](https://wiki.archlinux.org/)
@@ -755,3 +800,6 @@ Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件�
 [Manjaro安装Mysql8.0（血泪篇）](https://blog.csdn.net/uniondong/article/details/98392738)
 [archlinux Timeshift系统备份与还原](https://www.cnblogs.com/orginly/p/14806538.html)
 [轻松上手Manjaro之Manjaro下使用Wine](https://blog.csdn.net/zbgjhy88/article/details/85110956)
+[Manjaro-KDE安装动态桌面插件](https://blog.csdn.net/weixin_43372529/article/details/112190604)
+[如何让Ubuntu系统支持LDAC，APTX，AAC编码（提升蓝牙音质）](https://blog.csdn.net/hqsiswiliam/article/details/105574212)
+[PulseAudio - ArchLinux Wiki](https://wiki.archlinux.org/title/PulseAudio)
