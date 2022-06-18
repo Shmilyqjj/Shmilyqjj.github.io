@@ -1,5 +1,5 @@
 ---
-title: 技术分享会纪要(一)
+title: ElasticSearch学习笔记
 author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
@@ -10,21 +10,22 @@ categories:
   - 技术
 comments: true
 tags:
-  - 分享会
-  - 技术分享
-keywords: 技术分享会
-description: 记录技术分享会
+  - ElasticSearch
+  - Kibana
+keywords: ElasticSearch
+description: 记录ElasticSearch学习笔记，好记性不如烂笔头。
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kafka/Kafka-Cover.jpg
-date: 2020-10-18 12:19:00
+  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/ElasticSearch/ElasticSearch-cover.jpg
+date: 2022-06-18 12:19:00
 ---
-#   
+# ElasticSearch学习笔记
+
+## ES简介 
 
 
-## Kafka    
-## 小标题1  
+## ES+Kibana部署  
 
-## 小标题2  
+## ES使用
 
 
 ## 原理（中标题） 
