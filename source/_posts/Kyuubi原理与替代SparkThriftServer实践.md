@@ -412,7 +412,8 @@ User k00877 not found
 ......
 ```
 在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。
-解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动
+可选方案: Ldap是支持管理Linux用户的,可以作为Linux自带用户的扩展,实现不用手动useradd就能在各节点以ldap中的用户模拟Linux用户启动Container.
+临时解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动
 ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png)
 
 3. 使用LDAP登录的用户无HDFS上表数据的访问权限
