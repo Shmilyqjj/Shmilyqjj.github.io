@@ -154,6 +154,7 @@ shmily ALL=(ALL) NOPASSWD: ALL
 ### 中文输入法安装
 输入法首选安装:
 sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color
+yay -S noto-color-emoji-fontconfig  打字支持emoji表情😘
 ```shell
 sudo vim ~/.pam_environment （在当前桌面登陆的用户下执行）
 INPUT_METHOD  DEFAULT=fcitx5
@@ -170,10 +171,29 @@ XMODIFIERS    DEFAULT=\@im=fcitx5
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-11.png)
 共享输入状态 避免输入法切换混乱
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-12.png)
-如何更新主题 换主题[Fcitx5-Material-Color](https://github.com/hosxy/Fcitx5-Material-Color)
+更换输入法主题:
+```shell
+vim ~/.config/fcitx5/conf/classicui.conf
+# 垂直候选列表
+Vertical Candidate List=False
+# 按屏幕 DPI 使用
+PerScreenDPI=True
+# Font (设置成你喜欢的字体)
+Font="思源黑体 CN Medium 13"
+# 主题名称(对应~/.local/share/fcitx5/themes下的主题目录名称)
+Theme=Material-Color-DeepPurple
+然后重启输入法即可生效
+也可以下载主题包文件解压到~/.local/share/fcitx5/themes目录下并修改~/.config/fcitx5/conf/classicui.conf来设置不同主题
+```
+简约黑白主题下载地址:[fcitx5-simple-themes.zip](https://github.com/Shmilyqjj/BlogImages-0/blob/master/cdn_sources/Blog_Images/Manjaro/fcitx5-simple-themes.zip)
+
+启用云拼音
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-42.png)
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-43.png)
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-44.png)
 **说明：**fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
 提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。
-注意：对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR,该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量。
+注意：对于非KDE界面，可以使用fcitx5-config-qt-gitAUR,该软件包与kcm-fcitx5相冲突，你需要手动卸载它。
 **其他可选输入法组件：**
 sunpinyin+sunpinyin-data
 fcitx-sunpinyin
@@ -655,6 +675,22 @@ kpackagetool5 -t Plasma/Wallpaper -i smartvideowallpaper.tar.gz
 然后进入壁纸设置选择壁纸类型还有视频路径即可
 比如安装主题：kpackagetool5 -t Plasma/Theme -i Gently.tar.gz
 
+### 娱乐命令
+```shell
+yay -S oneko   # 一只跟着鼠标走的小猫
+sudo pacman -S nyancat  # shell窗口中的彩虹猫
+yay -S hollywood  # 好莱坞效果shell
+sudo pacman -S cmatrix  # 黑客帝国效果shell
+sudo pacman -S sl  # ls错写成sl后会显示小火车
+```
+
+### 动态壁纸工具
+KDE本身有动态壁纸插件,可以在壁纸设置中下载**SmartER video Wallpaper**插件:
+![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-41.png) 
+还有一款资源开销较低的动态壁纸软件:**fantascene-dynamic-wallpaper** 可以在应用商店找到
+动态壁纸将动态视频文件反序列化到内存中,会一定程度占用显卡\CPU和内存资源.低配电脑不建议使用.
+
+
 ## 系统使用小技巧与问题处理
 ### 解决无法写和更新NTFS盘数据的问题：
 创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：
@@ -693,6 +729,12 @@ Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应�
 sudo chmod 665 /sys/class/thermal/thermal_zone3/mode
 sudo echo "disabled" > /sys/class/thermal/thermal_zone3/mode 
 这个参数需要每次系统启动时重新写入,放入开机启动脚本路径/etc/rc.local.d/
+
+### bash下所有命令均不可用
+原因:可能存在错误的环境变量配置,不过不影响zsh因为zsh是单独的.zshrc配置文件
+修复: 在~/.bashrc末尾加上如下内容 修复PATH
+export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+
 
 ### 必须掌握的系统备份和恢复技巧
 Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。
