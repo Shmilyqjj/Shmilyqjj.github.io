@@ -576,6 +576,8 @@ echo N > /proc/sys/vm/drop_caches  释放内存(N=1/2/3) 该操作会清理缓�
 tar -zcvf xxx.tar.gz /tmp/data
 # tar压缩包创建，排除某个文件
 tar -zcvf xxx.tar.gz /tmp/data --exclude=xx.sql
+# tar压缩包创建,包含目录下的隐藏文件 (默认/tmp/data/*是不包括.开头的隐藏文件的)
+tar -zcvf xxx.tar.gz /tmp/data/* /tmp/data/.[!.]* 
 # tar压缩包解压
 tar -zxvf xxx.tar.gz -C /tmp/data
 # -c 产生.tar打包文件 -v显示详细信息 -f指定压缩后的文件名 -z打包同时压缩 -x解包.tar文件
