@@ -169,7 +169,7 @@ XMODIFIERS    DEFAULT=\@im=fcitx5
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-10.png)
 设置shift按键为切换中英文输入的按键
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-11.png)
-共享输入状态 避免输入法切换混乱
+根据个人习惯 设置共享输入状态 (我一般不设置) 
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-12.png)
 更换输入法主题:
 ```shell
