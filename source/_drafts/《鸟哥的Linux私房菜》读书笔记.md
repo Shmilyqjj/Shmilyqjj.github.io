@@ -588,6 +588,15 @@ zip xxx.zip file1 file2 ... fileN
 unzip xxx.zip
 ```
 
+19. 文件对比
+```shell
+diff 对比文件差异 (格式不太好看)
+diff system-auth-ac /etc/pam.d/system-auth-ac
+diff 对比文件差异-左右格式(格式友好)
+diff -y system-auth-ac /etc/pam.d/system-auth-ac
+```
+
+
 ## 总结  
 字颜色大小
 <font size="3" color="red">This is some text!</font>

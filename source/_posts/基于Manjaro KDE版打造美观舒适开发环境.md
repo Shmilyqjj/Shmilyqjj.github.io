@@ -280,6 +280,7 @@ vim /etc/bluetooth/main.conf  修改ControllerMode为bredr
 ControllerMode = bredr 
 ```
 2.音质提升
+目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：[PulseAudio - ArchWiki](https://wiki.archlinux.org/title/PulseAudio)
 软件包管理器中安装pulseaudio、pulseaudio-bluetooth，以及其他pulseaudio相关包(可自行选择)
 安装后重启蓝牙服务并启动pulseaudio：
 ```shell
@@ -287,7 +288,12 @@ systemctl restart bluetooth
 systemctl status bluetooth
 pulseaudio --start   # 将此命令放到开机自启脚本
 ```
-目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：[PulseAudio - ArchWiki](https://wiki.archlinux.org/title/PulseAudio)
+3.蓝牙设备经常需要重新配对
+蓝牙鼠标、蓝牙耳机经常需要重新配对,每次重启都需要重新配对,解决办法:
+sudo vim /etc/bluetooth/main.conf
+修改FastConnectable = false，取消#注释，改为FastConnectable = true
+修改AutoEnable=false，取消#注释，改为AutoEnable=true
+systemctl restart bluetooth
 
 
 ## 安装应用和工具
@@ -419,10 +425,8 @@ cp /usr/share/applications/Clash.desktop ~/.config/autostart/
 ```
 
 ### 截屏录屏
-1. 深度录屏
-sudo pacman -S deepin-screen-recorder    
-ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用
-添加截图功能到系统全局快捷方式:设置->快捷键->自定义快捷键->编辑->新建->全局快捷键->命令/URL->命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A
+1. 功能全面的录屏和串流直播软件
+sudo pacman -S obs-studio
 2. kazam
 sudo pacman -S kazam 可以截图和录屏的工具
 3. 深度截图
@@ -431,6 +435,10 @@ sudo pacman -S deepin-screenshot
 日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便
 ![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-16.png) 
 主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口
+5. 深度录屏
+sudo pacman -S deepin-screen-recorder    
+ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用
+添加截图功能到系统全局快捷方式:设置->快捷键->自定义快捷键->编辑->新建->全局快捷键->命令/URL->命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A
 
 ### 开发环境安装
 ```shell
@@ -715,10 +723,14 @@ echo "All Done"
 ```
 将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment
 
-### 内存清理
+### 系统清理
+内存清理
 sudo echo 1 > /proc/sys/vm/drop_caches
 sudo echo 2 > /proc/sys/vm/drop_caches
 sudo echo 3 > /proc/sys/vm/drop_caches
+日志清理
+journalctl --disk-usage 查看日志占用
+sudo journalctl --vacuum-size=500M  限制归档日志大小，对日志做清除操作，适用于/var占用较大的场景
 
 ### 搜索工具
 Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等
@@ -734,6 +746,14 @@ sudo echo "disabled" > /sys/class/thermal/thermal_zone3/mode
 原因:可能存在错误的环境变量配置,不过不影响zsh因为zsh是单独的.zshrc配置文件
 修复: 在~/.bashrc末尾加上如下内容 修复PATH
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+
+### 包管理器与软件依赖管理
+```shell
+# 卸载孤包:（孤包:孤立包,不被引用的包,无用的包）
+pacman -R $(pacman -Qtdq)
+# 清除已下载的安装包
+sudo pacman -Scc
+```
 
 
 ### 必须掌握的系统备份和恢复技巧
