@@ -469,6 +469,7 @@ export PATH=$PATH:$SCALA_HOME/bin
 source /etc/profile
 export GO_HOME=/opt/Env/go1.18.3
 export PATH=$PATH:$GO_HOME/bin
+sudo pacman -S pkg-config
 -------------------------------------------------------------------
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
