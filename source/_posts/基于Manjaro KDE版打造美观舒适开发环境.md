@@ -691,6 +691,15 @@ sudo pacman -S nyancat  # shell窗口中的彩虹猫
 yay -S hollywood  # 好莱坞效果shell
 sudo pacman -S cmatrix  # 黑客帝国效果shell
 sudo pacman -S sl  # ls错写成sl后会显示小火车
+sudo pacman -S fortune-mod # 随机一句笑话\名言 (中文版本可以在应用商店安装fortune-mod-zh)
+sudo pacman -S cowsay  # cowsay -f tux haha ; cowsay haha 让cowsay说出fortune的内容: fortune | cowsay
+sudo pacman -S figlet # 艺术字生成器，由ASCII字符组成，把文本显示成标题栏,可加颜色  figlet haha 
+sudo pacman -S toilet # 艺术字生成器，由ASCII字符组成，把文本显示成标题栏,可加颜色  toilet haha 
+sudo pacman -S xorg-xeyes  # 执行xeyes 一双大眼睛盯着你的鼠标
+cal 1 1998 显示月日历
+shred /tmp/aaa 损坏文件,破坏文件内容让人无法识别和查看
+yay -S boxes # ASCII艺术框 echo "Haha" | boxes ; echo "Haha" | boxes -d dog
+yay -S aview # 图片转ASCII图像
 ```
 
 ### 动态壁纸工具
