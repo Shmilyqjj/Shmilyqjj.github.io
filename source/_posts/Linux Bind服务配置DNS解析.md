@@ -17,6 +17,7 @@ keywords: DNS
 description: DNS解析服务配置
 photos: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg
+abbrlink: 39a9ed67
 date: 2022-06-01 20:12:10
 ---
 # Linux服务器配置DNS解析服务Bind
