@@ -8,7 +8,7 @@
   <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">archive_a: 2021/3 | 佳境的小本本</title>
+  <title itemprop="name">Linux Bind服务配置DNS解析 | 佳境的小本本</title>
   
     <link rel="shortcut icon" href="/images/favicon.ico">
   
@@ -387,699 +387,321 @@
   </div>
 </header>
 
-      <div class="blank" style="padding-top: 75px;">
-</div>
-<div id="content" class="site-content">
-  <div id="main">
-    <header class="page-header">
-      <h1 class="cat-title">
-      归档</h1>
-      <span class="cat-des">
-        <p>
-        Archives</p>
-        <h4>鼠标悬停自动展开</h4>
-      </span>
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      Linux Bind服务配置DNS解析</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2022-6-1<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
-    <div id="main-part">
-      <article class="art">
-        <div class="art-main">
-          <div class="art-content">
-            <div id="archives">
-              <p style="text-align:right;">
-                [<span id="al_expand_collapse" style="cursor: s-resize;">
-                全部展开/收缩</span>
-              ]</p>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2022年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      06月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/39a9ed67/">
-                          <span style="color:#0bf;">
-                          01日20:12:10</span>
-                          Linux Bind服务配置DNS解析
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      04月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/ee1c2df4/">
-                          <span style="color:#0bf;">
-                          29日16:39:12</span>
-                          Kyuubi原理与替代SparkThriftServer实践-基于CDH6
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2021年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/84534d72/">
-                          <span style="color:#0bf;">
-                          15日16:30:00</span>
-                          SeaTunnel开源数据同步平台
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      07月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/3f34ebe3/">
-                          <span style="color:#0bf;">
-                          07日11:22:00</span>
-                          基于Manjaro KDE版打造美观舒适开发环境
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      03月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/4c197c46/">
-                          <span style="color:#0bf;">
-                          12日14:46:00</span>
-                          Presto-基于内存的高效SQL交互查询引擎
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      01月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/BigdataExceptionsSummary/">
-                          <span style="color:#0bf;">
-                          30日12:50:00</span>
-                          大数据平台常见异常处理汇总
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/1ae37d82/">
-                          <span style="color:#0bf;">
-                          17日10:18:30</span>
-                          Impala-基于内存的高效SQL交互查询引擎
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/2020Summary/">
-                          <span style="color:#0bf;">
-                          01日08:08:08</span>
-                          我的2020年度总结博客
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2020年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/4cf161e5/">
-                          <span style="color:#0bf;">
-                          11日22:16:00</span>
-                          实现基于Spark的数据脱敏
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      10月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/f5da73a2/">
-                          <span style="color:#0bf;">
-                          20日13:19:00</span>
-                          大数据脱敏方案调研
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      08月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/pyspark_pandas/">
-                          <span style="color:#0bf;">
-                          10日11:26:08</span>
-                          使用PySpark优化Pandas
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      07月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2ed52290/">
-                          <span style="color:#0bf;">
-                          26日11:16:00</span>
-                          高效运行Python方案
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/5f26355/">
-                          <span style="color:#0bf;">
-                          05日12:26:08</span>
-                          Apache Kudu总结
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      04月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/6a894937/">
-                          <span style="color:#0bf;">
-                          27日15:45:00</span>
-                          基础数据结构与算法
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      03月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/7c15e85/">
-                          <span style="color:#0bf;">
-                          24日10:16:00</span>
-                          MySQL索引原理深入
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/508b5c7/">
-                          <span style="color:#0bf;">
-                          21日12:19:00</span>
-                          系统学习JVM
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      02月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/6f97dc89/">
-                          <span style="color:#0bf;">
-                          11日11:20:08</span>
-                          线程进程与锁
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/174820fd/">
-                          <span style="color:#0bf;">
-                          11日10:16:00</span>
-                          Apache Zeppelin初探
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      01月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/4b21953d/">
-                          <span style="color:#0bf;">
-                          03日21:10:00</span>
-                          分享我的技术调研流程
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/44511/">
-                          <span style="color:#0bf;">
-                          01日22:16:00</span>
-                          Alluxio-基于内存的虚拟分布式存储系统
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/2019Summary/">
-                          <span style="color:#0bf;">
-                          01日08:08:08</span>
-                          我的2019年度总结博客
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2019年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/1f7eb1b3/">
-                          <span style="color:#0bf;">
-                          28日20:22:00</span>
-                          数据库事务ACID理解
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/7fbbfd34/">
-                          <span style="color:#0bf;">
-                          27日15:18:25</span>
-                          Hive3.x初探
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/d2c4813b/">
-                          <span style="color:#0bf;">
-                          21日15:06:06</span>
-                          人声混音总结
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/d1c9241f/">
-                          <span style="color:#0bf;">
-                          11日21:10:21</span>
-                          程序猿是怎么表白的
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      11月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/3c26421b/">
-                          <span style="color:#0bf;">
-                          15日21:25:04</span>
-                          Mysql Event Scheduler
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/96009187/">
-                          <span style="color:#0bf;">
-                          13日20:45:37</span>
-                          浅谈group by与distinct去重
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/26e6fc90/">
-                          <span style="color:#0bf;">
-                          03日23:05:06</span>
-                          王者荣耀-元歌教学
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/26078/">
-                          <span style="color:#0bf;">
-                          03日13:15:27</span>
-                          Sqoop学习笔记
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      10月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/38328/">
-                          <span style="color:#0bf;">
-                          29日10:50:40</span>
-                          CentOS7安装CDH6安装与排坑
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/39595/">
-                          <span style="color:#0bf;">
-                          21日19:59:50</span>
-                          记一次参加QCon全球软件开发大会
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      09月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/14419/">
-                          <span style="color:#0bf;">
-                          21日22:16:00</span>
-                          随想类博客-待更新
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="Linux服务器配置DNS解析服务Bind"><a href="#Linux服务器配置DNS解析服务Bind" class="headerlink" title="Linux服务器配置DNS解析服务Bind"></a>Linux服务器配置DNS解析服务Bind</h1><h2 id="BIND简介"><a href="#BIND简介" class="headerlink" title="BIND简介"></a>BIND简介</h2><p>BIND是现在使用最为广泛的DNS服务器软件（Berkeley Internet Name Domain）,支持先今绝大多数的操作系统（Linux，UNIX，Mac，Windows）。BIND服务的名称称之为named。DNS默认使用UDP、TCP协议，使用端口为53（domain），953（mdc，远程控制使用）。</p>
+<h2 id="DNS服务端配置"><a href="#DNS服务端配置" class="headerlink" title="DNS服务端配置"></a>DNS服务端配置</h2><ol>
+<li>安装bind<br>准备两台DNS服务器 kdc1(10.2.5.3) kdc2(10.2.5.4) 安装<pre><code class="shell">yum -y install bind bind-utils
+rpm -qa | grep bind</code></pre>
+</li>
+<li>配置bind<pre><code class="text">配置文件分别位于两个位置
+/etc/named.conf　BIND服务主配置文件
+/var/named/　　　zone文件（域的dns信息）</code></pre>
+先修改主DNS Server上的配置文件/etc/named.conf<br>cp /etc/named.conf /etc/named.conf.template<br>vim /etc/named.conf<pre><code class="conf">//
+// named.conf
+//
+// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+// server as a caching only nameserver (as a localhost DNS resolver only).
+//
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+// See the BIND Administrator&#39;s Reference Manual (ARM) for details about the
+// configuration located in /usr/share/doc/bind-&#123;version&#125;/Bv9ARM.html
+</code></pre>
+</li>
+</ol>
+<p>options {<br>        listen-on port 53 { 127.0.0.1;10.2.5.3; };<br>        listen-on-v6 {none;};<br>        directory       “/var/named”;<br>        dump-file       “/var/named/data/cache_dump.db”;<br>        statistics-file “/var/named/data/named_stats.txt”;<br>        memstatistics-file “/var/named/data/named_mem_stats.txt”;<br>        recursing-file  “/var/named/data/named.recursing”;<br>        secroots-file   “/var/named/data/named.secroots”;<br>        allow-query-cache {any;};<br>        allow-query  { 10.2.5.0/8; };<br>        forward only;<br>        forwarders {10.2.5.2;8.8.8.8;};</p>
+<pre><code>    recursion yes;
+    allow-recursion &#123; any;&#125;;
+
+    dnssec-enable no;
+    dnssec-validation no;
+    recursive-clients 1000000;
+    tcp-clients 10000;
+    send-cookie no;
+    require-server-cookie no;
+
+    /* Path to ISC DLV key */
+    bindkeys-file &quot;/etc/named.root.key&quot;;
+
+    managed-keys-directory &quot;/var/named/dynamic&quot;;
+
+    pid-file &quot;/run/named/named.pid&quot;;
+    session-keyfile &quot;/run/named/session.key&quot;;</code></pre>
+<p>};</p>
+<p>logging {<br>        channel default_debug {<br>                file “data/named.run”;<br>                severity dynamic;<br>        };<br>};</p>
+<p>zone “.” IN {<br>        type hint;<br>        file “named.ca”;<br>};</p>
+<p>zone “shmily-qjj.top” IN {<br>        type master;<br>        file “shmily-qjj.top.zone”;<br>        notify yes;<br>        also-notify { 10.2.5.4; };<br>        allow-update { none; };<br>};<br>zone “10.in-addr.arpa” IN {<br>        type master;<br>        file “ptr.shmily-qjj.top.zone”;<br>        notify yes;<br>        also-notify { 10.2.5.4; };<br>        allow-update { none; };<br>};<br>#include “/etc/named.rfc1912.zones”;<br>#include “/etc/named.root.key”;</p>
+<pre><code>
+主DNS Server上添加解析ZONE文件
+正向解析文件 vim /var/named/shmily-qjj.top.zone 
+```zone
+$TTL    1D
+@               IN SOA  dns1.shmily-qjj.top.    admin.shmily-qjj.top. (
+                                        2022060101
+                                        3H
+                                        15M
+                                        1W
+                                        1D )
+@       IN  NS  dns1.shmily-qjj.top.
+@       IN  NS  dns2.shmily-qjj.top.
+
+dns1  IN  A  10.2.5.3
+dns2  IN  A  10.2.5.4
+
+;kdc ldap
+kdc1.shmily-qjj.top IN A 10.2.5.3
+kdc2.shmily-qjj.top IN A 10.2.5.4
+
+;cdh
+cdh101 IN A 10.2.5.101
+cdh102 IN A 10.2.5.102
+cdh103 IN A 10.2.5.103
+cdh104 IN A 10.2.5.104
+
+;other nodes
+node1.shmily-qjj.top IN A 10.2.5.100</code></pre>
+<p>反向解析文件 vim /var/named/ptr.shmily-qjj.top.zone </p>
+<pre><code class="zone">$TTL    1D
+@               IN SOA  dns1.shmily-qjj.top.    admin.shmily-qjj.top. (
+                                        2022060101
+                                        3H
+                                        15M
+                                        1W
+                                        1D )
+@       IN  NS  dns1.shmily-qjj.top.
+@       IN  NS  dns2.shmily-qjj.top.
+
+
+;kdc ldap
+3.5.2 IN PTR kdc1.shmily-qjj.top
+4.5.2 IN PTR kdc2.shmily-qjj.top
+
+;cdh
+101.5.2 IN PTR cdh101
+102.5.2 IN PTR cdh102
+103.5.2 IN PTR cdh103
+104.5.2 IN PTR cdh104
+
+;;other nodes
+100.5.2 IN PTR node1.shmily-qjj.top</code></pre>
+<p>修改备DNS Server上的配置文件/etc/named.conf</p>
+<pre><code class="conf">options &#123;
+        listen-on port 53 &#123; 127.0.0.1;10.2.5.4; &#125;;
+        listen-on-v6 &#123;none;&#125;;
+        directory       &quot;/var/named&quot;;
+        dump-file       &quot;/var/named/data/cache_dump.db&quot;;
+        statistics-file &quot;/var/named/data/named_stats.txt&quot;;
+        memstatistics-file &quot;/var/named/data/named_mem_stats.txt&quot;;
+        recursing-file  &quot;/var/named/data/named.recursing&quot;;
+        secroots-file   &quot;/var/named/data/named.secroots&quot;;
+        allow-query-cache &#123;any;&#125;;
+        allow-query  &#123; 10.2.5.0/8; &#125;;
+        forward only;
+        forwarders &#123;10.2.5.2;8.8.8.8;&#125;;
+
+        recursion yes;
+        allow-recursion &#123; any;&#125;;
+
+        dnssec-enable no;
+        dnssec-validation no;
+        recursive-clients 1000000;
+        tcp-clients 10000;
+        send-cookie no;
+        require-server-cookie no;
+
+        /* Path to ISC DLV key */
+        bindkeys-file &quot;/etc/named.root.key&quot;;
+
+        managed-keys-directory &quot;/var/named/dynamic&quot;;
+
+        pid-file &quot;/run/named/named.pid&quot;;
+        session-keyfile &quot;/run/named/session.key&quot;;
+&#125;;
+
+logging &#123;
+        channel default_debug &#123;
+                file &quot;data/named.run&quot;;
+                severity dynamic;
+        &#125;;
+&#125;;
+
+zone &quot;.&quot; IN &#123;
+        type hint;
+        file &quot;named.ca&quot;;
+&#125;;
+
+zone &quot;shmily-qjj.top&quot; IN &#123;
+        type slave;
+        file &quot;slaves/shmily-qjj.top.zone&quot;;
+        notify no;
+        masters &#123; 10.2.5.3; &#125;;
+&#125;;
+zone &quot;10.in-addr.arpa&quot; IN &#123;
+        type slave;
+        file &quot;slaves/ptr.shmily-qjj.top.zone&quot;;
+        notify no;
+        masters &#123; 10.2.5.3; &#125;;
+&#125;;
+#include &quot;/etc/named.rfc1912.zones&quot;;
+#include &quot;/etc/named.root.key&quot;;</code></pre>
+<p>两台节点分别启动的DNS服务</p>
+<pre><code class="shell">systemctl enable named
+systemctl start named
+systemctl status named</code></pre>
+<ol start="3">
+<li>rndc同步<br>rndc（Remote Name Domain Controllerr）是一个远程管理bind的工具，通过这个工具可以在本地或者远程了解当前服务器的运行状况，也可以对服务器进行关闭、重载、刷新缓存、增加删除zone等操作。 <br>使用rndc可以在不停止DNS服务器工作的情况进行数据的更新，使修改后的配置文件生效。在实际情况下，DNS服务器是非常繁忙的，任何短时间的停顿都会给用户的使用带来影响。因此，使用rndc工具可以使DNS服务器更好地为用户提供服务。在使用rndc管理bind前需要使用rndc生成一对密钥文件，一半保存于rndc的配置文件中，另一半保存于bind主配置文件中。rndc的配置文件为/etc/rndc.conf，在CentOS或者RHEL中，rndc的密钥保存在/etc/rndc.key文件中。rndc默认监听在953号端口（TCP），其实在bind9中rndc默认就是可以使用，不需要配置密钥文件。<br>rndc与DNS服务器实行连接时，需要通过数字证书进行认证，而不是传统的用户名/密码方式。在当前版本下，rndc和named都只支持HMAC-MD5认证算法，在通信两端使用预共享密钥。在当前版本的rndc 和 named中，唯一支持的认证算法是HMAC-MD5，在连接的两端使用共享密钥。它为命令请求和名字服务器的响应提供 TSIG类型的认证。所有经由通道发送的命令都必须被一个服务器所知道的 key_id 签名。为了生成双方都认可的密钥，可以使用rndc-confgen命令产生密钥和相应的配置，再把这些配置分别放入named.conf和rndc的配置文件rndc.conf中。</li>
+</ol>
+<p>修改主节点ZONE配置文件（需要修改ZONE文件的编号）<br><strong>注意：修改了ZONE编号，即使配置没发生变化，配置仍然会同步到备用DNS；未修改ZONE编号，即使配置发生变化，也不会同步到备用DNS</strong><br>vim /var/named/shmily-qjj.top.zone<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-1.jpg" alt="alt"><br>执行rndc reload 提示server reload successful证明成功</p>
+<p>验证备节点解析<br>将/etc/resolv.conf中nameserver指向备节点10.2.5.4<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-2.jpg" alt="alt"><br>查看备节点目录修改时间<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-3.jpg" alt="alt">  </p>
+<h2 id="DNS客户端节点配置"><a href="#DNS客户端节点配置" class="headerlink" title="DNS客户端节点配置"></a>DNS客户端节点配置</h2><p>客户端配置<br>vim /etc/resolv.conf</p>
+<pre><code class="conf">search shmily-qjj.top
+nameserver 10.2.5.3
+nameserver 10.2.5.4</code></pre>
+<p>验证：<br>注释掉/etc/hosts下的ip地址映射<br>安装bind-utils<br>yum install bind-utils<br>正向解析验证<br>nslookup kdc1.shmily-qjj.top<br>nslookup kdc2.shmily-qjj.top<br>nslookup node1.shmily-qjj.top<br>ping kdc1.shmily-qjj.top -c 3<br>ping kdc2.shmily-qjj.top -c 1<br>ping node1.shmily-qjj.top -c 1<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-4.jpg" alt="alt">  </p>
+<p>反向解析验证<br>nslookup 10.2.5.3<br>nslookup 10.2.5.100<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-5.jpg" alt="alt">  </p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f08cf7cebf3f">bind配置工具rndc使用</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
             </div>
           </div>
         </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
       </article>
-    </div>
-  </div>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/ee1c2df4/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                Kyuubi原理与替代SparkThriftServer实践-基于CDH6</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限，只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
 
     </div>    
     <div class="ins-search">

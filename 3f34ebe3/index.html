@@ -528,13 +528,26 @@ sudo vim /etc/sudoers.d/10-installer
 shmily ALL=(ALL) NOPASSWD: ALL
 %shmily ALL=(ALL) NOPASSWD: ALL</code></pre>
 <p>软件商店勾选启用AUR和Snap源<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-09.png" alt="alt "></p>
-<h3 id="中文输入法安装"><a href="#中文输入法安装" class="headerlink" title="中文输入法安装"></a>中文输入法安装</h3><p>输入法首选安装:<br>sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color</p>
+<h3 id="中文输入法安装"><a href="#中文输入法安装" class="headerlink" title="中文输入法安装"></a>中文输入法安装</h3><p>输入法首选安装:<br>sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color<br>yay -S noto-color-emoji-fontconfig  打字支持emoji表情😘</p>
 <pre><code class="shell">sudo vim ~/.pam_environment （在当前桌面登陆的用户下执行）
 INPUT_METHOD  DEFAULT=fcitx5
 GTK_IM_MODULE DEFAULT=fcitx5
 QT_IM_MODULE  DEFAULT=fcitx5
 XMODIFIERS    DEFAULT=\@im=fcitx5</code></pre>
-<p><strong><u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u></strong><br>注销重新登陆后生效<br>配置输入法：<br>将拼音上移，作为默认输入法<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-10.png" alt="alt "><br>设置shift按键为切换中英文输入的按键<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-11.png" alt="alt "><br>共享输入状态 避免输入法切换混乱<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-12.png" alt="alt "><br>如何更新主题 换主题<a target="_blank" rel="noopener" href="https://github.com/hosxy/Fcitx5-Material-Color">Fcitx5-Material-Color</a><br><strong>说明：</strong>fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。<br>提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。<br>注意：对于非 KDE 界面，可以使用 fcitx5-config-qt-gitAUR,该软件包与 kcm-fcitx5 相冲突，你需要手动卸载它环境变量。<br><strong>其他可选输入法组件：</strong><br>sunpinyin+sunpinyin-data<br>fcitx-sunpinyin<br>ibus-sunpinyin<br>kcm-fcitx</p>
+<p><strong><u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u></strong><br>注销重新登陆后生效<br>配置输入法：<br>将拼音上移，作为默认输入法<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-10.png" alt="alt "><br>设置shift按键为切换中英文输入的按键<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-11.png" alt="alt "><br>根据个人习惯 设置共享输入状态 (我一般不设置)<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-12.png" alt="alt "><br>更换输入法主题:</p>
+<pre><code class="shell">vim ~/.config/fcitx5/conf/classicui.conf
+# 垂直候选列表
+Vertical Candidate List=False
+# 按屏幕 DPI 使用
+PerScreenDPI=True
+# Font (设置成你喜欢的字体)
+Font=&quot;思源黑体 CN Medium 13&quot;
+# 主题名称(对应~/.local/share/fcitx5/themes下的主题目录名称)
+Theme=Material-Color-DeepPurple
+然后重启输入法即可生效
+也可以下载主题包文件解压到~/.local/share/fcitx5/themes目录下并修改~/.config/fcitx5/conf/classicui.conf来设置不同主题</code></pre>
+<p>简约黑白主题下载地址:<a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/BlogImages-0/blob/master/cdn_sources/Blog_Images/Manjaro/fcitx5-simple-themes.zip">fcitx5-simple-themes.zip</a></p>
+<p>启用云拼音<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-42.png" alt="alt "><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-43.png" alt="alt "><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-44.png" alt="alt "><br><strong>说明：</strong>fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。<br>提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。<br>注意：对于非KDE界面，可以使用fcitx5-config-qt-gitAUR,该软件包与kcm-fcitx5相冲突，你需要手动卸载它。<br><strong>其他可选输入法组件：</strong><br>sunpinyin+sunpinyin-data<br>fcitx-sunpinyin<br>ibus-sunpinyin<br>kcm-fcitx</p>
 <h3 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h3><pre><code class="shell">git config --global user.name &quot;shmily&quot;
 git config --global user.email 710552907@qq.com
 git config --global http.version HTTP/1.1
@@ -588,11 +601,11 @@ fi</code></pre>
 # Possible values: &quot;dual&quot;, &quot;bredr&quot;, &quot;le&quot;
 # ControllerMode = dual 
 ControllerMode = bredr </code></pre>
-<p>2.音质提升<br>软件包管理器中安装pulseaudio、pulseaudio-bluetooth，以及其他pulseaudio相关包(可自行选择)<br>安装后重启蓝牙服务并启动pulseaudio：</p>
+<p>2.音质提升<br>目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/PulseAudio">PulseAudio - ArchWiki</a><br>软件包管理器中安装pulseaudio、pulseaudio-bluetooth，以及其他pulseaudio相关包(可自行选择)<br>安装后重启蓝牙服务并启动pulseaudio：</p>
 <pre><code class="shell">systemctl restart bluetooth
 systemctl status bluetooth
 pulseaudio --start   # 将此命令放到开机自启脚本</code></pre>
-<p>目前Linux系统播放音质差是通病，使用pulseaudio可以让Linux音质恢复到与Mac、Windows相近的水平，更多pulseaudio的高阶使用可参考：<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/PulseAudio">PulseAudio - ArchWiki</a></p>
+<p>3.蓝牙设备经常需要重新配对<br>蓝牙鼠标、蓝牙耳机经常需要重新配对,每次重启都需要重新配对,解决办法:<br>sudo vim /etc/bluetooth/main.conf<br>修改FastConnectable = false，取消#注释，改为FastConnectable = true<br>修改AutoEnable=false，取消#注释，改为AutoEnable=true<br>systemctl restart bluetooth</p>
 <h2 id="安装应用和工具"><a href="#安装应用和工具" class="headerlink" title="安装应用和工具"></a>安装应用和工具</h2><h3 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h3><pre><code class="shell"># 微信、TIM
 sudo pacman -S yay
 yay --aururl https://aur.tuna.tsinghua.edu.cn --save
@@ -703,10 +716,11 @@ cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml</code></pre>
 <p>只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-14.png" alt="alt "><br><strong>必要时可以使用系统全局代理</strong>：<br>进入系统设置-&gt;网络设置-&gt;使用系统代理服务器配置(或使用手动设置的代理服务器)-&gt;http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-15.png" alt="alt "><br><strong>配置Clash开机自启</strong>：</p>
 <pre><code class="shell">cp /usr/share/applications/Clash.desktop ~/.config/autostart/</code></pre>
 <h3 id="截屏录屏"><a href="#截屏录屏" class="headerlink" title="截屏录屏"></a>截屏录屏</h3><ol>
-<li>深度录屏<br>sudo pacman -S deepin-screen-recorder<br>ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用<br>添加截图功能到系统全局快捷方式:设置-&gt;快捷键-&gt;自定义快捷键-&gt;编辑-&gt;新建-&gt;全局快捷键-&gt;命令/URL-&gt;命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A</li>
+<li>功能全面的录屏和串流直播软件<br>sudo pacman -S obs-studio</li>
 <li>kazam<br>sudo pacman -S kazam 可以截图和录屏的工具</li>
 <li>深度截图<br>sudo pacman -S deepin-screenshot</li>
 <li>自带截图工具Spectacle<br>日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-16.png" alt="alt "><br>主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口</li>
+<li>深度录屏<br>sudo pacman -S deepin-screen-recorder<br>ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用<br>添加截图功能到系统全局快捷方式:设置-&gt;快捷键-&gt;自定义快捷键-&gt;编辑-&gt;新建-&gt;全局快捷键-&gt;命令/URL-&gt;命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A</li>
 </ol>
 <h3 id="开发环境安装"><a href="#开发环境安装" class="headerlink" title="开发环境安装"></a>开发环境安装</h3><pre><code class="shell">sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
 sudo pacman -S nodejs
@@ -735,6 +749,7 @@ export PATH=$PATH:$SCALA_HOME/bin
 source /etc/profile
 export GO_HOME=/opt/Env/go1.18.3
 export PATH=$PATH:$GO_HOME/bin
+sudo pacman -S pkg-config
 -------------------------------------------------------------------
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -866,6 +881,21 @@ source ~/.zshrc</code></pre>
 <h3 id="锁屏界面"><a href="#锁屏界面" class="headerlink" title="锁屏界面"></a>锁屏界面</h3><p>每次锁屏(Meta+L)后都会显示这个页面。<br>打开设置-&gt;工作区行为-&gt;锁屏-&gt;外观：配置<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-34.png" alt="alt "> </p>
 <h3 id="桌面特效"><a href="#桌面特效" class="headerlink" title="桌面特效"></a>桌面特效</h3><p>这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。<br>打开设置-&gt;工作区行为-&gt;桌面特效<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-35.png" alt="alt "><br>主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效</p>
 <h3 id="手动安装主题、壁纸、插件"><a href="#手动安装主题、壁纸、插件" class="headerlink" title="手动安装主题、壁纸、插件"></a>手动安装主题、壁纸、插件</h3><p>本节主要使用kpackagetool5命令<br>打开<a target="_blank" rel="noopener" href="https://store.kde.org/">https://store.kde.org/</a>  可以安装一些主题<br>比如安装动态壁纸插件：<br>下载Smart Video Wallpaper插件的tar包：<a target="_blank" rel="noopener" href="https://store.kde.org/p/1316299/">https://store.kde.org/p/1316299/</a><br>kpackagetool5 -t Plasma/Wallpaper -i smartvideowallpaper.tar.gz<br>然后进入壁纸设置选择壁纸类型还有视频路径即可<br>比如安装主题：kpackagetool5 -t Plasma/Theme -i Gently.tar.gz</p>
+<h3 id="娱乐命令"><a href="#娱乐命令" class="headerlink" title="娱乐命令"></a>娱乐命令</h3><pre><code class="shell">yay -S oneko   # 一只跟着鼠标走的小猫
+sudo pacman -S nyancat  # shell窗口中的彩虹猫
+yay -S hollywood  # 好莱坞效果shell
+sudo pacman -S cmatrix  # 黑客帝国效果shell
+sudo pacman -S sl  # ls错写成sl后会显示小火车
+sudo pacman -S fortune-mod # 随机一句笑话\名言 (中文版本可以在应用商店安装fortune-mod-zh)
+sudo pacman -S cowsay  # cowsay -f tux haha ; cowsay haha 让cowsay说出fortune的内容: fortune | cowsay
+sudo pacman -S figlet # 艺术字生成器，由ASCII字符组成，把文本显示成标题栏,可加颜色  figlet haha 
+sudo pacman -S toilet # 艺术字生成器，由ASCII字符组成，把文本显示成标题栏,可加颜色  toilet haha 
+sudo pacman -S xorg-xeyes  # 执行xeyes 一双大眼睛盯着你的鼠标
+cal 1 1998 显示月日历
+shred /tmp/aaa 损坏文件,破坏文件内容让人无法识别和查看
+yay -S boxes # ASCII艺术框 echo &quot;Haha&quot; | boxes ; echo &quot;Haha&quot; | boxes -d dog
+yay -S aview # 图片转ASCII图像</code></pre>
+<h3 id="动态壁纸工具"><a href="#动态壁纸工具" class="headerlink" title="动态壁纸工具"></a>动态壁纸工具</h3><p>KDE本身有动态壁纸插件,可以在壁纸设置中下载<strong>SmartER video Wallpaper</strong>插件:<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-41.png" alt="alt "><br>还有一款资源开销较低的动态壁纸软件:<strong>fantascene-dynamic-wallpaper</strong> 可以在应用商店找到<br>动态壁纸将动态视频文件反序列化到内存中,会一定程度占用显卡\CPU和内存资源.低配电脑不建议使用.</p>
 <h2 id="系统使用小技巧与问题处理"><a href="#系统使用小技巧与问题处理" class="headerlink" title="系统使用小技巧与问题处理"></a>系统使用小技巧与问题处理</h2><h3 id="解决无法写和更新NTFS盘数据的问题："><a href="#解决无法写和更新NTFS盘数据的问题：" class="headerlink" title="解决无法写和更新NTFS盘数据的问题："></a>解决无法写和更新NTFS盘数据的问题：</h3><p>创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：</p>
 <pre><code class="shell">#!/bin/bash
 # Fix NTFS Disk which can not be writen on linux system.
@@ -885,9 +915,14 @@ sudo chmod 1777 $TARGET_MOUNT_POINT
 sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
 echo &quot;All Done&quot;</code></pre>
 <p>将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment</p>
-<h3 id="内存清理"><a href="#内存清理" class="headerlink" title="内存清理"></a>内存清理</h3><p>sudo echo 1 &gt; /proc/sys/vm/drop_caches<br>sudo echo 2 &gt; /proc/sys/vm/drop_caches<br>sudo echo 3 &gt; /proc/sys/vm/drop_caches</p>
+<h3 id="系统清理"><a href="#系统清理" class="headerlink" title="系统清理"></a>系统清理</h3><p>内存清理<br>sudo echo 1 &gt; /proc/sys/vm/drop_caches<br>sudo echo 2 &gt; /proc/sys/vm/drop_caches<br>sudo echo 3 &gt; /proc/sys/vm/drop_caches<br>日志清理<br>journalctl –disk-usage 查看日志占用<br>sudo journalctl –vacuum-size=500M  限制归档日志大小，对日志做清除操作，适用于/var占用较大的场景</p>
 <h3 id="搜索工具"><a href="#搜索工具" class="headerlink" title="搜索工具"></a>搜索工具</h3><p>Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Manjaro/ManjaroInstall-36.png" alt="alt "> </p>
 <h3 id="解决thermal误报导致自动关机"><a href="#解决thermal误报导致自动关机" class="headerlink" title="解决thermal误报导致自动关机"></a>解决thermal误报导致自动关机</h3><p>报错kernel: thermal thermal_zone3: critical temperature reached (125 C), shutting down  直接被关机<br>sudo chmod 665 /sys/class/thermal/thermal_zone3/mode<br>sudo echo “disabled” &gt; /sys/class/thermal/thermal_zone3/mode<br>这个参数需要每次系统启动时重新写入,放入开机启动脚本路径/etc/rc.local.d/</p>
+<h3 id="bash下所有命令均不可用"><a href="#bash下所有命令均不可用" class="headerlink" title="bash下所有命令均不可用"></a>bash下所有命令均不可用</h3><p>原因:可能存在错误的环境变量配置,不过不影响zsh因为zsh是单独的.zshrc配置文件<br>修复: 在~/.bashrc末尾加上如下内容 修复PATH<br>export PATH=”$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games”</p>
+<h3 id="包管理器与软件依赖管理"><a href="#包管理器与软件依赖管理" class="headerlink" title="包管理器与软件依赖管理"></a>包管理器与软件依赖管理</h3><pre><code class="shell"># 卸载孤包:（孤包:孤立包,不被引用的包,无用的包）
+pacman -R $(pacman -Qtdq)
+# 清除已下载的安装包
+sudo pacman -Scc</code></pre>
 <h3 id="必须掌握的系统备份和恢复技巧"><a href="#必须掌握的系统备份和恢复技巧" class="headerlink" title="必须掌握的系统备份和恢复技巧"></a>必须掌握的系统备份和恢复技巧</h3><p>Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。<br>注意：系统检测到有大更新时，不要急于更新，要首先使用timeshift做一个快照，再更新。原因是部分情况下，系统更新后看似没问题，但实际上软件的依赖库版本发生了变化，导致有部分软件无法正常运行了，这种情况不易发现。要养成先快照再升级的习惯。<br>系统备份和还原两种方式：<br>使用tar压缩包打包备份系统 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/smlile-you-me/p/13601039.html">https://www.cnblogs.com/smlile-you-me/p/13601039.html</a><br>使用timeshift的快照备份和还原系统</p>
 <ol>
 <li><p>按照向导设置：选择快照类型:RSYNC-&gt;选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)-&gt;选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)-&gt;用户主目录(默认全部)</p>

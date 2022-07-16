@@ -832,7 +832,7 @@ main : run as user is k00877
 main : requested yarn user is k00877
 User k00877 not found
 ......</code></pre>
-<p>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。<br>解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png" alt="alt"></p>
+<p>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。<br>可选方案: Ldap是支持管理Linux用户的,可以作为Linux自带用户的扩展,实现不用手动useradd就能在各节点以ldap中的用户模拟Linux用户启动Container.<br>临时解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png" alt="alt"></p>
 </li>
 <li><p>使用LDAP登录的用户无HDFS上表数据的访问权限<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png" alt="alt"><br>分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png" alt="alt"><br>当前用户q00885没有该目录的任何读权限。解决方式：</p>
 </li>
@@ -902,9 +902,26 @@ REVOKE SELECT &lt;column name&gt; ON TABLE &lt;table name&gt; FROM ROLE &lt;role
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/39a9ed67/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                Linux Bind服务配置DNS解析</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/84534d72/" rel="next">
               <div class="background">

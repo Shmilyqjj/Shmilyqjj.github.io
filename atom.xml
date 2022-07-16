@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2022-05-31T07:06:55.808Z</updated>
+  <updated>2022-07-16T08:57:47.946Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -17,11 +17,35 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Linux Bind服务配置DNS解析</title>
+    <link href="https://shmily-qjj.top/39a9ed67/"/>
+    <id>https://shmily-qjj.top/39a9ed67/</id>
+    <published>2022-06-01T12:12:10.000Z</published>
+    <updated>2022-07-16T08:57:47.946Z</updated>
+    
+    <summary type="html">
+    
+      DNS解析服务配置
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Linux" scheme="https://shmily-qjj.top/tags/Linux/"/>
+    
+      <category term="DNS" scheme="https://shmily-qjj.top/tags/DNS/"/>
+    
+      <category term="Bind" scheme="https://shmily-qjj.top/tags/Bind/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Kyuubi原理与替代SparkThriftServer实践-基于CDH6</title>
     <link href="https://shmily-qjj.top/ee1c2df4/"/>
     <id>https://shmily-qjj.top/ee1c2df4/</id>
     <published>2022-04-29T08:39:12.000Z</published>
-    <updated>2022-05-31T07:06:55.808Z</updated>
+    <updated>2022-07-02T02:52:56.903Z</updated>
     
     <summary type="html">
     
@@ -69,7 +93,7 @@
     <link href="https://shmily-qjj.top/3f34ebe3/"/>
     <id>https://shmily-qjj.top/3f34ebe3/</id>
     <published>2021-07-07T03:22:00.000Z</published>
-    <updated>2022-06-18T04:14:58.185Z</updated>
+    <updated>2022-07-13T15:10:45.314Z</updated>
     
     <summary type="html">
     
@@ -113,7 +137,7 @@
     <link href="https://shmily-qjj.top/BigdataExceptionsSummary/"/>
     <id>https://shmily-qjj.top/BigdataExceptionsSummary/</id>
     <published>2021-01-30T04:50:00.000Z</published>
-    <updated>2022-05-22T11:38:47.843Z</updated>
+    <updated>2022-07-02T02:52:56.905Z</updated>
     
     <summary type="html">
     
@@ -433,28 +457,6 @@
       <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
     
       <category term="Alluxio" scheme="https://shmily-qjj.top/tags/Alluxio/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>我的2019年度总结博客</title>
-    <link href="https://shmily-qjj.top/2019Summary/"/>
-    <id>https://shmily-qjj.top/2019Summary/</id>
-    <published>2020-01-01T00:08:08.000Z</published>
-    <updated>2022-03-23T02:47:12.478Z</updated>
-    
-    <summary type="html">
-    
-      告别2019展望2020，期待更完美的自己！
-    
-    </summary>
-    
-      <category term="生活" scheme="https://shmily-qjj.top/categories/%E7%94%9F%E6%B4%BB/"/>
-    
-    
-      <category term="个人总结" scheme="https://shmily-qjj.top/tags/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
-    
-      <category term="2019" scheme="https://shmily-qjj.top/tags/2019/"/>
     
   </entry>
   
