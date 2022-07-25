@@ -246,14 +246,18 @@ date: 2020-08-22 12:19:00
 14.文件特殊权限SUID、SGID、SBIT
     -rwsr-xr-x 1 root root 63640  7月 16 04:15 /usr/bin/passwd
     drwxrwxrwt  21 root root  1040  8月 25 21:16 /tmp
-    SUID：/usr/bin/passwd中s在拥有者x位置，表示SUID权限 用户执行该binary程序过程中暂时拥有该程序所有者的权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow  注:权限仅对二进制文件有效，对目录和非二进制文件无效
-    SGID：对目录设定，在该目录建立的文件的组名都与这个目录组名相同
-    SBIT： /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
+    drwsr-sr-x 2 shmily shmily     40  7月19日 16:23  qjj
+    SUID：(S或s,可执行为s,不可执行为S) /usr/bin/passwd中s在拥有者x位置，表示SUID权限 用户执行该binary程序过程中暂时拥有该程序所有者的权限  场景：用户通过passwd改自己密码，但不能直接访问读写/etc/shadow;再如Hadoop Yarn的可执行文件container-executor(权限6050)  注:权限仅对二进制文件有效，对目录和非二进制文件无效
+    SGID：(S或s,可执行为s,不可执行为S) 对目录设定，在该目录建立的文件的组名都与这个目录组名相同
+    比如执行chmod a-x qjj后qjj权限变为(drwSr-Sr-- 2 shmily shmily     40  7月19日 16:23  qjj)
+    SBIT：粘贴位 /tmp多个t，表示SBIT权限  场景：所有人都可在这个目录下写文件但只有自己和root能删，别人没权限删你，你也没权限删别人的文件
     设定：4代表SUID，2代表SGID，1代表SBIT    例：chmod 1777 xx设置SBIT  例：chmod u+s设置SUID g+s设置SGID o+t设置SBIT
+    (-rwsrwsrwt 7777;-rwsrwsrwx 6777;-rwSrwSrw- 6666;-rwSrw-rw- 4666;-rw-rwSrw- 2666;-rwxrwxrwt 1777;-rw-rw-rwT 1666;-rw-rw-rw- 0666;---x--x--x 0111;---S--S--- 6000;---S------ 4000;------S--- 2000)
     UID\GID：
     查看UID\GID  命令id [username]或者cat /etc/passwd
     修改foo用户的uid # usermod -u 2005 foo
     修改foo组的gid   # groupmod -g 3000 foo
+
     NFS挂载A节点的目录到B节点，在B节点这个目录的用户和组的位置显示UID和GID，此时的UID和GID对应的是A节点目录的用户和组在A节点的UID\GID的值，且UID、GID在B节点没有id相匹配的用户和组。如果A节点目录hive:hive对应UID、GID分别为1008 586，而B节点1008是用户aaa的UID，586是组sqoop的GID，则挂载目录在B节点权限显示为aaa:sqoop。
 15.file命令可查看文件类型  file file_name
 16.搜索:which寻找PATH中相关指令位置；找文件先用whereis和locate检查，找不到再用find
