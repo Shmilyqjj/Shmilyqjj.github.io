@@ -1311,6 +1311,37 @@ Kafka集群迁移：
 ###################################################
 Hive相关
 
+HiveClient开启Debug模式运行 hive --hiveconf hive.root.logger=DEBUG,console
+
+Hive开启自动文件合并
+   <property>
+       <name>hive.merge.mapredfiles</name>
+       <value>true</value>
+   </property>
+   <property>
+       <name>hive.merge.mapfiles</name>
+       <value>true</value>
+   </property>
+   <property>
+       <name>hive.merge.size.per.task</name>
+       <value>268435456</value>
+   </property>
+   <property>
+       <name>hive.merge.smallfiles.avgsize</name>
+       <value>64000000</value>
+   </property>
+
+HiveClient头部显示当前数据库
+    <property>
+      <name>hive.cli.print.header</name>
+      <value>true</value>
+    </property> 
+    <property>
+      <name>hive.cli.print.current.db</name>
+      <value>true</value>
+    </property>
+
+
 sql: set -v;查看当前的server配置
 
 Hive修改表Format格式：ALTER TABLE table_name SET FILEFORMAT INPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat" OUTPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat" SERDE "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe";
@@ -1584,6 +1615,10 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 
 ##################################################
 Linux相关
+
+ssh登陆缓慢或者失败
+调试ssh 显示debug信息
+ssh -v 10.2.5.3
 
 找目录下所有jar中含指定类的jar：for i in *.jar; do jar -tvf "$i" | grep -Hsi class类名 && echo "$i"; done
 
