@@ -16,7 +16,7 @@ tags:
 keywords: DNS
 description: DNS解析服务配置
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg
+  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-cover.jpg
 abbrlink: 39a9ed67
 date: 2022-06-01 20:12:10
 ---
@@ -222,14 +222,14 @@ systemctl status named
  修改主节点ZONE配置文件（需要修改ZONE文件的编号）
  **注意：修改了ZONE编号，即使配置没发生变化，配置仍然会同步到备用DNS；未修改ZONE编号，即使配置发生变化，也不会同步到备用DNS**
  vim /var/named/shmily-qjj.top.zone
- ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-1.jpg)  
+ ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-1.jpg)  
  执行rndc reload 提示server reload successful证明成功
 
  验证备节点解析
  将/etc/resolv.conf中nameserver指向备节点10.2.5.4
- ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-2.jpg)  
+ ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-2.jpg)  
  查看备节点目录修改时间
- ![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-3.jpg)  
+ ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-3.jpg)  
 
 ## DNS客户端节点配置
 客户端配置
@@ -251,12 +251,12 @@ nslookup node1.shmily-qjj.top
 ping kdc1.shmily-qjj.top -c 3
 ping kdc2.shmily-qjj.top -c 1
 ping node1.shmily-qjj.top -c 1
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-4.jpg)  
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-4.jpg)  
 
 反向解析验证
 nslookup 10.2.5.3
 nslookup 10.2.5.100
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-5.jpg)  
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-5.jpg)  
 
 
 ## 参考

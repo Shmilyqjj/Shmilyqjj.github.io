@@ -16,7 +16,7 @@ tags:
 keywords: SeaTunnel
 description: SeaTunnel数据抽取工具
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-cover.jpg
+  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg
 abbrlink: 84534d72
 date: 2021-12-15 16:30:00
 ---
@@ -28,7 +28,7 @@ SeaTunnel is a very easy-to-use ultra-high-performance distributed data integrat
 SeaTunnel是一个简单易用且高效的开源数据集成平台（前身是WaterDrop），支持离线和实时数据同步。支持多种Source、Output、Filter组件以及自行开发输入输出插件和过滤器插件。SeaTunnel配置简单，基于已有的Spark、Flink环境几分钟就可以部署完成。因其有各种灵活的插件支持，只需要花几分钟编写一个配置文件即可完成一个数据同步任务的开发。
 
 SeaTunnel架构
-![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-01.png)  
+![alt ](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-01.png)  
 
 SeaTunnel特性：
 1. 简单易用，配置灵活，低代码
@@ -58,7 +58,7 @@ SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6
 ### SeaTunnel将Kudu表导入ClickHouse
 准备kudu表
 Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）
-![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-02.png)  
+![alt ](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-02.png)  
 
 
 预先创建目标ClickHouse表
@@ -313,7 +313,7 @@ cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .
 
 配置修改思路是将原来的只有一个并行度增加到多个并行度
 所以使用partitionColumn, lowerBound, upperBound和numPartitions这四个参数进行调优，注意要对分区字段值数据有一定了解，选择合适的分区字段和lowerBound, upperBound很关键。当然这样并行加载数据源也将并行初始化多个连接，Spark源码中提醒到不要并行度过大，否则容易把外部存储搞垮。
-![alt ](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-03.png)  
+![alt ](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-03.png)  
 
 partitionColumn, lowerBound, upperBound和numPartitions这四个参数能决定Spark读取JDBC数据源的并行度及策略，lowerBound是分区字段取值的下限(包含)，upperBound是上限(不包含)，numPatitions是我们希望按照多少分区来加载JDBC。
 注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来。

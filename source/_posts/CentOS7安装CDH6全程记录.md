@@ -925,16 +925,16 @@ sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10002 --queue thr
 ### CDH集群修改IP
 将原来的192.168.1.x网段修改为10.2.5.x网段
 在Hyper-V创建新的虚拟网卡 模拟网卡地址变更
-![alt CDH-32](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-32.JPG)  
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-33.JPG)  
+![alt CDH-32](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-32.JPG)  
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-33.JPG)  
 打开控制面板->查看网络连接->找到Cluster 设置IP和DNS
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-34.JPG)  
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-34.JPG)  
 设置外网共享 让虚拟机可以连接外部网络
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-35.JPG)
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-35.JPG)
 重新回到上一步设置IP和DNS
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-34.JPG)  
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-34.JPG)  
 修改虚拟机设置网络设置
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-36.JPG)
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-36.JPG)
 停止所有cloudera服务
 ```shell
 systemctl stop cloudera-scm-server;systemctl stop cloudera-scm-agent;systemctl stop supervisord
@@ -983,7 +983,7 @@ update scm.HOSTS set IP_ADDRESS = '10.2.5.104' where IP_ADDRESS = '192.168.1.104
 修改Agent配置文件中server_host字段vim /etc/cloudera-scm-agent/config.ini 值为cmserver的hostname
 然后poweroff关机
 修改虚拟机网卡，替换为DNS为10.2.5.2的新的虚拟网卡
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-37.JPG)
+![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-37.JPG)
 启动节点，在页面重启ClouderaManagerService、部署各个组件的客户端配置即可
 
 
@@ -994,7 +994,7 @@ update scm.HOSTS set IP_ADDRESS = '10.2.5.104' where IP_ADDRESS = '192.168.1.104
 
 
 ## Cloudera Manager使用
-![alt CDH-usage-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/CDH/CDH-usage-01.JPG)  
+![alt CDH-usage-01](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/CDH/CDH-usage-01.JPG)  
 
 
 
