@@ -7,4 +7,3 @@ res = requests.get(photo_jsdelivr_url.replace('cdn', 'purge'))
 if res.status_code == 200:
     print("Jsdelivr图片缓存刷新完成")
     print(res.text)
-
