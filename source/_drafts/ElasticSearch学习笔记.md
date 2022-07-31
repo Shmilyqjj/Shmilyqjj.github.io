@@ -15,7 +15,7 @@ tags:
 keywords: ElasticSearch
 description: 记录ElasticSearch学习笔记，好记性不如烂笔头。
 photos: >-
-  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/ElasticSearch/ElasticSearch-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/ElasticSearch/ElasticSearch-cover.jpg
 date: 2022-06-18 12:19:00
 ---
 # ElasticSearch学习笔记
@@ -43,7 +43,7 @@ PHP is the best programming language.
 Javascript is the best programming language.
 ```
 倒排索引图示(倒排索引主要由**词典**和**倒排文件**组成，词典和倒排文件是分两部分存储，词典在内存中而倒排文件存储在磁盘上)
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/ElasticSearch/ElasticSearch-1.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/ElasticSearch/ElasticSearch-1.png)
 词条（Term）：索引里面最小的存储和查询单元，对于英文来说是一个单词，对于中文来说一般指分词后的一个词。
 词典（Term Dictionary）：或字典，是词条Term的集合。搜索引擎的通常索引单位是单词，单词词典是由文档集合中出现过的所有单词构成的字符串集合，单词词典内每条索引项记载单词本身的一些信息以及指向“倒排列表”的指针。
 倒排表（Post list）：一个文档通常由多个词组成，倒排表记录的是某个词在哪些文档里出现过以及出现的位置。每条记录称为一个倒排项（Posting）。倒排表记录的不单是文档编号，还存储了词频等信息。

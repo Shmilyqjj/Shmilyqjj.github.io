@@ -15,7 +15,7 @@ tags:
 keywords: Airflow任务调度
 description: 工作流调度与管理方案
 photos: >-
-  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Airflow/Airflow-Cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Airflow/Airflow-Cover.jpg
 date: 2021-04-11 12:16:00
 ---
 # Airflow工作流调度引擎  

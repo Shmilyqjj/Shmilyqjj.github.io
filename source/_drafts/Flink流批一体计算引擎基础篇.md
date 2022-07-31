@@ -16,7 +16,7 @@ tags:
 keywords: Apache Flink
 description: 流批一体实时计算引擎Flink学习笔记
 photos: >-
-  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-cover.jpg
 abbrlink: flink
 date: 2022-01-28 12:32:16
 ---
@@ -38,11 +38,11 @@ Apache Flink is a framework and distributed processing engine for stateful compu
 
 ### Flink应用场景
 事件驱动型应用
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-01.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-01.png)  
 数据分析应用
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-02.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-02.png)  
 数据管道应用
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-03.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-03.png)  
 
 应用案例：
 1.实时智能推荐 -- 基于用户行为实时计算，对模型实时更新，对用户指标实时预测，进行实时推荐、广告投放
@@ -56,11 +56,11 @@ Apache Flink is a framework and distributed processing engine for stateful compu
 ## 流处理架构的演变
 流式处理和批处理都有各自的优势，流处理实时性好，但受到网络以及其他原因，可能造成数据乱序、数据错误；批处理虽然实时性差，但计算结果精确。
 既要保证计算结果的精确性，又需要很高的实时性，所以出现了大数据**lambda架构**：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-16.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-16.png)  
 实时计算保证了指标的实时性，同时批处理保证了结果的准确性，但弊端是一个数据需求要维护两套系统，同一份数据经过两条链路处理，耗费计算资源，开发和维护成本高。
 随后出现了**Lambda架构的演进版本Kappa架构**
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-17.webp)  
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-18.webp)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-17.webp)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-18.webp)  
 Kappa架构基于Lambda的改进是删除了BatchLayer，改为使用流式计算程序消费消息队列中的存量数据实现数据重算，重算后替换数仓或数据湖中的数据视图，将旧的数据视图删除。
 **Kappa架构的处理过程:**
 ```text
@@ -89,7 +89,7 @@ Ingestion Time：数据摄入时间
 
 
 ### Flink API
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-04.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-04.png)  
 Flink根据处理数据集类型不同分为支持流计算的DataStreamAPI，和支持批计算的DataSetAPI（逐步弃用）。Flink应用程序由用户自定义算子转换而来的流式Dataflows所组成。这些流式Dataflows形成了有向图，以一个或多个源（source）开始，并以一个或多个汇（sink）结束。
 **灵活程度表达能力依次降低、抽象能力依次提高：SQL/TableAPI -> DataStreamAPI(streams\windows) -> ProcessFunction(event\state\time)**
 * SQL API
@@ -108,12 +108,12 @@ curl https://flink.apache.org/q/quickstart-SNAPSHOT.sh | bash -s 1.13.6
 mvn clean package  
 ```
 **Flink DataStream转换**：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-14.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-14.png)  
 其中keyBy是最常用的算子，作用是将整个流按照不同的key分散，并行执行计算。如果不执行keyBy分组，所有数据得到一个大的AllWindowedStream，执行keyBy后，数据窗口分散为多个小的WindowedStream，同时keyBy后，每个节点分到不同的key的状态，将大的状态拆分为小的状态，每个节点都维持自己的状态，不需要关心其他节点的状态。KeyBy使用的前提是假设key数远大于并发度，假设流只有一个key，最终仍然是单个并行度跑。
 
 **Flink数据类型支持**：
 Flink是强数据类型的，Scala中也是通过隐式转换达到强类型的。强数据类型的DataStream方便Flink引擎提高不同数据类型序列化、反序列化效率。
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-15.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-15.png)  
 
 **Flink批流一体**：
 Flink实现批流一体都是基于同一套API，即DataStreamAPI，但默认DataStreamAPI是流式处理即来一条处理一条，如果想实现按批处理，则需要手动执行ExecutionMode。Flink 1.12之后正式实现了批流一体，DataSet API也会逐渐被弃用。
@@ -173,10 +173,10 @@ Flink RestAPI
 
  * 如何确保分散场景下多个拥有本地状态的算子产生一个全局一致性快照(Global Consistent Snapshot)，如何在不中断运算的前提下产生快照
  全局一致性快照->每个算子的state通过**checkpoint**存储到一个共享的FileSystem
- ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-06.png)
+ ![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-06.png)
  **Checkpoint**：Flink本地状态存取要保证容灾，支持Failover故障恢复，Checkpoint操作由JobManager定期触发，将本地状态归档到远程持久化存储，出问题时可以从远程检查点恢复。
  **Checkpoint Barrier(检查点屏障)**：异步barrier快照（asynchronous barrier snapshotting），实现了持续产生全局一致性快照且不中断计算。执行检查点屏障的动作可以理解为随着数据从算子一步一步计算下去，将数据offset、算子计算状态等信息不断填入一个表格数据结构，这个表格即为全局一致性快照，可以用来容错，节点Fail时就可以从checkpoint去恢复。
- ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-07.png)
+ ![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-07.png)
  当checkpoint coordinator（job manager 的一部分）指示task manager开始checkpoint时，它会让所有sources记录它们的偏移量，并将编号的checkpoint barriers插入到它们的流中。这些barriers流经job graph，标注每个checkpoint前后的流部分。Checkpoint n将包含每个算子的state，这些state是对应的 operator消费了在checkpoint barrier n之前的所有事件，并且不包含在此（checkpoint barrier n）后的任何事件后而生成的状态。
  当job graph中的每个operator接收到barriers时，它就会记录下其状态。拥有两个输入流的算子（例如 CoProcessFunction）会执行barrier对齐（barrier alignment）以便当前快照能够包含消费两个输入流barrier之前（但不超过）的所有events而产生的状态。
  **Copy-On-Write**: Flink的State Backends利用写时复制（copy-on-write）机制允许当异步生成旧版本的状态快照时，能够不受影响当前的流处理。只有当快照被持久保存后，这些旧版本的状态才会被当做垃圾回收。
@@ -191,7 +191,7 @@ Flink计算时可能会有大量的状态(中间结果)，一般情况下状态�
  * Remote State Checkpointing 远程状态备份(Checkpoint)
  Flink程序是分布式运行的，而State都是存储到各个节点本地的，一旦TaskManager节点出现问题，就会导致State的丢失。
  State Backends提供了State Checkpointing的功能，将TaskManager本地的State的备份到远程的存储介质上，可以是分布式的存储系统或者数据库。不同的 State Backend备份的方式不同，会有效率高低的区别。
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-08.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-08.png)
 **总结**：MemoryStateBackend和FsStateBackend都是在内存中进行状态管理，所以可以获取较低的读写延迟，但会受限于TaskManager的内存大小，且只能做全量快照；而RocksDBStateBackend直接将State存储到RocksDB数据库中，所以不受JobManager的内存限制，但会有读写延迟，同时RocksDBStateBackend支持增量快照，这是其他两个都不支持的特性。一般来说，如果不是对延迟有极高的要求，或有大量变化缓慢状态的应用程序中，RocksDBStateBackend是更好的选择。
 ```code
 getRuntimeContext().getState(xxx) 会创建一个本地状态后端
@@ -220,13 +220,13 @@ Flink通过Watermarks让计算引擎知道当前这个Window的所有数据是�
  Flink算子之间可以通过一对一（直传）模式或重新分发模式传输数据
  Flink并行度是算子级别的，不同算子可设置不同并行度。
  Flink的算子可以包含一个或多个SubTask，这些子任务在不同线程，不同机器、不同容器中独立运行。 
- ![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-09.png)
+ ![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-09.png)
   + 一对一模式(forwarding)
   （例如上图中的 Source 和 map() 算子之间）可以保留元素的分区和顺序信息。这意味着 map() 算子的 subtask[1] 输入的数据以及其顺序与 Source 算子的 subtask[1] 输出的数据和顺序完全相同，即同一分区的数据只会进入到下游算子的同一分区。
   + 重新分发模式(redistributing)（例如上图中的 map() 和 keyBy/window 之间，以及 keyBy/window 和 Sink 之间）
   重新分发模式会更改数据所在的流分区。当你在程序中选择使用不同的转换算子，每个转换算子也会将数据发送到不同的目标子任务。例如这几种 transformation和其对应分发数据的模式：keyBy（通过散列键重新分区）、broadcast（广播）或rebalance（随机重新分发）。在重新分发数据的过程中，元素只有在每对输出和输入子任务之间才能保留其之间的顺序信息（例如，keyBy/window的subtask[2]接收到的map()的subtask[1]中的元素都是有序的）。因此，上图所示的 keyBy/window和Sink算子之间数据的重新分发时，不同键（key）的聚合结果到达 Sink 的顺序是不确定的。
 * Flink资源划分
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-10.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-10.png)
 SubTask是Flink中资源调度的最小单位，相当于Thread
 一个特定算子同时运行的SubTask个数是算子的并行度。
 Flink程序分为三个角色：**Client**、**JobManager**、**TaskManager**
@@ -237,29 +237,29 @@ Flink程序分为三个角色：**Client**、**JobManager**、**TaskManager**
  + Dispatcher分发器，负责REST接口，用来提交应用。
 **TaskManager**:负责计算的节点，从JobManager接收到Dataflow Graph，并执行Dataflow Graph中的Tasks，TaskManager上有多个TaskSlot(线程)，用于执行某个SubTask的容器(槽)。TaskManager还负责对资源的管理，包括Memory管理、Network管理、Actor管理。
 如下图，Flink Task由不同算子组成：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-05.png)  
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-12.png)
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-11.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-05.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-12.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-11.png)
 **Flink是多线程的，多个任务Task之间通过Taskslot共享系统资源。TaskManager进程有多少TaskSlot(Thread)就可以并行跑多少个SubTask，也表示把TaskManager进程内存分为多少份，TaskSlot是SubTask的容器，可以运行各种SubTask，既可以是map、也可以是keyBy+Window还可以是sink等等。**
 TaskSlot默认是共享的，一个数据流管道中的多个不同算子可以共享一个TaskSlot，用一个TaskSlot处理。这样做的好处是：数据管道中不同算子计算量是不同的，复杂度和资源消耗也不同，为避免算子发生倾斜，将资源密集型和非密集型Task放入同一个TaskSlot，TaskSlot会自行分配不同算子对资源的使用比例，保证资源利用充分。
 分配资源时，如何分配并行度？只需要设置与算子最大并行度相同的TaskSlot数量即可。比如所有算子里并行度最大的算子并行度是4，那么给4个TaskSlot就可以运行了。如果代码里设置了多个共享组，分配并行度时，可以设置为每个共享组中最大算子并行度之和。
 
 ### 任务提交流程
 大体提交流程抽象：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-14.JPG)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-14.JPG)
 
 Standalone模式提交流程：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-15.JPG)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-15.JPG)
 
 Yarn Session模式提交流程：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-16.JPG)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-16.JPG)
 
 Yarn Per-Job模式提交流程：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-17.JPG)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-17.JPG)
 
 ### Flink执行图
 WordCount程序执行图转换示例：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-18.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-18.png)
 Flink中执行图分为四层：StreamGraph->JobGraph->ExecutionGraph->物理执行图
 **StreamGraph**：根据用户代码初步生成的图，表达了程序逻辑的拓扑结构。
 **JobGraph**：StreamGraph优化后生成JobGraph，提交给JobManager，主要的优化是合并OperationChain(将一对一的几个算子合并在一起作为一个节点)
@@ -272,7 +272,7 @@ Flink中执行图分为四层：StreamGraph->JobGraph->ExecutionGraph->物理执
 ## Flink部署  
 Flink的部署模式：Standalone、Yarn(session/per-job)、Mesos、K8s
 **Flink On Yarn模式部署：**
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Flink/Flink-13.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Flink/Flink-13.png)
 推荐Flink On Yarn模式，有以下好处：
  1. 资源按需使用，集群资源利用率高
  2. 任务有优先级，按优先级作业

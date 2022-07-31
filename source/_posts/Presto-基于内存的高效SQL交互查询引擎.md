@@ -15,7 +15,7 @@ tags:
 keywords: SQL实时交互式查询
 description: Presto提供高效的交互式SQL查询服务
 photos: >-
-  https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-Cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-Cover.jpg
 abbrlink: 4c197c46
 date: 2021-03-12 14:46:00
 ---
@@ -49,7 +49,7 @@ date: 2021-03-12 14:46:00
 <font size="3" color="red">在学习Presto原理前推荐先看看我之前关于Impala的文章：[《Impala-基于内存的高效SQL交互查询引擎》](https://shmily-qjj.top/1ae37d82/)</font>
 
 ### Presto架构和进程
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-01.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-01.png)
 &emsp;&emsp;Presto与Impala的架构极其相似，都是采用Master-Slave模型以及MPP架构,而且Presto的工作角色也与ImpalaDaemon的角色基本相同，Presto有三种工作角色：Coordinator,Worker和DiscoveryServer：
 * <font size="3" color="red">Coordinator</font>：即Master，负责管理Meta元数据，Worker节点，SQL的解析和调度，生成Stage和Task分发给Workers，负责合并结果集并返回给客户端。相当于结合了Impalad的Coordinator角色和Planner角色的功能，区别是每个Impalad节点都可以是Coordinator，而Presto只能有一个Coordinator，多个协调者进程会导致脑裂，查询任务会死锁。
 * <font size="3" color="red">Worker</font>：负责计算和读写数据。相当于Impalad的Executor角色的功能。
@@ -58,7 +58,7 @@ Coordinator 与 Worker、Client 通信是通过 REST API。
 
 ### Presto数据模型
 Presto使用Catalog、Schema和Table这3层结构来管理数据：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-06.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-06.png)
 * Catalog：每个数据源都有一个名字，一个Catalog可包含多个Schema。通过show catalogs命令查看Presto已连接的所有数据源
 * Schema：相当于一个数据库实例，一个Schema(数据库)中有多个Table表，通过show schemas from hive命令查看hive数据源所有库
 * Table：相当于一张表，通过show tables from catalog_name.schema_name来查看库下有哪些表。定位一张表：数据源的类别.数据库.数据表
@@ -113,15 +113,15 @@ Query内存管理：Query会划分为多个Task，每个Task会有一个线程�
 
 ### Presto执行计划
 Presto与Spark、Hive一样，都是使用Antlr进行语法解析，一条SQL经过如下步骤最终生成在每个节点执行的LocalExecutionPlan逻辑计划。
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-02.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-02.png)
 
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-07.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-07.png)
 样例：
 ```sql
 select c1.rank, count(*) from dim.city c1 join dim.city c2 on c1.id = c2.id where c1.id > 10 group by c1.rank limit 10;
 ```
 生成的逻辑计划：
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-04.jpg)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-04.jpg)
 
 物理执行计划：逻辑计划的每一个SubPlan都会提交到一个或者多个Worker节点上执行，一个SubPlan也可以理解为一个Stage，SubPlan有几个重要的属性planDistribution、outputPartitioning、partitionBy属性。
 * planDistribution有三种类型
@@ -133,11 +133,11 @@ select c1.rank, count(*) from dim.city c1 join dim.city c2 on c1.id = c2.id wher
   + None：不进行Shuffle
 
 在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在AggregateNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-05.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-05.png)
 
 SQL提交并解析为SubPlan后的执行流程：
 比如一条SQL最终生成4个SubPlan（0-3），其中0，1并行执行Join或聚合操作，其余串行执行，每个SubPlan都会分发到多个工作节点执行。
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-03.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-03.png)
 1. Coordinator通过HTTP协议调用Worker节点的/v1/task接口将执行计划分配给所有Worker节点（图中蓝色箭头）
 2. SubPlan1的每个节点读取一个Split的数据并过滤后将数据分发给每个SubPlan0节点进行Join或聚合操作
 3. SubPlan1的每个节点计算完成后按GroupBy Key的Hash值将数据分发到不同的SubPlan2节点
@@ -298,7 +298,7 @@ Presto支持事务，相关命令有[COMMIT](https://prestodb.io/docs/current/sq
 ### Presto WEBUI
 访问WEBUI地址即为DiscoveryServer地址：http://cdh101:8080/ui/
 透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-08.jpg)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-08.jpg)
 
 | 任务状态 | 原因 |
 | :----: | :----: |
@@ -317,7 +317,7 @@ BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排�
 4.并行度低(只有几个worker可用)
 5.某个Stage查询开销较高（如select *操作数据过多）
 对于某个Query的执行过程相关监控信息，可以在WebUI上点那个Query ID即可查看
-![alt](https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-09.png)
+![alt](http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-09.png)
 
 ### 连接Presto
 用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive,PrestoOnSpark等。
