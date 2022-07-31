@@ -320,7 +320,7 @@ kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
 
 ### Scala+SQL混合使用
 ```shell
-beeline -u jdbc:hive2://172.18.204.233:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
+beeline -u jdbc:hive2://kyuubi-server-ip:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
 CREATE TEMPORARY VIEW qjj_view as select * from qjj_test;
 set kyuubi.operation.language=scala;
 val df = spark.table("qjj_view").where("id > 2 and id < 5");
@@ -423,7 +423,7 @@ User k00877 not found
 当前用户q00885没有该目录的任何读权限。解决方式：
 
 ```text
- 使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://172.18.204.199:10000/default" -nhive -pxxxxx
+ 使用hive用户登录HiveServer2：beeline -u "jdbc:hive2://kyuubi-server-ip:10000/default" -nhive -pxxxxx
  查看q00885所属角色
  SHOW ROLE GRANT GROUP group q00885;
  +--------+---------------+-------------+----------+--+
