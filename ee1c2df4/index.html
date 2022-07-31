@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-cover.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -451,7 +451,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="Kyuubi原理与替代SparkThriftServer实践-基于CDH6"><a href="#Kyuubi原理与替代SparkThriftServer实践-基于CDH6" class="headerlink" title="Kyuubi原理与替代SparkThriftServer实践-基于CDH6"></a>Kyuubi原理与替代SparkThriftServer实践-基于CDH6</h1><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-00.png" alt="alt"></p>
+          <h1 id="Kyuubi原理与替代SparkThriftServer实践-基于CDH6"><a href="#Kyuubi原理与替代SparkThriftServer实践-基于CDH6" class="headerlink" title="Kyuubi原理与替代SparkThriftServer实践-基于CDH6"></a>Kyuubi原理与替代SparkThriftServer实践-基于CDH6</h1><p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-00.png" alt="alt"></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Spark ThriftServer原生不支持多租户、权限管理、且稳定性一般，即使我们在源码基础上做了很多权限管控、SQL日志审计、数据脱敏以及性能优化，但由于它自身的稳定性和单点问题，仍然会经常造成调度、分析任务的失败。常见的一些问题有：</p>
 <ol>
 <li>Driver端单点故障导致整个调度失败</li>
@@ -518,14 +518,14 @@
 </tr>
 <tr>
 <td>系统架构</td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-01.png" alt="alt"></td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-08.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-01.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-08.png" alt="alt"></td>
 </tr>
 </tbody></table>
-<h2 id="Kyuubi原理"><a href="#Kyuubi原理" class="headerlink" title="Kyuubi原理"></a>Kyuubi原理</h2><h3 id="Kyuubi架构图"><a href="#Kyuubi架构图" class="headerlink" title="Kyuubi架构图"></a>Kyuubi架构图</h3><p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-01.png" alt="alt"><br>在Kyuubi中，客户端的连接是作为<strong>KyuubiSession</strong>来维护的。<br>Kyuubi Session的创建可以分为轻量级和重量级两种情况。大多数会话创建都是轻量级、用户无感知的。唯一的重量级情况是用户的共享域中没有实例化或缓存的SparkContext，这种情况通常发生在用户第一次连接或长时间未连接时。这种一次性创建会话的成本，在多数AdHoc场景下也能接受。</p>
+<h2 id="Kyuubi原理"><a href="#Kyuubi原理" class="headerlink" title="Kyuubi原理"></a>Kyuubi原理</h2><h3 id="Kyuubi架构图"><a href="#Kyuubi架构图" class="headerlink" title="Kyuubi架构图"></a>Kyuubi架构图</h3><p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-01.png" alt="alt"><br>在Kyuubi中，客户端的连接是作为<strong>KyuubiSession</strong>来维护的。<br>Kyuubi Session的创建可以分为轻量级和重量级两种情况。大多数会话创建都是轻量级、用户无感知的。唯一的重量级情况是用户的共享域中没有实例化或缓存的SparkContext，这种情况通常发生在用户第一次连接或长时间未连接时。这种一次性创建会话的成本，在多数AdHoc场景下也能接受。</p>
 <p>Kyuubi维护SparkContext的方式是松散耦合的，这些SparkContext既可以是本地Client模式创建的，也可以是Yarn、K8S集群上的Cluster模式创建的。高可用模式下，SparkContext也可以由其他机器上的Kyuubi实例创建并共享出来。</p>
 <p>Kyuubi可以创建和托管多个SparkContexts实例，它们有自己的生命周期，一定条件下会被自动创建和回收，如果一段时间没有任务负载，资源会全部释放。SparkContext的状态不受Kyuubi进程故障转移的影响。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-02.png" alt="alt"><br>Kyuubi支持不同共享级别的引擎共享。如果设置了USER级别的share.level，同一用户与Kyuubi建立的多个连接会复用同一个Engine，实现用户级别的资源隔离。</p>
+<p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-02.png" alt="alt"><br>Kyuubi支持不同共享级别的引擎共享。如果设置了USER级别的share.level，同一用户与Kyuubi建立的多个连接会复用同一个Engine，实现用户级别的资源隔离。</p>
 <h3 id="Kyuubi资源隔离共享级别"><a href="#Kyuubi资源隔离共享级别" class="headerlink" title="Kyuubi资源隔离共享级别"></a>Kyuubi资源隔离共享级别</h3><table>
 <thead>
 <tr>
@@ -538,25 +538,25 @@
 <tbody><tr>
 <td>CONNECTION</td>
 <td>kyuubi.engine.share.level=CONNECTION</td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-09.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-09.png" alt="alt"></td>
 <td>每个连接都创建一个独立的Engine，连接创建即申请Engine，连接关闭即释放Engine</td>
 </tr>
 <tr>
 <td>USER</td>
 <td>kyuubi.engine.share.level=USER</td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-10.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-10.png" alt="alt"></td>
 <td>同一用户的多个连接共享一个Engine，一个用户对应一个Engine，用户连接关闭后不会立刻释放Engine，在无操作达到TTL后释放Engine</td>
 </tr>
 <tr>
 <td>GROUP</td>
 <td>kyuubi.engine.share.level=GROUP</td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-11.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-11.png" alt="alt"></td>
 <td>属于相同组的所有用户创建的所有连接共享同一个Engine，以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER，用户组遵循<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/GroupsMapping.html">Hadoop Groups Mapping</a>，可以通过配置把不同用户映射到一个组。相比USER级别给每个用户都创建引擎，GROUP级别可以减少引擎实例数，节约资源，但引擎是共享的，同组所有用户都复用这个引擎，访问权限控制若要做到细粒度，则需要结合<a target="_blank" rel="noopener" href="https://ranger.apache.org/">Apache Ranger</a>，资源控制的细粒度需要结合<a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/job-scheduling.html#fair-scheduler-pools">SparkFairScheduler</a></td>
 </tr>
 <tr>
 <td>SERVER</td>
 <td>kyuubi.engine.share.level=SERVER</td>
-<td><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-12.png" alt="alt"></td>
+<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-12.png" alt="alt"></td>
 <td>每个KyuubiServer中的连接共用一个Engine，类似原生ThriftServer的高可用版本</td>
 </tr>
 <tr>
@@ -569,10 +569,10 @@
 <p>比如正常情况下引擎共享级别设置为GROUP，同一个组下的用户只能申请一个引擎；当组里用户太多时，单个引擎也会出现并发瓶颈和资源抢占，针对这种问题，Kyuubi中引入了Subdomain的概念，引擎共享子域（kyuubi.engine.share.level.subdomain）是对引擎资源隔离共享级别的补充，能实现同一个用户、组创建多个引擎。<br>Kyuubi的JDBC连接串模板：jdbc:hive2://kyuubi-server-ip:10009/default;?conf1=val1;conf2=var2;…;confN=varN<br>Kyuubi的JDBC连接串示例：jdbc:hive2://kyuubi-server-ip:10009/default;?spark.driver.memory=5G;spark.app.name=qjj_kyuubi_application<br>Subdomain的使用：</p>
 <pre><code class="shell">beeline -u &quot;jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuubi_sd1;spark.driver.memory=4G;kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd1&quot; -nq00885 -p******
 beeline -u &quot;jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuubi_sd2;spark.driver.memory=2G;kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2&quot; -nq00885 -p******</code></pre>
-<p>可以看到单个用户启动了两个Engine<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-13.png" alt="alt"><br>如果我想创建一个连接复用之前的sd2这个Subdomain，就可以通过以下指定Subdomain的方式进行指定。</p>
+<p>可以看到单个用户启动了两个Engine<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-13.png" alt="alt"><br>如果我想创建一个连接复用之前的sd2这个Subdomain，就可以通过以下指定Subdomain的方式进行指定。</p>
 <pre><code class="shell">beeline -u &quot;jdbc:hive2://kyuubi-server-ip:10009/default;?kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2&quot; -nq00885 -p******</code></pre>
 <p>参考：<a target="_blank" rel="noopener" href="https://kyuubi.apache.org/docs/latest/deployment/engine_share_level.html">Kyuubi Engine Share Level</a></p>
-<h3 id="Kyuubi-HA"><a href="#Kyuubi-HA" class="headerlink" title="Kyuubi HA"></a>Kyuubi HA</h3><p>Kyuubi基于ZK实现高可用和负载均衡：<br>KyuubiServer启动会到ZK注册节点，实现KyuubiServer之间负载均衡和高可用<br>每个用户登录默认是default子域，每个子域注册一个永久节点，子域下面申请的Engine会注册临时节点，将Engine信息写入ZK。此外还通过ZK存放一些用户的锁和租约信息。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-14.png" alt="alt"></p>
+<h3 id="Kyuubi-HA"><a href="#Kyuubi-HA" class="headerlink" title="Kyuubi HA"></a>Kyuubi HA</h3><p>Kyuubi基于ZK实现高可用和负载均衡：<br>KyuubiServer启动会到ZK注册节点，实现KyuubiServer之间负载均衡和高可用<br>每个用户登录默认是default子域，每个子域注册一个永久节点，子域下面申请的Engine会注册临时节点，将Engine信息写入ZK。此外还通过ZK存放一些用户的锁和租约信息。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-14.png" alt="alt"></p>
 <h3 id="Kyuubi监控"><a href="#Kyuubi监控" class="headerlink" title="Kyuubi监控"></a>Kyuubi监控</h3><p>Kyuubi本身支持监控，配置方法参考：<a target="_blank" rel="noopener" href="https://kyuubi.apache.org/docs/latest/monitor/metrics.html">Monitoring Kyuubi - Server Metrics</a></p>
 <h2 id="部署Kyuubi-On-CDH6-3-2"><a href="#部署Kyuubi-On-CDH6-3-2" class="headerlink" title="部署Kyuubi On CDH6.3.2"></a>部署Kyuubi On CDH6.3.2</h2><h3 id="Spark-3-2-2-On-CDH6-3-2编译与部署"><a href="#Spark-3-2-2-On-CDH6-3-2编译与部署" class="headerlink" title="Spark 3.2.2 On CDH6.3.2编译与部署"></a>Spark 3.2.2 On CDH6.3.2编译与部署</h3><p><strong>源码准备</strong></p>
 <pre><code class="shell"># Windows下进入wsl环境（Windows的Linux子系统）
@@ -715,7 +715,7 @@ dos2unix python/*
 sbin/start-history-server.sh
 # 运行SparkSQL on Yarn
 bin/spark-sql --master yarn </code></pre>
-<p><strong>至此Spark3.2.2 On CDH6.3.2编译部署完毕</strong><br>注意Yarn外部ShuffleService一定确保开启<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-06.png" alt="alt"></p>
+<p><strong>至此Spark3.2.2 On CDH6.3.2编译部署完毕</strong><br>注意Yarn外部ShuffleService一定确保开启<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-06.png" alt="alt"></p>
 <h3 id="Kyuubi-On-Spark3基础部署"><a href="#Kyuubi-On-Spark3基础部署" class="headerlink" title="Kyuubi On Spark3基础部署"></a>Kyuubi On Spark3基础部署</h3><p>更多配置参考：<a target="_blank" rel="noopener" href="https://kyuubi.apache.org/docs/latest/deployment/settings.html">Kyuubi-Deployment-Settings</a><br><strong>安装与配置Kyuubi</strong></p>
 <pre><code class="shell">wget https://www.apache.org/dyn/closer.lua/incubator/kyuubi/kyuubi-1.5.1-incubating/apache-kyuubi-1.5.1-incubating-bin.tgz
 tar -zxvf apache-kyuubi-1.5.1-incubating-bin.tgz -C /opt/modules/
@@ -758,8 +758,8 @@ kyuubi.kinit.principal=hive/xxx@XXX.COM</code></pre>
 ##kyuubi.authentication.ldap.base.dn=
 kyuubi.authentication.ldap.domain=xxxx.com
 kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx</code></pre>
-<p>使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-03.png" alt="alt"><br>查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。<br>还要确保Linux上有该用户，否则引擎无法申请成功。<br>如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。</p>
-<h3 id="Scala-SQL混合使用"><a href="#Scala-SQL混合使用" class="headerlink" title="Scala+SQL混合使用"></a>Scala+SQL混合使用</h3><pre><code class="shell">beeline -u jdbc:hive2://172.18.204.233:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
+<p>使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-03.png" alt="alt"><br>查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。<br>还要确保Linux上有该用户，否则引擎无法申请成功。<br>如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。</p>
+<h3 id="Scala-SQL混合使用"><a href="#Scala-SQL混合使用" class="headerlink" title="Scala+SQL混合使用"></a>Scala+SQL混合使用</h3><pre><code class="shell">beeline -u jdbc:hive2://kyuubi-server-ip:10009/default -n q00885 -p xxx  登陆后默认是SQL模式
 CREATE TEMPORARY VIEW qjj_view as select * from qjj_test;
 set kyuubi.operation.language=scala;
 val df = spark.table(&quot;qjj_view&quot;).where(&quot;id &gt; 2 and id &lt; 5&quot;);
@@ -832,12 +832,12 @@ main : run as user is k00877
 main : requested yarn user is k00877
 User k00877 not found
 ......</code></pre>
-<p>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。<br>可选方案: Ldap是支持管理Linux用户的,可以作为Linux自带用户的扩展,实现不用手动useradd就能在各节点以ldap中的用户模拟Linux用户启动Container.<br>临时解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-05.png" alt="alt"></p>
+<p>在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。<br>可选方案: Ldap是支持管理Linux用户的,可以作为Linux自带用户的扩展,实现不用手动useradd就能在各节点以ldap中的用户模拟Linux用户启动Container.<br>临时解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-05.png" alt="alt"></p>
 </li>
-<li><p>使用LDAP登录的用户无HDFS上表数据的访问权限<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-04.png" alt="alt"><br>分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Kyuubi/Kyuubi-07.png" alt="alt"><br>当前用户q00885没有该目录的任何读权限。解决方式：</p>
+<li><p>使用LDAP登录的用户无HDFS上表数据的访问权限<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-04.png" alt="alt"><br>分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-07.png" alt="alt"><br>当前用户q00885没有该目录的任何读权限。解决方式：</p>
 </li>
 </ol>
-<pre><code class="text"> 使用hive用户登录HiveServer2：beeline -u &quot;jdbc:hive2://172.18.204.199:10000/default&quot; -nhive -pxxxxx
+<pre><code class="text"> 使用hive用户登录HiveServer2：beeline -u &quot;jdbc:hive2://kyuubi-server-ip:10000/default&quot; -nhive -pxxxxx
  查看q00885所属角色
  SHOW ROLE GRANT GROUP group q00885;
  +--------+---------------+-------------+----------+--+
@@ -907,7 +907,7 @@ REVOKE SELECT &lt;column name&gt; ON TABLE &lt;table name&gt; FROM ROLE &lt;role
           
             <a href="/39a9ed67/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/Linux/DNS/DNS-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Linux/DNS/DNS-cover.jpg">
               </div>
               <span class="label">
               Previous Post</span>
@@ -925,7 +925,7 @@ REVOKE SELECT &lt;column name&gt; ON TABLE &lt;table name&gt; FROM ROLE &lt;role
           
             <a href="/84534d72/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/BlogImages-0@master/cdn_sources/Blog_Images/SeaTunnel/Seatunnel-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg">
               </div>
               <span class="label">
               Next Post</span>
