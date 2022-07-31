@@ -475,29 +475,27 @@
 <table>
 <thead>
 <tr>
-<th style="text-align:center">级别</th>
-<th style="text-align:center">说明</th>
+<th align="center">级别</th>
+<th align="center">说明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">Serializable</td>
-<td style="text-align:center">可避免脏读、不可重复读、虚读情况的发生</td>
+<tbody><tr>
+<td align="center">Serializable</td>
+<td align="center">可避免脏读、不可重复读、虚读情况的发生</td>
 </tr>
 <tr>
-<td style="text-align:center">Repeatable read</td>
-<td style="text-align:center">可避免脏读、不可重复读情况的发生</td>
+<td align="center">Repeatable read</td>
+<td align="center">可避免脏读、不可重复读情况的发生</td>
 </tr>
 <tr>
-<td style="text-align:center">Read committed</td>
-<td style="text-align:center">可避免脏读情况发生</td>
+<td align="center">Read committed</td>
+<td align="center">可避免脏读情况发生</td>
 </tr>
 <tr>
-<td style="text-align:center">Read uncommitted</td>
-<td style="text-align:center">最低级别，以上情况均无法保证</td>
+<td align="center">Read uncommitted</td>
+<td align="center">最低级别，以上情况均无法保证</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>锁的使用是为了在并发环境中保持每个业务流处理结果的正确性，这样的概念在计算机领域中很普遍，但是都必须要基于一个前提，或者称之为约定：<strong>在执行操作前，首先尝试去获取锁，获取成功则可以执行，若获取失败，则不执行或等待重复获取</strong>。因为无论任何类型的操作，有没有锁都不影响程序本身的执行流程，但只有遵从这个约定才能体现出其价值。就像红绿灯并不影响车辆本身的行驶能力，只有声明所有个体皆遵守相同的规则，所以一切才变得有序。<br>在数据库的并发环境下，<strong>隔离程度越高，也就意味着并发程度越低，所以各个数据库中一般设置的都是一个折中的隔离级别</strong>。</p>
 <p><strong>基于Mysql测试隔离级别</strong>  </p>
 <pre><code class="sql">SELECT @@global.tx_isolation;  # 查看全局事物隔离级别
@@ -572,9 +570,8 @@ commit;
 update amount set money = money - 100 where id = &#39;B&#39;;
 update amount set money = money + 100 where id = &#39;C&#39;;
 commit;
---从事务二的角度来看，读到了事务一提交事务的数据，导致金额出现负数
-</code></pre>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/fanBlog/p/11081777.html" target="_blank" rel="noopener">事务的ACID</a><br><a href="https://blog.csdn.net/dengjili/article/details/82468576" target="_blank" rel="noopener">事务ACID理解</a><br><a href="https://www.jianshu.com/p/f3605aacf7cf" target="_blank" rel="noopener">事务ACID属性与隔离级别</a></p>
+--从事务二的角度来看，读到了事务一提交事务的数据，导致金额出现负数</code></pre>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/fanBlog/p/11081777.html">事务的ACID</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/dengjili/article/details/82468576">事务ACID理解</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f3605aacf7cf">事务ACID属性与隔离级别</a></p>
 
         </div>
         <!-- .entry-content -->

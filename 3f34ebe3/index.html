@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -453,8 +453,8 @@
         <div class="entry-content">
           <h1 id="基于Manjaro-KDE版打造美观舒适开发环境"><a href="#基于Manjaro-KDE版打造美观舒适开发环境" class="headerlink" title="基于Manjaro KDE版打造美观舒适开发环境"></a>基于Manjaro KDE版打造美观舒适开发环境</h1><h2 id="系统安装与初始化配置"><a href="#系统安装与初始化配置" class="headerlink" title="系统安装与初始化配置"></a>系统安装与初始化配置</h2><h3 id="安装系统"><a href="#安装系统" class="headerlink" title="安装系统"></a>安装系统</h3><p>到<a target="_blank" rel="noopener" href="https://manjaro.org/">Manjaro官网</a>下载最新ManjaroLinux发行版（本文基于Manjaro KDE Plasma 5.21.5版本）<br>到<a target="_blank" rel="noopener" href="http://rufus.ie/">Rufus官网</a>下载镜像克隆工具，使用Rufus克隆Manjaro镜像到U盘，模式选择UEFI</p>
 <p>系统BIOS设置项：<br>Boot顺序将系统安装盘改为第一项<br>关闭安全启动Security Boot =&gt; 否则无法引导进入Linux<br>SATA模式由Raid On切换为AHCI =&gt; 若系统有NVME硬盘则需要此操作，避免Linux无法识别到NVME硬盘（双系统用户先进入Windows-&gt;cmd运行msconfig-&gt;引导-&gt;勾选安全引导-&gt;重启的过程中会修复硬盘的AHCI驱动避免因切换AHCI导致无法启动Windows系统-&gt;重启后再取消勾选安全引导）</p>
-<p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-01.JPG" alt="alt "><br>双显卡用户注意事项(单显卡忽略此步骤)：<br>Nvidia+Intel双显卡笔记本安装需要这步：安装前给内核传参=&gt;按e在quiet后加：acpi_osi=! acpi_osi=”Windows 2009”  按F10启动，否则会卡死无法进入桌面<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-02.JPG" alt="alt "><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-03.JPG" alt="alt "> </p>
-<p>双击 Install Manjaro Linux打开安装向导<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-01.png" alt="alt "><br>时区选择Asia/ShangHai<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-02.png" alt="alt "><br>键盘默认即可<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-03.png" alt="alt "><br>接下来是关键步骤 磁盘要选手动分区<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-04.png" alt="alt "><br>磁盘空间规划：<br>/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）<br>在空闲区域创建分区 步骤如下：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-05.png" alt="alt "><br>数据分区最终结果如下：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-06.png" alt="alt "><br>启动分区(EFI分区) 如下设置：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-07.png" alt="alt "><br>最后设置系统管理员用户<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-08.png" alt="alt "><br>安装完成后 可以重启</p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-01.JPG" alt="alt "><br>双显卡用户注意事项(单显卡忽略此步骤)：<br>Nvidia+Intel双显卡笔记本安装需要这步：安装前给内核传参=&gt;按e在quiet后加：acpi_osi=! acpi_osi=”Windows 2009”  按F10启动，否则会卡死无法进入桌面<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-02.JPG" alt="alt "><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-03.JPG" alt="alt "> </p>
+<p>双击 Install Manjaro Linux打开安装向导<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-01.png" alt="alt "><br>时区选择Asia/ShangHai<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-02.png" alt="alt "><br>键盘默认即可<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-03.png" alt="alt "><br>接下来是关键步骤 磁盘要选手动分区<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-04.png" alt="alt "><br>磁盘空间规划：<br>/boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）<br>在空闲区域创建分区 步骤如下：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-05.png" alt="alt "><br>数据分区最终结果如下：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-06.png" alt="alt "><br>启动分区(EFI分区) 如下设置：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-07.png" alt="alt "><br>最后设置系统管理员用户<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-08.png" alt="alt "><br>安装完成后 可以重启</p>
 <p>双显卡用户注意事项(单显卡忽略此步骤)：<br>重启第一次进入系统也需要按e在quiet后加：acpi_osi=! acpi_osi=”Windows 2009”  按F10启动，否则会卡死无法进入桌面<br>进入系统后：<br>sudo vim /boot/grub/grub.cfg 在所有quiet后加acpi_osi=! acpi_osi=”Windows 2009”参数，下次开机则不需要再加内核参数<br>（若系统更新了内核，grub.cfg也会被更新，需要重新加内核参数进入系统，重新修改grub.cfg文件）<br>建议每次更新系统执行如下脚本(update_grub.sh)自动增加内核参数：</p>
 <pre><code class="shell">#!/bin/bash
 echo &quot;双显卡笔记本更新Manjaro系统后需要添加grub参数避免无法开机&quot;
@@ -527,14 +527,14 @@ sudo vim /etc/sudoers.d/10-installer
 在%wheel ALL=(ALL) ALL行后添加如下配置
 shmily ALL=(ALL) NOPASSWD: ALL
 %shmily ALL=(ALL) NOPASSWD: ALL</code></pre>
-<p>软件商店勾选启用AUR和Snap源<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-09.png" alt="alt "></p>
+<p>软件商店勾选启用AUR和Snap源<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-09.png" alt="alt "></p>
 <h3 id="中文输入法安装"><a href="#中文输入法安装" class="headerlink" title="中文输入法安装"></a>中文输入法安装</h3><p>输入法首选安装:<br>sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk kcm-fcitx5 fcitx5-material-color<br>yay -S noto-color-emoji-fontconfig  打字支持emoji表情😘</p>
 <pre><code class="shell">sudo vim ~/.pam_environment （在当前桌面登陆的用户下执行）
 INPUT_METHOD  DEFAULT=fcitx5
 GTK_IM_MODULE DEFAULT=fcitx5
 QT_IM_MODULE  DEFAULT=fcitx5
 XMODIFIERS    DEFAULT=\@im=fcitx5</code></pre>
-<p><strong><u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u></strong><br>注销重新登陆后生效<br>配置输入法：<br>将拼音上移，作为默认输入法<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-10.png" alt="alt "><br>设置shift按键为切换中英文输入的按键<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-11.png" alt="alt "><br>根据个人习惯 设置共享输入状态 (我一般不设置)<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-12.png" alt="alt "><br>更换输入法主题:</p>
+<p><strong><u>后续如果其他用户需要中文输入法 也需要在每个用户的家目录下加以上环境变量</u></strong><br>注销重新登陆后生效<br>配置输入法：<br>将拼音上移，作为默认输入法<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-10.png" alt="alt "><br>设置shift按键为切换中英文输入的按键<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-11.png" alt="alt "><br>根据个人习惯 设置共享输入状态 (我一般不设置)<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-12.png" alt="alt "><br>更换输入法主题:</p>
 <pre><code class="shell">vim ~/.config/fcitx5/conf/classicui.conf
 # 垂直候选列表
 Vertical Candidate List=False
@@ -547,7 +547,7 @@ Theme=Material-Color-DeepPurple
 然后重启输入法即可生效
 也可以下载主题包文件解压到~/.local/share/fcitx5/themes目录下并修改~/.config/fcitx5/conf/classicui.conf来设置不同主题</code></pre>
 <p>简约黑白主题下载地址:<a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/BlogImages-0/blob/master/cdn_sources/Blog_Images/Manjaro/fcitx5-simple-themes.zip">fcitx5-simple-themes.zip</a></p>
-<p>启用云拼音<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-42.png" alt="alt "><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-43.png" alt="alt "><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-44.png" alt="alt "><br><strong>说明：</strong>fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。<br>提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。<br>注意：对于非KDE界面，可以使用fcitx5-config-qt-gitAUR,该软件包与kcm-fcitx5相冲突，你需要手动卸载它。<br><strong>其他可选输入法组件：</strong><br>sunpinyin+sunpinyin-data<br>fcitx-sunpinyin<br>ibus-sunpinyin<br>kcm-fcitx</p>
+<p>启用云拼音<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-42.png" alt="alt "><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-43.png" alt="alt "><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-44.png" alt="alt "><br><strong>说明：</strong>fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。<br>提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。<br>注意：对于非KDE界面，可以使用fcitx5-config-qt-gitAUR,该软件包与kcm-fcitx5相冲突，你需要手动卸载它。<br><strong>其他可选输入法组件：</strong><br>sunpinyin+sunpinyin-data<br>fcitx-sunpinyin<br>ibus-sunpinyin<br>kcm-fcitx</p>
 <h3 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h3><pre><code class="shell">git config --global user.name &quot;shmily&quot;
 git config --global user.email 710552907@qq.com
 git config --global http.version HTTP/1.1
@@ -712,14 +712,14 @@ Type=Application
 EOF
 # 生效我们的代理配置文件
 cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml</code></pre>
-<p><strong>使用WebUI管理连接</strong>：<br>根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过<a target="_blank" rel="noopener" href="http://clash.razord.top进行策略组节点的切换/">http://clash.razord.top进行策略组节点的切换</a><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-13.png" alt="alt "></p>
-<p>只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-14.png" alt="alt "><br><strong>必要时可以使用系统全局代理</strong>：<br>进入系统设置-&gt;网络设置-&gt;使用系统代理服务器配置(或使用手动设置的代理服务器)-&gt;http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-15.png" alt="alt "><br><strong>配置Clash开机自启</strong>：</p>
+<p><strong>使用WebUI管理连接</strong>：<br>根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过<a target="_blank" rel="noopener" href="http://clash.razord.top进行策略组节点的切换/">http://clash.razord.top进行策略组节点的切换</a><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-13.png" alt="alt "></p>
+<p>只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-14.png" alt="alt "><br><strong>必要时可以使用系统全局代理</strong>：<br>进入系统设置-&gt;网络设置-&gt;使用系统代理服务器配置(或使用手动设置的代理服务器)-&gt;http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-15.png" alt="alt "><br><strong>配置Clash开机自启</strong>：</p>
 <pre><code class="shell">cp /usr/share/applications/Clash.desktop ~/.config/autostart/</code></pre>
 <h3 id="截屏录屏"><a href="#截屏录屏" class="headerlink" title="截屏录屏"></a>截屏录屏</h3><ol>
 <li>功能全面的录屏和串流直播软件<br>sudo pacman -S obs-studio</li>
 <li>kazam<br>sudo pacman -S kazam 可以截图和录屏的工具</li>
 <li>深度截图<br>sudo pacman -S deepin-screenshot</li>
-<li>自带截图工具Spectacle<br>日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-16.png" alt="alt "><br>主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口</li>
+<li>自带截图工具Spectacle<br>日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-16.png" alt="alt "><br>主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口</li>
 <li>深度录屏<br>sudo pacman -S deepin-screen-recorder<br>ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用<br>添加截图功能到系统全局快捷方式:设置-&gt;快捷键-&gt;自定义快捷键-&gt;编辑-&gt;新建-&gt;全局快捷键-&gt;命令/URL-&gt;命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A</li>
 </ol>
 <h3 id="开发环境安装"><a href="#开发环境安装" class="headerlink" title="开发环境安装"></a>开发环境安装</h3><pre><code class="shell">sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
@@ -836,10 +836,10 @@ DD9AF44B 99C49590 D2DBDEE1 75860FD2
 ------ END LICENSE ------​</code></pre>
 <h3 id="虚拟机软件安装"><a href="#虚拟机软件安装" class="headerlink" title="虚拟机软件安装"></a>虚拟机软件安装</h3><p>安装VirtualBox:<br>mhwd-kernel -li  (当前系统是linux510，则安装linux510-virtualbox-host-modules)<br>sudo pacman -Syu virtualbox linux510-virtualbox-host-modules<br>重启或执行sudo vboxreload</p>
 <p>安装KVM（备选）：<br>pacman -S qemu libvirt ovmf virt-manager<br>（kvm负责CPU和内存的虚拟化，qemu向Guest OS模拟硬件，ovmf为虚拟机启用UEFI支持，libvirt提供管理虚拟机和其它虚拟化功能的工具和API，virt-manager是管理虚拟机的GUI）<br>systemctl enable libvirtd<br>systemctl start libvirtd<br>usermod -a -G kvm shmily<br>启动qem/virt-manager</p>
-<h3 id="安卓应用支持"><a href="#安卓应用支持" class="headerlink" title="安卓应用支持"></a>安卓应用支持</h3><p>参考UOS(Deepin)对于安卓应用支持的解决方案，采用XDroid作为安卓应用支持软件。<br>先下载XDroid软件：<a target="_blank" rel="noopener" href="https://www.linzhuotech.com/Product/download">官网下载XDroid</a><br>执行tar -zxvf xDroidInstall-x86_64-vxxxx.tar.gz 解压<br>执行 ./xDroidInstall-x86_64-vxxxx.run 安装XDroid<br>安装后重启一到两次即可完成安装<br>应用商城<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-38.png" alt="alt "><br>已安装应用<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-39.png" alt="alt "><br>使用Android APP<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-40.png" alt="alt "> </p>
+<h3 id="安卓应用支持"><a href="#安卓应用支持" class="headerlink" title="安卓应用支持"></a>安卓应用支持</h3><p>参考UOS(Deepin)对于安卓应用支持的解决方案，采用XDroid作为安卓应用支持软件。<br>先下载XDroid软件：<a target="_blank" rel="noopener" href="https://www.linzhuotech.com/Product/download">官网下载XDroid</a><br>执行tar -zxvf xDroidInstall-x86_64-vxxxx.tar.gz 解压<br>执行 ./xDroidInstall-x86_64-vxxxx.run 安装XDroid<br>安装后重启一到两次即可完成安装<br>应用商城<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-38.png" alt="alt "><br>已安装应用<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-39.png" alt="alt "><br>使用Android APP<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-40.png" alt="alt "> </p>
 <h2 id="系统界面美化"><a href="#系统界面美化" class="headerlink" title="系统界面美化"></a>系统界面美化</h2><p>Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高，是桌面控的福音。下面做一些简单的界面设置。</p>
-<h3 id="Dock栏"><a href="#Dock栏" class="headerlink" title="Dock栏"></a>Dock栏</h3><p>sudo pacman -S latte-dock<br>根据偏好设置latte dock<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-17.png" alt="alt "><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-18.png" alt="alt "><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-19.png" alt="alt "><br>效果<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-20.png" alt="alt "> </p>
-<h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh-my-zsh"></a>oh-my-zsh</h3><p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-21.png" alt="alt "> </p>
+<h3 id="Dock栏"><a href="#Dock栏" class="headerlink" title="Dock栏"></a>Dock栏</h3><p>sudo pacman -S latte-dock<br>根据偏好设置latte dock<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-17.png" alt="alt "><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-18.png" alt="alt "><br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-19.png" alt="alt "><br>效果<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-20.png" alt="alt "> </p>
+<h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh-my-zsh"></a>oh-my-zsh</h3><p><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-21.png" alt="alt "> </p>
 <pre><code class="shell">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;
 #安装powerlevel10k主题
 sudo pacman -Sy --noconfirm zsh-theme-powerlevel10k
@@ -861,25 +861,25 @@ source ~/.zshrc</code></pre>
 </tr>
 </thead>
 <tbody><tr>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
 </tr>
 <tr>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
 </tr>
 <tr>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
-<td><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"></td>
+<td><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"></td>
 </tr>
 </tbody></table>
-<h3 id="全局主题"><a href="#全局主题" class="headerlink" title="全局主题"></a>全局主题</h3><p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-Desktop.png" alt="alt "> </p>
-<p>打开设置-&gt;外观-&gt;全局主题<br>之所以喜欢用Mac的全局主题（McSur-dark）是因为它的任务栏比较好看比较精致<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-28.png" alt="alt "> </p>
-<h3 id="窗口"><a href="#窗口" class="headerlink" title="窗口"></a>窗口</h3><p>窗口选择了这款，按钮比较简洁，是和Mac相近的，但按钮位置在右边，我还是比较习惯这种按键位置。点击主题上的按钮可以调节主题按键大小，下方可以调节窗口边框大小<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-29.png" alt="alt "><br>窗口配色方案我选的Ambiance-ISH，亮色看起来更敞亮，心情更好。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-30.png" alt="alt "> </p>
-<h3 id="登陆页"><a href="#登陆页" class="headerlink" title="登陆页"></a>登陆页</h3><p>登陆页面只有每次开机时才会出现，锁屏是单独的锁屏页面。<br>打开设置-&gt;开机与关机-&gt;登录屏幕(SDDM) 在这里设置<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-33.png" alt="alt "><br>效果：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-32.png" alt="alt "> </p>
-<h3 id="欢迎屏幕"><a href="#欢迎屏幕" class="headerlink" title="欢迎屏幕"></a>欢迎屏幕</h3><p>开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-31.png" alt="alt "> </p>
-<h3 id="锁屏界面"><a href="#锁屏界面" class="headerlink" title="锁屏界面"></a>锁屏界面</h3><p>每次锁屏(Meta+L)后都会显示这个页面。<br>打开设置-&gt;工作区行为-&gt;锁屏-&gt;外观：配置<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-34.png" alt="alt "> </p>
-<h3 id="桌面特效"><a href="#桌面特效" class="headerlink" title="桌面特效"></a>桌面特效</h3><p>这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。<br>打开设置-&gt;工作区行为-&gt;桌面特效<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-35.png" alt="alt "><br>主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效</p>
+<h3 id="全局主题"><a href="#全局主题" class="headerlink" title="全局主题"></a>全局主题</h3><p><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-Desktop.png" alt="alt "> </p>
+<p>打开设置-&gt;外观-&gt;全局主题<br>之所以喜欢用Mac的全局主题（McSur-dark）是因为它的任务栏比较好看比较精致<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-28.png" alt="alt "> </p>
+<h3 id="窗口"><a href="#窗口" class="headerlink" title="窗口"></a>窗口</h3><p>窗口选择了这款，按钮比较简洁，是和Mac相近的，但按钮位置在右边，我还是比较习惯这种按键位置。点击主题上的按钮可以调节主题按键大小，下方可以调节窗口边框大小<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-29.png" alt="alt "><br>窗口配色方案我选的Ambiance-ISH，亮色看起来更敞亮，心情更好。<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-30.png" alt="alt "> </p>
+<h3 id="登陆页"><a href="#登陆页" class="headerlink" title="登陆页"></a>登陆页</h3><p>登陆页面只有每次开机时才会出现，锁屏是单独的锁屏页面。<br>打开设置-&gt;开机与关机-&gt;登录屏幕(SDDM) 在这里设置<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-33.png" alt="alt "><br>效果：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-32.png" alt="alt "> </p>
+<h3 id="欢迎屏幕"><a href="#欢迎屏幕" class="headerlink" title="欢迎屏幕"></a>欢迎屏幕</h3><p>开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-31.png" alt="alt "> </p>
+<h3 id="锁屏界面"><a href="#锁屏界面" class="headerlink" title="锁屏界面"></a>锁屏界面</h3><p>每次锁屏(Meta+L)后都会显示这个页面。<br>打开设置-&gt;工作区行为-&gt;锁屏-&gt;外观：配置<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-34.png" alt="alt "> </p>
+<h3 id="桌面特效"><a href="#桌面特效" class="headerlink" title="桌面特效"></a>桌面特效</h3><p>这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。<br>打开设置-&gt;工作区行为-&gt;桌面特效<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-35.png" alt="alt "><br>主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效</p>
 <h3 id="手动安装主题、壁纸、插件"><a href="#手动安装主题、壁纸、插件" class="headerlink" title="手动安装主题、壁纸、插件"></a>手动安装主题、壁纸、插件</h3><p>本节主要使用kpackagetool5命令<br>打开<a target="_blank" rel="noopener" href="https://store.kde.org/">https://store.kde.org/</a>  可以安装一些主题<br>比如安装动态壁纸插件：<br>下载Smart Video Wallpaper插件的tar包：<a target="_blank" rel="noopener" href="https://store.kde.org/p/1316299/">https://store.kde.org/p/1316299/</a><br>kpackagetool5 -t Plasma/Wallpaper -i smartvideowallpaper.tar.gz<br>然后进入壁纸设置选择壁纸类型还有视频路径即可<br>比如安装主题：kpackagetool5 -t Plasma/Theme -i Gently.tar.gz</p>
 <h3 id="娱乐命令"><a href="#娱乐命令" class="headerlink" title="娱乐命令"></a>娱乐命令</h3><pre><code class="shell">yay -S oneko   # 一只跟着鼠标走的小猫
 sudo pacman -S nyancat  # shell窗口中的彩虹猫
@@ -895,7 +895,7 @@ cal 1 1998 显示月日历
 shred /tmp/aaa 损坏文件,破坏文件内容让人无法识别和查看
 yay -S boxes # ASCII艺术框 echo &quot;Haha&quot; | boxes ; echo &quot;Haha&quot; | boxes -d dog
 yay -S aview # 图片转ASCII图像</code></pre>
-<h3 id="动态壁纸工具"><a href="#动态壁纸工具" class="headerlink" title="动态壁纸工具"></a>动态壁纸工具</h3><p>KDE本身有动态壁纸插件,可以在壁纸设置中下载<strong>SmartER video Wallpaper</strong>插件:<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-41.png" alt="alt "><br>还有一款资源开销较低的动态壁纸软件:<strong>fantascene-dynamic-wallpaper</strong> 可以在应用商店找到<br>动态壁纸将动态视频文件反序列化到内存中,会一定程度占用显卡\CPU和内存资源.低配电脑不建议使用.</p>
+<h3 id="动态壁纸工具"><a href="#动态壁纸工具" class="headerlink" title="动态壁纸工具"></a>动态壁纸工具</h3><p>KDE本身有动态壁纸插件,可以在壁纸设置中下载<strong>SmartER video Wallpaper</strong>插件:<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-41.png" alt="alt "><br>还有一款资源开销较低的动态壁纸软件:<strong>fantascene-dynamic-wallpaper</strong> 可以在应用商店找到<br>动态壁纸将动态视频文件反序列化到内存中,会一定程度占用显卡\CPU和内存资源.低配电脑不建议使用.</p>
 <h2 id="系统使用小技巧与问题处理"><a href="#系统使用小技巧与问题处理" class="headerlink" title="系统使用小技巧与问题处理"></a>系统使用小技巧与问题处理</h2><h3 id="解决无法写和更新NTFS盘数据的问题："><a href="#解决无法写和更新NTFS盘数据的问题：" class="headerlink" title="解决无法写和更新NTFS盘数据的问题："></a>解决无法写和更新NTFS盘数据的问题：</h3><p>创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：</p>
 <pre><code class="shell">#!/bin/bash
 # Fix NTFS Disk which can not be writen on linux system.
@@ -916,7 +916,7 @@ sudo mount -t ntfs -o rw $current_point $TARGET_MOUNT_POINT
 echo &quot;All Done&quot;</code></pre>
 <p>将系统默认挂载点重新挂载为自定义的挂载点 用法sh fix_ntfs_disk_rw.sh /run/media/shmily/Entertainment /Entertainment</p>
 <h3 id="系统清理"><a href="#系统清理" class="headerlink" title="系统清理"></a>系统清理</h3><p>内存清理<br>sudo echo 1 &gt; /proc/sys/vm/drop_caches<br>sudo echo 2 &gt; /proc/sys/vm/drop_caches<br>sudo echo 3 &gt; /proc/sys/vm/drop_caches<br>日志清理<br>journalctl –disk-usage 查看日志占用<br>sudo journalctl –vacuum-size=500M  限制归档日志大小，对日志做清除操作，适用于/var占用较大的场景</p>
-<h3 id="搜索工具"><a href="#搜索工具" class="headerlink" title="搜索工具"></a>搜索工具</h3><p>Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-36.png" alt="alt "> </p>
+<h3 id="搜索工具"><a href="#搜索工具" class="headerlink" title="搜索工具"></a>搜索工具</h3><p>Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-36.png" alt="alt "> </p>
 <h3 id="解决thermal误报导致自动关机"><a href="#解决thermal误报导致自动关机" class="headerlink" title="解决thermal误报导致自动关机"></a>解决thermal误报导致自动关机</h3><p>报错kernel: thermal thermal_zone3: critical temperature reached (125 C), shutting down  直接被关机<br>sudo chmod 665 /sys/class/thermal/thermal_zone3/mode<br>sudo echo “disabled” &gt; /sys/class/thermal/thermal_zone3/mode<br>这个参数需要每次系统启动时重新写入,放入开机启动脚本路径/etc/rc.local.d/</p>
 <h3 id="bash下所有命令均不可用"><a href="#bash下所有命令均不可用" class="headerlink" title="bash下所有命令均不可用"></a>bash下所有命令均不可用</h3><p>原因:可能存在错误的环境变量配置,不过不影响zsh因为zsh是单独的.zshrc配置文件<br>修复: 在~/.bashrc末尾加上如下内容 修复PATH<br>export PATH=”$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games”</p>
 <h3 id="包管理器与软件依赖管理"><a href="#包管理器与软件依赖管理" class="headerlink" title="包管理器与软件依赖管理"></a>包管理器与软件依赖管理</h3><pre><code class="shell"># 卸载孤包:（孤包:孤立包,不被引用的包,无用的包）
@@ -927,7 +927,7 @@ sudo pacman -Scc</code></pre>
 <ol>
 <li><p>按照向导设置：选择快照类型:RSYNC-&gt;选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)-&gt;选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)-&gt;用户主目录(默认全部)</p>
 </li>
-<li><p>点击创建 会立刻运行快照创建程序，创建完如图<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/ManjaroInstall-37.png" alt="alt "> </p>
+<li><p>点击创建 会立刻运行快照创建程序，创建完如图<br><img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-37.png" alt="alt "> </p>
 </li>
 <li><p>家目录有些文件可能不需要备份，需要排除一部分文件：设定-&gt;筛选 可以自定义不对特定模式的文件创建快照</p>
 </li>
@@ -1022,7 +1022,7 @@ sudo timeshift --restore --snapshot &#39;2021-08-12_14-00-01&#39; --skip-grub</c
           
             <a href="/84534d72/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-cover.jpg">
               </div>
               <span class="label">
               Previous Post</span>
@@ -1040,7 +1040,7 @@ sudo timeshift --restore --snapshot &#39;2021-08-12_14-00-01&#39; --skip-grub</c
           
             <a href="/4c197c46/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-Cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-Cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-Cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-Cover.jpg">
               </div>
               <span class="label">
               Next Post</span>

@@ -451,7 +451,7 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天带我的老哥让我改一下报警模块，把一些联系方式等信息存在Mysql里，方便以后管理和维护，很简单的东西，为了减少Mysql并发压力，我想每次报警只查询一次数据库，但子查询返回的结果有重复记录，于是我写了个类似<strong><em>SELECT col1,col2,col3,col4 FROM (select…) GROUP BY col1;</em></strong>的语句来去重，可以正常执行不报错且达到了目的就直接使用了，也没深究。直到老哥看了代码说找我说老弟呀你这个逻辑，有点问题呀。。。  </p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天带我的老哥让我改一下报警模块，把一些联系方式等信息存在Mysql里，方便以后管理和维护，很简单的东西，为了减少Mysql并发压力，我想每次报警只查询一次数据库，但子查询返回的结果有重复记录，于是我写了个类似**<em>SELECT col1,col2,col3,col4 FROM (select…) GROUP BY col1;**</em>的语句来去重，可以正常执行不报错且达到了目的就直接使用了，也没深究。直到老哥看了代码说找我说老弟呀你这个逻辑，有点问题呀。。。  </p>
 <p>按理说，GROUP BY都是要与聚合函数搭配使用的，所以确实是逻辑有问题，写代码规范很重要，规范的同时还要弄清楚原理，于是就有了这篇博客，详细说一下使用GROUP BY和DISTINCT去重…  </p>
 <h2 id="DISTINCT去重"><a href="#DISTINCT去重" class="headerlink" title="DISTINCT去重"></a>DISTINCT去重</h2><p>DISTINCT可多字段去重，每个字段的值都完全相同的情况下使用DISTINCT去重<br>DISTINCT也可以单个字段值去重 select(name),id from table;</p>
 <pre><code class="sql">mysql&gt; select name,tel,wxid from person_info where wxid in (&#39;SCALA&#39;);    
@@ -495,8 +495,7 @@ mysql&gt; select distinct tel,wxid from person_info where wxid in (&#39;SCALA&#3
 +-------+-------+
 | 10010 | SCALA |
 +-------+-------+
-1 row in set (0.00 sec)
-</code></pre>
+1 row in set (0.00 sec)</code></pre>
 <p>通过上面的实验可以看出，DISTINCT的去重效果是 如果取出的所有字段的值都完全相同则可以去重，如果取出的字段不完全相同，就无法去重。</p>
 <h2 id="GROUP-BY"><a href="#GROUP-BY" class="headerlink" title="GROUP BY"></a>GROUP BY</h2><p>GROUP BY与聚合函数连用，主要用于分组聚合，但它也可以用来去重，与DISTINCT相反，它支持多个字段值不完全相同的情况下去重，但会舍弃一些值。<br>假如A,B,C三个字段，A和B两个字段在多条记录中值都相同，但C不同，使用GROUP BY去重后只会得到一条记录，C的值只保留一个，其余记录C字段不同的值舍弃。  </p>
 <pre><code class="sql">mysql&gt; select distinct name,tel,wxid from person_info where wxid in (&#39;SCALA&#39;); 
@@ -565,8 +564,7 @@ mysql&gt; select name,tel,wxid from person_info where wxid in (&#39;SCALA&#39;) 
 +-------+-------+-------+
 | scala | 10010 | SCALA |
 +-------+-------+-------+
-1 row in set (0.00 sec)
-</code></pre>
+1 row in set (0.00 sec)</code></pre>
 <p>从上面实验可以得出的结论:<br>如果只需要tel和wxid两个字段，无所谓name的字段值，就可以用GROUP BY的方式去重，但是也要尽量写得规范。<br>如果需要name字段的值，就不能用GROUP BY来去重了。  </p>
 <h2 id="问题情景重现"><a href="#问题情景重现" class="headerlink" title="问题情景重现"></a>问题情景重现</h2><p>报警有两种方式，一种是传人名，还有一种是传组名，人与组是多对多关系<br>联系方式信息存为两张表，person_info和group_info,大致如下<br>name 人名，tel是电话，wxid是微信，groupname是组名</p>
 <pre><code class="sql">mysql&gt; show tables;
@@ -623,8 +621,7 @@ mysql&gt; select * from group_info;
 | sbt    | build-tools |
 | scala  | languages   |
 +--------+-------------+
-7 rows in set (0.00 sec)
-</code></pre>
+7 rows in set (0.00 sec)</code></pre>
 <p>报警接口传进来的参数可能是多个人名或者组名的组合列表，我想通过一次查询获取到所有报警人信息，于是我先写了内部子查询:</p>
 <pre><code class="sql">SELECT t2.name,t2.tel,t2.wxid,t1.groupname
 FROM person_info t2
@@ -644,8 +641,7 @@ WHERE name IN (&#39;qjj&#39;,&#39;jjq&#39;,&#39;person&#39;);
 | jjq  | 120  | JJQ  | groupname |
 | qjj  | 110  | QJJ  | groupname |
 +------+------+------+-----------+
-4 rows in set (0.00 sec)
-</code></pre>
+4 rows in set (0.00 sec)</code></pre>
 <p>因为有重复的人名和重复的联系方式会重复报警，所以为了避免重复报警，我又加了外面的一层:</p>
 <pre><code class="sql">SELECT name,tel,wxid,max(groupname) FROM
 (SELECT t2.name,t2.tel,t2.wxid,t1.groupname
@@ -665,8 +661,7 @@ GROUP BY name;
 | jjq  | 120  | JJQ  | person         |
 | qjj  | 110  | QJJ  | person         |
 +------+------+------+----------------+
-2 rows in set (0.01 sec)
-</code></pre>
+2 rows in set (0.01 sec)</code></pre>
 <p>准确地拿到了name,tel,wxid，但是groupname字段呢，到底是哪个被舍弃了？不同情况下不一定。如果我们只要name,tel,wxid这三个字段，在groupname字段上加个max()好了，这样逻辑也说得通，也比较规范，如果要求精确拿到groupname字段的值，就不能使用group by去重。  </p>
 <h2 id="关于效率"><a href="#关于效率" class="headerlink" title="关于效率"></a>关于效率</h2><p>DISTINCT和GROUP BY同时适用的场景下，<strong>不能说一定是谁的效率更高</strong><br>DISTINCT就是字段值对比的方式，要遍历整个表。GROUP BY类似于先建索引再查索引。<br><strong>小表DISTINCT去重效率高，大表GROUP BY去重效率高</strong></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>

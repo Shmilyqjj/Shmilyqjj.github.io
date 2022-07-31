@@ -453,7 +453,7 @@
         <div class="entry-content">
           <h1 id="高效运行Python"><a href="#高效运行Python" class="headerlink" title="高效运行Python"></a>高效运行Python</h1><p>&emsp;&emsp;Python以其简洁的语法，丰富的三方库，强大的功能而受到越来越多人的欢迎，但没有十全十美的编程语言，Python的运行效率一直被人们诟病。在一些场景下，我们希望Python也能够高效率运行，充分利用系统资源，所以这篇文章记录一些加快Python程序运行效率的方法，让我们的Python更高效！</p>
 <h2 id="加速已有代码"><a href="#加速已有代码" class="headerlink" title="加速已有代码"></a>加速已有代码</h2><p>&emsp;&emsp;这部分介绍的方案主要针对已有Python代码在不想做太大改动的情况下的优化方案。</p>
-<h3 id="使用numba加速"><a href="#使用numba加速" class="headerlink" title="使用numba加速"></a>使用numba加速</h3><p><strong><a href="http://numba.pydata.org/" target="_blank" rel="noopener">numba官方网站</a></strong></p>
+<h3 id="使用numba加速"><a href="#使用numba加速" class="headerlink" title="使用numba加速"></a>使用numba加速</h3><p><strong><a target="_blank" rel="noopener" href="http://numba.pydata.org/">numba官方网站</a></strong></p>
 <p><strong>优点：</strong></p>
 <ol>
 <li>无学习成本，只加一行代码（高级用法和调优除外）</li>
@@ -467,18 +467,16 @@
 <li>对部分第三方库有兼容性问题</li>
 </ol>
 <p><strong>测试：</strong></p>
-<pre><code class="shell">pip install numba
-</code></pre>
+<pre><code class="shell">pip install numba</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-01.png" alt="alt FastPython-01"></p>
 <p><strong>扩展：</strong></p>
 <pre><code class="python">from numba import jit
 @jit  在方法前加装饰器-常用做法，object模式：默认nopython模式，但如果遇到不兼容的第三方库会退化成python模式，保证能运行但不能提速。
 @jit(nopython=True,fastmath=True) 牺牲一点数学精度来提高速度（默认精度高）
-@jit(nopython=True,parallel=True) 自动进行并行计算
-</code></pre>
+@jit(nopython=True,parallel=True) 自动进行并行计算</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-02.png" alt="alt FastPython-02"><br>原理：numba加速Python代码的原理是使用jit即时编译直接将Python代码翻译成机器码（上图左侧流程），避免了编译成Python字节码pyc再走Python虚拟机（上图右侧流程），直接提高了运行效率。</p>
 <p><strong>结论：</strong><br>从上面的测试结果可以看到有将近300倍的效率提升，能大幅加速Python脚本的执行效率，对大量数据友好，对循环友好。我测试即使在低端处理器环境运行，也能有100+倍的性能提升。这个方案提速效果相当明显，而且对原有代码和环境改动很小，推荐哦！</p>
-<h3 id="使用modin加速pandas"><a href="#使用modin加速pandas" class="headerlink" title="使用modin加速pandas"></a>使用modin加速pandas</h3><p><strong><a href="https://modin.readthedocs.io/en/latest/" target="_blank" rel="noopener">modin官方网站</a></strong><br>pandas是很常用的数据分析库，功能强大，但它有个缺点就是对大数据的支持并不好，不适合大规模数据。<br><strong>优点：</strong></p>
+<h3 id="使用modin加速pandas"><a href="#使用modin加速pandas" class="headerlink" title="使用modin加速pandas"></a>使用modin加速pandas</h3><p><strong><a target="_blank" rel="noopener" href="https://modin.readthedocs.io/en/latest/">modin官方网站</a></strong><br>pandas是很常用的数据分析库，功能强大，但它有个缺点就是对大数据的支持并不好，不适合大规模数据。<br><strong>优点：</strong></p>
 <ol>
 <li>无学习成本，只改一行代码</li>
 <li>可以分布式跑，基于ray</li>
@@ -486,11 +484,11 @@
 </ol>
 <p><strong>局限性：</strong></p>
 <ol>
-<li>目前支持<a href="https://modin.readthedocs.io/en/latest/supported_apis/dataframe_supported.html" target="_blank" rel="noopener">93%的Pandas API</a></li>
+<li>目前支持<a target="_blank" rel="noopener" href="https://modin.readthedocs.io/en/latest/supported_apis/dataframe_supported.html">93%的Pandas API</a></li>
 <li>分布式运行功能为为实验性功能</li>
 <li>随着运行核心数增加，会占用更多内存</li>
 <li>安装时可能会更改原有pandas版本，需留意</li>
-<li>需要安装<a href="https://github.com/ray-project/ray" target="_blank" rel="noopener">ray</a>或<a href="https://dask.org/" target="_blank" rel="noopener">dask</a>依赖包，还有一些其他依赖包</li>
+<li>需要安装<a target="_blank" rel="noopener" href="https://github.com/ray-project/ray">ray</a>或<a target="_blank" rel="noopener" href="https://dask.org/">dask</a>依赖包，还有一些其他依赖包</li>
 </ol>
 <p><strong>测试：</strong></p>
 <pre><code class="python">def pandas_test():
@@ -500,13 +498,13 @@
     start = time()
     df[&#39;c&#39;] = df.apply(lambda x: x.a+x.b ,axis=1)
     df[&#39;d&#39;] = df.apply(lambda x: 1 if x.a%2==0 else 0, axis=1)
-    print(&#39;pandas_df.apply Time: {:5.2f}s&#39;.format(time() - start))
+    print(&#39;pandas_df.apply Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
     start = time()
-    group_df = df[[&#39;d&#39;,&#39;a&#39;]].groupby(&#39;d&#39;,as_index=False).agg({&quot;a&quot;:[&#39;sum&#39;,&#39;max&#39;,&#39;min&#39;,&#39;mean&#39;]})
-    print(&#39;pandas_df.groupby Time: {:5.2f}s&#39;.format(time() - start))
+    group_df = df[[&#39;d&#39;,&#39;a&#39;]].groupby(&#39;d&#39;,as_index=False).agg(&#123;&quot;a&quot;:[&#39;sum&#39;,&#39;max&#39;,&#39;min&#39;,&#39;mean&#39;]&#125;)
+    print(&#39;pandas_df.groupby Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
     # start = time()
     # data = pd.read_csv(&#39;test_modin.csv&#39;)
-    # print(&#39;pandas_df.read_csv Time: {:5.2f}s&#39;.format(time() - start))
+    # print(&#39;pandas_df.read_csv Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
 
 
 def modin_pandas_test():
@@ -516,22 +514,21 @@ def modin_pandas_test():
     start = time()
     df[&#39;c&#39;] = df.apply(lambda x:x.a+x.b ,axis=1)
     df[&#39;d&#39;] = df.apply(lambda x:1 if x.a%2==0 else 0, axis=1)
-    print(&#39;modin_pandas_df.apply Time: {:5.2f}s&#39;.format(time() - start))
+    print(&#39;modin_pandas_df.apply Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
     start = time()
-    group_df = df[[&#39;d&#39;,&#39;a&#39;]].groupby(&#39;d&#39;,as_index=False).agg({&quot;a&quot;:[&#39;sum&#39;,&#39;max&#39;,&#39;min&#39;,&#39;mean&#39;]})
-    print(&#39;modin_pandas_df.groupby Time: {:5.2f}s&#39;.format(time() - start))
+    group_df = df[[&#39;d&#39;,&#39;a&#39;]].groupby(&#39;d&#39;,as_index=False).agg(&#123;&quot;a&quot;:[&#39;sum&#39;,&#39;max&#39;,&#39;min&#39;,&#39;mean&#39;]&#125;)
+    print(&#39;modin_pandas_df.groupby Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
     # start = time()
     # data = pd.read_csv(&#39;test_modin.csv&#39;)
-    # print(&#39;modin_pandas_df.read_csv Time: {:5.2f}s&#39;.format(time() - start))
+    # print(&#39;modin_pandas_df.read_csv Time: &#123;:5.2f&#125;s&#39;.format(time() - start))
 
 
 if __name__ == &#39;__main__&#39;:
     pandas_test()
-    modin_pandas_test()
-</code></pre>
+    modin_pandas_test()</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-03.jpg" alt="alt FastPython-03"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-04.jpg" alt="alt FastPython-04"><br>单机跑Apply API速度大概快了3.5倍多。分布式还没测试。</p>
-<p><strong>结论：</strong><br>使用modin模块的pandas代替普通的pandas，本质是将单机单核跑的任务负载分散到多核心甚至多机器来加速运算。基本可以满足使用pandas的业务需求场景，而且核心数越多，机器数越多，运行效率提升越高，但相应需要更大的内存。适合对大量数据操作的场景。<br>此外，pandas官网给出了一些优化效率的建议，参考：<a href="https://pandas.pydata.org/pandas-docs/stable/user_guide/enhancingperf.html" target="_blank" rel="noopener">Enhancing performance</a></p>
-<h3 id="使用pandarallel加速pandas"><a href="#使用pandarallel加速pandas" class="headerlink" title="使用pandarallel加速pandas"></a>使用pandarallel加速pandas</h3><p><strong><a href="https://github.com/nalepae/pandarallel" target="_blank" rel="noopener">pandarallel官方网站</a></strong><br><strong>优点：</strong></p>
+<p><strong>结论：</strong><br>使用modin模块的pandas代替普通的pandas，本质是将单机单核跑的任务负载分散到多核心甚至多机器来加速运算。基本可以满足使用pandas的业务需求场景，而且核心数越多，机器数越多，运行效率提升越高，但相应需要更大的内存。适合对大量数据操作的场景。<br>此外，pandas官网给出了一些优化效率的建议，参考：<a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/user_guide/enhancingperf.html">Enhancing performance</a></p>
+<h3 id="使用pandarallel加速pandas"><a href="#使用pandarallel加速pandas" class="headerlink" title="使用pandarallel加速pandas"></a>使用pandarallel加速pandas</h3><p><strong><a target="_blank" rel="noopener" href="https://github.com/nalepae/pandarallel">pandarallel官方网站</a></strong><br><strong>优点：</strong></p>
 <ol>
 <li>无学习成本，只添加1-2行代码</li>
 <li>充分利用CPU</li>
@@ -541,7 +538,7 @@ if __name__ == &#39;__main__&#39;:
 <li>理论上只提速物理核心数倍的效率。</li>
 <li>有使用成本（实现新进程，通过共享内存发送数据等等），因此只有计算量足够高时，才更有效。</li>
 </ol>
-<p><strong>使用：</strong><a href="https://github.com/nalepae/pandarallel/blob/master/docs/examples.ipynb" target="_blank" rel="noopener">pandarallel-example</a></p>
+<p><strong>使用：</strong><a target="_blank" rel="noopener" href="https://github.com/nalepae/pandarallel/blob/master/docs/examples.ipynb">pandarallel-example</a></p>
 <p><strong>结论：</strong><br>对于非常少量的数据，不值得使用。对大量数据，可以尝试该方案，不会像modin一样依赖pandas版本，可以在原有pandas版本上操作。</p>
 <h2 id="编写高效代码"><a href="#编写高效代码" class="headerlink" title="编写高效代码"></a>编写高效代码</h2><p>&emsp;&emsp;除了上面已经提到的方案，在我们平时编码时也要注意编码效率，这部分主要介绍编写Python代码时一些提高运行效率的方法、技巧和工具。</p>
 <h3 id="使用PySpark"><a href="#使用PySpark" class="headerlink" title="使用PySpark"></a>使用PySpark</h3><p><strong>优点：</strong></p>
@@ -569,14 +566,16 @@ df.registerTempTable(‘tmp’)
 df = spark.sql(“””select * from tmp limit 10”””)  结果为新的dataframe
 # ⑤结果输出
 df.show() / df.writeInsertInto(table_name) / df.write.option(‘header’,True),csv(file) 
-# …… 很多种输出方式，也可以继续转回pandas dataframe做后续操作
-</code></pre>
-<p><strong><a href="http://spark.apache.org/docs/2.4.4/api/python/index.html" target="_blank" rel="noopener">PySpark使用文档</a></strong></p>
+# …… 很多种输出方式，也可以继续转回pandas dataframe做后续操作</code></pre>
+<p><strong><a target="_blank" rel="noopener" href="http://spark.apache.org/docs/2.4.4/api/python/index.html">PySpark使用文档</a></strong></p>
 <p><strong>结论：</strong><br>在数据量特别大的情况下，分布式计算是首选，所以对于大规模数据分析，目前PySpark是比较推荐的方式。</p>
-<h3 id="使用Dask"><a href="#使用Dask" class="headerlink" title="使用Dask"></a>使用Dask</h3><p><strong><a href="https://dask.org/" target="_blank" rel="noopener">Dask官方网站</a></strong><br><strong>优点：</strong></p>
+<h3 id="使用Dask"><a href="#使用Dask" class="headerlink" title="使用Dask"></a>使用Dask</h3><p><strong><a target="_blank" rel="noopener" href="https://dask.org/">Dask官方网站</a></strong><br><strong>优点：</strong></p>
 <ol>
 <li>高效处理大量数据</li>
-<li>支持分布式<br><strong>局限：</strong></li>
+<li>支持分布式</li>
+</ol>
+<p><strong>局限：</strong></p>
+<ol>
 <li>只有来自pandas的某些功能才能移植到Dask上执行</li>
 <li>仅在不适合主存储器的数据集上，才建议使用Dask</li>
 </ol>
@@ -590,9 +589,8 @@ df.groupby(&#39;a&#39;).mean()
 # 高速：
 import dask.dataframe as dd
 df_dask = dd.from_pandas(df, npartitions=50)
-df_dask.groupby(&#39;a&#39;).mean().compute()
-</code></pre>
-<p><strong><a href="https://blog.csdn.net/jack_jmsking/article/details/91433854" target="_blank" rel="noopener">详细了解Dask</a></strong></p>
+df_dask.groupby(&#39;a&#39;).mean().compute()</code></pre>
+<p><strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/jack_jmsking/article/details/91433854">详细了解Dask</a></strong></p>
 <h3 id="使用多线程"><a href="#使用多线程" class="headerlink" title="使用多线程"></a>使用多线程</h3><p><strong>优点：</strong>能提高IO密集型Python程序效率。因为在一个线程因IO阻塞等待时，CPU切换到其他线程，CPU利用率高。<br><strong>局限：</strong>由于GIL(Global Interpreter Lock)机制限制Python解释器任何时刻都只能执行一个线程，在计算密集型Python程序并不能提高执行效率，反而可能因线程切换降低效率。<br><strong>使用：</strong></p>
 <pre><code class="python"># 用法1
 import threading
@@ -632,8 +630,7 @@ def testThread(num):
 if __name__ == &#39;__main__&#39;:
     for i in range(5):
         t = threading.Thread(target=testThread, arg=(i, ))
-        t.start()
-</code></pre>
+        t.start()</code></pre>
 <p><strong>GIL：</strong>GIL是CPython解释器引入的锁，GIL在解释器层面阻止了真正的并行运行。解释器在执行任何线程之前，必须等待当前正在运行的线程释放GIL，事实上，解释器会强迫想要运行的线程必须拿到GIL才能访问解释器的任何资源，例如栈或Python对象等，这也正是GIL的目的，为了阻止不同的线程并发访问Python对象。这样GIL可以保护解释器的内存，让垃圾回收工作正常，不会出现运行死锁。但事实上，这却造成了程序员无法通过并行执行多线程来提高程序的性能。如果我们去掉GIL，就可以实现真正的并行。GIL并没有影响多处理器并行的线程，只是限制了一个解释器只能有一个线程在运行。<br><strong>结论：</strong>IO包括磁盘IO和网络IO，所以可以在磁盘IO密集型Python任务或网络延迟是瓶颈的Python任务中使用Python多线程。</p>
 <h3 id="使用多进程"><a href="#使用多进程" class="headerlink" title="使用多进程"></a>使用多进程</h3><p><strong>优点：</strong>可以提高计算密集型Python程序执行效率。会用到多个CPU核心。绕过GIL机制，充分利用CPU。核心原理是以子进程的形式，平行的运行多个python解释器，从而令python程序可以利用多核CPU来提升执行速度。由于子进程与主解释器相分离，所以他们的全局解释器锁也是相互独立的。每个子进程都能够完整使用一个CPU内核。</p>
 <p><strong>局限：</strong></p>
@@ -693,12 +690,11 @@ def method(num):
 if __name__ == &#39;__main__&#39;:
     for i in range(100):
         p = multiprocessing.Process(target=method, args=(i,))
-        p.start()
-</code></pre>
+        p.start()</code></pre>
 <p><strong>结论：</strong>如果Python程序瓶颈在CPU数量或是CPU密集型，都可采用多进程。</p>
 <h3 id="使用Cython"><a href="#使用Cython" class="headerlink" title="使用Cython"></a>使用Cython</h3><p><strong>优点：</strong></p>
 <ol>
-<li>Python代码可通过<a href="https://github.com/ArvinMei/py2so" target="_blank" rel="noopener">一定工具转Cython代码</a></li>
+<li>Python代码可通过<a target="_blank" rel="noopener" href="https://github.com/ArvinMei/py2so">一定工具转Cython代码</a></li>
 <li>性能达到C语言水平</li>
 </ol>
 <p><strong>局限：</strong></p>
@@ -706,9 +702,8 @@ if __name__ == &#39;__main__&#39;:
 <li>需要修改转换工具</li>
 <li>高级用法学习成本高</li>
 </ol>
-<p><strong>使用：</strong><br>学习Cython：<a href="https://github.com/philberty/cython-book" target="_blank" rel="noopener">cython-book</a></p>
-<pre><code class="shell">pip install cython
-</code></pre>
+<p><strong>使用：</strong><br>学习Cython：<a target="_blank" rel="noopener" href="https://github.com/philberty/cython-book">cython-book</a></p>
+<pre><code class="shell">pip install cython</code></pre>
 <h3 id="使用concurrent-futures"><a href="#使用concurrent-futures" class="headerlink" title="使用concurrent.futures"></a>使用concurrent.futures</h3><p><strong>介绍：</strong>对threading和multiprocessing进一步封装的包，方便实现线程池和进程池。<br><strong>使用：</strong></p>
 <pre><code class="python"># 线程池
 import time
@@ -728,8 +723,7 @@ start = time.time()
 pool = ProcessPoolExecutor(max_workers=2)
 results = list(pool.map(gcd, numbers))
 end = time.time()
-print &#39;Took %.3f seconds.&#39; % (end - start)
-</code></pre>
+print &#39;Took %.3f seconds.&#39; % (end - start)</code></pre>
 <p><strong>扩展：</strong></p>
 <pre><code class="text">在两个CPU核心的机器上运行多进程程序，比其他两个版本都快。
 这是因为，ProcessPoolExecutor类会利用multiprocessing模块所提供的底层机制，完成下列操作：
@@ -743,9 +737,8 @@ print &#39;Took %.3f seconds.&#39; % (end - start)
 8. 将这些字节通过socket复制到主进程之中。
 9. 主进程对这些字节执行反序列化操作，将其还原成python对象
 10.最后，把每个子进程所求出的计算结果合并到一份列表之中，并返回给调用者。
-multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。
-</code></pre>
-<p>详细参考：<strong><a href="https://www.cnblogs.com/kangoroo/p/7628092.html" target="_blank" rel="noopener">python concurrent.futures</a></strong></p>
+multiprocessing开销比较大，原因就在于：主进程和子进程之间通信，必须进行序列化和反序列化的操作。</code></pre>
+<p>详细参考：**<a target="_blank" rel="noopener" href="https://www.cnblogs.com/kangoroo/p/7628092.html">python concurrent.futures</a>**</p>
 <h3 id="常见代码优化"><a href="#常见代码优化" class="headerlink" title="常见代码优化"></a>常见代码优化</h3><ol>
 <li><p>在set中查找比在list查找快</p>
 <pre><code class="python">list_data = list(data)
@@ -753,16 +746,14 @@ set_data = set(data)
 # 低速：
 789 in list_data
 # 高速：
-789 in set_data
-</code></pre>
+789 in set_data</code></pre>
 </li>
 <li><p>用dict而非两个list进行匹配查找</p>
 <pre><code class="python"># 已知list_a,list_b
 # 低速：
 list_b[list_a.index(123)]
 # 高速：
-dict(zip(list_a,list_b)).get(123,None)
-</code></pre>
+dict(zip(list_a,list_b)).get(123,None)</code></pre>
 </li>
 <li><p>优先用for循环，比while略快</p>
 </li>
@@ -779,8 +770,7 @@ def fib(n):
  a, b = 1, 1
  for i in range(2,n):
      a,b = b, a+b
- return b
-</code></pre>
+ return b</code></pre>
 </li>
 <li><p>使用缓存机制加速递归函数</p>
 <pre><code class="python"># 低速：
@@ -790,15 +780,14 @@ def fib():
 from functools import lru_cache
 @lru_cache(100)
 def fib():
- return (1 if n in (1,2) else fib(n-1)+fib(n-2))
-</code></pre>
+ return (1 if n in (1,2) else fib(n-1)+fib(n-2))</code></pre>
 </li>
 <li><p>使用collections.Counter加速计数</p>
 <pre><code class="python">import time
 data = [x**2 % 1989 for x in range(2000000)]
 # 低速
 st = time.time()
-values_count = {}
+values_count = &#123;&#125;
 for i in data:
  i_cnt = values_count.get(i, 0)
  values_count[i] = i_cnt + 1
@@ -809,15 +798,14 @@ st = time.time()
 from collections import Counter
 values_count = Counter(data)
 print(values_count.get(4, 0))
-print(&quot;time: %s&quot; % (time.time() - st))
-</code></pre>
+print(&quot;time: %s&quot; % (time.time() - st))</code></pre>
 </li>
 <li><p>使用collections.ChainMap加速字典合并</p>
 <pre><code class="python"># 低速
-dict_a = {i: i + 1 for i in range(1, 1000000, 2)}
-dict_b = {i: i * 2 + 1 for i in range(1, 1000000, 3)}
-dict_c = {i: i * 3 + 1 for i in range(1, 1000000, 5)}
-dict_d = {i: i * 4 + 1 for i in range(1, 1000000, 7)}
+dict_a = &#123;i: i + 1 for i in range(1, 1000000, 2)&#125;
+dict_b = &#123;i: i * 2 + 1 for i in range(1, 1000000, 3)&#125;
+dict_c = &#123;i: i * 3 + 1 for i in range(1, 1000000, 5)&#125;
+dict_d = &#123;i: i * 4 + 1 for i in range(1, 1000000, 7)&#125;
 result = dict_a.copy()
 result.update(dict_b)
 result.update(dict_c)
@@ -826,18 +814,15 @@ print(result.get(9999))
 # 高速
 from collections import ChainMap
 chain = ChainMap(dict_a, dict_b, dict_c, dict_d)
-print(chain.get(9999))
-</code></pre>
+print(chain.get(9999))</code></pre>
 </li>
 <li><p>使用map代替推导式进行加速</p>
 <pre><code class="python">a = [x**2 for x in range(1, 1000000, 3)]  # 低速
-a = map(lambda x: x**2, range(1, 1000000, 3)) # 高速
-</code></pre>
+a = map(lambda x: x**2, range(1, 1000000, 3)) # 高速</code></pre>
 </li>
 <li><p>使用filter代替推导式进行加速</p>
 <pre><code class="python">a = [x for x in range(1, 1000000, 3) if x % 7 == 0]  # 低速
-a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速
-</code></pre>
+a = filter(lambda x: x % 7 == 0, range(1, 1000000, 3)) # 高速</code></pre>
 </li>
 <li><p>numpy向量化加速-使用np.array代替list集合</p>
 <pre><code class="python">a = range(1, 1000000, 3)
@@ -846,8 +831,7 @@ c = [3 * a[i] - 2 * b[i] for i in range(0, len(a)] # 低速
 import numpy as np
 array_a = np.arange(1, 1000000, 3)
 array_b = np.arange(1, 1000000, -3)
-array_c = 3 * array_a - 2 * array_b # 高速
-</code></pre>
+array_c = 3 * array_a - 2 * array_b # 高速</code></pre>
 </li>
 <li><p>使用np.ufunc代替math.func</p>
 <pre><code class="python"># 低速
@@ -857,20 +841,17 @@ b = [math.log(x) for x in a]
 # 高速
 import numpy as np
 array_a = np.arange(1, 1000000, 3)
-array_b = np.log(array_a)
-</code></pre>
+array_b = np.log(array_a)</code></pre>
 </li>
 <li><p>pandas df.to_excel效率低于df.to_csv</p>
 </li>
 </ol>
 <h2 id="查看Python性能日志"><a href="#查看Python性能日志" class="headerlink" title="查看Python性能日志"></a>查看Python性能日志</h2><h3 id="使用profiler"><a href="#使用profiler" class="headerlink" title="使用profiler"></a>使用profiler</h3><p>python中的profiler可以帮助我们测量程序执行过程中详细的时间和空间复杂度。使用时通过-o参数传入可选输出文件以保留性能日志。</p>
-<pre><code class="shell">python -m cProfile [-o output_file] my_python_file.py
-</code></pre>
+<pre><code class="shell">python -m cProfile [-o output_file] my_python_file.py</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-05.JPG" alt="alt FastPython-05"></p>
 <h3 id="使用profile"><a href="#使用profile" class="headerlink" title="使用profile"></a>使用profile</h3><p>导入profile监控python程序整体执行耗时。</p>
 <pre><code class="python">import profile
-profile.run(&#39;main()&#39;)
-</code></pre>
+profile.run(&#39;main()&#39;)</code></pre>
 <h3 id="使用line-profiler"><a href="#使用line-profiler" class="headerlink" title="使用line_profiler"></a>使用line_profiler</h3><p>监控方法耗时。</p>
 <pre><code class="python"># pip install line_profiler
 def a():
@@ -880,13 +861,11 @@ def main():
 from line_profiler import LineProfiler
 lp = LineProfiler(a,main)
 lp.run(&#39;main()&#39;)
-lp.print_stats()
-</code></pre>
+lp.print_stats()</code></pre>
 <h3 id="在ipython中获取代码耗时"><a href="#在ipython中获取代码耗时" class="headerlink" title="在ipython中获取代码耗时"></a>在ipython中获取代码耗时</h3><pre><code class="ipython">%time code  获取执行code这一行代码的耗时
 %%time 获取耗时
 %%timeit -n 10  获取执行10次的平均耗时
-%prun method()  获取执行method方法的耗时详情，输出与profiler一样
-</code></pre>
+%prun method()  获取执行method方法的耗时详情，输出与profiler一样</code></pre>
 
         </div>
         <!-- .entry-content -->

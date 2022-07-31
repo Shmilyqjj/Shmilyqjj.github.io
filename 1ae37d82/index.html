@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-cover.JPG);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-cover.JPG">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-cover.JPG);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-cover.JPG">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -543,7 +543,7 @@ Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO</code></pr
 <li>“AnalysisException: Impala does not support modifying a non-Kudu table” 不支持非Kudu表的Update、delete操作</li>
 <li>不支持Date数据类型</li>
 </ol>
-<h2 id="Impala原理"><a href="#Impala原理" class="headerlink" title="Impala原理"></a>Impala原理</h2><p><strong>Impala架构图</strong><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-01.png" alt="alt Impala-01">  </p>
+<h2 id="Impala原理"><a href="#Impala原理" class="headerlink" title="Impala原理"></a>Impala原理</h2><p><strong>Impala架构图</strong><br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-01.png" alt="alt Impala-01">  </p>
 <h3 id="Impala-Daemon"><a href="#Impala-Daemon" class="headerlink" title="Impala Daemon"></a>Impala Daemon</h3><p>&emsp;&emsp;Impala的核心进程Impalad，部署在所有的数据节点上，接收客户端的查询请求，读写数据，并行执行来自集群中其他节点的查询请求，将中间结果返回给调度节点。调用节点将结果返回给客户端。Impalad进程通过持续与StateStore通信来确认自己所在的节点是否健康以及是否可以接受新的任务请求。</p>
 <p>Impalad包含三种角色：</p>
 <ul>
@@ -585,11 +585,11 @@ remainder_of_query;</code></pre>
 <li>外层的hint对于内层的join子语句是不起作用的</li>
 <li>如果select后面跟distinct之类的关键字，STRAIGHT_JOIN需要跟在关键字后面<br>不同Hint标签的具体含义和场景见文档:<strong><a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/impala_hints.html">impala_hints</a></strong></li>
 </ol>
-<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-02.JPG" alt="alt Impala-02"><br>注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信</p>
-<p>在StateStore的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25010/">http://cdh101:25010/</a> 可以查看Impala集群监控状态和配置信息：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-03.JPG" alt="alt Impala-03">  </p>
-<p>在Catalog的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25020/">http://cdh101:25020/</a> 可以看到各个库表元数据信息、Schema及占用内存大小<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-04.JPG" alt="alt Impala-04">  </p>
-<p>在Impala Daemon的WEBUI <a target="_blank" rel="noopener" href="http://cdh102:25000/">http://cdh102:25000/</a> 可以看到该进程信息  在<a target="_blank" rel="noopener" href="http://cdh102:25000/queries">http://cdh102:25000/queries</a> 可以查看该节点执行SQL的详情<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-07.JPG" alt="alt Impala-07"><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-08.JPG" alt="alt Impala-08">  </p>
-<p>在CDH Impala组件中可以查看执行SQL任务的详细信息<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-05.JPG" alt="alt Impala-05"><br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-06.JPG" alt="alt Impala-06"> </p>
+<h2 id="在CDH使用Impala"><a href="#在CDH使用Impala" class="headerlink" title="在CDH使用Impala"></a>在CDH使用Impala</h2><p>Impala相关进程：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-02.JPG" alt="alt Impala-02"><br>注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信</p>
+<p>在StateStore的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25010/">http://cdh101:25010/</a> 可以查看Impala集群监控状态和配置信息：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-03.JPG" alt="alt Impala-03">  </p>
+<p>在Catalog的WEBUI <a target="_blank" rel="noopener" href="http://cdh101:25020/">http://cdh101:25020/</a> 可以看到各个库表元数据信息、Schema及占用内存大小<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-04.JPG" alt="alt Impala-04">  </p>
+<p>在Impala Daemon的WEBUI <a target="_blank" rel="noopener" href="http://cdh102:25000/">http://cdh102:25000/</a> 可以看到该进程信息  在<a target="_blank" rel="noopener" href="http://cdh102:25000/queries">http://cdh102:25000/queries</a> 可以查看该节点执行SQL的详情<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-07.JPG" alt="alt Impala-07"><br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-08.JPG" alt="alt Impala-08">  </p>
+<p>在CDH Impala组件中可以查看执行SQL任务的详细信息<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-05.JPG" alt="alt Impala-05"><br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-06.JPG" alt="alt Impala-06"> </p>
 <p>一些重要的常用的impala-shell使用命令</p>
 <pre><code class="shell">impala-shell -i host指定Coordinator
 -d 指定连接到哪个库
@@ -700,7 +700,7 @@ jdbc程序原来连接21050改为连接21051,地址改为haproxy_running_ip
 1.将代理程序加入开机自动运行：root用户下chmod +x /etc/rc.d/rc.local并向该文件添加/sbin/haproxy –f /etc/haproxy/impala_haproxy.cfg
 2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）</code></pre>
 </li>
-<li><p>限制Impala生成Parquet文件大小<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Impala/Impala-09.png" alt="alt Impala-09"> </p>
+<li><p>限制Impala生成Parquet文件大小<br><img src="http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-09.png" alt="alt Impala-09"> </p>
 </li>
 </ol>
 <p>总结：</p>
@@ -743,7 +743,7 @@ jdbc程序原来连接21050改为连接21051,地址改为haproxy_running_ip
           
             <a href="/BigdataExceptionsSummary/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Bigdata-Problems/Bigdata-Problems-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Bigdata-Problems/Bigdata-Problems-cover.jpg">
               </div>
               <span class="label">
               Previous Post</span>

@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-cover.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -452,7 +452,7 @@
         
         <div class="entry-content">
           <h1 id="SeaTunnel开源数据同步平台"><a href="#SeaTunnel开源数据同步平台" class="headerlink" title="SeaTunnel开源数据同步平台"></a>SeaTunnel开源数据同步平台</h1><h2 id="SeaTunnel简介"><a href="#SeaTunnel简介" class="headerlink" title="SeaTunnel简介"></a>SeaTunnel简介</h2><p>SeaTunnel is a very easy-to-use ultra-high-performance distributed data integration platform that supports real-time synchronization of massive data.<br>SeaTunnel是一个简单易用且高效的开源数据集成平台（前身是WaterDrop），支持离线和实时数据同步。支持多种Source、Output、Filter组件以及自行开发输入输出插件和过滤器插件。SeaTunnel配置简单，基于已有的Spark、Flink环境几分钟就可以部署完成。因其有各种灵活的插件支持，只需要花几分钟编写一个配置文件即可完成一个数据同步任务的开发。</p>
-<p>SeaTunnel架构<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-01.png" alt="alt ">  </p>
+<p>SeaTunnel架构<br><img src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-01.png" alt="alt ">  </p>
 <p>SeaTunnel特性：</p>
 <ol>
 <li>简单易用，配置灵活，低代码</li>
@@ -468,7 +468,7 @@ cd seatunnel-1.5.5
 # 修改seatunnel环境配置
 vim config/seatunnel-env.sh
 SPARK_HOME=/hadoop/bigdata/spark/spark-2.3.2-bin-hadoop2.6</code></pre>
-<h3 id="SeaTunnel将Kudu表导入ClickHouse"><a href="#SeaTunnel将Kudu表导入ClickHouse" class="headerlink" title="SeaTunnel将Kudu表导入ClickHouse"></a>SeaTunnel将Kudu表导入ClickHouse</h3><p>准备kudu表<br>Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-02.png" alt="alt ">  </p>
+<h3 id="SeaTunnel将Kudu表导入ClickHouse"><a href="#SeaTunnel将Kudu表导入ClickHouse" class="headerlink" title="SeaTunnel将Kudu表导入ClickHouse"></a>SeaTunnel将Kudu表导入ClickHouse</h3><p>准备kudu表<br>Kudu表kudu_db.kudu_table（在KuduWebUI中表名为impala::kudu_db.kudu_table）<br><img src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-02.png" alt="alt ">  </p>
 <p>预先创建目标ClickHouse表</p>
 <pre><code class="clickhouse-sql">CREATE TABLE test.ch_table
 (
@@ -648,7 +648,7 @@ cp /hadoop/bigdata/common/lib/ImpalaJDBC41.jar .</code></pre>
 <p>执行抽取任务：</p>
 <pre><code class="shell">/opt/seatunnel-1.5.5/bin/start-seatunnel.sh --master yarn --deploy-mode cluster --config /opt/seatunnel-1.5.5/config/impala2ch.batch.conf</code></pre>
 <p>此时可以正常抽取数据了，但通过观察程序WebUI发现无论给了多少ExecutorCore，只有一个Task，这样低的并行度会极大影响数据抽取效率，所以需要在配置上做改进：<br>参考<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=jdbc-string"><strong>SeaTunnel-Spark-jdbc-string</strong></a> 得知SeaTunnel支持SparkJDBC的所有参数:<a target="_blank" rel="noopener" href="https://spark.apache.org/docs/2.4.0/sql-data-sources-jdbc.html"><strong>spark-sql-data-sources-jdbc</strong></a></p>
-<p>配置修改思路是将原来的只有一个并行度增加到多个并行度<br>所以使用partitionColumn, lowerBound, upperBound和numPartitions这四个参数进行调优，注意要对分区字段值数据有一定了解，选择合适的分区字段和lowerBound, upperBound很关键。当然这样并行加载数据源也将并行初始化多个连接，Spark源码中提醒到不要并行度过大，否则容易把外部存储搞垮。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/SeaTunnel/Seatunnel-03.png" alt="alt ">  </p>
+<p>配置修改思路是将原来的只有一个并行度增加到多个并行度<br>所以使用partitionColumn, lowerBound, upperBound和numPartitions这四个参数进行调优，注意要对分区字段值数据有一定了解，选择合适的分区字段和lowerBound, upperBound很关键。当然这样并行加载数据源也将并行初始化多个连接，Spark源码中提醒到不要并行度过大，否则容易把外部存储搞垮。<br><img src="http://imgs.shmily-qjj.top/BlogImages/SeaTunnel/Seatunnel-03.png" alt="alt ">  </p>
 <p>partitionColumn, lowerBound, upperBound和numPartitions这四个参数能决定Spark读取JDBC数据源的并行度及策略，lowerBound是分区字段取值的下限(包含)，upperBound是上限(不包含)，numPatitions是我们希望按照多少分区来加载JDBC。<br>注意第0个分区和最后一个分区加载的数据不被lowerBound, upperBound所限制，仍然会把所有数据加载出来。<br>具体实现逻辑可以看Spark中JdbcRelationProvider和JDBCRelation两个核心类。</p>
 <p>根据配置样例<a target="_blank" rel="noopener" href="https://interestinglab.github.io/seatunnel-docs/#/zh-cn/v1/configuration/input-plugins/Jdbc?id=example">SeaTunnel-JDBC-Example</a> 修改配置如下：</p>
 <pre><code class="config">spark &#123;
@@ -778,7 +778,7 @@ Memory is likely oversubscribed. Reducing query concurrency or configuring admis
           
             <a href="/ee1c2df4/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Kyuubi/Kyuubi-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-cover.jpg">
               </div>
               <span class="label">
               Previous Post</span>
@@ -796,7 +796,7 @@ Memory is likely oversubscribed. Reducing query concurrency or configuring admis
           
             <a href="/3f34ebe3/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png">
               </div>
               <span class="label">
               Next Post</span>

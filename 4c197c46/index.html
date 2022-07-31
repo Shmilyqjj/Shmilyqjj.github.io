@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-Cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-Cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-Cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-Cover.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -475,13 +475,13 @@
 <li></li>
 </ul>
 <h2 id="Presto原理"><a href="#Presto原理" class="headerlink" title="Presto原理"></a>Presto原理</h2><p><font size="3" color="red">在学习Presto原理前推荐先看看我之前关于Impala的文章：<a href="https://shmily-qjj.top/1ae37d82/">《Impala-基于内存的高效SQL交互查询引擎》</a></font></p>
-<h3 id="Presto架构和进程"><a href="#Presto架构和进程" class="headerlink" title="Presto架构和进程"></a>Presto架构和进程</h3><p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-01.png" alt="alt"><br>&emsp;&emsp;Presto与Impala的架构极其相似，都是采用Master-Slave模型以及MPP架构,而且Presto的工作角色也与ImpalaDaemon的角色基本相同，Presto有三种工作角色：Coordinator,Worker和DiscoveryServer：</p>
+<h3 id="Presto架构和进程"><a href="#Presto架构和进程" class="headerlink" title="Presto架构和进程"></a>Presto架构和进程</h3><p><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-01.png" alt="alt"><br>&emsp;&emsp;Presto与Impala的架构极其相似，都是采用Master-Slave模型以及MPP架构,而且Presto的工作角色也与ImpalaDaemon的角色基本相同，Presto有三种工作角色：Coordinator,Worker和DiscoveryServer：</p>
 <ul>
 <li><font size="3" color="red">Coordinator</font>：即Master，负责管理Meta元数据，Worker节点，SQL的解析和调度，生成Stage和Task分发给Workers，负责合并结果集并返回给客户端。相当于结合了Impalad的Coordinator角色和Planner角色的功能，区别是每个Impalad节点都可以是Coordinator，而Presto只能有一个Coordinator，多个协调者进程会导致脑裂，查询任务会死锁。</li>
 <li><font size="3" color="red">Worker</font>：负责计算和读写数据。相当于Impalad的Executor角色的功能。</li>
 <li><font size="3" color="red">DiscoveryServer</font>：通常内嵌于Coordinator节点，也可以独立出来部署，功能类似ZK，类似Impala中的ImpalaStateStore，用于监控节点心跳，一般DS和Coordinator在同一节点。Worker启动会向DS进程注册，Coordinator可以从DS获取到所有正常提供服务的Worker。<br>Coordinator 与 Worker、Client 通信是通过 REST API。</li>
 </ul>
-<h3 id="Presto数据模型"><a href="#Presto数据模型" class="headerlink" title="Presto数据模型"></a>Presto数据模型</h3><p>Presto使用Catalog、Schema和Table这3层结构来管理数据：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-06.png" alt="alt"></p>
+<h3 id="Presto数据模型"><a href="#Presto数据模型" class="headerlink" title="Presto数据模型"></a>Presto数据模型</h3><p>Presto使用Catalog、Schema和Table这3层结构来管理数据：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-06.png" alt="alt"></p>
 <ul>
 <li>Catalog：每个数据源都有一个名字，一个Catalog可包含多个Schema。通过show catalogs命令查看Presto已连接的所有数据源</li>
 <li>Schema：相当于一个数据库实例，一个Schema(数据库)中有多个Table表，通过show schemas from hive命令查看hive数据源所有库</li>
@@ -537,10 +537,10 @@
 <p>&emsp;&emsp;<strong>为什么Presto会使用内存池机制？</strong><br>首先，System Pool为了系统正常运行以及数据传输时系统缓存消耗；在资源不充足时，一个消耗内存较大的Query开始运行，因为没足够空间所以会挂起等待执行，等一些消耗内存小的Query执行完，又有新的Query请求，内存一直不充足，如果没有Reserved Pool，这个消耗内存大的Query就会一直被挂起直到失败。为了防止这种情况，预留出Reserved Pool内存池供大Query执行。Presto每秒钟挑出来一个内存占用最大的query，允许它在所有机器上都能使用Reserved pool，避免一直没有可用内存供大Query使用。</p>
 <p>&emsp;&emsp;<strong>如果大Query不在某些节点使用Reserved Pool就会浪费那台节点的预留内存，所以为什么不是单台机器中挑出占用内存最大的Task来使用Reserved Pool？</strong><br>这样设计会死锁，假设一个大Query的一个Task在某台机器可用Reserved Pool很快执行完，而另外一台机器的Task还是挂起状态，这个Query也会一直处于挂起状态，效率降低。</p>
 <p>&emsp;&emsp;<strong>Presto内存管理分为两部分：Query内存管理和机器内存管理，是由Coordinator负责的</strong><br>Query内存管理：Query会划分为多个Task，每个Task会有一个线程循环获取Task状态包括内存使用情况，Query内存管理就是汇总这些Task的内存使用情况。<br>机器内存管理：Coordinator有一个线程定时轮询每台机器的内存状态</p>
-<h3 id="Presto执行计划"><a href="#Presto执行计划" class="headerlink" title="Presto执行计划"></a>Presto执行计划</h3><p>Presto与Spark、Hive一样，都是使用Antlr进行语法解析，一条SQL经过如下步骤最终生成在每个节点执行的LocalExecutionPlan逻辑计划。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-02.png" alt="alt"></p>
-<p><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-07.png" alt="alt"><br>样例：</p>
+<h3 id="Presto执行计划"><a href="#Presto执行计划" class="headerlink" title="Presto执行计划"></a>Presto执行计划</h3><p>Presto与Spark、Hive一样，都是使用Antlr进行语法解析，一条SQL经过如下步骤最终生成在每个节点执行的LocalExecutionPlan逻辑计划。<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-02.png" alt="alt"></p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-07.png" alt="alt"><br>样例：</p>
 <pre><code class="sql">select c1.rank, count(*) from dim.city c1 join dim.city c2 on c1.id = c2.id where c1.id &gt; 10 group by c1.rank limit 10;</code></pre>
-<p>生成的逻辑计划：<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-04.jpg" alt="alt"></p>
+<p>生成的逻辑计划：<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-04.jpg" alt="alt"></p>
 <p>物理执行计划：逻辑计划的每一个SubPlan都会提交到一个或者多个Worker节点上执行，一个SubPlan也可以理解为一个Stage，SubPlan有几个重要的属性planDistribution、outputPartitioning、partitionBy属性。</p>
 <ul>
 <li>planDistribution有三种类型<ul>
@@ -555,8 +555,8 @@
 </ul>
 </li>
 </ul>
-<p>在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在AggregateNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-05.png" alt="alt"></p>
-<p>SQL提交并解析为SubPlan后的执行流程：<br>比如一条SQL最终生成4个SubPlan（0-3），其中0，1并行执行Join或聚合操作，其余串行执行，每个SubPlan都会分发到多个工作节点执行。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-03.png" alt="alt"></p>
+<p>在下面的执行计划中，SubPlan1和SubPlan0 PlanDistribution=Source，这两个SubPlan都是提供数据源的节点，SubPlan1所有节点的读取数据都会发向SubPlan0的每一个节点；SubPlan2分配8个节点执行最终的聚合操作；SubPlan3只负责输出最后计算完成的数据。只有SubPlan0的OutputPartitioning=HASH（存在AggregateNode计划），所以SubPlan2接收到的数据是按照rank字段Partition后的数据<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-05.png" alt="alt"></p>
+<p>SQL提交并解析为SubPlan后的执行流程：<br>比如一条SQL最终生成4个SubPlan（0-3），其中0，1并行执行Join或聚合操作，其余串行执行，每个SubPlan都会分发到多个工作节点执行。<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-03.png" alt="alt"></p>
 <ol>
 <li>Coordinator通过HTTP协议调用Worker节点的/v1/task接口将执行计划分配给所有Worker节点（图中蓝色箭头）</li>
 <li>SubPlan1的每个节点读取一个Split的数据并过滤后将数据分发给每个SubPlan0节点进行Join或聚合操作</li>
@@ -701,7 +701,7 @@ SELECT * FROM (
         (3, &#39;c&#39;, ARRAY[7, 8, 9])
 ) AS t (id, name, arr);</code></pre>
 <p>Presto支持事务，相关命令有<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/commit.html">COMMIT</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/start-transaction.html">START TRANSACTION</a>,<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql/rollback.html">ROLLBACK</a><br>更多语法：<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/sql.html#">SQL Statement Syntax</a></p>
-<h3 id="Presto-WEBUI"><a href="#Presto-WEBUI" class="headerlink" title="Presto WEBUI"></a>Presto WEBUI</h3><p>访问WEBUI地址即为DiscoveryServer地址：<a target="_blank" rel="noopener" href="http://cdh101:8080/ui/">http://cdh101:8080/ui/</a><br>透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-08.jpg" alt="alt"></p>
+<h3 id="Presto-WEBUI"><a href="#Presto-WEBUI" class="headerlink" title="Presto WEBUI"></a>Presto WEBUI</h3><p>访问WEBUI地址即为DiscoveryServer地址：<a target="_blank" rel="noopener" href="http://cdh101:8080/ui/">http://cdh101:8080/ui/</a><br>透过WEB UI可以查看到每个SQL Query的执行相关状态信息以及Presto集群的运行状态信息。<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-08.jpg" alt="alt"></p>
 <table>
 <thead>
 <tr>
@@ -738,7 +738,7 @@ SELECT * FROM (
 <td align="center">执行失败</td>
 </tr>
 </tbody></table>
-<p>BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排查下原因，有很多可能的原因：<br>1.内存不足<br>2.磁盘或网络I/O瓶颈<br>3.数据倾斜(所有数据都转移到几个worker上)<br>4.并行度低(只有几个worker可用)<br>5.某个Stage查询开销较高（如select *操作数据过多）<br>对于某个Query的执行过程相关监控信息，可以在WebUI上点那个Query ID即可查看<br><img src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Presto/Presto-09.png" alt="alt"></p>
+<p>BLOCKED状态是正常的，但持续很长时间都是这个状态就需要排查下原因，有很多可能的原因：<br>1.内存不足<br>2.磁盘或网络I/O瓶颈<br>3.数据倾斜(所有数据都转移到几个worker上)<br>4.并行度低(只有几个worker可用)<br>5.某个Stage查询开销较高（如select *操作数据过多）<br>对于某个Query的执行过程相关监控信息，可以在WebUI上点那个Query ID即可查看<br><img src="http://imgs.shmily-qjj.top/BlogImages/Presto/Presto-09.png" alt="alt"></p>
 <h3 id="连接Presto"><a href="#连接Presto" class="headerlink" title="连接Presto"></a>连接Presto</h3><p>用户连接Presto的主要方式：Presto-Cli,JDBC,PyHive,PrestoOnSpark等。<br>Presto-Cli:</p>
 <pre><code class="shell">wget https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.248/presto-cli-0.248-executable.jar
 mv presto-cli-0.248-executable.jar presto
@@ -1037,7 +1037,7 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
           
             <a href="/3f34ebe3/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Manjaro/Manjaro-Cover.png">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png">
               </div>
               <span class="label">
               Previous Post</span>
@@ -1055,7 +1055,7 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
           
             <a href="/BigdataExceptionsSummary/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://gitee.com/shmilyqjj/BlogImages/raw/master/cdn_sources/Bigdata-Problems/Bigdata-Problems-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Bigdata-Problems/Bigdata-Problems-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Bigdata-Problems/Bigdata-Problems-cover.jpg">
               </div>
               <span class="label">
               Next Post</span>
