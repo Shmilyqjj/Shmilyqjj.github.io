@@ -245,6 +245,110 @@ connection-password=123456
 待补充
 ```
 
+### Presto On kerberized Hive
+Hive集群是Kerberos认证的安全集群,Presto Hive插件需要设置kerberos以及sasl相关属性,否则会报如下错误
+```text
+-执行 ./presto --debug --execute 'show schemas' --server presto-server:8080 --catalog hive
+Caused by: org.apache.thrift.transport.TTransportException: hms:9083: null
+        at com.facebook.presto.hive.metastore.thrift.Transport.rewriteException(Transport.java:92)
+        at com.facebook.presto.hive.metastore.thrift.Transport.access$000(Transport.java:32)
+        at com.facebook.presto.hive.metastore.thrift.Transport$TTransportWrapper.readAll(Transport.java:169)
+        at org.apache.thrift.protocol.TBinaryProtocol.readStringBody(TBinaryProtocol.java:380)
+        at org.apache.thrift.protocol.TBinaryProtocol.readMessageBegin(TBinaryProtocol.java:230)
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:77)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_all_databases(ThriftHiveMetastore.java:1187)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_all_databases(ThriftHiveMetastore.java:1175)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastoreClient.getAllDatabases(ThriftHiveMetastoreClient.java:89)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.getMetastoreClientThenCall(ThriftHiveMetastore.java:1068)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.lambda$getAllDatabases$0(ThriftHiveMetastore.java:219)
+        at com.facebook.presto.hive.metastore.thrift.HiveMetastoreApiStats.lambda$wrap$0(HiveMetastoreApiStats.java:48)
+        at com.facebook.presto.hive.RetryDriver.run(RetryDriver.java:139)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.getAllDatabases(ThriftHiveMetastore.java:218)
+        ... 57 more
+        Suppressed: org.apache.thrift.transport.TTransportException: hms:9083: null
+                ... 71 more
+        Caused by: org.apache.thrift.transport.TTransportException
+                at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:132)
+                at org.apache.thrift.transport.TTransport.readAll(TTransport.java:86)
+                at com.facebook.presto.hive.metastore.thrift.Transport$TTransportWrapper.readAll(Transport.java:166)
+                ... 68 more
+```
+参考:[Presto hive-security](https://prestodb.io/docs/current/connector/hive-security.html)
+Presto默认没有使用权限认证,所有Query都是以运行PrestoServer进程的用户身份提交的.Presto Hive Plugin支持连接Kerberos集群以扩展权限管理,对数据做访问权限控制.集成Kerberos后,Presto可以模拟执行Query的用户来访问数据,数据权限得到控制.
+vim etc/catalog/hive.properties 添加kerberos相关参数,并重启PrestoServers
+```properties
+connector.name=hive-hadoop2
+hive.metastore.uri=thrift://metastoreIP:9083
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.service.principal=hive/metastoreIP@REALM.COM
+hive.metastore.client.principal=hive/prestoServerIp@REALM.COM
+hive.metastore.client.keytab=/opt/keytabs/hive.keytab
+hive.hdfs.authentication.type=KERBEROS
+hive.hdfs.impersonation.enabled=true
+hive.hdfs.presto.principal=hive/prestoServerIp@REALM.COM
+hive.hdfs.presto.keytab=/opt/keytabs/hive.keytab
+```
+错误与异常排查解决:
+在使用OSS存储的Hive集群使用Presto报错
+```err
+Query 20220808_061604_00004_dp628 failed: java.lang.ClassNotFoundException: Class com.aliyun.jindodata.oss.JindoOssFileSystem not found
+Query 20220809_023611_00025_43gsw failed: java.lang.NoClassDefFoundError: com/aliyun/jindodata/api/spec/JdoException
+```
+解决:
+拷贝jindo-sdk-4.4.1.jar和jindo-core-4.4.1.jar到$PRESTO_HOME/plugin/hive-hadoop2/
+
+presto:db_name> select * from table_name limit 1;
+Query 20220808_061604_00004_dp628, FAILED, 1 node
+Splits: 17 total, 0 done (0.00%)
+0:01 [0 rows, 0B] [0 rows/s, 0B/s]
+查看Presto WebUI发现如下报错:
+```err 
+com.facebook.presto.spi.PrestoException: For input string: "30s"
+	at com.facebook.presto.hive.BackgroundHiveSplitLoader$HiveSplitLoaderTask.process(BackgroundHiveSplitLoader.java:128)
+	at com.facebook.presto.hive.util.ResumableTasks.safeProcessTask(ResumableTasks.java:47)
+	at com.facebook.presto.hive.util.ResumableTasks.access$000(ResumableTasks.java:20)
+	at com.facebook.presto.hive.util.ResumableTasks$1.run(ResumableTasks.java:35)
+	at com.facebook.airlift.concurrent.BoundedExecutor.drainQueue(BoundedExecutor.java:78)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.NumberFormatException: For input string: "30s"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+	at java.lang.Long.parseLong(Long.java:589)
+	at java.lang.Long.parseLong(Long.java:631)
+	at org.apache.hadoop.conf.Configuration.getLong(Configuration.java:1311)
+	at org.apache.hadoop.hdfs.DFSClient$Conf.<init>(DFSClient.java:502)
+```
+检查hive.config.resources中的hdfs-site.xml等文件,发现dfs.client.datanode-restart.timeout等配置参数值为30s,修改为30并重启PrestoServer即可.
+
+### Presto On Iceberg
+Presto兼容Iceberg,参考[Iceberg Connector](https://prestodb.io/docs/current/connector/iceberg.html)配置Iceberg连接器配置vim etc/catalog/iceberg.properties 支持的Iceberg Catalog Type有hive和hadoop两种,配置方式分别为如下
+iceberg.catalog.type=hive的配置方式:
+```properties
+connector.name=iceberg
+hive.metastore.uri=thrift://metastoreIP:9083
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.service.principal=hive/metastoreIP@REALM.COM
+hive.metastore.client.principal=hive/prestoServerIp@REALM.COM
+hive.metastore.client.keytab=/opt/keytabs/hive.keytab
+iceberg.catalog.type=hive
+iceberg.file-format=PARQUET
+iceberg.catalog.cached-catalog-num=10
+iceberg.hadoop.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+```
+iceberg.catalog.type=hadoop的配置方式:
+```properties
+connector.name=iceberg
+hive.metastore.uri=thrift://metastoreIP:9083
+iceberg.catalog.type=hadoop
+iceberg.file-format=PARQUET
+iceberg.catalog.cached-catalog-num=10
+iceberg.hadoop.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+iceberg.catalog.warehouse=hdfs://nameservice/user/iceberg/warehouse
+```
+然后重启PrestoServer
+
 ### Presto语法：
 ```sql
 SHOW CATALOGS; 查看Presto集群当前可用数据源
