@@ -14,7 +14,7 @@ tags:
 keywords: JVM
 description: 系统学习一下JVM，很重要
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-cover.jpg
 abbrlink: 508b5c7
 date: 2020-03-21 12:19:00
 ---
@@ -110,7 +110,7 @@ JDK8以后JVM的技术实现是HotSpot(包含一个解释器和两个编译器)�
 
 ### 内存管理
 * JVM内存区域如何划分？
-![alt JVM-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-01.png)  
+![alt JVM-01](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-01.png)  
 Java内存布局一直在调整，Java8开始彻底移除了持久代，使用MetaSpace(元空间)来代替。 => -XX:PermSize和-XX:MaxPermSize失效
 
 Java的运行时数据区可以分成**堆、元空间(含方法区)、虚拟机栈、本地方法栈和程序计数器**
@@ -120,12 +120,12 @@ Java的运行时数据区可以分成**堆、元空间(含方法区)、虚拟机
     + 基本数据类型（byte,short,int,long,float,double,char）如果在方法体内声明则在栈上(栈帧的局部变量表)直接分配，其他情况在堆上分配。
     + int[]这样的数组类型不属于基本数据类型，在堆上分配。
 * 栈：分虚拟机栈和本地方法栈。
-    ![alt JVM-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-02.png)  
+    ![alt JVM-02](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-02.png)  
     + 虚拟机栈：Java中**每个方法被调用时都会创建一个栈帧，执行完后再出栈，所有栈帧都出栈后线程结束**。每一个方法对应一个栈帧，每一个线程对应一个栈。栈帧中包括：**局部变量表，操作数，动态链接，返回地址**，这些不是线程共享的。
     + 本地方法栈：与虚拟机栈相似，但它主要包含Native对象。本地方法栈有一个叫returnAddress的数据类型。
 * 元空间：存放类名与字段(类的元数据)，运行时常量池，JIT优化。
     先对比一下JDK8和以前版本的方法区
-    ![alt JVM-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-03.png)  
+    ![alt JVM-03](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-03.png)  
     Perm区(永久代)在JDK8废除，用元空间来取代。**好处：元空间的出现解决了类和类加载器元数据过多导致的OOM问题，它是非堆区，使用操作系统内存，不会出现方法区内存溢出，省去了GC扫描压缩的开销，每个加载器有专门的存储空间；坏处：无限制使用操作系统内存会导致操作系统崩溃，所以一般要加-XX:MaxMetaspaceSize参数来控制大小。元空间不支持压缩，有内存碎片问题。**
     **方法区**：包含在元空间中。方法区存储：**类信息、静态（static）变量，常量（final），编译后的代码等数据**。是线程共享的。
     元空间内存管理由元空间虚拟机完成。
@@ -191,12 +191,12 @@ class B extends A{
 
 如果你自己写一个java.lang包，改写了String类，编译后发现没起作用。JRE不能被轻易篡改，否则可能会有安全问题。这就是类加载机制在起作用。
 **类加载机制流程**：
-![alt JVM-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-04.png)  
+![alt JVM-04](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-04.png)  
 
 **双亲委派机制**：当某个类加载器需要加载某个.class文件时，它首先把这个任务委托给他的上级类加载器，递归这个操作，如果上级的类加载器没有加载，才会去真正加载这个类。
 比如Object类，毫无疑问会交给最上层的类加载器加载，保证只有一个被加载的Object类。如果没有双亲委派机制，会有多个Object类，很混乱。
 类加载器运行有先后顺序的，下面是类加载器的种类：
-![alt JVM-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-05.png)  
+![alt JVM-05](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-05.png)  
 * BootstrapClassLoader（启动类加载器）：c++编写，加载java核心库 java.*,构造ExtClassLoader和AppClassLoader。由于引导类加载器涉及到虚拟机本地实现细节，开发者无法直接获取到启动类加载器的引用，所以不允许直接通过引用进行操作
 * ExtentionClassLoader （标准扩展类加载器）：java编写，加载扩展库，如classpath中的jre(lib/ext下jar包和.class)，javax.*和java.ext.dirs指定位置中的类，开发者可以直接使用标准扩展类加载器。
 * AppClassLoader（系统类加载器）：java编写，加载程序所在的目录，classpath位置下其他所有jar和.class。我们写的代码最先尝试使用这个进行加载，再通过双亲委派机制递归委托上级类加载器。
@@ -218,7 +218,7 @@ class B extends A{
 通过实现一个新的自定义类加载器。
 
 ### JVM的GC
-![alt JVM-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-web@master/cdn_sources/Blog_Images/JAVA/JVM/JVM-06.png)  
+![alt JVM-06](http://imgs.shmily-qjj.top/BlogImages/JAVA/JVM/JVM-06.png)  
 **GC Roots**：可达性分析法，是GC实现的一种方法(另一种是引用计数法)，GC Roots是一组活跃的引用，程序在接下来的运行中能直接或间接引用或能被引用的对象。从GC Roots不断向下追溯遍历，会产生Reference Chain引用链。GC Roots遍历过程是找出所有活对象，并把其余空间认定为无用，而不是找到死对象。如果一个对象连续两次遍历过程中跟GC Roots没有任何直接或间接引用，则会被GC掉。
 GC Roots包括：
 * 活动线程相关的各种引用

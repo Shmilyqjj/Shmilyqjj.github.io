@@ -15,7 +15,7 @@ tags:
 keywords: Debezium
 description: 常见实时同步方案对比
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Phoenix/Phoenix-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Phoenix/Phoenix-cover.jpg
 abbrlink: 15acb627
 date: 2020-02-27 11:26:08
 ---

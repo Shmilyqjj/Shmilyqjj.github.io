@@ -2,7 +2,7 @@
 title: 《鸟哥的Linux私房菜》读书笔记
 author: 佳境
 avatar: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Linux/Linux-ng-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Linux/Linux-ng-cover.jpg
 authorLink: shmily-qjj.top
 authorAbout: 你自以为的极限，只是别人的起点
 authorDesc: 你自以为的极限，只是别人的起点
@@ -15,7 +15,7 @@ tags:
 keywords: Kafka
 description: 每天与Linux打交道，要熟悉呦！
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kafka/Kafka-Cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Linux/Linux-ng-cover.jpg
 abbrlink: c8fda62b
 date: 2020-08-22 12:19:00
 ---

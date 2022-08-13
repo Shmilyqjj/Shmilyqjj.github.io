@@ -63,15 +63,15 @@ Alluxio 的落地非常依赖场景，否则优化效果并不明显（无法发
 <u>**[官方介绍的Alluxio应用场景](https://www.alluxio.io/use-cases/)**</u>  
 
 ### Alluxio原理    
-![alt Alluxio-7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-7.png)  
+![alt Alluxio-7](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-7.png)  
 如图，一个完整的Alluxio集群部署在逻辑上包括master、worker、client及底层存储(UFS)。master和worker进程通常由集群管理员维护和管理，它们通过RPC通信相互协作，从而构成了Alluxio服务端。而应用程序则通过Alluxio Client来和Alluxio服务交互，读写数据或操作文件、目录。  
 #### Alluxio核心组件  
 Alluxio使用了**单Master**和**多Worker**的架构,<u>Master和Worker一起组成了Alluxio的服务端，它们是系统管理员维护和管理的组件</u>,Client通常是应用程序，如Spark或MapReduce作业，或者Alluxio的命令行用户。Alluxio用户一般只与Alluxio的Client组件进行交互。  
 - - -
-![alt Alluxio-8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-8.png)
+![alt Alluxio-8](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-8.png)
 **Master:** 负责管理整个集群的全局元数据并响应Client对文件系统的请求。在Alluxio文件系统内部，每一个文件被划分为一个或多个数据块(block)，并以数据块为单位存储在Worker中。Master节点负责管理文件系统的元数据(如文件系统的inode树、文件到数据块的映射)、数据块的元数据(如block到Worker的位置映射)，以及Worker元数据(如集群当中每个Worker的状态)。所有Worker定期向Master发送心跳消息汇报自己状态，以维持参与服务的资格。Master通常不主动与其他组件通信，只通过RPC服务被动响应请求，同时Master还负责实时记录文件系统的日志(Journal)，以保证集群重启之后可以准确恢复文件系统的状态。Master分为Primary Master和Secondary Master，Secondary Master需要将文件系统日志写入持久化存储，从而实现在多Master（HA模式下）间共享日志，实现Master主从切换时可以恢复Master的状态信息。Alluxio集群中可以有多个Secondary Master，每个Secondary Master定期压缩文件系统日志并生成Checkpoint以便快速恢复，并在切换成Primary Master时读取之前Primary Master写入的日志。Secondary Master不处理任何Alluxio组件的任何请求。  
 - - -
-![alt Alluxio-9](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-9.png)
+![alt Alluxio-9](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-9.png)
 **Worker:** Alluxio Master只负责响应Client对文件系统元数据的操作，而具体文件数据传输的任务由Worker负责，如图，每个Worker负责管理分配给Alluxio的本地存储资源(如RAM,SSD,HDD),记录所有被管理的数据块的元数据，并根据Client对数据块的读写请求做出响应。Worker会把新的数据存储在本地存储，并响应未来的Client读请求，Client未命中本地资源时也可能从底层持久化存储系统中读数据并缓存至Worker本地。
 Worker代替Client在持久化存储上操作数据有两个好处:1.底层读取的数据可直接存储在Worker中，可立即供其他Client使用 2.Alluxio Worker的存在让Client不依赖底层存储的连接器，更加轻量化。
 Alluxio采取可配置的缓存策略，Worker空间满了的时候添加新数据块需要替换已有数据块，缓存策略来决定保留哪些数据块。  
@@ -188,7 +188,7 @@ __缓存回收:__ Alluxio中的数据是动态变化的,存储空间不足时会
 #### Alluxio元数据  
 1. <u>**Alluxio元数据的存储**</u>  
 在Alluxio新的2.x版本中，对元数据存储做了优化，使其能应对**数以亿级的元数据存储**。  
-![alt Alluxio-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-18.jpg)  
+![alt Alluxio-18](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-18.jpg)  
 首先，文件系统是**INode-Tree**组成的，即文件目录树，Alluxio Master管理多个底层存储系统的元数据，每个文件目录都是INode-Tree的节点，在Java对象中，可能一个目录信息本身占用空间不大，但映射在JavaHeap内存中，算上附加信息，每个文件大概要有1KB左右的元数据，如果有十亿个文件和路径，则要有约1TB的堆内存来存储元数据，完全是不现实的。  
 所以，为了方便管理元数据，减小因为元数据过多对Master性能造成的影响，**Alluxio的元数据通过RocksDB键值数据库来管理元数据**，**Master会Cache常用数据的元数据**，而**大部分元数据则存在RocksDB中**，这样大大减小了Master Heap的压力，降低OOM可能性，使Alluxio可以同时管理多个存储系统的元数据。  
 通过RocksDB的行锁，也可以方便高并发的操作Alluxio元数据。  
@@ -422,9 +422,9 @@ Alluxio提供审计日志来方便管理员可以追踪用户对元数据的访�
  bin/alluxio-stop.sh all  # 关闭集群
 ```  
 出现类似以下界面即为部署成功
-![alt Alluxio-4](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-4.jpg)  
+![alt Alluxio-4](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-4.jpg)  
 此时可以通过命令**alluxio fsdamin report**来查看集群状态
-![alt Alluxio-6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-6.jpg)  
+![alt Alluxio-6](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-6.jpg)  
 
 #### 高可用集群参数配置  
 高可用(HA)通过支持同时运行多个master来保证服务的高可用性，多个master中有一个master被选为primary master作为所有worker和client的通信首选，其余master为备选状态(StandBy)，它们通过和primary master共享日志来维护同样的文件系统元数据，并在primary master失效时迅速接替其工作(master主从切换过程中，客户端可能会出现短暂的延迟或瞬态错误)  
@@ -664,7 +664,7 @@ Alluxio常用Shell命令速查表:
 
 
 ### Alluxio WEB UI介绍及使用  
-![alt Alluxio-5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-5.png)
+![alt Alluxio-5](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-5.png)
 Alluxio master提供了Web界面以便用户管理  
 Alluxio master Web界面的默认端口是19999:访问 http://MASTER IP:19999 即可查看  
 Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 即可查看  
@@ -747,11 +747,11 @@ Alluxio worker Web界面的默认端口是30000:访问 http://WORKER IP:30000 �
       integration/checker/bin/alluxio-checker.sh hive -hiveurl [HIVE_URL]
    ```
    注:CM集群设置Hive连接Alluxio Client的方式:
-    ![alt Alluxio-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-10.png)
+    ![alt Alluxio-10](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-10.png)
 3. 排坑:  
     安全认证问题:
-    ![alt Alluxio-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-11.png)
-    ![alt Alluxio-12](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-12.png)
+    ![alt Alluxio-11](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-11.png)
+    ![alt Alluxio-12](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-12.png)
     alluxio-site.properties中添加要模拟的用户:
     ```bash  
       alluxio.master.security.impersonation.hive.users=*
@@ -839,14 +839,14 @@ df.format.parquet("alluxio://xxxxx")
 #### 使用官方提供的沙箱
 申请官方测试沙箱Sandbox：**[ALLUXIO SANDBOX](https://www.alluxio.io/sandbox-request/)**  
 申请成功后，按照邮件的指引操作，注意，<u>bin/sandbox setup &</u>的过程中千万不要Ctrl+C中止,部署完成状态如下图：  
-![alt Alluxio-13](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-13.png)  
+![alt Alluxio-13](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-13.png)  
 
 运行基准测试（TPC-DS），耐心等待后的测试结果：  
 已安装TPC-DS基准套件，用于运行性能测试。Spark已安装为TPC-DS用来将其作业发送到的计算框架。TPC-DS的比例因子为100，这与26GB的数据集大小相关。由索引单独标识的基准按不同的使用方案分组，并且将结果报告为每个方案的汇总。  
-![alt Alluxio-14](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-14.jpg)  
-![alt Alluxio-15](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-15.jpg)  
-![alt Alluxio-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-16.jpg)  
-![alt Alluxio-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Alluxio/Alluxio-17.jpg)  
+![alt Alluxio-14](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-14.jpg)  
+![alt Alluxio-15](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-15.jpg)  
+![alt Alluxio-16](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-16.jpg)  
+![alt Alluxio-17](http://imgs.shmily-qjj.top/BlogImages/Alluxio/Alluxio-17.jpg)  
 其中 w/o是without，即只是用S3为直接底层存储的情况；w/是with，即使用了Alluxio作为中间件下的性能  
 从图中测试结果可以看出,当计算数据存储在公有云虚拟机实例中时，Alluxio作为存储与计算框架的中间件，能够有1.5-3倍左右的性能提升  
 受到各方面限制，以上测试结果并非Alluxio的最佳预期。[其他人的试过程](https://www.cnblogs.com/seaspring/p/6186357.html)

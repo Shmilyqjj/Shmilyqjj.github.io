@@ -16,7 +16,7 @@ tags:
 keywords: 监控大盘
 description: 实现对线上Spark应用的实时指标监控
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Zeppelin/Zeppelin-cover.jpg
 date: 2021-04-20 11:54:00
 ---
 # Spark应用程序指标监控大盘
@@ -70,4 +70,4 @@ http://www.hammerlab.org/2015/02/27/monitoring-spark-with-graphite-and-grafana/
 ### Graphite
 https://blog.csdn.net/hffyyg/article/details/87900613
 
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-02.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Zeppelin/Zeppelin-02.png)  

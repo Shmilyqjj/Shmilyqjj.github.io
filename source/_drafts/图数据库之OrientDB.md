@@ -14,7 +14,7 @@ tags:
 keywords: OrientDB
 description: 图数据库之OrientDB
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/OrientDB/OrientDB-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/OrientDB/OrientDB-cover.jpg
 date: 2020-09-21 10:16:00
 ---
 # 图数据库简介  
@@ -76,7 +76,7 @@ Relationships:类似于关系型数据库的Join，但OrientDB不用Join，而�
 <!-- ### 缺点 -->
 
 ## OrientDB原理
-![alt OrientDB-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/OrientDB/OrientDB-01.png)  
+![alt OrientDB-01](http://imgs.shmily-qjj.top/BlogImages/OrientDB/OrientDB-01.png)  
 
 ## OrientDB使用  
 

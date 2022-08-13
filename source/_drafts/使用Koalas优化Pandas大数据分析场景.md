@@ -15,7 +15,7 @@ tags:
 keywords: Koalas Pandas
 description: 零学习成本加速Pandas大数据分析
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/Koalas/Koalas-cover.png
+  http://imgs.shmily-qjj.top/BlogImages/Spark/Koalas/Koalas-cover.png
 date: 2020-09-08 20:05:00
 ---
 # Koalas
@@ -29,9 +29,9 @@ date: 2020-09-08 20:05:00
 ```shell
 pip install koalas -i https://pypi.douban.com/simple/
 ```
-![alt Koalas-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/Koalas/Koalas-01.png)   
+![alt Koalas-01](http://imgs.shmily-qjj.top/BlogImages/Spark/Koalas/Koalas-01.png)   
 Lastly, if your PyArrow version is 0.15+ and your PySpark version is lower than 3.0, it is best for you to set ARROW_PRE_0_15_IPC_FORMAT environment variable to 1 manually.
-![alt Koalas-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/Koalas/Koalas-02.jpg)   
+![alt Koalas-02](http://imgs.shmily-qjj.top/BlogImages/Spark/Koalas/Koalas-02.jpg)   
 
 ## 使用Koalas
 导入Koalas，Pandas和PySpark，三者可结合使用，所以将三者同时导入

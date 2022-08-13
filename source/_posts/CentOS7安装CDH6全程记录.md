@@ -15,7 +15,7 @@ tags:
 keywords: CDH6+CentOS7
 description: CDH6+CentOS7安装过程与排坑
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-intro.jpg
+  http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-intro.jpg
 abbrlink: 38328
 date: 2019-10-29 10:50:40
 ---
@@ -34,7 +34,7 @@ CM的主要功能：
 总结一下就是：方便搭建和运维，提供全面监控
 
 ## CDH架构
-![alt CDH-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-01.jpg) 
+![alt CDH-01](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-01.jpg) 
 CDH的组件：
  * Agent：在每台机器上安装，该代理程序负责启动和停止服务和角色的过程，拆包配置，触发装置和监控主机。
  * Management Service：负责执行各种监控，警报和报告功能角色等服务。
@@ -101,25 +101,25 @@ CentOS 7
 * 使用VMWare
  采用NAT格式网卡,按如下配置  
  虚拟网卡设置（编辑-虚拟网络编辑器）  
- ![alt CDH-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.jpg)  
+ ![alt CDH-02](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-02.jpg)  
  点击NAT设置:  
- ![alt CDH-2.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-02.5.jpg) 
+ ![alt CDH-2.5](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-02.5.jpg) 
  点击DHCP设置:  
- ![alt CDH-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.jpg)  
+ ![alt CDH-03](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-03.jpg)  
  以后我们的虚拟机都使用NAT网卡  
  **安装CentOS7**  
  文件->新建虚拟机->选择自定义(高级)->下一步->下一步->**稍后安装操作系统**->选择Linux/CentOS7 64位->下一步->虚拟机名称CDH066->下一步  
  ->根据自己电脑设置核心数->下一步->虚拟机内存5120MB->网络类型选NAT->下一步...->磁盘分配80GB->下一步->下一步->自定义硬件->选择CentOS7的安装镜像,如图:  
- ![alt CDH-03.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-03.5.jpg)  
+ ![alt CDH-03.5](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-03.5.jpg)  
  关闭->完成->开启此虚拟机 
  开始安装  
- ![alt CDH-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-04.jpg)  
+ ![alt CDH-04](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-04.jpg)  
  安装Minimal版的CentOS，感觉很清爽！但是后续需要自己手动装一些依赖包，不过这样也好，可以避免安装过多无用的依赖。时区选择ShangHai。  
 
  此步骤时指定root密码123456  
  安装时指定一个管理员用户shmily 密码123456  
- ![alt CDH-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.jpg)  
- ![alt CDH-05.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.5.jpg)  
+ ![alt CDH-05](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.jpg)  
+ ![alt CDH-05.5](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.5.jpg)  
 
 * 使用Hyper-V（推荐）
  在Hyper-V管理器中的虚拟交换机管理器新建内部网络，然后如果要指定IP，需要去电脑的网络设置IPV4，然后设置把Wifi网络共享给这个网卡。
@@ -132,10 +132,10 @@ CentOS 7
  DNS2=192.168.x.2
  ........
  我的设置如图：
- ![alt CDH-05.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.6.JPG)  
- ![alt CDH-05.7](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.7.JPG)  
- ![alt CDH-05.8](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.8.JPG)  
- ![alt CDH-05.9](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-05.9.JPG)  
+ ![alt CDH-05.6](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.6.JPG)  
+ ![alt CDH-05.7](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.7.JPG)  
+ ![alt CDH-05.8](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.8.JPG)  
+ ![alt CDH-05.9](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-05.9.JPG)  
 
 
 安装完成后Reboot，按步骤进行如下配置  
@@ -204,16 +204,16 @@ SecureCRT创建New Session -> SSH2 -> Hostname是CDH066 username是root
 192.168.1.69 cdh069
 
 重新用SecureCRT连接出现如下图:
-![alt CDH-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-06.jpg)  
+![alt CDH-06](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-06.jpg)  
 Accept & Save,输入密码并勾选Save password  
 完成  
 FileZilla也能连接了:  
-![alt CDH-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-07.jpg)  
+![alt CDH-07](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-07.jpg)  
 
 检查一下网络:  
 ping 8.8.8.8  
 能ping通即可进行下一步，如果ping不通，需要仔细检查网络配置文件:  
-![alt CDH-08](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.jpg)  
+![alt CDH-08](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-08.jpg)  
 
 安装python:  
 CentOS7 Minimal默认带Python2.7.5版本，已经满足需求，为了开发方便，还是安装个ipython吧  
@@ -252,7 +252,7 @@ yum install nload
 去Oracle官网下载1.8版本8u181的安装包[JDK 1.8历史版本下载](https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase8-2177648.html)  
 如果安装最新版本，后续CDH安装服务会无法启动，遇到各种问题。  
 要明确CDH6.3支持的JDK版本：  
-![alt CDH-25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-25.JPG)  
+![alt CDH-25](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-25.JPG)  
 
 这里注意，JDK目录一定是/usr/java/jdk_1.8.x_xx，这样CM服务才能检测到JDK，否则服务无法启动  
 ```shell
@@ -326,7 +326,7 @@ set global validate_password_policy=LOW;
 set global validate_password_length=6;
 ```
 
-![alt CDH-08.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-08.6.jpg)  
+![alt CDH-08.6](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-08.6.jpg)  
 如图安装完成，接着我们对其进行一些配置  
 ```shell
  systemctl start mysqld.service
@@ -406,7 +406,7 @@ mysql -hlocalhost -P3306 -uroot  -p123456
 show variables like "%character%";  
 show variables like "%collation%";
 如图即为配置成功  
-![alt CDH-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.jpg)  
+![alt CDH-09](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-09.jpg)  
 
 创建CM的数据库并增加数据库所属用户的远程登陆权限：  
 ```shell
@@ -448,17 +448,17 @@ FLUSH PRIVILEGES;
 ```  
 关于如何查看和修改用户的远程登录权限：  
 select user,host from mysql.user;
-![alt CDH-09.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.5.jpg)  
+![alt CDH-09.5](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-09.5.jpg)  
 host字段为%的则是允许远程登录的用户，是localhost的只能本地登录  
 所以想给远程某台机器开通远程访问某个用户的权限： update mysql.user set host='CDH066' where user='root';  
 或者想给某个用户所有局域网内机器的访问权限： update mysql.user set host='%' where user='root';  
 然后重启服务或者刷新配置就可以通过mysql -hCDH066 -uroot -p123456来登录了  
 远程其他节点可以通过制定-h来访问非root用户的mysql  
-![alt CDH-09.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-09.6.jpg) 
+![alt CDH-09.6](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-09.6.jpg) 
 
 Mysql JDBC库配置：  
 右键 链接另存为 进行下载  
-**[下载mysql-connector-java-5.1.47-bin.jar](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
+**[下载mysql-connector-java-5.1.47-bin.jar](http://imgs.shmily-qjj.top/BlogImages/CDH/mysql-connector-java-5.1.47-bin.jar)**，将mysql-connector-java-5.1.47-bin.jar文件上传到CDH066节点上的/usr/share/java/目录下并重命名为mysql-connector-java.jar（如果/usr/share/java/目录不存在，需要手动创建）  
 
 系统文件描述符限制修改
 vi /etc/security/limits.conf
@@ -470,7 +470,7 @@ vi /etc/security/limits.conf
 * soft memlock unlimited
 * hard memlock unlimited
 ```  
-![alt CDH-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-10.jpg)  
+![alt CDH-10](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-10.jpg)  
 
 好玩的screenfetch(可选，用来娱乐...)  
 ```bash
@@ -479,7 +479,7 @@ vi /etc/security/limits.conf
  cp screenFetch/screenfetch-dev /usr/local/bin/screenfetch
  chmod 777 /usr/local/bin/screenfetch
 ```
-![alt CDH-11](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-11.jpg)  
+![alt CDH-11](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-11.jpg)  
 
 更多安全与防火墙配置参考[安全与防火墙配置](https://blog.csdn.net/thinktik/article/details/81046318)  
 有关linux用户和组的详细文章:[Linux用户和组](https://www.cnblogs.com/pengyunjing/p/8543026.html)  
@@ -537,7 +537,7 @@ vim /etc/sysconfig/network-scripts/ifcfg-ens33
 删除UUID和HWADDR  
 IPADDR重新分配为192.168.1.67  
 修改后如图  
-![alt CDH-12](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-12.jpg)  
+![alt CDH-12](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-12.jpg)  
 
 vi /etc/sysconfig/network  
 NETWORKING=yes  
@@ -586,7 +586,7 @@ ssh-copy-id cdh068   建立 cdh069 -> cdh068单向免密
 ssh-copy-id cdh069   建立 cdh069自身免密  
 
 测试都能免密登录:  
-![alt CDH-13](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-13.jpg)  
+![alt CDH-13](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-13.jpg)  
 至此免密登录配置完成  
 
 ### 四.CDH6安装   
@@ -629,7 +629,7 @@ type=rpm-md
 ```  
 制作本地源后[http://cdh066/cloudera-repos/](http://cdh066/cloudera-repos/)这个链接可以访问到源的文件  
 我们搭建的本地源，后面会用到  
-![alt CDH-14](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-14.jpg)  
+![alt CDH-14](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-14.jpg)  
 
 安装Cloudera Manager组件:  
 ```shell
@@ -655,51 +655,51 @@ chown -R cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
 
 systemctl start cloudera-scm-server.service    # 启动CM服务  
 systemctl status cloudera-scm-server.service   # 查看启动状态
-![alt CDH-15](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-15.jpg)  
+![alt CDH-15](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-15.jpg)  
 
 等待几分钟后访问**http://cdh066:7180**，默认帐号密码都是**admin**  
-![alt CDH-16](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-16.jpg)  
+![alt CDH-16](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-16.jpg)  
 
 这里选择免费版本
-![alt CDH-17](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-17.jpg)  
+![alt CDH-17](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-17.jpg)  
 
 下面就是群集安装的步骤：  
 主机名称填写cdh066,cdh067,cdh068,cdh069，然后点击搜索搜索
-![alt CDH-18](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-18.JPG)  
+![alt CDH-18](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-18.JPG)  
 这里搜到了67，68，69节点，但是66节点是灰色的，安装时，66节点不会被安装Agent，意味着后续安装的组件只能部署在67，68，69节点上运行，不过没有关系，可以在添加组件的步骤之前新开个页面将cdh066也加进去。  
 
 这步使用我们搭建的本地源 **http://cdh066/cloudera-repos/**  如下设置  
-![alt CDH-19](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-19.JPG)  
+![alt CDH-19](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-19.JPG)  
 若继续按钮仍为灰色，可以点击更多选项，将所有外部源的链接全部删掉，增加本地parcel源地址，保存更改。
 
 这步**不要勾选**
-![alt CDH-20](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-20.JPG)  
+![alt CDH-20](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-20.JPG)  
 
 填入root用户的密码  
-![alt CDH-21](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-21.JPG)  
+![alt CDH-21](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-21.JPG)  
 
 这步耐心等待，**不要手动刷新**  
-![alt CDH-22](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.JPG)  
+![alt CDH-22](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.JPG)  
 
-![alt CDH-22.25](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.25.JPG)  
+![alt CDH-22.25](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.25.JPG)  
 
 这步勾选最后一项  
-![alt CDH-22.3](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.3.JPG)  
+![alt CDH-22.3](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.3.JPG)  
 企业安装时，最好先Inspect Hosts，验证节点是否有配置不当的地方，避免影响稳定性。针对Inspect Hosts的结果，可以一条一条优化集群配置。
 
 开始安装服务 如图，选**自定义服务**  
 根据集群环境和需求选择合适的服务和搭配。  
-![alt CDH-22.4](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.4.JPG)  
-![alt CDH-22.5](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.5.JPG)   
+![alt CDH-22.4](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.4.JPG)  
+![alt CDH-22.5](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.5.JPG)   
 
 填上之前建的数据库，选的服务不同要求也不同  
-![alt CDH-22.6](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-22.6.JPG)  
+![alt CDH-22.6](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-22.6.JPG)  
 
 最后部署成功，启动服务：  
 因为我虚拟机搭建，物理机本身配置就很差，有内存不足和请求延迟高的问题，所以，虽然服务都能正常打开，跑一两个小的计算任务也还能勉强承受，但CDH都会报警告，大多都是提示分配内存低了，请求延迟高了，内存不足等信息。  
-![alt CDH-24](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-24.JPG)  
+![alt CDH-24](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-24.JPG)  
 后续文章更新内容采用新电脑64GB内存i7-9750h物理机环境，能正常运行CDH服务：
-![alt CDH-31](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-31.JPG)  
+![alt CDH-31](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-31.JPG)  
 
 ClockOffset的报警：
 集群全红，提示ClockOffset 未检测到ntpd服务。这个时候就需要配置NTP时间同步服务，重新参考之前NTP时钟同步的配置。
@@ -722,12 +722,12 @@ manifest.json
 将FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel和FLINK-1.9.0-csa1.0.0.0-cdh6.3.0-el7.parcel.sha放入/opt/cloudera/parcel-repo中
 然后重启Cloudera Manager Server服务：sudo systemctl restart cloudera-scm-server
 重启完成后进入页面，主机->Parcel->检查新Parcel->找到Flink->分配
-![alt CDH-27](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-27.JPG)  
-![alt CDH-26](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-26.JPG)  
+![alt CDH-27](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-27.JPG)  
+![alt CDH-26](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-26.JPG)  
 完成分配后开始添加服务：
-![alt CDH-28](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-28.JPG)  
-![alt CDH-29](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-29.JPG)  
-![alt CDH-30](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/CDH/CDH-30.JPG)  
+![alt CDH-28](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-28.JPG)  
+![alt CDH-29](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-29.JPG)  
+![alt CDH-30](http://imgs.shmily-qjj.top/BlogImages/CDH/CDH-30.JPG)  
 
 Flink1.9.0版本比较老，对Hive的兼容不是很友好，可以参考：https://blog.csdn.net/qq_31454379/article/details/110440037 安装Flink官方1.12版本
 

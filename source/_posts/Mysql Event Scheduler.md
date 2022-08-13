@@ -14,7 +14,7 @@ tags:
 keywords: 事件调度器
 description: Mysql事件调度器
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Mysql/MYSQL-event-scheduler-intro.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-event-scheduler-intro.jpg
 abbrlink: 3c26421b
 date: 2019-11-15 21:25:04
 ---

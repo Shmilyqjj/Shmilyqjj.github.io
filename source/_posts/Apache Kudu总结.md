@@ -17,7 +17,7 @@ keywords:
   - Kudu 
 description: Fast Analytics on Fast Data.
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png
+  http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-cover.png
 abbrlink: 5f26355
 date: 2020-07-05 12:26:08
 ---
@@ -28,14 +28,14 @@ date: 2020-07-05 12:26:08
 ## Kudu介绍  
   <font size="3" color="red">**在Kudu出现前，无法对实时变化的数据做快速分析：**</font>
   
-  ![alt Kudu-01](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-01.png)   
+  ![alt Kudu-01](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-01.png)   
   以上设计方案的缺陷：
   1.数据存储多份造成冗余，存储资源浪费。
   2.架构复杂，运维成本高，排查问题困难。
   而Kudu就融合了动态数据与静态数据的处理，同时支持随机读写和OLAP分析。
  
   <font size="3" color="red">**Kudu与HDFS,HBase的对比：**</font>
-  ![alt Kudu-02](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-02.JPG)  
+  ![alt Kudu-02](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-02.JPG)  
 
 ### 适用场景  
 * 既有随机读写随机访问，又有批量扫描分析的场景(OLAP)
@@ -164,7 +164,7 @@ Kudu为用户提供了两种一致性模型(snapshot consistency和external cons
 &emsp;&emsp;编码对于列式存储的优化更加明显，编码和压缩作用相同，比如上面的例子，编码会将数据的值转换为一种更小的表现形式，比如，“美国”编码为1，“日本”编码为2，“韩国”编码为3，“加拿大”编码为4...则Kudu只存储1，2，3，4...而不存储长字符串，占用空间大大减少。
 
 ### Kudu一些概念  
-![alt Kudu-03](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-03.png)   
+![alt Kudu-03](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-03.png)   
 
 **Table：**具有Schema和全局有序主键的表。一张表有多个Tablet，多个Tablet包含表的全部数据。
 **Tablet：**Kudu的表Table被水平分割为多段，Tablet是Kudu表的一个片段（分区），每个Tablet存储一段连续范围的数据（会记录开始Key和结束Key），且两个Tablet间不会有重复范围的数据。一个Tablet会复制（逻辑复制而非物理复制，副本中的内容不是实际的数据，而是操作该副本上的数据时对应的更改信息）多个副本在多台TServer上，其中一个副本为Leader Tablet，其他则为Follower Tablet。只有Leader Tablet响应写请求，任何Tablet副本可以响应读请求。
@@ -176,8 +176,8 @@ Kudu为用户提供了两种一致性模型(snapshot consistency和external cons
 
 ### 存储与读写
 **Kudu的存储结构：**
-![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.jpg)  
-![alt Kudu-04](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-04.png)  
+![alt Kudu-04](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-04.jpg)  
+![alt Kudu-04](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-04.png)  
 &emsp;&emsp;如图，Table分为若干Tablet；Tablet包含Metadata和RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、AdhocIndex、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
 &emsp;&emsp;**MemRowSet：**插入新数据及更新已在MemRowSet中的数据，数据结构是B+树，主键在非叶子节点，数据都在叶子节点。MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次达到1G或者120s时生成一个DiskRowSet，DiskRowSet按列存储，类似Parquet。
 &emsp;&emsp;**DiskRowSet：**DiskRowSets存储文件格式为CFile。DiskRowSet分为BaseData和DeltaFile。这里每个Column被存储在一个相邻的数据区域，这个数据区域被分为多个小的Page，每个Column Page都可以使用一些Encoding以及Compression算法。后台会定期对DiskRowSet做Compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。
@@ -195,15 +195,15 @@ Kudu为用户提供了两种一致性模型(snapshot consistency和external cons
 补充一下：合并和重写BaseData是成本很高的，会产生大量IO操作，Kudu不会将全部DeltaFile合并进BaseData。如果只更新几行数据，但要重写BaseData，费力不讨好，所以Kudu会在某个特定列需要大量更新时再把BaseData与DeltaFile合并。未合并的RedoFile会继续保留等待后续合并操作。
 
 **Kudu读流程：**
-![alt Kudu-06](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-06.png)  
+![alt Kudu-06](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-06.png)  
 1. Client发送读请求，Master根据主键范围确定到包含所需数据的所有Tablet位置和信息。
 2. Client找到所需Tablet所在TServer，TServer接受读请求。
 3. 如果要读取的数据位于内存，先从内存（MemRowSet，DeltaMemStore）读取数据，根据读取请求包含的时间戳前提交的更新合并成最终数据。
 4. 如果要读取的数据位于磁盘（DiskRowSet，DeltaFile），在DeltaFile的UndoFile、RedoFile中找目标数据相关的改动，根据读取请求包含的时间戳合并成最新数据并返回。
 
 **Kudu写流程：**
-![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.jpg)  
-![alt Kudu-05](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-05.png)  
+![alt Kudu-05](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-05.jpg)  
+![alt Kudu-05](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-05.png)  
 1. Client向Master发起写请求，Master找到对应的Tablet元数据信息，检查请求数据是否符合表结构。
 2. 因为Kudu不允许有主键重复的记录，所以需要判断主键是否已经存在，先查询主键范围，如果不在范围内则准备写MemRowSet。
 3. 如果在主键范围内，先通过主键Key的布隆过滤器快速模糊查找，未命中则准备写MemRowSet。
@@ -269,8 +269,8 @@ TServer数量 = (60 * 3) / (8 * (1 - 0.25)) = 30
 
 ### 存储介质
 &emsp;&emsp;在CM部署Master和TServer时，我们可以看到如下配置：
-![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.png)  
-![alt Kudu-07](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-07.jpg)  
+![alt Kudu-07](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-07.png)  
+![alt Kudu-07](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-07.jpg)  
 &emsp;&emsp;**Kudu设计时就对数据和WAL分开存储的，为什么呢？**
 &emsp;&emsp;之前说过WAL仅支持追加写，单个操作乍一看会顺序写WAL，但同时执行多个任务时，更像是随机写WAL，这就很考验WAL底层存储的IOPS(IO Per Second)了。传统机械盘IOPS也就几百，而NVMe-SSD的IOPS能达到万级甚至百万级，所以Kudu WAL尽量存储在SSD中。
 &emsp;&emsp;**那WAL的SSD盘大概要选多大呢？**
@@ -285,7 +285,7 @@ Kudu的WAL日志是可以控制大小，日志段数量的。
 环境：
 四台机器CDH6.3.1集群，6核心12线程，内存分别为：20GB，14GB，14GB和10GB。
 **OS:**CentOS7;**Impala:**3.2.0-cdh6.3.1;**Kudu:**1.10.0-cdh6.3.1(3Master+3TServer);**Hive:**2.1.1-cdh6.3.1;
-![alt Kudu-08](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-08.jpg)  
+![alt Kudu-08](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-08.jpg)  
 依次启动HDFS、hive、Kudu、Impala。
 
 ### Kudu + Impala
@@ -317,7 +317,7 @@ kudu table list cdh102:7051,cdh103:7051,cdh104:7051
 kudu table list cdh102:7051,cdh103:7051,cdh104:7051 --list_tablets
 ```
 在WebUI上可以看到该表对应8个Tablet以及每个Tablet信息。
-![alt Kudu-09](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-09.jpg)  
+![alt Kudu-09](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-09.jpg)  
 
 **2.使用Impala创建RANGE分区的Kudu表**
 
@@ -943,7 +943,7 @@ result = scanner.open().read_all_tuples()
 解决：需要本地解析ip对应的host，修改本地host，增加Master节点的host映射即可解决。
 
 4.Impala 查询Kudu报Error loading metadata for kudu table xxx 如下：
-![alt Kudu-10](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-10.png)
+![alt Kudu-10](http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-10.png)
 原因：Impala操作Kudu超时
 解决：在Impala设置kudu_operation_timeout_ms = 1800000
 

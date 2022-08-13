@@ -15,7 +15,7 @@ tags:
 keywords: Spark
 description: Spark调优大全+对应源码解析
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-cover.jpg
+  http://imgs.shmily-qjj.top/BlogImages/Zeppelin/Zeppelin-cover.jpg
 abbrlink: 76b6ca9d
 date: 2020-03-11 10:16:00
 ---
@@ -49,4 +49,4 @@ https://blog.csdn.net/u013332124/article/details/90677676  （SparkAE）
 
 ## Spark源码级别调优
 
-![alt](https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Zeppelin/Zeppelin-02.png)  
+![alt](http://imgs.shmily-qjj.top/BlogImages/Zeppelin/Zeppelin-02.png)  
