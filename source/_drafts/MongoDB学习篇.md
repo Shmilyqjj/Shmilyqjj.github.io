@@ -15,7 +15,7 @@ tags:
 keywords: MongoDB
 description: MongoDB基础学习
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
 abbrlink: 26078
 date: 2019-09-21 22:16:00
 ---

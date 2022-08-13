@@ -16,7 +16,7 @@ tags:
 keywords: Catalyst
 description: 通过源码，深入了解Catalyst模块
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
 date: 2021-11-20 15:13:21
 ---
 # 深入理解SparkSQL-Catalyst模块   

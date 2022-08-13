@@ -14,7 +14,7 @@ tags:
 keywords: Alluxio
 description: Alluxio干货分享
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech05.jpg
+  http://imgs.shmily-qjj.top/CategoryImages/technology/tech05.jpg
 abbrlink: 44511
 date: 2020-01-01 22:16:00
 ---

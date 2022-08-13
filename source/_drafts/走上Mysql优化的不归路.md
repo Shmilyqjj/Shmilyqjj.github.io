@@ -14,7 +14,7 @@ tags:
 keywords: Mysql优化
 description: Mysql基准测试，服务器性能，Schema与数据类型的优化
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
 abbrlink: 26078
 date: 2019-11-15 21:39:39
 ---

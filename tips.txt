@@ -47,7 +47,7 @@ lymtics，可以是英文句子LoveyoumorethanIcansay的首字母缩写
   绝对路径 /img/cover/(0).jpg.webp
   大图尽量采用webp的格式，兼顾清晰度和更少的网络传输（博文封面等不支持webp格式的，统一使用jpg）
   博文内容图片:http://imgs.shmily-qjj.top/BlogImages/....        （jpg only）
-  博文分类封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/....    （jpg only）
+  博文分类封面:http://imgs.shmily-qjj.top/CategoryImages/....    （jpg only）
   博文标签封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Tags_Images/....        （jpg only）
   主页横幅图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/....          （webp only）
 4.图床工具托管图片 PicGo 

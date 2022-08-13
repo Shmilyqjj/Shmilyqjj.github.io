@@ -16,7 +16,7 @@ tags:
 keywords: 血缘
 description: 表级血缘解析及原理
 photos: >-
-  https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Category_Images/technology/tech06.jpg
+  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
 date: 2020-10-21 12:16:00
 ---
 # 大标题  
