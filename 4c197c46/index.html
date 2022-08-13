@@ -656,6 +656,110 @@ connection-url=jdbc:mysql://cdh102:3306
 connection-user=root
 connection-password=123456</code></pre>
 <h3 id="Presto-On-Yarn部署"><a href="#Presto-On-Yarn部署" class="headerlink" title="Presto On Yarn部署"></a>Presto On Yarn部署</h3><pre><code class="text">待补充</code></pre>
+<h3 id="Presto-On-kerberized-Hive"><a href="#Presto-On-kerberized-Hive" class="headerlink" title="Presto On kerberized Hive"></a>Presto On kerberized Hive</h3><p>Hive集群是Kerberos认证的安全集群,Presto Hive插件需要设置kerberos以及sasl相关属性,否则会报如下错误</p>
+<pre><code class="text">-执行 ./presto --debug --execute &#39;show schemas&#39; --server presto-server:8080 --catalog hive
+Caused by: org.apache.thrift.transport.TTransportException: hms:9083: null
+        at com.facebook.presto.hive.metastore.thrift.Transport.rewriteException(Transport.java:92)
+        at com.facebook.presto.hive.metastore.thrift.Transport.access$000(Transport.java:32)
+        at com.facebook.presto.hive.metastore.thrift.Transport$TTransportWrapper.readAll(Transport.java:169)
+        at org.apache.thrift.protocol.TBinaryProtocol.readStringBody(TBinaryProtocol.java:380)
+        at org.apache.thrift.protocol.TBinaryProtocol.readMessageBegin(TBinaryProtocol.java:230)
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:77)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_all_databases(ThriftHiveMetastore.java:1187)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_all_databases(ThriftHiveMetastore.java:1175)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastoreClient.getAllDatabases(ThriftHiveMetastoreClient.java:89)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.getMetastoreClientThenCall(ThriftHiveMetastore.java:1068)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.lambda$getAllDatabases$0(ThriftHiveMetastore.java:219)
+        at com.facebook.presto.hive.metastore.thrift.HiveMetastoreApiStats.lambda$wrap$0(HiveMetastoreApiStats.java:48)
+        at com.facebook.presto.hive.RetryDriver.run(RetryDriver.java:139)
+        at com.facebook.presto.hive.metastore.thrift.ThriftHiveMetastore.getAllDatabases(ThriftHiveMetastore.java:218)
+        ... 57 more
+        Suppressed: org.apache.thrift.transport.TTransportException: hms:9083: null
+                ... 71 more
+        Caused by: org.apache.thrift.transport.TTransportException
+                at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:132)
+                at org.apache.thrift.transport.TTransport.readAll(TTransport.java:86)
+                at com.facebook.presto.hive.metastore.thrift.Transport$TTransportWrapper.readAll(Transport.java:166)
+                ... 68 more</code></pre>
+<p>参考:<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/connector/hive-security.html">Presto hive-security</a><br>Presto默认没有使用权限认证,所有Query都是以运行PrestoServer进程的用户身份提交的.Presto Hive Plugin支持连接Kerberos集群以扩展权限管理,对数据做访问权限控制.集成Kerberos后,Presto可以模拟执行Query的用户来访问数据,数据权限得到控制.<br>vim etc/catalog/hive.properties 添加kerberos相关参数,并重启PrestoServers</p>
+<pre><code class="properties">connector.name=hive-hadoop2
+hive.metastore.uri=thrift://metastoreIP:9083
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.service.principal=hive/metastoreIP@REALM.COM
+hive.metastore.client.principal=hive/prestoServerIp@REALM.COM
+hive.metastore.client.keytab=/opt/keytabs/hive.keytab
+hive.hdfs.authentication.type=KERBEROS
+hive.hdfs.impersonation.enabled=true
+hive.hdfs.presto.principal=hive/prestoServerIp@REALM.COM
+hive.hdfs.presto.keytab=/opt/keytabs/hive.keytab</code></pre>
+<p>错误与异常排查解决:<br>在使用OSS存储的Hive集群使用Presto报错</p>
+<pre><code class="err">Query 20220808_061604_00004_dp628 failed: java.lang.ClassNotFoundException: Class com.aliyun.jindodata.oss.JindoOssFileSystem not found
+Query 20220809_023611_00025_43gsw failed: java.lang.NoClassDefFoundError: com/aliyun/jindodata/api/spec/JdoException</code></pre>
+<p>解决:<br>拷贝jindo-sdk-4.4.1.jar和jindo-core-4.4.1.jar到$PRESTO_HOME/plugin/hive-hadoop2/</p>
+<p>presto:db_name&gt; select * from table_name limit 1;<br>Query 20220808_061604_00004_dp628, FAILED, 1 node<br>Splits: 17 total, 0 done (0.00%)<br>0:01 [0 rows, 0B] [0 rows/s, 0B/s]<br>查看Presto WebUI发现如下报错:</p>
+<pre><code class="err">com.facebook.presto.spi.PrestoException: For input string: &quot;30s&quot;
+    at com.facebook.presto.hive.BackgroundHiveSplitLoader$HiveSplitLoaderTask.process(BackgroundHiveSplitLoader.java:128)
+    at com.facebook.presto.hive.util.ResumableTasks.safeProcessTask(ResumableTasks.java:47)
+    at com.facebook.presto.hive.util.ResumableTasks.access$000(ResumableTasks.java:20)
+    at com.facebook.presto.hive.util.ResumableTasks$1.run(ResumableTasks.java:35)
+    at com.facebook.airlift.concurrent.BoundedExecutor.drainQueue(BoundedExecutor.java:78)
+    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+    at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.NumberFormatException: For input string: &quot;30s&quot;
+    at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+    at java.lang.Long.parseLong(Long.java:589)
+    at java.lang.Long.parseLong(Long.java:631)
+    at org.apache.hadoop.conf.Configuration.getLong(Configuration.java:1311)
+    at org.apache.hadoop.hdfs.DFSClient$Conf.&lt;init&gt;(DFSClient.java:502)</code></pre>
+<p>检查hive.config.resources中的hdfs-site.xml等文件,发现dfs.client.datanode-restart.timeout等配置参数值为30s,修改为30并重启PrestoServer即可.</p>
+<h3 id="Presto-On-Iceberg"><a href="#Presto-On-Iceberg" class="headerlink" title="Presto On Iceberg"></a>Presto On Iceberg</h3><p>Presto兼容Iceberg,参考<a target="_blank" rel="noopener" href="https://prestodb.io/docs/current/connector/iceberg.html">Iceberg Connector</a>配置Iceberg连接器配置vim etc/catalog/iceberg.properties 支持的Iceberg Catalog Type有hive和hadoop两种,配置方式分别为如下<br>iceberg.catalog.type=hive的配置方式:</p>
+<pre><code class="properties">connector.name=iceberg
+hive.metastore.uri=thrift://metastoreIP:9083
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.service.principal=hive/metastoreIP@REALM.COM
+hive.metastore.client.principal=hive/prestoServerIp@REALM.COM
+hive.metastore.client.keytab=/opt/keytabs/hive.keytab
+iceberg.catalog.type=hive
+iceberg.file-format=PARQUET
+iceberg.compression-codec=SNAPPY
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml</code></pre>
+<p>iceberg.catalog.type=hadoop的配置方式:</p>
+<pre><code class="properties">connector.name=iceberg
+hive.metastore.uri=thrift://metastoreIP:9083
+iceberg.catalog.type=hadoop
+iceberg.file-format=PARQUET
+iceberg.catalog.cached-catalog-num=10
+iceberg.hadoop.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+iceberg.catalog.warehouse=hdfs://nameservice/user/iceberg/warehouse</code></pre>
+<p>然后重启PrestoServer</p>
+<p>与Hive整合：<br>到<a target="_blank" rel="noopener" href="https://iceberg.apache.org/releases/">Iceberg-Releases</a>页面下载对应版本（可在$PRESTO_HOME/plugins/iceberg下查看Presto Iceberg版本）的Hive runtime Jar。<br>下载<a target="_blank" rel="noopener" href="https://repo1.maven.org/maven2/org/apache/thrift/libfb303/0.9.3/libfb303-0.9.3.jar">libfb303-0.9.3.jar</a>依赖包。<br>在hive-site.xml中添加</p>
+<pre><code class="xml">&lt;property&gt;
+    &lt;name&gt;iceberg.engine.hive.enabled&lt;/name&gt;
+    &lt;value&gt;true&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+<p>所有hive节点创建/etc/hive/auxlib目录，将两个jar放入<br>配置HiveServer2生效jar，在hive-site.xml添加</p>
+<pre><code class="xml">&lt;property&gt;
+    &lt;name&gt;hive.aux.jars.path&lt;/name&gt;
+    &lt;value&gt;/etc/hive/auxlib&lt;/value&gt;
+&lt;/property&gt;</code></pre>
+<p>配置hiveCli生效jar<br>hive-env.sh增加export HIVE_AUX_JARS_PATH=/etc/hive/auxlib<br>重启HiveServer2<br>在hive创建Iceberg表</p>
+<pre><code class="hql">CREATE TABLE iceberg_db.hive_iceberg_table (
+    id BIGINT,
+    name STRING
+)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;;</code></pre>
+<p>使用Hive和Presto读写和操作Iceberg表</p>
+<pre><code class="sql">hive&gt; insert into hive_iceberg_table values (1,&#39;qjj&#39;),(2,&#39;abc&#39;);
+presto&gt; select * from hive_iceberg_table;
+presto&gt; insert into hive_iceberg_table values (3,&#39;jjq&#39;),(4,&#39;def&#39;);
+hive&gt; select count(1) from hive_iceberg_table;</code></pre>
+<p>相关TroubleShooting</p>
+<ol>
+<li>Vectorization only supported for Hive 3+<br>解决：设置set hive.vectorized.execution.enabled=false;</li>
+<li>Presto插入Iceberg表String类型数据后，Hive读取不到String的值而是显示java.nio.HeapByteBuffer<br>待排查…</li>
+</ol>
 <h3 id="Presto语法："><a href="#Presto语法：" class="headerlink" title="Presto语法："></a>Presto语法：</h3><pre><code class="sql">SHOW CATALOGS; 查看Presto集群当前可用数据源
 SHOW SCHEMAS;  查看当前数据源有哪些库
 SHOW SCHEMAS FROM hive;  查看hive数据源的所有库 （FROM可以用IN替换)
@@ -1004,7 +1108,7 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
 <li>Hive\Spark的SQL任务迁移到Presto在语法、计算结果、视图使用、类型转换、UDF及空值处理上有差异</li>
 <li>Hive\Spark任务迁移Presto，如果要做到对业务透明，还有很长的路要走</li>
 </ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/docs">Presto Documentation</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101366898">深入理解Presto</a><br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/16/presto.html">Presto实现原理和美团的使用实践</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35698805/article/details/112362954">Hive迁移Presto在OPPO的实践</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1N7Kd9E2dLB1OPhY_MTs6A">零基础熟悉 Presto的概念、安装、使用及优化</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://prestodb.io/docs">Presto Documentation</a><br><a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest/hive/">Iceberg Hive Doc</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101366898">深入理解Presto</a><br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/16/presto.html">Presto实现原理和美团的使用实践</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35698805/article/details/112362954">Hive迁移Presto在OPPO的实践</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1N7Kd9E2dLB1OPhY_MTs6A">零基础熟悉 Presto的概念、安装、使用及优化</a></p>
 
         </div>
         <!-- .entry-content -->

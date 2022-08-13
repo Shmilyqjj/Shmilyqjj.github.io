@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-cover.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -468,13 +468,13 @@
 </ol>
 <p><strong>测试：</strong></p>
 <pre><code class="shell">pip install numba</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-01.png" alt="alt FastPython-01"></p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-01.png" alt="alt FastPython-01"></p>
 <p><strong>扩展：</strong></p>
 <pre><code class="python">from numba import jit
 @jit  在方法前加装饰器-常用做法，object模式：默认nopython模式，但如果遇到不兼容的第三方库会退化成python模式，保证能运行但不能提速。
 @jit(nopython=True,fastmath=True) 牺牲一点数学精度来提高速度（默认精度高）
 @jit(nopython=True,parallel=True) 自动进行并行计算</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-02.png" alt="alt FastPython-02"><br>原理：numba加速Python代码的原理是使用jit即时编译直接将Python代码翻译成机器码（上图左侧流程），避免了编译成Python字节码pyc再走Python虚拟机（上图右侧流程），直接提高了运行效率。</p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-02.png" alt="alt FastPython-02"><br>原理：numba加速Python代码的原理是使用jit即时编译直接将Python代码翻译成机器码（上图左侧流程），避免了编译成Python字节码pyc再走Python虚拟机（上图右侧流程），直接提高了运行效率。</p>
 <p><strong>结论：</strong><br>从上面的测试结果可以看到有将近300倍的效率提升，能大幅加速Python脚本的执行效率，对大量数据友好，对循环友好。我测试即使在低端处理器环境运行，也能有100+倍的性能提升。这个方案提速效果相当明显，而且对原有代码和环境改动很小，推荐哦！</p>
 <h3 id="使用modin加速pandas"><a href="#使用modin加速pandas" class="headerlink" title="使用modin加速pandas"></a>使用modin加速pandas</h3><p><strong><a target="_blank" rel="noopener" href="https://modin.readthedocs.io/en/latest/">modin官方网站</a></strong><br>pandas是很常用的数据分析库，功能强大，但它有个缺点就是对大数据的支持并不好，不适合大规模数据。<br><strong>优点：</strong></p>
 <ol>
@@ -526,7 +526,7 @@ def modin_pandas_test():
 if __name__ == &#39;__main__&#39;:
     pandas_test()
     modin_pandas_test()</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-03.jpg" alt="alt FastPython-03"><br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-04.jpg" alt="alt FastPython-04"><br>单机跑Apply API速度大概快了3.5倍多。分布式还没测试。</p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-03.jpg" alt="alt FastPython-03"><br><img src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-04.jpg" alt="alt FastPython-04"><br>单机跑Apply API速度大概快了3.5倍多。分布式还没测试。</p>
 <p><strong>结论：</strong><br>使用modin模块的pandas代替普通的pandas，本质是将单机单核跑的任务负载分散到多核心甚至多机器来加速运算。基本可以满足使用pandas的业务需求场景，而且核心数越多，机器数越多，运行效率提升越高，但相应需要更大的内存。适合对大量数据操作的场景。<br>此外，pandas官网给出了一些优化效率的建议，参考：<a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/user_guide/enhancingperf.html">Enhancing performance</a></p>
 <h3 id="使用pandarallel加速pandas"><a href="#使用pandarallel加速pandas" class="headerlink" title="使用pandarallel加速pandas"></a>使用pandarallel加速pandas</h3><p><strong><a target="_blank" rel="noopener" href="https://github.com/nalepae/pandarallel">pandarallel官方网站</a></strong><br><strong>优点：</strong></p>
 <ol>
@@ -848,7 +848,7 @@ array_b = np.log(array_a)</code></pre>
 </ol>
 <h2 id="查看Python性能日志"><a href="#查看Python性能日志" class="headerlink" title="查看Python性能日志"></a>查看Python性能日志</h2><h3 id="使用profiler"><a href="#使用profiler" class="headerlink" title="使用profiler"></a>使用profiler</h3><p>python中的profiler可以帮助我们测量程序执行过程中详细的时间和空间复杂度。使用时通过-o参数传入可选输出文件以保留性能日志。</p>
 <pre><code class="shell">python -m cProfile [-o output_file] my_python_file.py</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Python/FastPython-05.JPG" alt="alt FastPython-05"></p>
+<p><img src="http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-05.JPG" alt="alt FastPython-05"></p>
 <h3 id="使用profile"><a href="#使用profile" class="headerlink" title="使用profile"></a>使用profile</h3><p>导入profile监控python程序整体执行耗时。</p>
 <pre><code class="python">import profile
 profile.run(&#39;main()&#39;)</code></pre>
@@ -898,7 +898,7 @@ lp.print_stats()</code></pre>
           
             <a href="/pyspark_pandas/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg">
               </div>
               <span class="label">
               Previous Post</span>
@@ -916,7 +916,7 @@ lp.print_stats()</code></pre>
           
             <a href="/5f26355/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Kudu/Kudu-cover.png">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-cover.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Kudu/Kudu-cover.png">
               </div>
               <span class="label">
               Next Post</span>

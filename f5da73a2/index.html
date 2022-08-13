@@ -421,7 +421,7 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-cover.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(http://imgs.shmily-qjj.top/BlogImages/DataMasking/DataMasking-cover.jpg);" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/DataMasking/DataMasking-cover.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
@@ -505,9 +505,9 @@
 <li>静态数据脱敏SDM(Static Data Masking)<br>一般用在非生产环境，数据是从生产环境经过脱敏后再在非生产环境使用。解决的问题：测试环境开发库需要生产库的数据量和数据格式方便排查问题或进行分析，但又不能将敏感数据放在非生产环境的场景</li>
 <li>动态数据脱敏DDM(Dynamic Data Masking)<br>一般同在生产环境，访问敏感数据时进行动态脱敏。解决的问题：生产环境根据不同场景不同用户对敏感数据采用不同脱敏级别和脱敏算法进行脱敏</li>
 </ul>
-<h2 id="大数据脱敏技术方案"><a href="#大数据脱敏技术方案" class="headerlink" title="大数据脱敏技术方案"></a>大数据脱敏技术方案</h2><p>先上一个总体的脑图：<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/%E6%95%B0%E6%8D%AE%E8%84%B1%E6%95%8F%E8%84%91%E5%9B%BE.xmind">数据脱敏脑图XMIND</a></p>
+<h2 id="大数据脱敏技术方案"><a href="#大数据脱敏技术方案" class="headerlink" title="大数据脱敏技术方案"></a>大数据脱敏技术方案</h2><p>先上一个总体的脑图：<a target="_blank" rel="noopener" href="http://imgs.shmily-qjj.top/BlogImages/DataMasking/%E6%95%B0%E6%8D%AE%E8%84%B1%E6%95%8F%E8%84%91%E5%9B%BE.xmind">数据脱敏脑图XMIND</a></p>
 <h3 id="批量数据脱敏"><a href="#批量数据脱敏" class="headerlink" title="批量数据脱敏"></a>批量数据脱敏</h3><ol>
-<li><p>先将数据同步到数据仓库的一个中间表，然后通过一些自定义的脱敏函数udf进行数据脱敏，然后将未脱敏的中间表删除或通过权限管控起来即可。对于存量数据也是经过UDF处理后得到脱敏数据。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-1.JPG" alt="alt DataMasking-1"><br>手机号脱敏UDF示例:</p>
+<li><p>先将数据同步到数据仓库的一个中间表，然后通过一些自定义的脱敏函数udf进行数据脱敏，然后将未脱敏的中间表删除或通过权限管控起来即可。对于存量数据也是经过UDF处理后得到脱敏数据。<br><img src="http://imgs.shmily-qjj.top/BlogImages/DataMasking/DataMasking-1.JPG" alt="alt DataMasking-1"><br>手机号脱敏UDF示例:</p>
 <pre><code class="java">package top.shmily.qjj;
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDF;
@@ -534,9 +534,9 @@ return phone;
 </li>
 </ol>
 <h3 id="实时数据脱敏"><a href="#实时数据脱敏" class="headerlink" title="实时数据脱敏"></a>实时数据脱敏</h3><ol>
-<li>实时数据结合历史数据通过中间件进入Flink或Storm程序，这时只有实时数据，不适用基于全量数据的脱敏算法，所以结合历史数据和相应算法进行实时脱敏。<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-2.JPG" alt="alt DataMasking-2"></li>
+<li>实时数据结合历史数据通过中间件进入Flink或Storm程序，这时只有实时数据，不适用基于全量数据的脱敏算法，所以结合历史数据和相应算法进行实时脱敏。<br><img src="http://imgs.shmily-qjj.top/BlogImages/DataMasking/DataMasking-2.JPG" alt="alt DataMasking-2"></li>
 </ol>
-<h3 id="数据安全审计"><a href="#数据安全审计" class="headerlink" title="数据安全审计"></a>数据安全审计</h3><p>数据安全审计，目前业界常用的就是ELK(Es+LogStash+Kibana)，下面是用于大数据审计的流程<br><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/DataMasking/DataMasking-3.JPG" alt="alt DataMasking-3"></p>
+<h3 id="数据安全审计"><a href="#数据安全审计" class="headerlink" title="数据安全审计"></a>数据安全审计</h3><p>数据安全审计，目前业界常用的就是ELK(Es+LogStash+Kibana)，下面是用于大数据审计的流程<br><img src="http://imgs.shmily-qjj.top/BlogImages/DataMasking/DataMasking-3.JPG" alt="alt DataMasking-3"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>脱敏的过程就是一个在数据安全性和数据可用性之间平衡的过程</li>
 <li>选择或设计一种既能满足开发测试外包的要求，又能保证安全性的脱敏算法特别重要</li>
@@ -594,7 +594,7 @@ return phone;
           
             <a href="/pyspark_pandas/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Blog_Images/Spark/PySpark/pyspark-pandas-cover.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg">
               </div>
               <span class="label">
               Next Post</span>
