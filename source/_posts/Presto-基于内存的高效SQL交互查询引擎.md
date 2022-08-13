@@ -334,8 +334,8 @@ hive.metastore.client.principal=hive/prestoServerIp@REALM.COM
 hive.metastore.client.keytab=/opt/keytabs/hive.keytab
 iceberg.catalog.type=hive
 iceberg.file-format=PARQUET
-iceberg.catalog.cached-catalog-num=10
-iceberg.hadoop.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
+iceberg.compression-codec=SNAPPY
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hadoop-conf/hdfs-site.xml
 ```
 iceberg.catalog.type=hadoop的配置方式:
 ```properties
@@ -348,6 +348,48 @@ iceberg.hadoop.config.resources=/etc/ecm/hadoop-conf/core-site.xml,/etc/ecm/hado
 iceberg.catalog.warehouse=hdfs://nameservice/user/iceberg/warehouse
 ```
 然后重启PrestoServer
+
+与Hive整合：
+到[Iceberg-Releases](https://iceberg.apache.org/releases/)页面下载对应版本（可在$PRESTO_HOME/plugins/iceberg下查看Presto Iceberg版本）的Hive runtime Jar。
+下载[libfb303-0.9.3.jar](https://repo1.maven.org/maven2/org/apache/thrift/libfb303/0.9.3/libfb303-0.9.3.jar)依赖包。
+在hive-site.xml中添加
+```xml
+<property>
+    <name>iceberg.engine.hive.enabled</name>
+    <value>true</value>
+</property>
+```
+所有hive节点创建/etc/hive/auxlib目录，将两个jar放入
+配置HiveServer2生效jar，在hive-site.xml添加
+```xml
+<property>
+    <name>hive.aux.jars.path</name>
+    <value>/etc/hive/auxlib</value>
+</property>
+```
+配置hiveCli生效jar
+hive-env.sh增加export HIVE_AUX_JARS_PATH=/etc/hive/auxlib
+重启HiveServer2
+在hive创建Iceberg表
+```hql
+CREATE TABLE iceberg_db.hive_iceberg_table (
+    id BIGINT,
+    name STRING
+)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler';
+```
+使用Hive和Presto读写和操作Iceberg表
+```sql
+hive> insert into hive_iceberg_table values (1,'qjj'),(2,'abc');
+presto> select * from hive_iceberg_table;
+presto> insert into hive_iceberg_table values (3,'jjq'),(4,'def');
+hive> select count(1) from hive_iceberg_table;
+```
+相关TroubleShooting
+1. Vectorization only supported for Hive 3+
+解决：设置set hive.vectorized.execution.enabled=false;
+2. Presto插入Iceberg表String类型数据后，Hive读取不到String的值而是显示java.nio.HeapByteBuffer
+待排查...
 
 ### Presto语法：
 ```sql
@@ -756,6 +798,7 @@ vim /opt/modules/presto-server-0.248/etc/catalog/hive-security.json
 
 ## 参考资料  
 [Presto Documentation](https://prestodb.io/docs)
+[Iceberg Hive Doc](https://iceberg.apache.org/docs/latest/hive/)
 [深入理解Presto](https://zhuanlan.zhihu.com/p/101366898)
 [Presto实现原理和美团的使用实践](https://tech.meituan.com/2014/06/16/presto.html)
 [Hive迁移Presto在OPPO的实践](https://blog.csdn.net/weixin_35698805/article/details/112362954)
