@@ -763,6 +763,40 @@ export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:
 pacman -R $(pacman -Qtdq)
 # 清除已下载的安装包
 sudo pacman -Scc
+# 对整个系统进行更新
+sudo pacman -Syu
+# 升级软件包
+sudo pacman -Syu
+# 清理软件包缓存
+sudo pacman -Sc
+# 清理所有的缓存文件
+sudo pacman -Scc
+# 安装或者升级单个软件包，或者一列软件包（包含依赖包），使用如下命令：
+sudo pacman -S package_name1 package_name2 ...
+# 安装或者升级单个软件包，或者一列软件包,同步包数据库后再执行安装
+sudo pacman -Sy package_name package_name2 ...
+# 安装本地包 其扩展名为pkg.tar.gz或pkg.tar.xz
+sudo pacman -U local_package_name
+# 安装一个远程包
+sudo pacman -U url http://www.example.com/repo/example.pkg.tar.xz
+# 在仓库中搜索含关键字的包
+sudo pacman -Ss keyword
+# 查看已安装软件
+sudo pacman -Qs keyword   
+# 删除单个软件包，保留其全部已经安装的依赖关系
+sudo pacman -R package_name
+# 删除指定软件包，及其所有没有被其他已安装软件包使用的依赖关系(要删除软件包和所有依赖这个软件包的程序，警告: 此操作是递归的，请小心检查，可能会一次删除大量的软件包)
+sudo pacman -Rs package_name
+# 从 AUR 安装软件包
+yay -S package 
+# yay卸载包
+yay -Rns package 
+# 升级所有已安装的包(包括AUR源)
+yay -Syu
+# 打印系统统计信息
+yay -Ps
+# 检查安装包的版本
+yay -Qi package
 ```
 
 
