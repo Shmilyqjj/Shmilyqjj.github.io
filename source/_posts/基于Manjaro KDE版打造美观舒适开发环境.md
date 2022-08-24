@@ -448,6 +448,13 @@ mkdir /home/shmily/tools/.LDOCE_Dict 将词典文件放进去
 在GoldenDict上配置词典即可.
 [!alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-45.png)
 
+### 久坐提醒
+可以设置久坐提醒,小憩时间的工具,可强制休息
+```shell
+yay -S stretchly-bin
+```
+[!alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-46.png)
+
 ### 开发环境安装
 ```shell
 sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
@@ -801,6 +808,8 @@ yay -S package
 yay -Rns package 
 # 升级所有已安装的包(包括AUR源)
 yay -Syu
+# 更新AUR仓库的软件
+yay -Syyu
 # 打印系统统计信息
 yay -Ps
 # 检查安装包的版本
@@ -902,8 +911,17 @@ https://aur.archlinux.org/packages
 
 ### 系统硬件信息查询
 全部硬件信息输出：
-sudo dmidecode  >> hardware.info
+```shell
+ sudo dmidecode  >> hardware.info
+ hwinfo
+```
 
+### 钉钉Linux版无法输入中文
+sudo vim /usr/bin/dingtalk 在 export PATH 后面加如下两行
+```
+export XMODIFIERS="@im=ibus"
+export QT_IM_MODULE="ibus"
+```
 
 ## 参考链接
 [Manjaro Wiki](https://wiki.manjaro.org/index.php?title=Main_Page)
