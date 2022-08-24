@@ -440,6 +440,14 @@ sudo pacman -S deepin-screen-recorder
 ln -s /usr/bin/deepin-screen-recorder /usr/bin/sr   运行sr命令使用
 添加截图功能到系统全局快捷方式:设置->快捷键->自定义快捷键->编辑->新建->全局快捷键->命令/URL->命令/usr/bin/deepin-screen-recorder 触发器Ctrl+Alt+A
 
+### 词典翻译
+词典与屏幕取词翻译工具
+sudo pacman -S goldendict
+下载[朗文词典文件:提取码9m43](https://pan.baidu.com/s/1Zr7Z0iOPba7oDw75OzQQzw) (如果链接失效也可从其他途径下载)
+mkdir /home/shmily/tools/.LDOCE_Dict 将词典文件放进去
+在GoldenDict上配置词典即可.
+[!alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-45.png)
+
 ### 开发环境安装
 ```shell
 sudo pacman -S net-tools dnsutils inetutils iproute2 stress python-pip screen htop bat tree ncdu tig tldr
