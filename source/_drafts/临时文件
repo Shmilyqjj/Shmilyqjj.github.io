@@ -1346,6 +1346,7 @@ sql: set -v;查看当前的server配置
 
 Hive修改表Format格式：ALTER TABLE table_name SET FILEFORMAT INPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat" OUTPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat" SERDE "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe";
 
+Hive客户端不输出表字段(表头)hive.cli.print.header=false
 
 Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
