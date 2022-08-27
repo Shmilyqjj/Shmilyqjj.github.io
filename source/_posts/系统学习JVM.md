@@ -354,16 +354,57 @@ Java的大部分对象生命周期都不长，它们位于年轻代(Young Genera
         老年代的回收-较长停顿
         Full GC阶段-较长停顿
 * G1垃圾回收器
-    全称：Garbage First（尽可能多地收集垃圾以减少FullGC）
+    全称：Garbage First（目的是尽可能接近预期暂停时间）
     目前比较好的收集器，关注低延迟，用于替代CMS的功能更强大的新型收集器。
     引入了分区概念，弱化了分带概念
-    优点：避免老年代GC出现长时间卡顿，同时与CMS相比解决了CMS产生碎片的缺陷。
-    缺点：
-    场景：不希望GC停顿时间长且CPU资源较充足
-    回收过程：
-    关于CMS的碎片整理问题：两个参数
-        
+    优点：避免老年代GC出现长时间卡顿，同时与CMS相比解决了CMS产生碎片的缺陷。尽可能达到预期的暂停时间.
+    缺点：G1提供的两种GC模式,YoungGC,MixedGC都是STW的.
+    场景：不希望GC停顿时间长,希望GC停顿时间较短并保持稳定,且CPU资源较充足
+    回收过程：G1提供的两种GC模式,YoungGC,MixedGC
+    [Young GC主要是对Eden区进行GC，它在Eden空间耗尽时会被触发。在这种情况下，Eden空间的数据移动到Survivor空间中，如果Survivor空间不够，Eden空间的部分数据会直接晋升到老年代空间。Survivor区的数据移动到新的Survivor区中，也有部分数据晋升到老年代空间中。最终Eden空间的数据为空，GC停止工作，应用线程继续执行。]
+    [Mixed GC不仅进行正常的新生代垃圾收集，同时也回收部分后台扫描线程标记的老年代分区。GC步骤分2步： 全局并发标记（global concurrent marking）和 拷贝存活对象（evacuation）。在进行Mixed GC之前，会先进行Global Concurrent Marking（全局并发标记）,在G1 GC中，它主要是为Mixed GC提供标记服务的，并不是一次GC过程的一个必须环节。]
     总结G1中有哪些会造成STW(GC停顿)的操作：  <font size="3" color="red">STW = stop the world.</font>
+        YoungGC
+        MixedGC
+
+    **G1参数示例** 
+    ```
+    -Xmx40G
+    -XX:+UseG1GC
+    -XX:MaxHeapFreeRatio=10
+    -XX:MinHeapFreeRatio=1
+    -XX:G1PeriodicGCInterval=1800000
+    -XX:G1PeriodicGCSystemLoadThreshold=10
+    -XX:InitiatingHeapOccupancyPercent=50
+    -XX:MaxGCPauseMillis=300
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/tmp/xxx.hprof
+    -XX:OnOutOfMemoryError=kill -9 %p
+    -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=128M -Xloggc:/var/logs/gc.log
+    ```
+
+    **G1常用参数配置** 
+    [G1调参JDK文档](https://docs.oracle.com/en/java/javase/17/gctuning/garbage-first-garbage-collector-tuning.html)
+    1. G1垃圾回收器在jdk12后支持自动将未使用的堆内存返还给操作系统:根据JEP 346(Java增强特性:Promptly Return Unused Committed Memory from G1) G1仅仅当Full GC或并发周期时才会返回内存。通常的，除非在外部强制的执行，G1在很多情况下不会返回堆内存给操作系统。参考JDK文档[garbage-first-garbage-collector-tuning](https://docs.oracle.com/en/java/javase/17/gctuning/garbage-first-garbage-collector-tuning.html#GUID-379B3888-FE24-4C3F-9E38-26434EB04F89),相关参数:
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis=300
+    -XX:G1HeapRegionSize=32M
+    -XX:MaxHeapFreeRatio=5 [空闲堆空间的最大百分比，计算公式为：HeapFreeRatio =(CurrentFreeHeapSize/CurrentTotalHeapSize) * 100，值的区间为0到100，默认值为 70。如果HeapFreeRatio > MaxHeapFreeRatio，则需要进行堆缩容，缩容的时机应该在每次垃圾回收之后。MaxHeapFreeRatio可以通过jinfo -flag [+|-]MaxHeapFreeRatio <pid> 或者 jinfo -flag MaxHeapFreeRatio=<value> <pid>来动态开启或设置值]
+    -XX:MinHeapFreeRatio=1 [空闲堆空间的最小百分比，计算公式为：HeapFreeRatio =(CurrentFreeHeapSize/CurrentTotalHeapSize) * 100，值的区间为0到100，默认值为 40。如果HeapFreeRatio < MinHeapFreeRatio，则需要进行堆扩容，扩容的时机应该在每次垃圾回收之后。]
+    -XX:G1PeriodicGCInterval=1800000  # JEP346特性用于在系统空闲时收敛堆空间，将空闲内存交还给操作系统,每隔多长时间进行检查，单位：毫秒
+    -XX:G1PeriodicGCSystemLoadThreshold=0  # 系统负载阀值,需要根据实际负载情况进行调整 0表示忽略此条件
+    解释:G1PeriodicGCInterval=1800000自上次GC后已经超过1800000毫秒未进行回收,且G1PeriodicGCSystemLoadThreshold=20当前主机平均一分钟内负载小于20,则触发回收(如果不指定-XX:+G1PeriodicGCInvokesConcurrent则触发FullGC),G1PeriodicGCSystemLoadThreshold=0为忽略此条件
+
+    2. 系统调用了System.gc()触发的FullGC影响较大,且在不能修改源码的情况下,可以通过设置-XX:+ExplicitGCInvokesConcurrent参数减小FullGC对系统停顿的影响.
+    3. -XX:MaxGCPauseMillis  [暂停时间，默认值200ms。这是一个软性目标，G1会尽量达成，如果达不成，会逐渐做自我调整。对于Young GC来说，会逐渐减少Eden区个数，减少Eden空间那么Young GC的处理时间就会相应减少。对于Mixed GC，G1会调整每次Choose Cset的比例，默认最大值是10%，当然每次选择的Cset少了，所要经历的Mixed GC的次数会相应增加。减少Eden的总空间时，就会更加频繁的触发Young GC，也就是会加快Mixed GC的执行频率，因为Mixed GC是由Young GC触发的，或者说借机同时执行的。频繁GC会对对应用的吞吐量造成影响，每次Mixed GC回收时间太短，回收的垃圾量太少，可能最后GC的垃圾清理速度赶不上应用产生的速度，那么可能会造成串行的Full GC，这是要极力避免的。所以暂停时间肯定不是设置的越小越好，当然也不能设置的偏大，转而指望G1自己会尽快的处理，这样可能会导致一次全部并发标记后触发的Mixed GC次数变少，但每次的时间变长，STW时间变长，对应用的影响更加明显。]
+    4. -XX:ConcGCThreads指定并发收集线程数[默认是-XX:ParallelGCThreads/4，也就是在非STW期间的GC工作线程数,当并发周期时间过长时，可以尝试调大GC工作线程数，但是这也意味着此期间应用所占的线程数减少，会对吞吐量有一定影响。]
+    5. -XX:InitiatingHeapOccupancyPercent指定触发全局并发标记(造成STW)的老年代使用占比，默认值45%.如果Mixed GC周期结束后老年代使用率还是超过45%,那么会再次触发全局并发标记过程，这样就会导致频繁的老年代GC，影响应用吞吐量。
+
+   
+
         
 **GC小技巧**
 1. GC日志查看
@@ -413,6 +454,9 @@ CMS收集器是否会扫描年轻代？
 会，在初始标记的时候会扫描新生代。虽然cms是老年代收集器，但是我们知道年轻代的对象是可以晋升为老年代的，为了空间分配担保，还是有必要去扫描年轻代。
 
 
+commands:
+JDK9之前：jmap -heap <pid>
+JDK9及之后：jhsdb jmap --heap --pid <pid>
 
 ## 小标题1  
 
