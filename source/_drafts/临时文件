@@ -1313,6 +1313,37 @@ Hive相关
 
 HiveClient开启Debug模式运行 hive --hiveconf hive.root.logger=DEBUG,console
 
+Hive查询所有function
+SHOW FUNCTIONS;
+Hive查看function的介绍
+desc function from_unixtime;
+desc function extended from_unixtime;
+UDF的介绍
+@Description(
+        name="udf_name",
+        value=" decrypt_all(decryptType, args ... ) - Returns default value if value is null else returns value",
+        extended = "Example:\n> "
+                + " decrypt_all('AES', '123456','password')  --password长度16位 \n "
+                + " decrypt_all('AES16', '123456','password') --password长度16位 \n "
+                + " decrypt_all('DES', '123456','key') --key长度16位 \n "
+                + " decrypt_all('3DES', '123456','key')  \n "
+                + "\n"
+)
+注册永久UDF:CREATE FUNCTION 库名.函数名 AS '包名.类名' USING JAR 'hdfs:///path/xxxx.jar';
+eg:CREATE FUNCTION func.my_from_unixtime AS 'com.test.hive.udf.UDFTimezoneConversion' USING JAR 'hdfs://nameservice/user/hive/udf/hive-udf-1.0-jar-with-dependencies.jar';
+删除UDF:drop function 库名.函数名;
+元数据库查询UDF:
+use metastore;
+select
+a.*,
+c.NAME as DBNAME,
+b.RESOURCE_URI
+from FUNCS a,
+FUNC_RU b,
+DBS c
+where a.func_id = b.func_id and a.DB_ID=c.DB_ID;
+
+
 Hive开启自动文件合并
    <property>
        <name>hive.merge.mapredfiles</name>
