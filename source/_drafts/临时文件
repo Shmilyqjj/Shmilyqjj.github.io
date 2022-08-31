@@ -1330,7 +1330,7 @@ UDF的介绍
                 + "\n"
 )
 注册永久UDF:CREATE FUNCTION 库名.函数名 AS '包名.类名' USING JAR 'hdfs:///path/xxxx.jar';
-eg:CREATE FUNCTION func.my_from_unixtime AS 'com.test.hive.udf.UDFTimezoneConversion' USING JAR 'hdfs://nameservice/user/hive/udf/hive-udf-1.0-jar-with-dependencies.jar';
+eg:CREATE FUNCTION func.my_from_unixtime AS 'com.test.hive.udf.UDFTimezoneConversion' USING JAR 'hdfs://nameservice1/user/hive/udf/hive-udf-1.0-jar-with-dependencies.jar';
 删除UDF:drop function 库名.函数名;
 元数据库查询UDF:
 use metastore;
