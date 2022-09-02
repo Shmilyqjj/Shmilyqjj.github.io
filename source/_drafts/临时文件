@@ -2207,6 +2207,16 @@ Java相关
 Java程序参数自定义（以Spark Driver端为例）
 --driver-java-options "-DmaxHTableNum=100"  程序端获取：System.getProperty("maxHTableNum").toInt
 
+httpRequest请求添加Cookie
+String url = "http://ip:port/proxy/application_1658735789300_83653/jobs/overview";
+        //构造请求资源地址
+        URI uri = new URIBuilder(url).build();
+        HttpClient httpClient = HttpClients.custom().build();
+        //构造请求对象
+        HttpUriRequest httpUriRequest = RequestBuilder.get().setUri(uri).build();
+        httpUriRequest.addHeader("Cookie", "checked_application_1658735789300_83653=true");
+        HttpResponse execute = httpClient.execute(httpUriRequest);
+
 
 java并发中锁的原理之对象头：https://www.jianshu.com/p/a32de78b7d04
 
