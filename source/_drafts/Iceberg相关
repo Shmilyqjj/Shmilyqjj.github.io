@@ -1,0 +1,159 @@
+一. Hive整合Iceberg:
+添加如下两个jar到$HIVE_HOME/auxlib下
+iceberg-hive-runtime-0.13.2.jar
+libfb303-0.9.3.jar
+添加如下参数到hive-site.xml
+iceberg.engine.hive.enabled=true
+
+Hive创建Iceberg表
+Hive操作Iceberg支持多种Catalog，支持Hadoop、Hive(默认)、Custom、location_based_table几种管理方式
+1.HiveCatalog类型:
+不设置Catalog类型时默认会使用HiveCatalog类型的Iceberg表
+表元数据信息使用HiveMetaStore来管理，依赖Hive
+建表示例：
+-- 示例1 非分区表
+CREATE TABLE iceberg_db.hive_iceberg_table (
+  id BIGINT,
+  name STRING
+)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+LOCATION '/user/hive/warehouse/iceberg_db.db/hive_iceberg_table';
+-- 示例2 分区表
+CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler';
+
+-- 示例3 指定catalog类型为HiveCatalog类型并建表:
+set iceberg.catalog.<catalog_name>.type=hive;  -- 设置catalog类型
+CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+tblproperties('iceberg.catalog'='<catalog_name>');
+
+2.HadoopCatalog类型
+元数据信息使用底层hdfs存储来管理
+示例：
+set iceberg.catalog.<catalog_name>.type=hadoop;  -- 设置catalog类型
+set iceberg.catalog.<catalog_name>.warehouse=hdfs://nameservice/user/iceberg/warehouse;  -- 必须设置warehouse存储路径
+create external table iceberg_db.hadoop_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table'  -- 路径必须是${iceberg.catalog.<catalog_name>.warehous}/${db_name}/${table_name}
+tblproperties ('iceberg.catalog'='<catalog_name>');
+
+3.LocationBasedTable
+HDFS已经存在了Iceberg格式表的数据，可以指定tblproperties('iceberg.catalog'='location_based_table')和LOCATION，它会去LOCATION路径下加载iceberg表数据。LOCATION下已经存在Iceberg格式表数据了。
+不需要加PARTITION BY，只需要加数据字段即可
+比如Flink、Spark等引擎写入的数据，可以使用这种方式创建hive表
+create external table iceberg_db.location_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age INT,
+  dt STRING
+)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table'
+tblproperties ('iceberg.catalog'='location_based_table');
+或
+create table iceberg_db.location_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age INT,
+  dt STRING
+)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table'
+tblproperties ('iceberg.catalog'='location_based_table');
+注意：HDFS上已存在的Iceberg表必须是HadoopCatalog类型的，否则无法读取数据。表创建时创建时报错File does not exist: /user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table/metadata/version-hint.text，表创建后，表存在，查询到的数据为空。
+
+
+-- https://www.bilibili.com/video/BV1MN4y1F7zJ?p=11&spm_id_from=pageDriver&vd_source=36364c17b3db26fb7aae6a7085dfd9a1
+
+
+二. FlinkSQL整合Iceberg:
+Flink 1.13则下载iceberg-flink-runtime-1.13-0.14.0.jar 放入$FLINK_HOME/lib目录下
+启动flink集群：
+cd $FLINK_HOME 
+bin/start-cluster.sh
+启动FlinkSQL Console：
+bin/sql-client.sh embedded shell
+```sql
+-- 创建HadoopCatalog类型Iceberg表在FlinkSQL中的Catalog
+CREATE CATALOG hadoop_iceberg_catalog WITH (
+  'type'='iceberg',
+  'catalog-type'='hadoop',
+  'warehouse'='hdfs://nameservice/user/iceberg/warehouse',
+  'property-version'='1'
+);
+use catalog hadoop_iceberg_catalog;
+show databases;
+-- Hive创建Iceberg表
+hive> set iceberg.catalog.iceberg_hadoop_catalog.type=hadoop;  -- 设置catalog类型
+hive> set iceberg.catalog.iceberg_hadoop_catalog.warehouse=hdfs://nameservice/user/iceberg/warehouse; 
+hive> create external table iceberg_db.hadoop_iceberg_table_flink_sql (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_table_flink_sql' 
+tblproperties ('iceberg.catalog'='iceberg_hadoop_catalog');
+-- FlinkSQL中可以看到这张表
+---- Kafka2Iceberg Flink SQL 
+set execution.checkpointing.interval=10sec;
+CREATE TABLE t_kafka_source (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'flink_topic1',  
+    'scan.startup.mode' = 'latest-offset',
+    'properties.bootstrap.servers' = 'cdh101:9092,cdh102:9092,cdh103:9092,cdh104:9092',
+    'properties.group.id' = 'test',
+    'format' = 'csv'
+);
+
+CREATE TABLE t_kafka_target (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'flink_topic2',  
+    'scan.startup.mode' = 'latest-offset',
+    'properties.bootstrap.servers' = 'cdh101:9092,cdh102:9092,cdh103:9092,cdh104:9092',
+    'properties.group.id' = 'test',
+    'format' = 'csv'
+);
+insert into t_kafka_target select id,name,age,dt from t_kafka_source;
+
+
+CREATE TABLE `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` (
+   id BIGINT,
+   name STRING,
+   age INT,
+   dt STRING
+) PARTITIONED BY (dt);
+insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
+
+select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
+```
+Iceberg写入后 hive的metadata没了，hive无法读写
+报错org.apache.hadoop.ipc.RemoteException(java.io.FileNotFoundException): File does not exist: /user/iceberg/warehouse/iceberg_db/hadoop_iceberg_table_flink_sql/metadata/00000-ab223d95-68e3-40db-9d24-f235543a8ee1.metadata.json
+修改表元数据的方式也不好使。
+
+
+
+
