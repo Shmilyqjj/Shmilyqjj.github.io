@@ -437,6 +437,15 @@ SELECT * FROM (
         (2, 'b', ARRAY[4, 5, 6]),
         (3, 'c', ARRAY[7, 8, 9])
 ) AS t (id, name, arr);
+-- 准备好执行语句,延迟执行
+PREPARE statement_1 FROM
+show tables;
+PREPARE statement_2 FROM
+select * from test;
+EXECUTE statement_2;
+EXECUTE statement_1;
+DEALLOCATE PREPARE statement_1;
+DEALLOCATE PREPARE statement_2;
 ```
 Presto支持事务，相关命令有[COMMIT](https://prestodb.io/docs/current/sql/commit.html),[START TRANSACTION](https://prestodb.io/docs/current/sql/start-transaction.html),[ROLLBACK](https://prestodb.io/docs/current/sql/rollback.html)
 更多语法：[SQL Statement Syntax](https://prestodb.io/docs/current/sql.html#)
