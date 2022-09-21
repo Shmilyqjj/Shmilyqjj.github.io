@@ -17,14 +17,24 @@ CREATE TABLE iceberg_db.hive_iceberg_table (
   name STRING
 )
 STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
-LOCATION '/user/hive/warehouse/iceberg_db.db/hive_iceberg_table';
+LOCATION '/user/hive/warehouse/iceberg_db.db/hive_iceberg_table'
+TBLPROPERTIES (
+ 'write.distribution-mode'='hash',
+ 'write.metadata.delete-after-commit.enabled'='true',   -- 自动清理旧元数据 metadata.json 不能清理manifest和snapshot的avro文件
+ 'write.metadata.previous-versions-max'='5'  -- 保留的metadata.json数量
+);
 -- 示例2 分区表
 CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
   id BIGINT,
   name STRING,
   age int
 ) partitioned by (dt string)
-STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler';
+STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
+TBLPROPERTIES (
+ 'write.distribution-mode'='hash',
+ 'write.metadata.delete-after-commit.enabled'='true',
+ 'write.metadata.previous-versions-max'='5'
+);
 
 -- 示例3 指定catalog类型为HiveCatalog类型并建表:
 set iceberg.catalog.<catalog_name>.type=hive;  -- 设置catalog类型
@@ -34,13 +44,18 @@ CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
   age int
 ) partitioned by (dt string)
 STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
-tblproperties('iceberg.catalog'='<catalog_name>');
+tblproperties('iceberg.catalog'='<catalog_name>')
+TBLPROPERTIES (
+ 'write.distribution-mode'='hash',
+ 'write.metadata.delete-after-commit.enabled'='true',
+ 'write.metadata.previous-versions-max'='5'
+);
 
 2.HadoopCatalog类型
 元数据信息使用底层hdfs存储来管理
 示例：
-set iceberg.catalog.<catalog_name>.type=hadoop;  -- 设置catalog类型
-set iceberg.catalog.<catalog_name>.warehouse=hdfs://nameservice/user/iceberg/warehouse;  -- 必须设置warehouse存储路径
+set iceberg.catalog.<catalog_name>.type=hadoop;  -- 必须每次设置catalog类型
+set iceberg.catalog.<catalog_name>.warehouse=hdfs://nameservice/user/iceberg/warehouse;  -- 必须每次设置warehouse存储路径
 create external table iceberg_db.hadoop_iceberg_partitioned_table (
   id BIGINT,
   name STRING,
@@ -48,7 +63,12 @@ create external table iceberg_db.hadoop_iceberg_partitioned_table (
 ) partitioned by (dt string)
 STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
 LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table'  -- 路径必须是${iceberg.catalog.<catalog_name>.warehous}/${db_name}/${table_name}
-tblproperties ('iceberg.catalog'='<catalog_name>');
+tblproperties (
+    'iceberg.catalog'='<catalog_name>',
+    'write.distribution-mode'='hash',
+    'write.metadata.delete-after-commit.enabled'='true',
+    'write.metadata.previous-versions-max'='5'
+);
 
 3.LocationBasedTable
 HDFS已经存在了Iceberg格式表的数据，可以指定tblproperties('iceberg.catalog'='location_based_table')和LOCATION，它会去LOCATION路径下加载iceberg表数据。LOCATION下已经存在Iceberg格式表数据了。
@@ -76,7 +96,11 @@ tblproperties ('iceberg.catalog'='location_based_table');
 注意：HDFS上已存在的Iceberg表必须是HadoopCatalog类型的，否则无法读取数据。表创建时创建时报错File does not exist: /user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table/metadata/version-hint.text，表创建后，表存在，查询到的数据为空。
 
 
+-- https://blog.csdn.net/spark_dev/article/details/122876819 实践数据湖Iceberg 14课
 -- https://www.bilibili.com/video/BV1MN4y1F7zJ?p=11&spm_id_from=pageDriver&vd_source=36364c17b3db26fb7aae6a7085dfd9a1
+-- https://zhuanlan.zhihu.com/p/473731690  小文件解决
+-- https://blog.csdn.net/Baron_ND/article/details/120287591 Iceberg数据湖
+-- https://zhuanlan.zhihu.com/p/396281054 Flink+Iceberg 
 
 
 二. FlinkSQL整合Iceberg:
@@ -121,7 +145,11 @@ CREATE TABLE if not exists `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg
 WITH('type'='ICEBERG',
 'engine.hive.enabled'='true',  -- 支持hive查询(实测发现不加也没影响)
 'read.split.target-size'='1073741824', -- 减少split数提升查询效率
-'write.format.default'='parquet');
+'write.target-file-size-bytes'='134217728',
+'write.format.default'='parquet',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='9',  
+'write.distribution-mode'='hash');  -- 动态合并小文件
 insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 
 ; -- 写入HiveCatalog类型Iceberg表(test)
@@ -165,3 +193,5 @@ Trino支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表
 
 
 
+----- 待测：
+Hive 使用：
