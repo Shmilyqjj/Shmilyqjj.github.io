@@ -2199,6 +2199,55 @@ Spring相关
     }
 
 
+-----------------------------------------------------------------------------
+Docker相关
+
+Docker镜像相关命令:
+docker images  查看本地镜像列表
+docker history mysql:8  查看镜像制作历史
+docker inspect mysql:8  查看镜像底层信息
+docker pull  下载镜像
+docker push  上传镜像
+docker rmi   删除本地镜像
+docker save 镜像另存为tar包
+docker load 使用tar包导入镜像
+docker search 搜索镜像
+docker tag 修改镜像名称和标签
+
+Docker容器相关命令:
+运行容器:
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+杀死容器(强制kill，异常退出)
+docker kill 5c0ac77c1d18
+停止容器(正常退出)
+docker stop 6e393cd0c996
+查看运行中的容器
+docker ps
+查看所有创建过的容器
+docker ps -a
+启动已关闭的容器
+docker start 5c0ac77c1d18
+关闭运行中的容器
+docker stop 5c0ac77c1d18
+重启容器
+docker restart 5c0ac77c1d18
+查看容器进程列表
+docker top 1f3113406de9 
+进入容器
+docker exec -it 1f3113406de9 /bin/bash
+查看容器底层信息
+docker inspect 1f3113406de9 
+删除容器
+docker rm 5c0ac77c1d18
+
+示例:
+Docker创建MySql
+sudo docker pull mysql:5.7
+sudo docker pull mysql:8
+docker images
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+docker run --name mysql8 -p 3306:3307 -e MYSQL_ROOT_PASSWORD=root -d mysql:8
+docker ps
 
 
 -----------------------------------------------------------------------------
