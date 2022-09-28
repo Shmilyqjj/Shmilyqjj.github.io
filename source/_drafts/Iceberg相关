@@ -95,14 +95,6 @@ LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/location_iceberg_
 tblproperties ('iceberg.catalog'='location_based_table');
 注意：HDFS上已存在的Iceberg表必须是HadoopCatalog类型的，否则无法读取数据。表创建时创建时报错File does not exist: /user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table/metadata/version-hint.text，表创建后，表存在，查询到的数据为空。
 
-
--- https://blog.csdn.net/spark_dev/article/details/122876819 实践数据湖Iceberg 14课
--- https://www.bilibili.com/video/BV1MN4y1F7zJ?p=11&spm_id_from=pageDriver&vd_source=36364c17b3db26fb7aae6a7085dfd9a1
--- https://zhuanlan.zhihu.com/p/473731690  小文件解决
--- https://blog.csdn.net/Baron_ND/article/details/120287591 Iceberg数据湖
--- https://zhuanlan.zhihu.com/p/396281054 Flink+Iceberg 
-
-
 二. FlinkSQL整合Iceberg:
 Flink 1.14则下载iceberg-flink-runtime-1.14-0.14.1.jar 放入$FLINK_HOME/lib目录下
 启动flink集群：
@@ -214,8 +206,23 @@ WITH('type'='ICEBERG',
 'write.metadata.delete-after-commit.enabled'='true',
 'write.metadata.previous-versions-max'='9',  
 'write.distribution-mode'='hash');
+
 insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 ```
+写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表`iceberg_db`.`hive_iceberg_table_flink_sql`
+
+三. 元数据分析
+https://mvnrepository.com/artifact/org.apache.avro/avro-tools下载avro-tools.jar
+java -jar /opt/software/avro-tools-1.11.1.jar tojson 7d26a4d3-ed7a-4da3-be5b-ff12c12d1151-m0.avro 
+
+
+
+
+-- https://blog.csdn.net/spark_dev/article/details/122876819 实践数据湖Iceberg 14课
+-- https://www.bilibili.com/video/BV1MN4y1F7zJ?p=11&spm_id_from=pageDriver&vd_source=36364c17b3db26fb7aae6a7085dfd9a1
+-- https://zhuanlan.zhihu.com/p/473731690  小文件解决
+-- https://blog.csdn.net/Baron_ND/article/details/120287591 Iceberg数据湖
+-- https://zhuanlan.zhihu.com/p/396281054 Flink+Iceberg 
 
 
 
@@ -223,6 +230,13 @@ insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select 
 
 
 
+
+
+
+
+
+
+待测通 StreamX 写HiveCatalogIceberg表
 bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/cloudera/parcels/CDH/jars/hive-metastore-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-common-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/hive-serde-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libfb303-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-shims-common-2.1.1-cdh6.3.1.jar shell
 <dependency>
     <groupId>org.apache.iceberg</groupId>
@@ -260,11 +274,6 @@ bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/clo
     <groupId>org.apache.hive.shims</groupId>
     <artifactId>hive-shims-common</artifactId>
     <version>2.1.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.hadoop</groupId>
-    <artifactId>hadoop-common</artifactId>
-    <version>3.0.0</version>
 </dependency>
 
 
