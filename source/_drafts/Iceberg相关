@@ -148,6 +148,9 @@ insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql sel
 SET execution.runtime-mode = batch;
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
 
+-- FlinkSQL流式查询
+select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` /*+ OPTIONS('streaming'='true', 'monitor-interval'='5s', 'start-snapshot-id'='3821550127947089987')*/ ;
+
 -- Hive创建Iceberg映射表
 create external table iceberg_db.hadoop_iceberg_table_flink_sql (
   id BIGINT,
