@@ -20,7 +20,7 @@ STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
 LOCATION '/user/hive/warehouse/iceberg_db.db/hive_iceberg_table'
 TBLPROPERTIES (
  'write.distribution-mode'='hash',
- 'write.metadata.delete-after-commit.enabled'='true',   -- 自动清理旧元数据 metadata.json 不能清理manifest和snapshot的avro文件
+ 'write.metadata.delete-after-commit.enabled'='true',   -- (每次提交后是否删除旧元数据文件) 自动清理旧元数据 metadata.json 不能清理manifest和snapshot的avro文件
  'write.metadata.previous-versions-max'='5'  -- 保留的metadata.json数量
 );
 -- 示例2 分区表
