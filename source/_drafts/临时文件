@@ -1376,6 +1376,7 @@ HiveClient头部显示当前数据库
 sql: set -v;查看当前的server配置
 
 Hive修改表Format格式：ALTER TABLE table_name SET FILEFORMAT INPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat" OUTPUTFORMAT "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat" SERDE "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe";
+Hive修改表TBLPROPERTIES（Table Parameters）：alter table table_name set TBLPROPERTIES ('storage_handler'='org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'); 
 
 Hive客户端不输出表字段(表头)hive.cli.print.header=false
 
