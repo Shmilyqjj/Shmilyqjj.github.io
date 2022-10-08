@@ -2242,13 +2242,17 @@ docker inspect 1f3113406de9
 docker rm 5c0ac77c1d18
 
 示例:
-Docker创建MySql
+1.Docker创建MySql
 sudo docker pull mysql:5.7
 sudo docker pull mysql:8
 docker images
 docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
 docker run --name mysql8 -p 3306:3307 -e MYSQL_ROOT_PASSWORD=root -d mysql:8
 docker ps
+
+2.Docker创建Trino
+docker pull trinodb/trino
+docker run --name trino -d -p 8080:8080 trinodb/trino
 
 
 -----------------------------------------------------------------------------

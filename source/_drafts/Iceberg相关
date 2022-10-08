@@ -1,3 +1,13 @@
+Iceberg简介
+
+一种表格式(TableFormat),定义了数据、元数据的组织方式，向上提供统一的“表”的语义
+增量读取处理能力：Iceberg支持通过流式方式读取增量数据，支持Structed Streaming以及Flink table Source；
+支持事务（ACID），上游数据写入即可见，不影响当前数据处理任务，简化ETL；提供upsert和merge into能力，可以极大地缩小数据入库延迟；
+可扩展的元数据，快照隔离以及对于文件列表的所有修改都是原子操作；
+同时支持流批处理、支持多种存储格式和灵活的文件组织：提供了基于流式的增量计算模型和基于批处理的全量表计算模型。批处理和流任务可以使用相同的存储模型，数据不再孤立；Iceberg支持隐藏分区和分区进化，方便业务进行数据分区策略更新。支持Parquet、Avro以及ORC等存储格式。
+支持多种计算引擎，优秀的内核抽象使之不绑定特定的计算引擎，目前Iceberg支持的计算引擎有Spark、Flink、Presto以及Hive。
+
+
 一. Hive整合Iceberg:
 添加如下两个jar到$HIVE_HOME/auxlib下
 iceberg-hive-runtime-0.13.2.jar
