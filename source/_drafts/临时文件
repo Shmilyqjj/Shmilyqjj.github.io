@@ -141,6 +141,9 @@ Yarn工作流程
 3.ApplicationMaster向ResourceManager注册，申请资源，监控运行状态直到结束
 4.应用程序执行完，Application通过RPC协议向ResourceManager注销自己。
 
+获取所有yarn nodemanager节点及其状态
+yarn node --list --all | awk '{split($1, array, ":");print array[1],$2}'
+
 
 ###################################################
 ES相关 
@@ -1648,6 +1651,10 @@ not in 和not exists：如果查询语句使用了not in 那么内外表都进�
 
 ##################################################
 Linux相关
+
+动态生成linux命令并执行
+cmd='echo -e "bbb\naaa\nccc\nddd\neee\nfff\n"  | grep -v aaa | grep -v bbb'
+eval $cmd 
 
 ssh登陆缓慢或者失败
 调试ssh 显示debug信息

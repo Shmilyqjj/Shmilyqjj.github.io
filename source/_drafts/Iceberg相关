@@ -54,12 +54,13 @@ CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
   age int
 ) partitioned by (dt string)
 STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
-tblproperties('iceberg.catalog'='<catalog_name>')
 TBLPROPERTIES (
+'iceberg.catalog'='<catalog_name>',
  'write.distribution-mode'='hash',
  'write.metadata.delete-after-commit.enabled'='true',
  'write.metadata.previous-versions-max'='5'
 );
+已知问题:Kerberos安全认证的HMS环境下,Hive可以建表和查询,但无法insert数据(但Presto可以)
 
 2.HadoopCatalog类型
 元数据信息使用底层hdfs存储来管理
