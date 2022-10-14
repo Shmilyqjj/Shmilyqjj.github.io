@@ -132,7 +132,7 @@ CREATE TABLE t_kafka_source (
     'format' = 'csv'
 );
 
--- 写入HadoopCatalog类型Iceberg表
+-- 写入Iceberg表[HadoopCatalog类型]
 CREATE CATALOG hadoop_iceberg_catalog WITH (
   'type'='iceberg',  -- 创建HadoopCatalog类型Iceberg表在FlinkSQL中的Catalog
   'catalog-type'='hadoop',
@@ -155,14 +155,14 @@ WITH('type'='ICEBERG',
 'write.distribution-mode'='hash');  -- 动态合并小文件
 insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 
--- FlinkSQL批式查询
+-- FlinkSQL批式查询[HiveCatalog\HadoopCatalog通用]
 SET execution.runtime-mode = batch;
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
 
--- FlinkSQL流式查询
+-- FlinkSQL流式查询[HiveCatalog\HadoopCatalog通用]
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` /*+ OPTIONS('streaming'='true', 'monitor-interval'='5s', 'start-snapshot-id'='3821550127947089987')*/ ;
 
--- Hive创建Iceberg映射表
+-- Hive创建Iceberg映射表[只针对HadoopCatalog类型表]
 create external table iceberg_db.hadoop_iceberg_table_flink_sql (
   id BIGINT,
   name STRING,
@@ -175,11 +175,8 @@ tblproperties ('iceberg.catalog'='location_based_table');
 -- HiveSQL查询(能查到实时最新数据)
 select * from iceberg_db.hadoop_iceberg_table_flink_sql; 
 ```
-注意:不能在hive里先建表,因为Hive里建表后,Hive元数据中会保存metadata元数据信息,与Flink不兼容.Flink写入后,metadata.json更新,但Hive无感知,所以无法查询,甚至会因为Flink端删除了Hive记录的元数据文件而无法读写表.
-报错org.apache.hadoop.ipc.RemoteException(java.io.FileNotFoundException): File does not exist: /user/iceberg/warehouse/iceberg_db/hadoop_iceberg_table_flink_sql/metadata/00000-ab223d95-68e3-40db-9d24-f235543a8ee1.metadata.json
-手动修改hive metastore中记录的metadata_location也是不可以的,会报错.
 
---写入HiveCatalog类型的Iceberg表
+--写入Iceberg表[HiveCatalog类型]
 bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/cloudera/parcels/CDH/jars/hive-metastore-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-common-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/hive-serde-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libfb303-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-shims-common-2.1.1-cdh6.3.1.jar shell
 ```sql 
 set execution.checkpointing.interval=10sec; -- 必须设置checkpoint  靠checkpoint提交更新数据到Iceberg
@@ -203,7 +200,8 @@ CREATE CATALOG hive_iceberg_catalog WITH (
   'uri'='thrift://cdh101:9083,thrift://cdh103:9083',
   'clients'='5',
   'property-version'='1',
-  'warehouse'='hdfs://nameservice/user/iceberg/warehouse'
+  'warehouse'='hdfs://nameservice/user/iceberg/warehouse',
+  'hive-conf-dir'='/etc/ecm/hive-conf'   -- 如果hive是kerberos认证的,必须要加hive-conf-dir参数,非kerberos集群可忽略
 );
 
 CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`hive_iceberg_table_flink_sql` (
@@ -223,7 +221,109 @@ WITH('type'='ICEBERG',
 
 insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 ```
-写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表`iceberg_db`.`hive_iceberg_table_flink_sql`
+写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表iceberg_db.hive_iceberg_table_flink_sql
+也可以先在hive创建表,再Flink写入,均正常
+
+2.使用StreamPark(StreamX)配置FlikSQL任务写入Iceberg表[HiveCatalog+Kerberos]
+```
+FlinkSQL编写:
+CREATE CATALOG hive_iceberg_catalog WITH (
+  'type'='iceberg',
+  'catalog-type'='hive',
+  'uri'='thrift://thrift-host:9083',
+  'clients'='5',
+  'property-version'='1',
+  'warehouse'='oss://bucket_name/data/iceberg/warehouse',
+  'hive-conf-dir'='/etc/ecm/hive-conf'
+);
+-- Kafka source table
+CREATE TABLE t_kafka_source (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 't_qjj_flink_test',  
+    'scan.startup.mode' = 'latest-offset',
+    'properties.bootstrap.servers' = 'broker1:9092,broker2:9092,broker3:9092',
+    'properties.group.id' = 'test',
+    'format' = 'csv'
+);
+-- Iceberg target table
+CREATE TABLE IF NOT EXISTS `hive_iceberg_catalog`.`iceberg_db`.`hive_krb_iceberg_table_flink_sql` (
+   id BIGINT,
+   name STRING,
+   age INT,
+   dt STRING
+) PARTITIONED BY (dt)
+WITH('type'='ICEBERG',
+'engine.hive.enabled'='true',
+'read.split.target-size'='1073741824',
+'write.target-file-size-bytes'='134217728',
+'write.format.default'='parquet',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='10',  
+'write.distribution-mode'='hash');
+-- Insert data
+insert into hive_iceberg_catalog.iceberg_db.hive_krb_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
+依赖jar:
+  <dependency>
+    <groupId>org.apache.iceberg</groupId>
+    <artifactId>iceberg-flink-runtime-1.14</artifactId>
+    <version>0.14.1</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-metastore</artifactId>
+    <version>3.1.2</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.thrift</groupId>
+    <artifactId>libthrift</artifactId>
+    <version>0.9.3</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.thrift</groupId>
+    <artifactId>libfb303</artifactId>
+    <version>0.9.3</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-common</artifactId>
+    <version>3.1.2</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-serde</artifactId>
+    <version>3.1.2</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hive.shims</groupId>
+    <artifactId>hive-shims-common</artifactId>
+    <version>3.1.2</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.flink</groupId>
+    <artifactId>flink-connector-kafka_2.12</artifactId>
+    <version>1.14.5</version>
+  </dependency>
+  <dependency>
+    <groupId>commons-cli</groupId>
+    <artifactId>commons-cli</artifactId>
+    <version>1.3.1</version>
+  </dependency>
+```
+可能出现的异常:
+```err
+Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
+        at org.apache.flink.runtime.entrypoint.parser.CommandLineOptions.<clinit>(CommandLineOptions.java:27)
+```
+原因: streamx在下载hive依赖时,下载了它的子依赖,且hive使用的commons-cli与streamx使用的commons-cli版本不一致,导致jar冲突.
+解决: 每次build后手动删除hdfs dfs -rm -f hdfs://ns/streamx/workspace/100004/lib/commons-cli-1.2.jar
+
+
+
 
 三. 元数据分析
 https://mvnrepository.com/artifact/org.apache.avro/avro-tools下载avro-tools.jar
@@ -250,77 +350,6 @@ java -jar /opt/software/avro-tools-1.11.1.jar tojson 7d26a4d3-ed7a-4da3-be5b-ff1
 
 
 
-待测通 StreamX 写HiveCatalogIceberg表
-bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/cloudera/parcels/CDH/jars/hive-metastore-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-common-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/hive-serde-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libfb303-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-shims-common-2.1.1-cdh6.3.1.jar shell
-<dependency>
-    <groupId>org.apache.iceberg</groupId>
-    <artifactId>iceberg-flink-runtime-1.13</artifactId>
-    <version>0.14.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-metastore</artifactId>
-    <version>2.1.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.thrift</groupId>
-    <artifactId>libthrift</artifactId>
-    <version>0.9.3</version>
-    <type>pom</type>
-</dependency>
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-common</artifactId>
-    <version>2.1.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-serde</artifactId>
-    <version>2.1.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.thrift</groupId>
-    <artifactId>libfb303</artifactId>
-    <version>0.9.3</version>
-    <type>pom</type>
-</dependency>
-<dependency>
-    <groupId>org.apache.hive.shims</groupId>
-    <artifactId>hive-shims-common</artifactId>
-    <version>2.1.1</version>
-</dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -333,7 +362,18 @@ bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/clo
 三. Trino\Presto整合Iceberg
 以上打通了FlinkSQL Iceberg Hive 下面打通Trino 
 Trino支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表,如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.hadoop_iceberg_table_flink_sql
-
+Trino整合Iceberg需要配置$TRINO_HOME/etc/catalog/iceberg.properties内容如下:
+```
+connector.name=iceberg
+iceberg.file-format=PARQUET
+hive.metastore.service.principal=hive/metastore-server-ip@realm-name 
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.uri=thrift://metastore-server-ip:9083,metastore-server-ip-bk:9083
+hive.metastore.client.principal=principal-in-hive-keytab
+hive.metastore.client.keytab=/path/to/hive.keytab
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml, /etc/ecm/hadoop-conf/hdfs-site.xml
+iceberg.compression-codec=SNAPPY
+```
 
 
 
