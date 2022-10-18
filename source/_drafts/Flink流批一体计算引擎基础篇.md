@@ -448,6 +448,59 @@ bin/stop-cluster.sh
 
 
 
+Flink操作Hive及Iceberg 
+(flink 1.14.5 Hadoop 3.x Hive 3.x OSS)
+一.兼容Hive on OSS:
+wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-hive_2.12/1.14.5/flink-connector-hive_2.12-1.14.5.jar
+/usr/lib/hadoop-current/share/hadoop/mapreduce/hadoop-mapreduce-client-common-3.2.1.jar
+/usr/lib/hadoop-current/share/hadoop/mapreduce/hadoop-mapreduce-client-core-3.2.1.jar
+/usr/lib/hadoop-current/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-3.2.1.jar
+/usr/lib/hadoop-current/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-3.2.1.jar
+/usr/lib/hadoop-current/share/hadoop/hdfs/hadoop-hdfs-client-3.2.1.jar
+/usr/lib/hive-current/lib/hive-metastore-3.1.2.jar
+/usr/lib/hive-current/lib/metastore-client-*
+/usr/lib/hive-current/lib/hive-exec-3.1.2.jar
+wget https://repo1.maven.org/maven2/org/apache/thrift/libfb303/0.9.3/libfb303-0.9.3.jar
+/usr/lib/hive-current/lib/
+/usr/lib/hive-current/lib/antlr-runtime-3.5.2.jar
+
+vim conf/sql-init.sql 编写sql-init.sql 
+```sql 
+CREATE CATALOG hive_catalog
+WITH (
+'type' = 'hive',
+'hive-conf-dir'='/etc/ecm/hive-conf',
+'hive-version'='3.1.2'
+);
+USE CATALOG hive_catalog;
+SET 'execution.runtime-mode' = 'batch';
+SET 'sql-client.execution.result-mode' = 'table';
+SET 'table.sql-dialect'='hive';
+```
+
+确保以下jar以放入$FLINK_HOME/lib:
+antlr-runtime-3.5.2.jar
+hadoop-hdfs-client-3.2.1.jar
+hadoop-mapreduce-client-common-3.2.1.jar
+hadoop-mapreduce-client-core-3.2.1.jar
+hadoop-mapreduce-client-hs-3.2.1.jar
+hadoop-mapreduce-client-jobclient-3.2.1.jar
+hive-exec-3.1.2.jar
+hive-metastore-3.1.2.jar
+jindo-core-4.4.1.jar
+jindo-sdk-4.4.1.jar
+libfb303-0.9.3.jar
+metastore-client-common-0.2.15.jar
+metastore-client-hive3-0.2.15.jar
+metastore-client-hive-common-0.2.15.jar
+
+启动本地集群 bin/start-cluster.sh 
+jps -l | grep flink 
+
+启动flink-sql-client 
+export HADOOP_CLASSPATH=`hadoop classpath`
+bin/sql-client.sh embedded -i conf/sql-init.sql
+
 
 
 
