@@ -626,6 +626,13 @@ sudo pacman -S latte-dock
 效果
 ![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-20.png) 
 
+替代品: plank 
+优点: 资源占用较latte-dock小很多,支持多种皮肤下载
+缺点: 点图标后所有该程序的窗口都被打开
+sudo pacman -S plank
+设置plank:
+plank --preferences
+
 ### oh-my-zsh
 ![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-21.png) 
 ```shell
