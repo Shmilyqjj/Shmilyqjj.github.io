@@ -2243,10 +2243,23 @@ docker restart 5c0ac77c1d18
 docker top 1f3113406de9 
 进入容器
 docker exec -it 1f3113406de9 /bin/bash
+(root权限) docker exec -it -u root 1f3113406de9 bash 
 查看容器底层信息
 docker inspect 1f3113406de9 
+查看容器Id
+docker inspect 043500ec7fc2  |grep Id
 删除容器
 docker rm 5c0ac77c1d18
+查看容器端口映射
+docker port 043500ec7fc2 
+修改容器端口映射(不创建新容器)
+ docker stop 043500ec7fc2
+ sudo systemctl stop docker
+ /var/lib/docker/containers/(docker inspect 043500ec7fc2  |grep Id)/hostconfig.json
+ 找到PortBindings添加"7778/tcp": [{"HostIp": "","HostPort": "7778"}]
+ /var/lib/docker/containers/(docker inspect 043500ec7fc2  |grep Id)/config.v2.json
+ 在ExposedPorts加上要暴露的端口7778
+ sudo systemctl start docker
 
 示例:
 1.Docker创建MySql
