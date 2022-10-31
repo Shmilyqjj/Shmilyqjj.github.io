@@ -15,13 +15,13 @@ tags:
 keywords: Hive
 description: 了解Hive 3.x
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-cover.jpg
 abbrlink: 7fbbfd34
 date: 2019-12-27 15:18:25
 ---
 # Hive3.x新特性  
 ## 新特性简述  
-![alt Hive3.x-0](http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-0.JPG)  
+![alt Hive3.x-0](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-0.JPG)  
 1. 执行引擎变更为**[TEZ](https://tez.apache.org/)**,不使用MR  
 2. 成熟的[ACID](https://shmily-qjj.top/1f7eb1b3/)大数据事务支持  
 3. [LLAP](https://cwiki.apache.org/confluence/display/Hive/LLAP)用于妙极，毫秒级查询访问  
@@ -40,7 +40,7 @@ Apache TEZ的核心思想是将Map和Reduce拆分成若干子过程，即Map被�
 Apache TEZ兼容MR任务，不需要代码层面的改动。  
 Apache TEZ提供了较低级别的抽象，为了增强Hive/Pig的底层实现，而不是最终面向用户的。  
 Hive3的**TEZ+内存查询结合**的性能据说是Hive2的50倍(也有文章说是100倍，这个数字是不是很熟悉，它到底能不能与Spark内存计算速度媲美呢)。  
-![alt Hive3.x-1](http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-1.png)  ![alt Hive3.x-2](http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-2.png)   
+![alt Hive3.x-1](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-1.png)  ![alt Hive3.x-2](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-2.png)   
 上图是Hive On MR和Hive On Tez执行任务流程对比图，解释：
 
 | Hive On MR| Hive On Tez |
@@ -52,7 +52,7 @@ Hive3的**TEZ+内存查询结合**的性能据说是Hive2的50倍(也有文章�
 | 在磁盘处理数据集 | 小的数据集完全在内存中处理以及内存Shuffle |  
 
 新的HiveQL执行流程  
-![alt Hive3.x-4](http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-4.png)  
+![alt Hive3.x-4](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-4.png)  
 Hive编译查询->Tez执行查询->Yarn分配资源->Hive根据表类型更新HDFS或Hive仓库中的数据->Hive通过JDBC连接返回查询结果
 
 2. LLAP  
@@ -62,7 +62,7 @@ LLAP的守护进程长期存在且与DataNode直接交互，缓存，预读取�
 LLAP为了避免JVM内存设置的限制，使用堆外内存缓存数据以及处理GROUP BY/JOIN等操作，而守护程序仅使用少量内存。  
 Hive3支持两种查询模式**Container**和**LLAP**
 
-![alt Hive3.x-3](http://imgs.shmily-qjj.top/BlogImages/Hive/Hive3.x-3.png)  
+![alt Hive3.x-3](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Hive/Hive3.x-3.png)  
 如图LLAP执行示例，TEZ作为执行引擎，初始阶段数据被推到LLAP，LLAP直接与DataNode交互。而在Reduce阶段，大的Shuffle数据在不同的Container容器中进行，多个查询和应用能同时访问LLAP。  
 
 3. 更成熟的ACID支持  

@@ -15,7 +15,7 @@ tags:
 keywords: SparkListener
 description: SparkListener原理以及使用
 photos: >-
-  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/technology/tech06.jpg
 date: 2021-05-04 16:20:00
 ---
 # 浅析SparkListener机制 

@@ -14,7 +14,7 @@ tags:
 keywords: Python效率
 description: 提高Python运行效率的方案集锦
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-cover.jpg
 abbrlink: 2ed52290
 date: 2020-07-26 11:16:00
 ---
@@ -40,7 +40,7 @@ date: 2020-07-26 11:16:00
 ```shell
 pip install numba
 ```
-![alt FastPython-01](http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-01.png)
+![alt FastPython-01](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-01.png)
 
 **扩展：**
 ```python
@@ -49,7 +49,7 @@ from numba import jit
 @jit(nopython=True,fastmath=True) 牺牲一点数学精度来提高速度（默认精度高）
 @jit(nopython=True,parallel=True) 自动进行并行计算
 ```
-![alt FastPython-02](http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-02.png)
+![alt FastPython-02](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-02.png)
 原理：numba加速Python代码的原理是使用jit即时编译直接将Python代码翻译成机器码（上图左侧流程），避免了编译成Python字节码pyc再走Python虚拟机（上图右侧流程），直接提高了运行效率。
 
 **结论：**
@@ -109,8 +109,8 @@ if __name__ == '__main__':
     pandas_test()
     modin_pandas_test()
 ```
-![alt FastPython-03](http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-03.jpg)
-![alt FastPython-04](http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-04.jpg)
+![alt FastPython-03](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-03.jpg)
+![alt FastPython-04](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-04.jpg)
 单机跑Apply API速度大概快了3.5倍多。分布式还没测试。
 
 **结论：**
@@ -501,7 +501,7 @@ python中的profiler可以帮助我们测量程序执行过程中详细的时间
 ```shell
 python -m cProfile [-o output_file] my_python_file.py
 ```
-![alt FastPython-05](http://imgs.shmily-qjj.top/BlogImages/Python/FastPython-05.JPG)
+![alt FastPython-05](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Python/FastPython-05.JPG)
 
 ### 使用profile
 导入profile监控python程序整体执行耗时。

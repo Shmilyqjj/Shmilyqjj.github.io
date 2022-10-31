@@ -15,7 +15,7 @@ tags:
 keywords: Phoenix
 description: 基于HBase的SQL查询引擎
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Phoenix/Phoenix-cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Phoenix/Phoenix-cover.jpg
 abbrlink: 21b100d9
 date: 2020-01-12 11:26:08
 ---

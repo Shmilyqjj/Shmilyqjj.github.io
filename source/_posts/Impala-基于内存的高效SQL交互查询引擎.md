@@ -15,7 +15,7 @@ tags:
 keywords: Impala
 description: 了解高效SQL分析引擎Impala
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-cover.JPG
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-cover.JPG
 abbrlink: 1ae37d82
 date: 2021-01-17 10:18:30
 ---
@@ -69,7 +69,7 @@ Shared Nothing：各个处理单元都有自己私有的CPU/Memory/IO
 
 ## Impala原理
 **Impala架构图**
-![alt Impala-01](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-01.png)  
+![alt Impala-01](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-01.png)  
 
 ### Impala Daemon
 &emsp;&emsp;Impala的核心进程Impalad，部署在所有的数据节点上，接收客户端的查询请求，读写数据，并行执行来自集群中其他节点的查询请求，将中间结果返回给调度节点。调用节点将结果返回给客户端。Impalad进程通过持续与StateStore通信来确认自己所在的节点是否健康以及是否可以接受新的任务请求。
@@ -127,22 +127,22 @@ Hint会改变SQL的执行计划，使用Hint注意事项：
 
 ## 在CDH使用Impala
 Impala相关进程：
-![alt Impala-02](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-02.JPG)  
+![alt Impala-02](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-02.JPG)  
 注意：考虑集群性能，一般将StateStore与CatalogService放在同一节点上，因之间要做通信
 
 在StateStore的WEBUI http://cdh101:25010/ 可以查看Impala集群监控状态和配置信息：
-![alt Impala-03](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-03.JPG)  
+![alt Impala-03](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-03.JPG)  
 
 在Catalog的WEBUI http://cdh101:25020/ 可以看到各个库表元数据信息、Schema及占用内存大小
-![alt Impala-04](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-04.JPG)  
+![alt Impala-04](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-04.JPG)  
 
 在Impala Daemon的WEBUI http://cdh102:25000/ 可以看到该进程信息  在http://cdh102:25000/queries 可以查看该节点执行SQL的详情
-![alt Impala-07](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-07.JPG)  
-![alt Impala-08](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-08.JPG)  
+![alt Impala-07](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-07.JPG)  
+![alt Impala-08](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-08.JPG)  
 
 在CDH Impala组件中可以查看执行SQL任务的详细信息
-![alt Impala-05](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-05.JPG)  
-![alt Impala-06](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-06.JPG) 
+![alt Impala-05](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-05.JPG)  
+![alt Impala-06](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-06.JPG) 
 
 一些重要的常用的impala-shell使用命令
 ```shell
@@ -248,7 +248,7 @@ COMPUTE INCREMENTAL STATS [db_name.]table_name [PARTITION (partition_spec)]
     2.代理程序若因极端情况挂掉，写个自动拉起脚本以保证服务（root@cdh01 crontab */1 * * * * sh /app/impala/auto_impala_haproxy.sh）
 ```
 15. 限制Impala生成Parquet文件大小
-![alt Impala-09](http://imgs.shmily-qjj.top/BlogImages/Impala/Impala-09.png) 
+![alt Impala-09](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Impala/Impala-09.png) 
 
 
 总结：

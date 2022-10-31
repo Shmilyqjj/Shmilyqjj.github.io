@@ -15,7 +15,7 @@ tags:
 keywords: Kafka
 description: Kafka原理总结
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Kafka/Kafka-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kafka/Kafka-Cover.jpg
 abbrlink: e04c766b
 date: 2020-03-21 12:19:00
 ---

@@ -15,7 +15,7 @@ tags:
 keywords: Manjaro
 description: Manjaro Linux安装部署与美化
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Manjaro/Manjaro-Cover.png
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/Manjaro-Cover.png
 abbrlink: 3f34ebe3
 date: 2021-07-07 11:22:00
 ---
@@ -31,30 +31,30 @@ Boot顺序将系统安装盘改为第一项
 关闭安全启动Security Boot => 否则无法引导进入Linux
 SATA模式由Raid On切换为AHCI => 若系统有NVME硬盘则需要此操作，避免Linux无法识别到NVME硬盘（双系统用户先进入Windows->cmd运行msconfig->引导->勾选安全引导->重启的过程中会修复硬盘的AHCI驱动避免因切换AHCI导致无法启动Windows系统->重启后再取消勾选安全引导）
 
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-01.JPG)  
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-01.JPG)  
 双显卡用户注意事项(单显卡忽略此步骤)：
 Nvidia+Intel双显卡笔记本安装需要这步：安装前给内核传参=>按e在quiet后加：acpi_osi=! acpi_osi="Windows 2009"  按F10启动，否则会卡死无法进入桌面
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-02.JPG)  
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-03.JPG) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-02.JPG)  
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-03.JPG) 
 
 双击 Install Manjaro Linux打开安装向导
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-01.png)  
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-01.png)  
 时区选择Asia/ShangHai
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-02.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-02.png) 
 键盘默认即可
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-03.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-03.png)
 接下来是关键步骤 磁盘要选手动分区 
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-04.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-04.png) 
 磁盘空间规划：
 /boot/efi分区挂载到原EFI分区，共384G空闲空间，根分区xfs格式192G，home分区xfs格式160G，var分区ext4格式24G，swap给8G（xfs读取效率和断电容错较好但写效率略微低于ext4，ext4写效率高些读效率低于xfs）
 在空闲区域创建分区 步骤如下：
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-05.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-05.png)
 数据分区最终结果如下：
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-06.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-06.png)
 启动分区(EFI分区) 如下设置：
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-07.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-07.png)
 最后设置系统管理员用户
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-08.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-08.png)
 安装完成后 可以重启
 
 双显卡用户注意事项(单显卡忽略此步骤)：
@@ -149,7 +149,7 @@ shmily ALL=(ALL) NOPASSWD: ALL
 %shmily ALL=(ALL) NOPASSWD: ALL
 ```
 软件商店勾选启用AUR和Snap源
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-09.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-09.png)
 
 ### 中文输入法安装
 输入法首选安装:
@@ -166,11 +166,11 @@ XMODIFIERS    DEFAULT=\@im=fcitx5
 注销重新登陆后生效
 配置输入法：
 将拼音上移，作为默认输入法
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-10.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-10.png)
 设置shift按键为切换中英文输入的按键
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-11.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-11.png)
 根据个人习惯 设置共享输入状态 (我一般不设置) 
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-12.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-12.png)
 更换输入法主题:
 ```shell
 vim ~/.config/fcitx5/conf/classicui.conf
@@ -188,9 +188,9 @@ Theme=Material-Color-DeepPurple
 简约黑白主题下载地址:[fcitx5-simple-themes.zip](https://github.com/Shmilyqjj/BlogImages-0/blob/master/cdn_sources/Blog_Images/Manjaro/fcitx5-simple-themes.zip)
 
 启用云拼音
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-42.png)
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-43.png)
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-44.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-42.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-43.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-44.png)
 **说明：**fcitx5为主体，fcitx5-chinese-addons中文输入方式支持fcitx5-qt，对Qt5程序的支持fcitx5-gtk，对GTK程序的支持fcitx5-qt4-gitAUR，对Qt4程序的支持kcm-fcitx5是KDE下的配置工具，不过在gnome下也可以正常使用。
 提示：一般情况下，只安装fcitx5-qt和fcitx5-gtk就可以了，配置工具fcitx5的配置文件位于~/.local/share/fcitx5，尽管您可以使用文本编辑器编辑配置文件，但是使用 GUI 配置显然更方便，kcm-fcitx5集成到 KCM 中的配置工具，专为KDE而生fcitx5-config-qt-git AUR：Qt前端的fcitx5配置工具，与kcm-fcitx5相冲突。
 注意：对于非KDE界面，可以使用fcitx5-config-qt-gitAUR,该软件包与kcm-fcitx5相冲突，你需要手动卸载它。
@@ -412,13 +412,13 @@ cp ~/下载/Clash_1625991739.yaml  ~/.config/clash/config.yaml
 ```
 **使用WebUI管理连接**：
 根据cat ~/.config/clash/config.yaml | grep external-controller的结果，通过http://clash.razord.top进行策略组节点的切换
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-13.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-13.png)
 
 只浏览网页推荐使用Chrome浏览器插件Proxy SwitchyOmega:
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-14.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-14.png)
 **必要时可以使用系统全局代理**：
 进入系统设置->网络设置->使用系统代理服务器配置(或使用手动设置的代理服务器)->http代理设为127.0.0.1:7890 Socks代理设置为127.0.0.1:7891
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-15.png)
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-15.png)
 **配置Clash开机自启**：
 ```shell
 cp /usr/share/applications/Clash.desktop ~/.config/autostart/
@@ -433,7 +433,7 @@ sudo pacman -S kazam 可以截图和录屏的工具
 sudo pacman -S deepin-screenshot
 4. 自带截图工具Spectacle
 日常截图自带截图工具就足够了，只是与Windows端我们常用的Ctrl+Alt+A不太一样，可以记住它的快捷键，用起来也很方便
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-16.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-16.png) 
 主要常用的就是Meta+Print （即Win+PrtScn） 截取当前活动的窗口
 5. 深度录屏
 sudo pacman -S deepin-screen-recorder    
@@ -446,14 +446,14 @@ sudo pacman -S goldendict
 下载[朗文词典文件:提取码9m43](https://pan.baidu.com/s/1Zr7Z0iOPba7oDw75OzQQzw) (如果链接失效也可从其他途径下载)
 mkdir /home/shmily/tools/.LDOCE_Dict 将词典文件放进去
 在GoldenDict上配置词典即可.
-[!alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-45.png)
+[!alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-45.png)
 
 ### 久坐提醒
 可以设置久坐提醒,小憩时间的工具,可强制休息
 ```shell
 yay -S stretchly-bin
 ```
-[!alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-46.png)
+[!alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-46.png)
 
 ### 开发环境安装
 ```shell
@@ -608,11 +608,11 @@ usermod -a -G kvm shmily
 执行 ./xDroidInstall-x86_64-vxxxx.run 安装XDroid
 安装后重启一到两次即可完成安装
 应用商城
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-38.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-38.png) 
 已安装应用
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-39.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-39.png) 
 使用Android APP
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-40.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-40.png) 
 
 
 ## 系统界面美化
@@ -620,11 +620,11 @@ Manjaro Linux是可以随用户心情随意定制的，可定制化程度极高�
 ### Dock栏
 sudo pacman -S latte-dock
 根据偏好设置latte dock
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-17.png) 
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-18.png) 
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-19.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-17.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-18.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-19.png) 
 效果
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-20.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-20.png) 
 
 替代品: plank 
 优点: 资源占用较latte-dock小很多,支持多种皮肤下载
@@ -634,7 +634,7 @@ sudo pacman -S plank
 plank --preferences
 
 ### oh-my-zsh
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-21.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-21.png) 
 ```shell
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 #安装powerlevel10k主题
@@ -657,44 +657,44 @@ Tabby(原Terminus)：https://github.com/Eugeny/tabby
 
 |   |   |
 | ---- | ---- |
-| <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
-| <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
-| <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+| <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-22.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-23.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+| <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-24.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-25.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
+| <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-26.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=left alt="Konsole配置"> | <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-27.png" width=100% style="border:solid 3px #CCFFFF" title="Konsole配置" align=right alt="Konsole配置"> |
 
 
 ### 全局主题
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-Desktop.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-Desktop.png) 
 
 打开设置->外观->全局主题
 之所以喜欢用Mac的全局主题（McSur-dark）是因为它的任务栏比较好看比较精致
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-28.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-28.png) 
 
 ### 窗口
 窗口选择了这款，按钮比较简洁，是和Mac相近的，但按钮位置在右边，我还是比较习惯这种按键位置。点击主题上的按钮可以调节主题按键大小，下方可以调节窗口边框大小
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-29.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-29.png) 
 窗口配色方案我选的Ambiance-ISH，亮色看起来更敞亮，心情更好。
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-30.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-30.png) 
 
 ### 登陆页
 登陆页面只有每次开机时才会出现，锁屏是单独的锁屏页面。
 打开设置->开机与关机->登录屏幕(SDDM) 在这里设置
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-33.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-33.png) 
 效果：
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-32.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-32.png) 
 
 ### 欢迎屏幕
 开机在登陆页面输入密码后会进入欢迎屏幕，大概有2秒左右停留在欢迎屏幕，随便选个好看的就可以了。
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-31.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-31.png) 
 
 ### 锁屏界面
 每次锁屏(Meta+L)后都会显示这个页面。
 打开设置->工作区行为->锁屏->外观：配置
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-34.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-34.png) 
 
 ### 桌面特效
 这里会有一些神奇的界面效果，如窗口惯性拖动，最小化神灯效果，窗口切换效果等。
 打开设置->工作区行为->桌面特效
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-35.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-35.png) 
 主要改动的地方：气泡相关、窗口背景虚化、窗口透明度、窗口惯性晃动、最小化过渡动画(神灯)、窗口后滑特效、窗口打开\关闭动效、虚拟桌面切换动效
 
 ### 手动安装主题、壁纸、插件
@@ -726,7 +726,7 @@ yay -S aview # 图片转ASCII图像
 
 ### 动态壁纸工具
 KDE本身有动态壁纸插件,可以在壁纸设置中下载**SmartER video Wallpaper**插件:
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-41.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-41.png) 
 还有一款资源开销较低的动态壁纸软件:**fantascene-dynamic-wallpaper** 可以在应用商店找到
 动态壁纸将动态视频文件反序列化到内存中,会一定程度占用显卡\CPU和内存资源.低配电脑不建议使用.
 
@@ -766,7 +766,7 @@ sudo journalctl --vacuum-size=500M  限制归档日志大小，对日志做清�
 
 ### 搜索工具
 Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-36.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-36.png) 
 
 ### 解决thermal误报导致自动关机
 报错kernel: thermal thermal_zone3: critical temperature reached (125 C), shutting down  直接被关机
@@ -832,7 +832,7 @@ Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用
 使用timeshift的快照备份和还原系统
 1. 按照向导设置：选择快照类型:RSYNC->选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)->选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)->用户主目录(默认全部)
 2. 点击创建 会立刻运行快照创建程序，创建完如图
-![alt ](http://imgs.shmily-qjj.top/BlogImages/Manjaro/ManjaroInstall-37.png) 
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-37.png) 
 3. 家目录有些文件可能不需要备份，需要排除一部分文件：设定->筛选 可以自定义不对特定模式的文件创建快照
 4. 恢复快照: 选中要恢复的快照 点击恢复即可
 5. 当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:

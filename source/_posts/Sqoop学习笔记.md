@@ -15,18 +15,18 @@ tags:
 keywords: Sqoop
 description: Sqoop = SQL To Hadoop
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Sqoop/Sqoop-0.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Sqoop/Sqoop-0.jpg
 abbrlink: 26078
 date: 2019-11-03 13:15:27
 ---
 # 什么是Sqoop  
-![alt Sqoop-1](http://imgs.shmily-qjj.top/BlogImages/Sqoop/Sqoop-1.png)
+![alt Sqoop-1](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Sqoop/Sqoop-1.png)
 Sqoop是一款开源工具，用于Hadoop(Hive)与mysql等传统数据库间进行数据传递，可以将关系型数据库mysql,Oracle等中的数据导入HDFS中，也可以把HDFS中的数据导入到关系型数据库中。  
 Sqoop2与Sqoop1完全不兼容，一般生产环境使用Sqoop1，这里主要说Sqoop1  
 ## Sqoop原理  
 Sqoop原理很简单，就是将导入导出的命令翻译成MapReduce程序，Sqoop的操作主要目的（工作）是对MR程序的inputformat和outputformat进行定制.
 下图是Sqoop原理架构图  
-![alt Sqoop-2](http://imgs.shmily-qjj.top/BlogImages/Sqoop/Sqoop-2.png)  
+![alt Sqoop-2](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Sqoop/Sqoop-2.png)  
 图上意思很明确，这里不多赘述。  
 戳**[官方文档](http://sqoop.apache.org/)**了解更多
 
@@ -244,7 +244,7 @@ sqoop --options-file hdfs_to_mysql_job
 
 ## Sqoop参数中文参考文档  
 Sqoop参数中文文档，里面还包括了参数的实现类类名，供参考和深入学习，点击链接下载:  
-[Sqoop参数-PDF版](http://imgs.shmily-qjj.top/BlogImages/Sqoop/Sqoop参数-PDF版.pdf)
+[Sqoop参数-PDF版](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Sqoop/Sqoop参数-PDF版.pdf)
 
 ## 总结
 1. 强行结束MR任务后，不急着再启MR任务，MRAppMaster任务需要kill掉再运行新任务

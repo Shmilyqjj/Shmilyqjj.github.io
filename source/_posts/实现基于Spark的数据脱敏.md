@@ -16,7 +16,7 @@ tags:
 keywords: 数据安全
 description: 二次开发Spark使其支持简单数据脱敏
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-Cover.jpg
 abbrlink: 4cf161e5
 date: 2020-12-11 22:16:00
 ---
@@ -69,15 +69,15 @@ spark.catalog.dropGlobalTempView('global_view_name')
 全局视图调用：
 spark.sql("select * from global_temp.view_name")  需要加global_temp前缀
 6. 从一条SQL到ThriftServer上的一个Job，如何生成：
-![alt](http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-04.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-04.png)
 （该图引自[SparkSQL并行执行多个Job的探索](https://blog.csdn.net/weixin_45723348/article/details/107392903)，文章不错，推荐有空看看）
 
 ## 基于SparkThriftServer的数据脱敏    
 ### 工作原理流程
 流程：
-![alt](http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-01.jpg)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-01.jpg)
 原理：  
-![alt](http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-02.jpg)  
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-02.jpg)  
 
 ### 实现细节
 数据库建表：
@@ -649,7 +649,7 @@ org.apache.spark.sql.hive.thriftserver.server.SparkSQLOperationManager类，用�
 ```
 
 ### 实现效果
-![alt](http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-03.jpg)  
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-03.jpg)  
 
 ### 总结
 <font size="3" color="blue">优点</font>：
@@ -663,7 +663,7 @@ org.apache.spark.sql.hive.thriftserver.server.SparkSQLOperationManager类，用�
 <font size="3" color="blue">改进</font>：设置跑批程序，遍历数仓的表，根据数据特征自动发现敏感字段，并自动迭代脱敏配置库
 
 ### 扩展
-![alt](http://imgs.shmily-qjj.top/BlogImages/Spark/DataMasking/DataMasking-05.png)  
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/DataMasking/DataMasking-05.png)  
 &emsp;&emsp;上图是HiveServer2和SparkThriftServer的架构，可以看出两者架构相近。SparkThriftServer大量复用了HiveServer2的代码。
 &emsp;&emsp;HiveServer2的架构主要是通过ThriftCLIService监听端口，然后获取请求后委托给CLIService处理。CLIService又一层层的委托，最终交给OperationManager处理。OperationManager会根据请求的类型创建一个Operation的具体实现处理。比如Hive中执行sql的Operation实现是SQLOperation。
 &emsp;&emsp;Spark Thrift Server做的事情就是实现自己的CLIService——SparkSQLCLIService，接着也实现了SparkSQLSessionManager以及SparkSQLOperationManager。另外还实现了一个处理sql的Operation——SparkExecuteStatementOperation。这样，当Spark Thrift Server启动后，对于sql的执行就会最终交给SparkExecuteStatementOperation了。

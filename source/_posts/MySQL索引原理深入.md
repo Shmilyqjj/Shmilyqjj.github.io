@@ -14,7 +14,7 @@ tags:
 keywords: MySQL索引
 description: MySQL索引数据结构是如何选型的？
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-Cover.jpg
 abbrlink: 7c15e85
 date: 2020-03-24 10:16:00
 ---
@@ -100,7 +100,7 @@ __因为如果二叉排序树是平衡的，则n个节点的二叉排序树的�
 通过自动调整树形态让二叉树保持基本平衡，复杂度O(logn)，因为基本平衡，查询效率不会明显降低，不存在O(n)的情况。
 <font face="verdana" color="green"  size="3">吃瓜群众：</font>那就用这个做索引数据结构吧！
 <font size="3" color="red">**万万不可用红黑树做索引的数据结构！**</font>
-![alt MYSQL-index-01](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-01.jpg)  
+![alt MYSQL-index-01](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-01.jpg)  
 还是自增id为主键索引的情况，如果红黑树按顺序插入数据，整个红黑树会明显右倾，查询效率会明显降低。  
 像我这种数据结构渣渣，送自己一个宝贝：[红黑树算法图形模拟](https://www.cs.usfca.edu/~galles/visualization/RedBlack.html)  
 
@@ -111,7 +111,7 @@ AVL树，也是通过调整形态保持二叉树平衡，它虽然在调整形�
 
 5. B树与B+树
 <font size="3" color="red">**B树：**</font>
-![alt MYSQL-index-02](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-02.jpg)  
+![alt MYSQL-index-02](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-02.jpg)  
 又名多路查找树，特点：
 ①节点数据递增，遵循左小右大
 ②M阶B树，每个节点最多可以有M个子节点
@@ -120,7 +120,7 @@ AVL树，也是通过调整形态保持二叉树平衡，它虽然在调整形�
 ⑤所有叶子节点都在同一层次
 <font size="3" color="red">B树代替AVL树：</font>让每个节点存的key数目适当增加，即增加M（B树的阶数），磁盘读取次数大大降低，尽可能减少磁盘IO，加快检索速度，还能支持范围查找。
 <font size="3" color="red">**B+树：**</font>
-![alt MYSQL-index-03](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-03.png)  
+![alt MYSQL-index-03](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-03.png)  
 <font size="3" color="red">与B树区别：</font>
 一是B树每个节点（包括非叶子节点）都存数据，B+树非叶子节点有索引作用，而数据存在叶子节点 **-->** B树的每个节点存不了太多数据，B+树每个叶子节点能存很多索引（地址）。所以B+树高度更低，减少了磁盘IO。
 二是B树节点之间没索引，B+相邻叶子节点之间有索引指针 **-->** WHERE范围查询性能很好。
@@ -176,9 +176,9 @@ ll /var/lib/mysql/db_name/
 
 ### 为什么MyISAM比InnoDB快？  
 上面我们已经提到InnoDB使用聚集索引，MyISAM使用非聚集索引。两种引擎的数据组织方式不同。
-![alt MYSQL-index-04](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-04.jpg)  
-![alt MYSQL-index-05](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-05.jpg)  
-![alt MYSQL-index-06](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-index-06.jpg)  
+![alt MYSQL-index-04](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-04.jpg)  
+![alt MYSQL-index-05](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-05.jpg)  
+![alt MYSQL-index-06](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-index-06.jpg)  
 如图是两种引擎组织数据的方式
 查询时InnoDB需要通过主键索引树先拿到主键值后再去辅助索引树拿到整条记录（建表的时候InnoDB就会自动建立好主键索引树），而MyISAM拿到数据的索引即可直接以Offset形式直接在数据文件中定位数据。而且InnoDB因为支持ACID，还要检查[MVCC多版本并发控制](https://blog.csdn.net/w2064004678/article/details/83012387)，而MyISAM不支持事务，也是其快的原因。还有MyISAM维护了一个保存整表行数的变量，count(*)很快。
 

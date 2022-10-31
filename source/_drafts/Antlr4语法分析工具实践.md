@@ -16,7 +16,7 @@ tags:
 keywords: Kafka
 description: Antlr4语法分析工具实践
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Kafka/Kafka-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kafka/Kafka-Cover.jpg
 abbrlink: s02c711a
 date: 2020-11-19 10:50:00
 ---

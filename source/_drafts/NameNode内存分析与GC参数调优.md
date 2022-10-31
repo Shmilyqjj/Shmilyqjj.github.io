@@ -18,7 +18,7 @@ tags:
 keywords: 内存分析
 description: 如何评估NN内存需求以及针对NN的GC调优策略
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Kafka/Kafka-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kafka/Kafka-Cover.jpg
 date: 2020-03-23 16:19:00
 ---
 # NameNode内存分析与GC参数调优

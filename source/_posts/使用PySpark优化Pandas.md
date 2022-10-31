@@ -16,7 +16,7 @@ tags:
 keywords: Pandas、PySpark
 description: 使用PySpark解决Pandas在大数据下的瓶颈
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/PySpark/pyspark-pandas-cover.jpg
 abbrlink: pyspark_pandas
 date: 2020-08-10 11:26:08
 ---
@@ -398,7 +398,7 @@ pandas_df = spark_df.select('col1', 'col2').toPandas()  # Spark某几个字段�
 
 ## 透视表
 透视表与逆透视表：
-![alt pyspark-pandas-01](http://imgs.shmily-qjj.top/BlogImages/Spark/PySpark/pyspark-pandas-01.png) 
+![alt pyspark-pandas-01](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Spark/PySpark/pyspark-pandas-01.png) 
 透视Pivot：
 按不需要转换的字段分组（groupBy） -> pivot函数进行透视，可选第二个参数指定输出字段数据项 -> 聚合汇总数据项得到结果
 逆透视unpivot：列形式且无重复值的数据转成行形式且有重复值得数据

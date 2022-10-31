@@ -15,7 +15,7 @@ tags:
 keywords: ClickHouse
 description: 高效率MPP架构分布式OLAP实时分析引擎
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/ClickHouse/ClickHouse-cover.jpeg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/ClickHouse/ClickHouse-cover.jpeg
 date: 2021-12-10 16:10:00
 ---
 

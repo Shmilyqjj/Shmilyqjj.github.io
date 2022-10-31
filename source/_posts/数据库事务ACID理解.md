@@ -14,7 +14,7 @@ tags:
 keywords: 事务ACID与隔离级别
 description: 事务的ACID，加深一下印象
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-ACID-Cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-ACID-Cover.jpg
 abbrlink: 1f7eb1b3
 date: 2019-12-28 20:22:00
 ---
@@ -27,7 +27,7 @@ date: 2019-12-28 20:22:00
   
 ## ACID  
 ACID是指数据库事务正确执行的四个基本特征的缩写  
-![alt MYSQL-ACID-01](http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-ACID-01.png)  
+![alt MYSQL-ACID-01](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-ACID-01.png)  
 通过上图可以大概了解ACID的基本特征，下面做详细介绍
 
 ### 原子性（Atomicity）  

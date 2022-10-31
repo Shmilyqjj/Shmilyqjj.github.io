@@ -16,12 +16,12 @@ tags:
 keywords: Kyuubi
 description: Kyuubi统一分析引擎代替ThriftServer提供稳定高效、支持多租户、权限管理、动态资源的分析服务。
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-cover.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-cover.jpg
 abbrlink: ee1c2df4
 date: 2022-04-29 16:39:12
 ---
 # Kyuubi原理与替代SparkThriftServer实践-基于CDH6
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-00.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-00.png)
 
 ## 前言
 Spark ThriftServer原生不支持多租户、权限管理、且稳定性一般，即使我们在源码基础上做了很多权限管控、SQL日志审计、数据脱敏以及性能优化，但由于它自身的稳定性和单点问题，仍然会经常造成调度、分析任务的失败。常见的一些问题有：
@@ -50,12 +50,12 @@ Kyuubi的愿景是建立在Apache Spark和Data Lake技术之上，理想的统�
 | 用户语言 | Scala+SQL灵活混合使用 | SQL |
 | 存储引擎 | Hive+Kudu+DeltaLake+Azure+Presto | Hive+DeltaLake |
 | 高可用性 | 原生基于ZK和Yarn的高可用，KyuubiServer本身支持水平扩展高可用 | 原生不支持，需要手动配置LoadBalancer，但发生切换时视图、hivevar变量、缓存等状态会丢失 |
-| 系统架构 | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-01.png) | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-08.png) |
+| 系统架构 | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-01.png) | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-08.png) |
 
 
 ## Kyuubi原理
 ### Kyuubi架构图
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-01.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-01.png)
 在Kyuubi中，客户端的连接是作为**KyuubiSession**来维护的。
 Kyuubi Session的创建可以分为轻量级和重量级两种情况。大多数会话创建都是轻量级、用户无感知的。唯一的重量级情况是用户的共享域中没有实例化或缓存的SparkContext，这种情况通常发生在用户第一次连接或长时间未连接时。这种一次性创建会话的成本，在多数AdHoc场景下也能接受。
 
@@ -63,16 +63,16 @@ Kyuubi维护SparkContext的方式是松散耦合的，这些SparkContext既可�
 
 Kyuubi可以创建和托管多个SparkContexts实例，它们有自己的生命周期，一定条件下会被自动创建和回收，如果一段时间没有任务负载，资源会全部释放。SparkContext的状态不受Kyuubi进程故障转移的影响。
 
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-02.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-02.png)
 Kyuubi支持不同共享级别的引擎共享。如果设置了USER级别的share.level，同一用户与Kyuubi建立的多个连接会复用同一个Engine，实现用户级别的资源隔离。
 
 ### Kyuubi资源隔离共享级别
 | 共享级别 | 参数 | 图解 | 说明 |
 |----|----|----|----|
-| CONNECTION | kyuubi.engine.share.level=CONNECTION | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-09.png) | 每个连接都创建一个独立的Engine，连接创建即申请Engine，连接关闭即释放Engine |
-| USER | kyuubi.engine.share.level=USER | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-10.png) | 同一用户的多个连接共享一个Engine，一个用户对应一个Engine，用户连接关闭后不会立刻释放Engine，在无操作达到TTL后释放Engine |
-| GROUP | kyuubi.engine.share.level=GROUP | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-11.png) | 属于相同组的所有用户创建的所有连接共享同一个Engine，以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER，用户组遵循[Hadoop Groups Mapping](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/GroupsMapping.html)，可以通过配置把不同用户映射到一个组。相比USER级别给每个用户都创建引擎，GROUP级别可以减少引擎实例数，节约资源，但引擎是共享的，同组所有用户都复用这个引擎，访问权限控制若要做到细粒度，则需要结合[Apache Ranger](https://ranger.apache.org/)，资源控制的细粒度需要结合[SparkFairScheduler](https://spark.apache.org/docs/latest/job-scheduling.html#fair-scheduler-pools) | 
-| SERVER | kyuubi.engine.share.level=SERVER | ![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-12.png) | 每个KyuubiServer中的连接共用一个Engine，类似原生ThriftServer的高可用版本 |
+| CONNECTION | kyuubi.engine.share.level=CONNECTION | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-09.png) | 每个连接都创建一个独立的Engine，连接创建即申请Engine，连接关闭即释放Engine |
+| USER | kyuubi.engine.share.level=USER | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-10.png) | 同一用户的多个连接共享一个Engine，一个用户对应一个Engine，用户连接关闭后不会立刻释放Engine，在无操作达到TTL后释放Engine |
+| GROUP | kyuubi.engine.share.level=GROUP | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-11.png) | 属于相同组的所有用户创建的所有连接共享同一个Engine，以组名作为启动Engine的用户名，数据权限按组进行管理，如果组名不存在，共享级别降级为USER，用户组遵循[Hadoop Groups Mapping](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/GroupsMapping.html)，可以通过配置把不同用户映射到一个组。相比USER级别给每个用户都创建引擎，GROUP级别可以减少引擎实例数，节约资源，但引擎是共享的，同组所有用户都复用这个引擎，访问权限控制若要做到细粒度，则需要结合[Apache Ranger](https://ranger.apache.org/)，资源控制的细粒度需要结合[SparkFairScheduler](https://spark.apache.org/docs/latest/job-scheduling.html#fair-scheduler-pools) | 
+| SERVER | kyuubi.engine.share.level=SERVER | ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-12.png) | 每个KyuubiServer中的连接共用一个Engine，类似原生ThriftServer的高可用版本 |
 一个KyuubiServer中可以混用多种隔离级别。
 
 比如正常情况下引擎共享级别设置为GROUP，同一个组下的用户只能申请一个引擎；当组里用户太多时，单个引擎也会出现并发瓶颈和资源抢占，针对这种问题，Kyuubi中引入了Subdomain的概念，引擎共享子域（kyuubi.engine.share.level.subdomain）是对引擎资源隔离共享级别的补充，能实现同一个用户、组创建多个引擎。
@@ -84,7 +84,7 @@ beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuu
 beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?spark.app.name=qjj_kyuubi_sd2;spark.driver.memory=2G;kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2" -nq00885 -p******
 ```
 可以看到单个用户启动了两个Engine
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-13.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-13.png)
 如果我想创建一个连接复用之前的sd2这个Subdomain，就可以通过以下指定Subdomain的方式进行指定。
 ```shell
 beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?kyuubi.engine.share.level=USER;kyuubi.engine.share.level.subdomain=sd2" -nq00885 -p******
@@ -95,7 +95,7 @@ beeline -u "jdbc:hive2://kyuubi-server-ip:10009/default;?kyuubi.engine.share.lev
 Kyuubi基于ZK实现高可用和负载均衡：
 KyuubiServer启动会到ZK注册节点，实现KyuubiServer之间负载均衡和高可用
 每个用户登录默认是default子域，每个子域注册一个永久节点，子域下面申请的Engine会注册临时节点，将Engine信息写入ZK。此外还通过ZK存放一些用户的锁和租约信息。
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-14.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-14.png)
 
 ### Kyuubi监控
 Kyuubi本身支持监控，配置方法参考：[Monitoring Kyuubi - Server Metrics](https://kyuubi.apache.org/docs/latest/monitor/metrics.html)
@@ -253,7 +253,7 @@ bin/spark-sql --master yarn
 ```
 **至此Spark3.2.2 On CDH6.3.2编译部署完毕**
 注意Yarn外部ShuffleService一定确保开启
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-06.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-06.png)
 
 ### Kyuubi On Spark3基础部署
 更多配置参考：[Kyuubi-Deployment-Settings](https://kyuubi.apache.org/docs/latest/deployment/settings.html)
@@ -313,7 +313,7 @@ kyuubi.authentication.ldap.domain=xxxx.com
 kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
 ```
 使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-03.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-03.png)
 查询时，数据访问、元数据访问都使用这个用户，要确保这个用户有HDFS上ACL权限(hdfs dfs -getfacl查看)。
 还要确保Linux上有该用户，否则引擎无法申请成功。
 如果没有HDFS上的ACL权限，可以通过setfacl设置ACL,或者通过hive的grant命令针对组批量授权。
@@ -414,12 +414,12 @@ User k00877 not found
 在一个没有开启Kerberos安全的集群里，启动container进程可以使用DefaultContainerExecutor或LinuxContainerExecutor；但是启用了Kerberos安全的集群里，启动container进程只能使用LinuxContainerExecutor，在底层会使用setuid切换到业务用户以启动container进程，所以要求所有nodemanager节点必须有业务用户。
 可选方案: Ldap是支持管理Linux用户的,可以作为Linux自带用户的扩展,实现不用手动useradd就能在各节点以ldap中的用户模拟Linux用户启动Container.
 临时解决：首先保证用户主目录有权限的前提下，在各个NodeManager节点创建k00877用户，创建后可以看到引擎正常启动
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-05.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-05.png)
 
 3. 使用LDAP登录的用户无HDFS上表数据的访问权限
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-04.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-04.png)
 分析：需要确保当前用户的权限或者ACL权限是READ_EXECUTE
-![alt](http://imgs.shmily-qjj.top/BlogImages/Kyuubi/Kyuubi-07.png)
+![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-07.png)
 当前用户q00885没有该目录的任何读权限。解决方式：
 
 ```text

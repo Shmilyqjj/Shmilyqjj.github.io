@@ -16,7 +16,7 @@ tags:
 keywords: Parquet
 description: 结合Spark源码，深入了解Parquet
 photos: >-
-  http://imgs.shmily-qjj.top/CategoryImages/technology/tech06.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/technology/tech06.jpg
 date: 2021-02-01 10:46:00
 ---
 # Parquet原理深入与实践  

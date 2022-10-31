@@ -14,7 +14,7 @@ tags:
 keywords: group by与distinct
 description: group by与distinct去重
 photos: >-
-  http://imgs.shmily-qjj.top/BlogImages/Mysql/MYSQL-groupby-distinct-intro.jpg
+  https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Mysql/MYSQL-groupby-distinct-intro.jpg
 abbrlink: '96009187'
 date: 2019-11-13 20:45:37
 ---
