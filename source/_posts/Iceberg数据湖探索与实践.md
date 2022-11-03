@@ -4,8 +4,8 @@ author: 佳境
 avatar: >-
   https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg
 authorLink: shmily-qjj.top
-authorAbout: 你自以为的极限,只是别人的起点
-authorDesc: 你自以为的极限,只是别人的起点
+authorAbout: '你自以为的极限,只是别人的起点'
+authorDesc: '你自以为的极限,只是别人的起点'
 categories:
   - 技术
 comments: true
@@ -16,6 +16,7 @@ keywords: Iceberg
 description: Iceberg数据湖相关知识探索与实践
 photos: >-
   https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-cover.jpg
+abbrlink: 38dd005e
 date: 2022-10-31 10:10:00
 ---
 # Iceberg数据湖探索与实践
