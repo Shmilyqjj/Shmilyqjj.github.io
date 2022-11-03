@@ -34,7 +34,7 @@ date: 2022-10-31 10:10:00
 3. Schema Evolution(模式演化): 支持无副作用地增(ADD)删(Drop)改(Update)列,改变列顺序(Reorder)以及重命名列(Rename),且代价很低(只涉及元数据操作,不存在数据重新读写操作)(Iceberg使用唯一ID定位列,新增列会分配新的ID,所以列不会错位)
 4. Partition Evolution(分区演化): 在已有的表上改变分区策略时,之前的分区数据不会变且依然采用老的分区策略,新数据会采用新的分区策略.在Iceberg元数据里,两个分区策略相互独立.比如以前有个天分区表,现在业务需要小时分区,按Hive数仓的处理方式需要重新建表,但Iceberg表直接在原表上更改分区布局即可.
 ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-1.png)
-5. 支持隐藏分区: Iceberg的分区信息不需要人工维护,可以被隐藏起来.与Hive指定分区字段的方式不同,Iceberg的分区字段(分区策略)支持通过某字段计算出来,在建表或者修改分区策略之后, 新的数据会自动计算所属于的分区,查询时Iceberg会自动过滤不需要扫描的数据,避免了因用户SQL未指定分区过滤条件而导致的性能问题,让用户更专注业务逻辑而无需考虑分区字段过滤问题.(Iceberg分区信息和数据存储目录是相互独立开的,使得Iceberg表分区可以被修改,而且不涉及数据迁移)
+5. 支持隐藏分区: Iceberg的分区信息不需要人工维护,可以被隐藏起来.与Hive指定分区字段的方式不同,Iceberg的分区字段(分区策略)支持通过某字段计算出来,在建表或者修改分区策略之后, 新的数据会自动计算所属于的分区,查询时Iceberg会自动过滤不需要扫描的数据,避免了因用户SQL未指定分区过滤条件而导致的性能问题,让用户更专注业务逻辑而无需考虑分区字段过滤问题.(Iceberg分区信息和数据存储目录是相互独立开的,使得Iceberg表分区可以被修改,而且不涉及数据迁移;分区信息不存在HMS,减轻了HMS的压力)
 6. 分区演化和隐藏分区使得业务可以方便地调整分区策略.
 7. Time Travel: 可以查询历史某一时间点snapshot的数据,支持回滚到历史snapshot.
 8. 支持事务(ACID): Iceberg提供了边读边写的能力,上游数据写入即可见,通过事务,保证了下游组件只能消费已经commit的数据,无法读到未提交的数据.支持添加删除更新数据.
@@ -57,8 +57,8 @@ date: 2022-10-31 10:10:00
 **HadoopCatalog与HiveCatalog表的目录结构**  
 ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-3.png)  
 差异:
-1.HadoopCatalog表MetadataFile命名为v*.metadata.json,与HiveCatalog表ManifestList命名规范不同
-2.HadoopCatalog表通过version-hint.text记录最新快照ID,HiveCatalog通过HiveMetaStore记录最新metadata_location.
+1.HadoopCatalog表MetadataFile命名为v*.metadata.json,与HiveCatalog表ManifestList命名规范不同  
+2.HadoopCatalog表通过version-hint.text记录最新快照ID,HiveCatalog通过HiveMetaStore记录最新metadata_location.  
 
 **HadoopCatalog表元数据解析**  
 ```shell
@@ -354,7 +354,7 @@ MetadataFile文件 00001-66c5832f-9d6d-4674-9a52-2aa6b8e29991.metadata.json
 }
 ```
 
-ManifestList清单列表文件 snap-6283861985931247372-1-825f6beb-3be7-485c-b338-8dec6068be94.avro
+ManifestList清单列表文件   snap-6283861985931247372-1-825f6beb-3be7-485c-b338-8dec6068be94.avro
 ```json
 {"manifest_path":"hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/metadata/825f6beb-3be7-485c-b338-8dec6068be94-m0.avro","manifest_length":6234,"partition_spec_id":0,"added_snapshot_id":{"long":6283861985931247372},"added_data_files_count":{"int":2},"existing_data_files_count":{"int":0},"deleted_data_files_count":{"int":0},"partitions":{"array":[{"contains_null":false,"contains_nan":{"boolean":false},"lower_bound":{"bytes":"20221010"},"upper_bound":{"bytes":"20221011"}}]},"added_rows_count":{"long":3},"existing_rows_count":{"long":0},"deleted_rows_count":{"long":0}}
 ```
@@ -491,7 +491,7 @@ tblproperties ('iceberg.catalog'='location_based_table');
 不推荐场景: 需要使用Trino分析该表.(因为Trino当前不支持HadoopCatalog类型Iceberg表)
 注意: **外部存储上的Iceberg表,Catalog必须是HadoopCatalog类型的，否则无法读取数据。**如果是其他Catalog类型,表创建时会报错File does not exist: /table_path.../metadata/version-hint.text，表能创建成功，但查询结果为空。
 
-### Iceberg与Flink集成
+### Iceberg与Flink集成  
 Flink 1.14则下载iceberg-flink-runtime-1.14-0.14.1.jar 放入$FLINK_HOME/lib目录下
 1. Flink DataStreamAPI集成Iceberg
 写了几个案例:
@@ -711,7 +711,7 @@ insert into hive_iceberg_catalog.iceberg_db.hive_krb_iceberg_table_flink_sql sel
 Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
         at org.apache.flink.runtime.entrypoint.parser.CommandLineOptions.<clinit>(CommandLineOptions.java:27)
 ```
-原因: streamx在下载hive依赖时,下载了它的子依赖,且hive使用的commons-cli与streamx使用的commons-cli版本不一致,导致jar冲突.
+原因: streamx在下载hive依赖时,下载了它的子依赖,且hive使用的commons-cli与streamx使用的commons-cli版本不一致,导致jar冲突.  
 解决: 每次build后手动删除hdfs dfs -rm -f hdfs://ns/streamx/workspace/项目ID/lib/commons-cli-1.2.jar
 
 
@@ -729,8 +729,8 @@ hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml, /etc/ecm/hadoop-conf/h
 iceberg.compression-codec=SNAPPY
 ```
 若需要其支持外部存储例如oss,则需要将jindo-core-4.3.0.jar和jindo-sdk-4.3.0.jar两个jar拷贝到$TRINO_HOME/plugin/iceberg/和$TRINO_HOME/plugin/hive/以兼容外部存储.
-Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表.
-如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.iceberg_table
+
+Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表.如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.iceberg_table
 
 ### Iceberg与Spark集成
 ......
@@ -748,19 +748,29 @@ Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型I
 清理Iceberg表过期快照的Demo
 [**ClearExpiredSnapshots**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/ClearExpiredSnapshots.scala)
 
+### 数据文件重写
+流式数据写入可能会产生大量小的数据文件,Iceberg提供了rewriteDataFiles(Compaction)操作,可以定期合并小文件,提高查询性能.
+
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |
 | ---- | ---- | ---- | ---- |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
+| 数据管理 | 通过metadata文件管理 | 通过metadata文件管理 | 通过metadata文件管理 |
+| 使用场景 | 流批一体,高性能分析与可靠数据管理 | 流批一体,Upsert场景 | 流批一体,融合Spark生态 |
+| ACID | 支持 | 支持 | 支持 |
+| ACID隔离级别 | Write Serialization(写串行执行) | Snapshot Isolation(写数据若无交集则并发写,否则串行) | Serialization(读写都必须串行)/Write Serialization/Snapshot Isolation |
+| Schema演化 | 支持 | 支持 | 支持 |
+| 数据操作 | 支持Update/Delete | 支持Upsert/Delete | 支持Update/Delete/Merge |
+| 流式读 | 支持 | 支持 | 支持 |
+| 流式写 | 支持 | 支持 | 支持 |
+| 并发控制 | 乐观 | 乐观 | 乐观 |
+| 文件清理 | 手动 | 自动 | 手动 |
+| Compaction | 手动 | 自动 | 手动 |
+| 外部依赖 | 完全解耦 | 依赖Spark | 依赖Spark |
+| CopyOnWrite | 支持 | 支持 | 支持 |
+| MergeOnRead | v2表支持,v1表不支持 | 支持 | 不支持 |
+| 字段加密 | v3表计划支持 | 不支持 | 不支持 |
 
-## 参考
-[Apache Iceberg](https://iceberg.apache.org/docs/latest)
-[Iceberg概述](https://zhuanlan.zhihu.com/p/429898023)
+## 参考  
+[Apache Iceberg](https://iceberg.apache.org/docs/latest)  
+[Iceberg概述](https://zhuanlan.zhihu.com/p/429898023)  
+[深度对比 Delta、Iceberg 和 Hudi 三大开源数据湖方案](https://cloud.tencent.com/developer/article/1936522)
