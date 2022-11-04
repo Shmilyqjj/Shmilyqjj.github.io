@@ -739,12 +739,204 @@ Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型I
 
 
 ## Iceberg表管理维护
+数据实时写入Iceberg表会频繁发生Commit操作,产生大量元数据文件和数据文件,文件数膨胀和小文件问题会使其性能下降,甚至影响底层存储系统稳定性.目前Iceberg表并不能像Hudi一样自动处理小文件问题,需要一定的手动维护工作.
+以下是发生31次commit后,Iceberg表目录树形结构.
+```tree
+hadoop_iceberg_partitioned_table
+├── data
+│   ├── dt=20221010
+│   │   └── 00000-0-hive_20221102105407_0605b24c-e823-4244-a994-83887ea7e430-job_1667357081446_0002-00001.parquet
+│   ├── dt=20221011
+│   │   └── 00000-0-hive_20221102105315_5bb17fc0-3092-4bed-8839-253f19117b6d-job_1667357081446_0001-00001.parquet
+│   └── dt=20221104
+│       ├── 00000-0-shmily_20221104104344_a66cc954-b33c-48df-812c-cc59d609ec59-job_1667529535736_0001-00001.parquet
+│       ├── 00000-0-shmily_20221104104714_7bc45bcf-b8dc-4730-b9b5-d0c92ae46d5d-job_1667529535736_0002-00001.parquet
+│       ├── 00000-0-shmily_20221104104805_4a490286-3499-43fb-affb-4317e07128d1-job_1667529535736_0003-00001.parquet
+│       ├── 00000-0-shmily_20221104104851_71127db1-1170-4a38-a3d4-83e296fd3330-job_1667529535736_0004-00001.parquet
+│       ├── 00000-0-shmily_20221104105901_1d66566e-af6c-4311-b123-86cfd18e0102-job_1667529535736_0005-00001.parquet
+│       ├── 00000-0-shmily_20221104110033_e6e579d7-b08f-48b1-9277-b51b318dec7c-job_1667529535736_0006-00001.parquet
+│       ├── 00000-0-shmily_20221104110100_345a4caa-bb75-4ea4-be5c-51a2420c428d-job_1667529535736_0007-00001.parquet
+│       ├── 00000-0-shmily_20221104110124_bbb8626e-3d06-48a4-be6a-3ef061be4122-job_1667529535736_0008-00001.parquet
+│       ├── 00000-0-shmily_20221104110152_13d0e1a5-6630-4dc2-ae24-ee104cbca3b5-job_1667529535736_0009-00001.parquet
+│       ├── 00000-0-shmily_20221104110158_4283a83a-2662-4a89-8311-e8f89fe64603-job_1667529535736_0010-00001.parquet
+│       ├── 00000-0-shmily_20221104110218_66253aad-58ca-4121-b454-8383e1ae7aae-job_1667529535736_0011-00001.parquet
+│       ├── 00000-0-shmily_20221104110245_c041e352-dacd-4f5e-9fb4-ca321b4b3468-job_1667529535736_0012-00001.parquet
+│       ├── 00000-0-shmily_20221104110311_29653ebe-6426-4163-8ace-7b1d305c9253-job_1667529535736_0013-00001.parquet
+│       ├── 00000-0-shmily_20221104110336_35708806-e3a6-4746-851a-e8d306812810-job_1667529535736_0014-00001.parquet
+│       ├── 00000-0-shmily_20221104110400_d1949e60-6123-49ff-8a85-0281651cf0b2-job_1667529535736_0015-00001.parquet
+│       ├── 00000-0-shmily_20221104110425_e0cdc030-7d88-4b5f-8956-c95ffd71e698-job_1667529535736_0016-00001.parquet
+│       ├── 00000-0-shmily_20221104110448_e144f00c-60b7-4935-a749-d3d88eba828a-job_1667529535736_0017-00001.parquet
+│       ├── 00000-0-shmily_20221104110513_01b3285c-a3c8-490c-bc3c-5dbd696824e8-job_1667529535736_0018-00001.parquet
+│       ├── 00000-0-shmily_20221104110538_bbe889dd-8615-4019-b6cc-636d1503dc8c-job_1667529535736_0019-00001.parquet
+│       ├── 00000-0-shmily_20221104110602_09da4a19-c2ac-46af-af6c-5d97a3fbdcd9-job_1667529535736_0020-00001.parquet
+│       ├── 00000-0-shmily_20221104110627_b1544cff-a0c2-4310-a06a-cd6103e40e9d-job_1667529535736_0021-00001.parquet
+│       ├── 00000-0-shmily_20221104110651_a7e21f79-764d-4e62-8174-109dc4f1e7e2-job_1667529535736_0022-00001.parquet
+│       ├── 00000-0-shmily_20221104110716_a657cb8b-45be-4484-9a21-bc2814e0c6b1-job_1667529535736_0023-00001.parquet
+│       ├── 00000-0-shmily_20221104110742_f0e29e2e-4225-4e42-9699-524a19dacf44-job_1667529535736_0024-00001.parquet
+│       ├── 00000-0-shmily_20221104110805_1827ea66-b863-4ecb-adc2-285470309490-job_1667529535736_0025-00001.parquet
+│       ├── 00000-0-shmily_20221104110831_1019e38e-4845-4792-83fb-39822e497983-job_1667529535736_0026-00001.parquet
+│       ├── 00000-0-shmily_20221104110919_4f1e3e96-1d37-40f3-aa2e-2a0139170381-job_1667529535736_0027-00001.parquet
+│       ├── 00000-0-shmily_20221104110943_9ff35be2-cec0-4389-843e-395c7c6ec428-job_1667529535736_0028-00001.parquet
+│       └── 00000-0-shmily_20221104111008_7a8ca8e3-d4c6-4aa1-81b6-c79d6ba7dd4f-job_1667529535736_0029-00001.parquet
+├── metadata
+│   ├── 03710058-d552-4dc1-b9cb-9340729e8f5e-m0.avro
+│   ├── 09fd33b8-c9ce-4f7c-b871-ca31f096e3b1-m0.avro
+│   ├── 12169e7b-13cb-4393-8158-1c9effe14e8f-m0.avro
+│   ├── 2e834cae-756b-4498-a82a-2418db4b1092-m0.avro
+│   ├── 3486a62e-1d74-49bd-bad3-c61187fac97f-m0.avro
+│   ├── 3a9351b4-388b-44d9-8243-4a11189d81b2-m0.avro
+│   ├── 3d0a560f-06f4-4402-a388-0b3cc7e25598-m0.avro
+│   ├── 40862af2-6d95-40b8-a979-2360ea3b7175-m0.avro
+│   ├── 44671db7-02ca-47c1-a229-c7f62d8aa12f-m0.avro
+│   ├── 551c586b-9c4d-4ca4-a0ef-d46c30fb01f8-m0.avro
+│   ├── 5baf0fec-3247-48f3-84f6-2f6402e866c7-m0.avro
+│   ├── 639416fc-47c0-452e-a1d9-f17864cf008f-m0.avro
+│   ├── 63ab2797-6a07-4886-9c27-43765bc31851-m0.avro
+│   ├── 74ca6f5e-4eab-45d9-b0b1-04ba48e53971-m0.avro
+│   ├── 8a4ce917-5986-4a95-9573-62103a116559-m0.avro
+│   ├── 90bcc77d-5516-4c3e-96c8-242713920b1b-m0.avro
+│   ├── 9f87073d-4cbc-46e9-b4dd-42fc28c86726-m0.avro
+│   ├── a4c74672-5ace-4a79-aca9-677926532794-m0.avro
+│   ├── b0e01ba5-bbe9-4ce4-ad9e-f07ab774a041-m0.avro
+│   ├── b1a2cd1f-e30a-4c45-9119-9ba0e185cc58-m0.avro
+│   ├── b209efb3-aab3-4bc2-a821-0557a0cda8d3-m0.avro
+│   ├── b7c5b752-49d4-4840-8990-fb4a84e0f71d-m0.avro
+│   ├── b9ba125d-bd76-483d-94f7-f6a9b664f633-m0.avro
+│   ├── bcc5bf7b-7f01-4969-9f4c-cc9c1c920029-m0.avro
+│   ├── d5b51efd-32b4-4948-9cc8-f2422919f1d7-m0.avro
+│   ├── d6492cb2-7012-4668-9af9-c25cbe4df95a-m0.avro
+│   ├── e511d02d-ecd8-4a3f-b8b7-45ad864026dc-m0.avro
+│   ├── e652600f-4167-4f59-92cc-45faf15b03b1-m0.avro
+│   ├── f0e6c6ca-51a7-42e6-b412-4036e27c7d98-m0.avro
+│   ├── f3646fc2-7e64-4395-8adc-cd6a75413d37-m0.avro
+│   ├── f91de7e0-2bf3-4804-bb28-64b61ebc588f-m0.avro
+│   ├── snap-1244418053907939374-1-44671db7-02ca-47c1-a229-c7f62d8aa12f.avro
+│   ├── snap-1477308230043616149-1-f91de7e0-2bf3-4804-bb28-64b61ebc588f.avro
+│   ├── snap-1490572932134542813-1-5baf0fec-3247-48f3-84f6-2f6402e866c7.avro
+│   ├── snap-1778869542790618047-1-12169e7b-13cb-4393-8158-1c9effe14e8f.avro
+│   ├── snap-2054318792294634903-1-f3646fc2-7e64-4395-8adc-cd6a75413d37.avro
+│   ├── snap-2520326235035414997-1-b7c5b752-49d4-4840-8990-fb4a84e0f71d.avro
+│   ├── snap-3185789235788477057-1-e652600f-4167-4f59-92cc-45faf15b03b1.avro
+│   ├── snap-3406584701390941146-1-b209efb3-aab3-4bc2-a821-0557a0cda8d3.avro
+│   ├── snap-3684994728472824032-1-9f87073d-4cbc-46e9-b4dd-42fc28c86726.avro
+│   ├── snap-3706799770416474623-1-a4c74672-5ace-4a79-aca9-677926532794.avro
+│   ├── snap-3951591399252751391-1-3a9351b4-388b-44d9-8243-4a11189d81b2.avro
+│   ├── snap-4081427338556096982-1-d5b51efd-32b4-4948-9cc8-f2422919f1d7.avro
+│   ├── snap-4367759472594176887-1-b0e01ba5-bbe9-4ce4-ad9e-f07ab774a041.avro
+│   ├── snap-4477640749996566080-1-63ab2797-6a07-4886-9c27-43765bc31851.avro
+│   ├── snap-4792262885242972970-1-551c586b-9c4d-4ca4-a0ef-d46c30fb01f8.avro
+│   ├── snap-501818490576080743-1-3486a62e-1d74-49bd-bad3-c61187fac97f.avro
+│   ├── snap-558299450529529123-1-bcc5bf7b-7f01-4969-9f4c-cc9c1c920029.avro
+│   ├── snap-6000755959745218957-1-09fd33b8-c9ce-4f7c-b871-ca31f096e3b1.avro
+│   ├── snap-6590633258547705279-1-639416fc-47c0-452e-a1d9-f17864cf008f.avro
+│   ├── snap-70006429373167712-1-d6492cb2-7012-4668-9af9-c25cbe4df95a.avro
+│   ├── snap-7258286604987289050-1-03710058-d552-4dc1-b9cb-9340729e8f5e.avro
+│   ├── snap-7353150060042609479-1-e511d02d-ecd8-4a3f-b8b7-45ad864026dc.avro
+│   ├── snap-7512257803790292671-1-b9ba125d-bd76-483d-94f7-f6a9b664f633.avro
+│   ├── snap-7520911403174383355-1-90bcc77d-5516-4c3e-96c8-242713920b1b.avro
+│   ├── snap-7612339408675772086-1-40862af2-6d95-40b8-a979-2360ea3b7175.avro
+│   ├── snap-7688152750730458585-1-f0e6c6ca-51a7-42e6-b412-4036e27c7d98.avro
+│   ├── snap-8654338094020315416-1-8a4ce917-5986-4a95-9573-62103a116559.avro
+│   ├── snap-8685114841540976719-1-b1a2cd1f-e30a-4c45-9119-9ba0e185cc58.avro
+│   ├── snap-8693851636236625016-1-2e834cae-756b-4498-a82a-2418db4b1092.avro
+│   ├── snap-8855760427151465849-1-3d0a560f-06f4-4402-a388-0b3cc7e25598.avro
+│   ├── snap-9102081850556452524-1-74ca6f5e-4eab-45d9-b0b1-04ba48e53971.avro
+│   ├── v1.metadata.json
+│   ├── v2.metadata.json
+│   ├── v3.metadata.json
+│   ├── v4.metadata.json
+│   ├── v5.metadata.json
+│   ├── v6.metadata.json
+│   ├── v7.metadata.json
+│   ├── v8.metadata.json
+│   ├── v9.metadata.json
+│   ├── v10.metadata.json
+│   ├── v11.metadata.json
+│   ├── v12.metadata.json
+│   ├── v13.metadata.json
+│   ├── v14.metadata.json
+│   ├── v15.metadata.json
+│   ├── v16.metadata.json
+│   ├── v17.metadata.json
+│   ├── v18.metadata.json
+│   ├── v19.metadata.json
+│   ├── v20.metadata.json
+│   ├── v21.metadata.json
+│   ├── v22.metadata.json
+│   ├── v23.metadata.json
+│   ├── v24.metadata.json
+│   ├── v25.metadata.json
+│   ├── v26.metadata.json
+│   ├── v27.metadata.json
+│   ├── v28.metadata.json
+│   ├── v29.metadata.json
+│   ├── v30.metadata.json
+│   ├── v31.metadata.json
+│   ├── v32.metadata.json
+│   └── version-hint.text
+└── temp
+```
+其中有32个MetadataFile文件(metadata.json),31个ManifestList文件(snap-*.avro),31个ManifestFile文件(xx-m0.avro)以及31个DataFile(xx.parquet)文件.
+n次commit会带来3n+1个文件落盘.
+执行清理(合并数据文件->清理过期快照->重写ManifestFile->清理孤立文件)后,小文件数量多的问题会有明显改善,结果如下:
+```tree
+hadoop_iceberg_partitioned_table_after
+├── data
+│   ├── dt=20221010
+│   │   ├── 00000-0-hive_20221102105407_0605b24c-e823-4244-a994-83887ea7e430-job_1667357081446_0002-00001.parquet
+│   │   ├── 00000-1-5ea18300-180b-465d-8310-bbbf422e15b8-00001.parquet
+│   │   ├── 00000-1-78fcc067-f967-465f-be58-f5beff8561dd-00001.parquet
+│   │   ├── 00000-2-be5c1e4a-254f-4503-9ff5-f8817a9e92f7-00001.parquet
+│   │   └── 00000-613-8bdfbded-0300-425a-8201-031920536100-00001.parquet
+│   ├── dt=20221011
+│   │   ├── 00000-0-d75b9b2f-4794-42e2-94fe-f6ae22ccd7d9-00001.parquet
+│   │   ├── 00000-0-hive_20221102105315_5bb17fc0-3092-4bed-8839-253f19117b6d-job_1667357081446_0001-00001.parquet
+│   │   ├── 00000-2-1402730f-cc62-4daf-a47e-a8aecaa545c8-00001.parquet
+│   │   ├── 00000-2-73f4cb74-1ab1-494d-ba4d-242b070bb82d-00001.parquet
+│   │   └── 00000-611-6edbc04e-0919-4ae4-be30-89a8b91478e6-00001.parquet
+│   └── dt=20221104
+│       ├── 00000-0-11b9e51d-1ebd-496c-ae07-9e480c92c35e-00001.parquet
+│       ├── 00000-0-274072c6-cefa-4395-ab31-016eacd19f08-00001.parquet
+│       ├── 00000-0-ad26a63a-9b36-4c7d-9cb9-109aafae96fc-00001.parquet
+│       ├── 00000-1-bd95039f-65c4-4b19-938e-185d615e3e0d-00001.parquet
+│       └── 00000-612-73dd262d-7377-42f7-87e8-024447dc6fd6-00001.parquet
+├── metadata
+│   ├── 6d24ddd9-be10-42f3-a5d6-4551ee5a8bf0-m0.avro
+│   ├── 79077b45-29e8-4d19-89a0-aef243b6a4ca-m0.avro
+│   ├── 79077b45-29e8-4d19-89a0-aef243b6a4ca-m1.avro
+│   ├── 7f9cc85d-0de4-4c4c-bde7-54d4f4f78447-m0.avro
+│   ├── ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3-m0.avro
+│   ├── ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3-m1.avro
+│   ├── d2eeb7b2-9607-4c5b-bdc5-6cfe2c81ed94-m0.avro
+│   ├── e52f34b0-ff45-4207-87a0-95b1897da11a-m0.avro
+│   ├── e52f34b0-ff45-4207-87a0-95b1897da11a-m1.avro
+│   ├── e715d26c-152c-4ff3-9533-7860d920503d-m0.avro
+│   ├── e715d26c-152c-4ff3-9533-7860d920503d-m1.avro
+│   ├── snap-2296367325872747730-1-e715d26c-152c-4ff3-9533-7860d920503d.avro
+│   ├── snap-3114464783889165727-1-6d24ddd9-be10-42f3-a5d6-4551ee5a8bf0.avro
+│   ├── snap-4397206702551297792-1-ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3.avro
+│   ├── snap-5015314203544980905-1-7f9cc85d-0de4-4c4c-bde7-54d4f4f78447.avro
+│   ├── snap-761586103173871579-1-79077b45-29e8-4d19-89a0-aef243b6a4ca.avro
+│   ├── snap-8390029841836840556-1-d2eeb7b2-9607-4c5b-bdc5-6cfe2c81ed94.avro
+│   ├── snap-8895954507409072148-1-e52f34b0-ff45-4207-87a0-95b1897da11a.avro
+│   ├── v38.metadata.json
+│   ├── v39.metadata.json
+│   ├── v40.metadata.json
+│   ├── v41.metadata.json
+│   ├── v42.metadata.json
+│   ├── v43.metadata.json
+│   └── version-hint.text
+└── temp
+```
+
+
 ### metadata数控制
 在Iceberg中,每次触发事务提交都会生成一个metadata.json,应当避免metadata文件无限增长,可以在建表时指定如下参数:
 ```conf
 'write.metadata.delete-after-commit.enabled'='true' # 发生commit后,是否删除比较旧的metadata文件
-'write.metadata.previous-versions-max'='50' # 保留的最大历史metadata文件数量,超过该历史版本数量的老的metadata文件会被删除
+'write.metadata.previous-versions-max'='9' # 保留的最大历史metadata文件数量,超过该历史版本数量的老的metadata文件会被删除
 ```
+这样可以自动控制MetadataFile文件数为9个.
 
 ### 清理过期snapshot
 清理Iceberg表过期快照的Demo
@@ -752,6 +944,8 @@ Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型I
 
 ### 数据文件重写
 流式数据写入可能会产生大量小的数据文件,Iceberg提供了rewriteDataFiles(Compaction)操作,可以定期合并小文件,提高查询性能.
+
+### 元数据文件重写
 
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |
