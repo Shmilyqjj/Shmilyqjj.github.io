@@ -398,7 +398,7 @@ Iceberg当前有V1和V2两种表类型,建表时由property-version指定.
 添加**iceberg.engine.hive.enabled=true**参数到hive-site.xml
 
 Hive创建Iceberg表
-(Hive操作Iceberg支持多种Catalog，支持Hadoop、Hive(默认)、Custom、location_based_table几种管理方式)
+(Hive操作Iceberg支持多种Catalog，支持Hadoop、Hive(默认)、location_based_table、Custom几种管理方式,其中前三种是开箱即用的)
 
 1.**HiveCatalog**类型(表元数据信息使用HiveMetaStore来管理，依赖Hive):
 ```sql
@@ -445,6 +445,7 @@ TBLPROPERTIES (
 HiveCatalog表在HMS中保存了很多Table Parameters信息,如current-schema,current-snapshot-xx,default-partition-spec,metadata_location,previous_metadata_location,snapshot-count等信息.
 
 HiveCatalog表在Hive下存在的问题: 在Kerberos认证的HMS环境下,Hive客户端可以建表和查询,但无法inssert数据;可以使用beeline+hiveserver2进行Iceberg表的insert操作.
+适用场景: HiveCatalog在兼容性方面有天然的优势,几乎大部分常见计算引擎都支持HiveCatalog,而其他类型的Catalog则有不被计算引擎支持的可能.尤其是如果使用Iceberg自定义Catalog,则需要为每个试用Iceberg的引擎做一定的开发工作以兼容自定义Catalog.
 
 2.**HadoopCatalog**类型(元数据信息使用底层外部存储来管理)
 ```sql
@@ -492,6 +493,9 @@ tblproperties ('iceberg.catalog'='location_based_table');
 推荐场景: 外部计算引擎均支持HadoopCatalog类型Iceberg表的情况下,比如Flink、Spark等引擎写入的数据，可以使用这种方式创建Hive表来打通Hive.
 不推荐场景: 需要使用Trino分析该表.(因为Trino当前不支持HadoopCatalog类型Iceberg表)
 注意: **外部存储上的Iceberg表,Catalog必须是HadoopCatalog类型的，否则无法读取数据。**如果是其他Catalog类型,表创建时会报错File does not exist: /table_path.../metadata/version-hint.text，表能创建成功，但查询结果为空。
+
+4.**CustomCatalog**自定义Catalog,通过Iceberg提供的API定制Catalog,使Iceberg能更加灵活地使用各类元数据管理方案.
+适用场景: 需要与Hive Hadoop等解耦的场景,以及需要灵活管理元数据的场景.在元数据管理和兼容计算引擎方面需要一定的开发工作量.
 
 ### Iceberg与Flink集成  
 Flink 1.14则下载iceberg-flink-runtime-1.14-0.14.1.jar 放入$FLINK_HOME/lib目录下
