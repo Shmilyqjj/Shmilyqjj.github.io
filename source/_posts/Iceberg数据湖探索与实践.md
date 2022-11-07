@@ -411,7 +411,7 @@ CREATE TABLE iceberg_db.hive_iceberg_table (
 STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
 LOCATION '/user/hive/warehouse/iceberg_db.db/hive_iceberg_table'
 TBLPROPERTIES (
- 'write.distribution-mode'='hash',
+ 'write.distribution-mode'='hash',  -- 数据写入参数,设置为hash表示按key哈希,每一个Partition数据最多由一个Task来写入，减少小文件
  'write.metadata.delete-after-commit.enabled'='true',   -- (每次提交后是否删除旧元数据文件) 自动清理旧元数据 metadata.json 不能清理manifest和snapshot的avro文件
  'write.metadata.previous-versions-max'='5'  -- 保留的metadata.json数量
 );
@@ -548,7 +548,7 @@ WITH('type'='ICEBERG',
 'write.format.default'='parquet',
 'write.metadata.delete-after-commit.enabled'='true',
 'write.metadata.previous-versions-max'='9',  
-'write.distribution-mode'='hash');  -- 动态合并metadata
+'write.distribution-mode'='hash'); 
 insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 -- 2.FlinkSQL批式查询
 SET execution.runtime-mode = batch;
@@ -616,9 +616,8 @@ insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select 
 ```
 写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表iceberg_db.hive_iceberg_table_flink_sql.
 也可以先在hive创建表,再Flink写入,均正常.
-Trino中也可以直接看到并查询该表.
-
-3. StreamPark集成Iceberg(基于HiveCatalog)
+Trino中也可以直接看到并查询该表.  
+3. StreamPark集成Iceberg(基于HiveCatalog)  
 StreamPark是基于Flink SQL的流式计算平台.在StreamPark上可以很方便地开发实时操作Iceberg的Flink任务.
 环境: Hadoop 3.2.1 + Hive 3.1.2 + Iceberg 0.14.1 + Flink 1.14.5 + StreamPark 1.2.4 + OSS
 FlinkSQL编写:
@@ -721,7 +720,7 @@ Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.O
 解决: 每次build后手动删除hdfs dfs -rm -f hdfs://ns/streamx/workspace/项目ID/lib/commons-cli-1.2.jar
 
 
-### Iceberg与Trino集成
+### Iceberg与Trino集成  
 Trino整合Iceberg需要配置$TRINO_HOME/etc/catalog/iceberg.properties内容如下:
 ```
 connector.name=iceberg
