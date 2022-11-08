@@ -58,7 +58,7 @@ date: 2022-10-31 10:10:00
 **HadoopCatalog与HiveCatalog表的目录结构**  
 ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-3.png)  
 差异:  
-1.HadoopCatalog表MetadataFile命名为v*.metadata.json,与HiveCatalog表ManifestList命名规范不同  
+1.HadoopCatalog表MetadataFile命名为*.metadata.json,与HiveCatalog表ManifestList命名规范不同  
 2.HadoopCatalog表通过version-hint.text记录最新快照ID,HiveCatalog通过HiveMetaStore记录最新metadata_location.  
 3.HadoopCatalog与HiveCatalog表元数据不互通,无法互相转换
 
