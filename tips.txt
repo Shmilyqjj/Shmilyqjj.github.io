@@ -40,7 +40,7 @@ lymtics，可以是英文句子LoveyoumorethanIcansay的首字母缩写
   - 使用CDN访问GitHub上的文件
      Git原地址 https://github.com/Shmilyqjj/Shmily-Web/blob/master/cdn_sources/.....
      CDN对应地址 https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/.....
-     例: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).jpg.webp
+     例: https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(0).jpg.webp
   注意: 不可以使用jsdelivr直接引用github的文件  content-type 是 text/plain  页面无法解析
   使用绝对路径：
   cdn: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources
@@ -49,7 +49,7 @@ lymtics，可以是英文句子LoveyoumorethanIcansay的首字母缩写
   博文内容图片:https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/....        （jpg only）
   博文分类封面:https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/....    （jpg only）
   博文标签封面:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/Tags_Images/....        （jpg only）
-  主页横幅图片:https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/....          （webp only）
+  主页横幅图片:https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/....          （webp only）
 4.图床工具托管图片 PicGo 
 下载：https://github.com/Molunerfinn/PicGo（https://molunerfinn.com/PicGo/）
 配置Github图床：

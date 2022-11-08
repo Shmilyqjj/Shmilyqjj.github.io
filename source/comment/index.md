@@ -4,7 +4,7 @@ date: 2018-12-20 23:13:48
 keywords: 留言板
 description: 
 comments: true
-photos: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/banner/comment.jpg
+photos: https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/banner/comment.jpg
 ---
 {% raw %}
 <div class="entry-content">

@@ -12,7 +12,7 @@ pjax: 1
 mathjax: 0
 
 notice: 欢迎大佬光临寒舍，部分功能还在开发中，随便逛逛吧！
-lazyloadImg: https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/loader/orange.progress-bar-stripe-loader.svg
+lazyloadImg: https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/loader/orange.progress-bar-stripe-loader.svg
 
 menus:
   首页: { path: /, fa: fa-fort-awesome faa-shake }
@@ -47,20 +47,20 @@ homePageSortType: -1
 homeArticleShown: 10
 # 背景图片 更好的修改 0复联  7-8王者荣耀  9-31灵笼
 bg:
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(0).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(9).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(10).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(11).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(18).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(21).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(22).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(23).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(26).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(27).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(28).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(29).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(30).webp
-  - https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/cover/(31).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(0).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(9).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(10).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(11).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(18).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(21).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(22).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(23).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(26).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(27).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(28).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(29).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(30).webp
+  - https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(31).webp
 
 # 背景图片样式 空 原图效果 filter-dim 阴影 filter-grid 横条 filter-dot 点点
 bgclass: filter-dot

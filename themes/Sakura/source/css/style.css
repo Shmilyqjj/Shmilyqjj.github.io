@@ -5,7 +5,7 @@
     width: 400px;
 }
 #veditor {
-    background-image: url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/comment-bg.png);
+    background-image: url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/comment-bg.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: right;
@@ -1091,13 +1091,13 @@ a:hover,a:active {
     opacity:1
 }
 .video-play,.loadvideo {
-    background-image:url('https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/play@32x32.png')
+    background-image:url('https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/play@32x32.png')
 }
 .video-pause {
-    background-image:url('https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/pause@32x32.png')
+    background-image:url('https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/pause@32x32.png')
 }
 #video-add {
-    background-image:url('https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/add@32x32.png');
+    background-image:url('https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/add@32x32.png');
     bottom:45px;
     display:none
 }
@@ -2236,7 +2236,7 @@ h1.page-title.mb- {
     z-index:99;
     width:70px;
     height:900px;
-    background:url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/scroll.png) no-repeat center;
+    background:url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/scroll.png) no-repeat center;
     background-size:contain;
     -webkit-transition:all .5s ease-in-out;
     transition:all .5s ease-in-out;
@@ -2817,7 +2817,7 @@ to {
     height:40px;
     text-align:center;
     line-height:45px;
-    background-image:url("https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg");
+    background-image:url("https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/disqus-preloader.svg");
     background-position:center;
     background-repeat:no-repeat;
     background-size:auto 100%
@@ -3604,7 +3604,7 @@ a.page-numbers {
     background-color:rgba(255,255,255,0)
 }
 .comment-respond textarea {
-    background-image:url('https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/comment-bg.png');
+    background-image:url('https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/comment-bg.png');
     background-size:contain;
     background-repeat:no-repeat;
     background-position:right;
@@ -3886,14 +3886,14 @@ li.feature-2 {
     background-color:rgba(0,0,0,.3)
 }
 .headertop.filter-grid::before {
-    background-image:url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/grid.png)
+    background-image:url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/grid.png)
 }
 .headertop.filter-dot::before {
-    background-image:url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/dot.gif)
+    background-image:url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/dot.gif)
 }
 @media(max-width:860px) {
     .headertop.filter-dot::before {
-    background-image:url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/grid.png)
+    background-image:url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/grid.png)
 }
 }.headertop-bar::after {
     content:'';
@@ -4246,7 +4246,7 @@ i.iconfont.js-toggle-search.iconsearch {
     visibility:visible;
     opacity:.99;
     animation:elastic .5s;
-    background-image:url(https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/iloli.gif);
+    background-image:url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/iloli.gif);
     background-repeat:no-repeat;
     background-position:bottom right
 }
@@ -4636,7 +4636,7 @@ i.iconfont.down {
     color:orange
 }
 #pagination .loading {
-    background:url("https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg");
+    background:url("https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/wordpress-rotating-ball-o.svg");
     background-position:center;
     background-repeat:no-repeat;
     color:#555;
@@ -5415,7 +5415,7 @@ i.iconfont.js-toggle-search.iconsearch {
 }.oshimai {
     height:2em;
     width:6.11em;
-    background:url("https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/oshimai.svg");
+    background:url("https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/oshimai.svg");
     background-size:cover;
     margin:0 auto
 }
@@ -7632,7 +7632,7 @@ img[src*="#in-center"] {
 #banner_wave_1 {
     width:auto;
     height:65px;
-    background:url("https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wave1.png") repeat-x;
+    background:url("https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/wave1.png") repeat-x;
     _filter:alpha(opacity=80);
     position:absolute;
     bottom:0;
@@ -7646,7 +7646,7 @@ img[src*="#in-center"] {
 #banner_wave_2 {
     width:auto;
     height:80px;
-    background:url("https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wave2.png") repeat-x;
+    background:url("https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/wave2.png") repeat-x;
     _filter:alpha(opacity=80);
     position:absolute;
     bottom:0;

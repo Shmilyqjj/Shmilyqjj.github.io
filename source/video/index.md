@@ -10,7 +10,7 @@ photos:
 <script>
   var videos = [
     {
-      img: 'https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/bangumi/linglong.jpg',
+      img: 'https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/bangumi/linglong.jpg',
       title: 'aaa',
       status: '已追完',
       progress: 100,
