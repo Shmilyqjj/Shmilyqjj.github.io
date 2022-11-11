@@ -738,7 +738,25 @@ iceberg.compression-codec=SNAPPY
 Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表.如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.iceberg_table
 
 ### Iceberg与Spark集成
-......
+下载iceberg-spark-runtime-3.3_2.12-1.0.0.jar到$SPARK_HOME/jars路径
+编辑$SPARK_HOME/conf/spark-defaults.conf添加如下内容
+```conf
+spark.sql.catalog.spark_catalog  org.apache.iceberg.spark.SparkSessionCatalog
+spark.sql.catalog.spark_catalog.type  hive
+```
+Spark创建的Iceberg表打通Hive
+```sql
+-- Spark创建Iceberg表
+CREATE TABLE spark_catalog.default.qjj_iceberg_test (
+    id bigint COMMENT 'unique id',
+    data string
+) USING iceberg
+LOCATION 'oss://bucket-name/user/hive/warehouse/qjj_iceberg_test';
+-- Hive中兼容Spark创建的Iceberg表需要做的操作
+ALTER TABLE qjj_iceberg_test SET FILEFORMAT INPUTFORMAT "org.apache.iceberg.mr.hive.HiveIcebergInputFormat" OUTPUTFORMAT "org.apache.iceberg.mr.hive.HiveIcebergOutputFormat" SERDE "org.apache.iceberg.mr.hive.HiveIcebergSerDe";
+alter table qjj_iceberg_test set TBLPROPERTIES ('storage_handler'='org.apache.iceberg.mr.hive.HiveIcebergStorageHandler');
+```
+注: Hive创建的Iceberg表可以直接被Spark读取
 
 
 ## Iceberg表管理维护
@@ -943,12 +961,22 @@ hadoop_iceberg_partitioned_table_after
 
 ### 清理过期snapshot
 清理Iceberg表过期快照的Demo
+Flink实现:
 [**ClearExpiredSnapshots**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/ClearExpiredSnapshots.scala)
+Spark实现:
+[**SparkIcebergTableMaintenance$expireSnapshots**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
 
 ### 数据文件重写
 流式数据写入可能会产生大量小的数据文件,Iceberg提供了rewriteDataFiles(Compaction)操作,可以定期合并小文件,提高查询性能.
+[**SparkIcebergTableMaintenance$compactDataFiles**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
 
 ### 元数据文件重写
+每次Commit都会产生一个metadata文件,随着时间的推移,实时任务写入的MetadataFile数越来越多,做合并可以降低文件数,提升查询效率.
+[**SparkIcebergTableMaintenance$rewriteManifests**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
+
+### 清理孤立文件
+[**SparkIcebergTableMaintenance$removeOrphanFiles**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
+
 
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |

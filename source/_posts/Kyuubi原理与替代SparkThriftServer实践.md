@@ -308,9 +308,10 @@ kyuubi.kinit.principal=hive/xxx@XXX.COM
 采用LDAP认证 使用LDAP认证登陆Kyuubi
 ```config
 kyuubi.authentication=LDAP
-##kyuubi.authentication.ldap.base.dn=
-kyuubi.authentication.ldap.domain=xxxx.com
-kyuubi.authentication.ldap.url=ldap://xxx.xx.xx.xxx
+kyuubi.authentication.ldap.base.dn=ou=People,dc=xxx,dc=xxx,dc=xxx
+kyuubi.authentication.ldap.guidKey=uid
+#kyuubi.authentication.ldap.domain=xxx.xxx.com
+kyuubi.authentication.ldap.url=ldap://ldap_addr:389
 ```
 使用q00885用户登陆，执行sql查询，后台会以q00885申请一个SparkApplication。
 ![alt](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Kyuubi/Kyuubi-03.png)
