@@ -757,9 +757,11 @@ echo "All Done"
 
 ### 系统清理
 内存清理
-sudo echo 1 > /proc/sys/vm/drop_caches
-sudo echo 2 > /proc/sys/vm/drop_caches
-sudo echo 3 > /proc/sys/vm/drop_caches
+sudo su
+sync
+echo 1 > /proc/sys/vm/drop_caches
+echo 2 > /proc/sys/vm/drop_caches
+echo 3 > /proc/sys/vm/drop_caches
 日志清理
 journalctl --disk-usage 查看日志占用
 sudo journalctl --vacuum-size=500M  限制归档日志大小，对日志做清除操作，适用于/var占用较大的场景
