@@ -732,6 +732,15 @@ KDE本身有动态壁纸插件,可以在壁纸设置中下载**SmartER video Wal
 
 
 ## 系统使用小技巧与问题处理
+### plasmashell以及kwin_x11的重启
+```shell
+# 右键时不出现菜单, 新建文件夹也不显示, 需要重启 plasma, 在终端中运行
+ plasmashell --replace 2>&1 &
+# 桌面动画效果消失首先尝试Alt+Shift+F12来打开"显示特效混合器",如果无效或kwin窗口掉帧卡顿
+# 需要重启 kwin, 在终端中运行
+ kwin_x11 --replace 2>&1 &
+```
+
 ### 解决无法写和更新NTFS盘数据的问题：
 创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：
 ```shell
