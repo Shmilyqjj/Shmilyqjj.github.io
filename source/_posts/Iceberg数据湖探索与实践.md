@@ -607,11 +607,15 @@ CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`hive_iceberg_tab
 WITH('type'='ICEBERG',
 'engine.hive.enabled'='true',
 'read.split.target-size'='1073741824',
-'write.target-file-size-bytes'='134217728',
+'write.target-file-size-bytes'='536870912',
 'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
 'write.metadata.delete-after-commit.enabled'='true',
-'write.metadata.previous-versions-max'='9',  
-'write.distribution-mode'='hash');
+'write.metadata.previous-versions-max'='5',
+'write.distribution-mode'='none');
 insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 ```
 写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表iceberg_db.hive_iceberg_table_flink_sql.
@@ -655,11 +659,15 @@ CREATE TABLE IF NOT EXISTS `hive_iceberg_catalog`.`iceberg_db`.`hive_krb_iceberg
 WITH('type'='ICEBERG',
 'engine.hive.enabled'='true',
 'read.split.target-size'='1073741824',
-'write.target-file-size-bytes'='134217728',
+'write.target-file-size-bytes'='536870912',
 'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
 'write.metadata.delete-after-commit.enabled'='true',
-'write.metadata.previous-versions-max'='10',  
-'write.distribution-mode'='hash');
+'write.metadata.previous-versions-max'='10',
+'write.distribution-mode'='none');
 -- Insert data
 insert into hive_iceberg_catalog.iceberg_db.hive_krb_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
 ```
