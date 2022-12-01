@@ -371,6 +371,8 @@ ManifestFile清单文件 825f6beb-3be7-485c-b338-8dec6068be94-m0.avro
 当Iceberg添加了新特性但该新特性破坏了向前兼容性时,表的version会增加,以保证旧的表版本仍然可以兼容.
 Iceberg当前有V1和V2两种表类型,建表时由property-version指定.
 [Version 1: Analytic Data Tables 🔗](https://iceberg.apache.org/spec/#version-1-analytic-data-tables) 基于不可变文件格式管理的大型分析表
+V1表可以按分区删除数据(如在Trino中delete from iceberg_table where ds='2022120114';),删除并不会真正删除数据,而是commit新的元数据新的快照,只要旧快照未过期,仍然可以回滚到删除前的状态,但一旦快照过期,数据文件会被删除无法还原;V1表不支持行级删除(会报错failed: Iceberg table updates require at least format version 2)
+
 [Version 2: Row-level Deletes 🔗](https://iceberg.apache.org/spec/#version-2-row-level-deletes) 较Version 1添加了行级更新\删除能力;添加了Delete files以对现有数据文件中删除的行进行编码。Version2可实现删除或替换不可变数据文件中的单个行，而无需重写文件。
 
 ### Iceberg表数据类型  
@@ -744,6 +746,70 @@ iceberg.compression-codec=SNAPPY
 若需要其支持外部存储例如oss,则需要将jindo-core-4.3.0.jar和jindo-sdk-4.3.0.jar两个jar拷贝到$TRINO_HOME/plugin/iceberg/和$TRINO_HOME/plugin/hive/以兼容外部存储.
 
 Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表.如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.iceberg_table
+
+Trino操作Iceberg表常用操作:
+```sql
+1.查看有哪些分区
+select * from "iceberg_table$partitions";
+2.查看有哪些快照
+select * from "iceberg_table$snapshots";
+SELECT snapshot_id,committed_at FROM "iceberg_table$snapshots" ORDER BY committed_at;
+3.表优化 之 快照过期
+ALTER TABLE iceberg_table EXECUTE expire_snapshots(retention_threshold => '7d')
+4.表优化 之 文件合并
+ALTER TABLE iceberg_table EXECUTE optimize [默认合并小于file_size_threshold的数据文件,file_size_threshold默认100MB]
+ALTER TABLE iceberg_table EXECUTE optimize(file_size_threshold => '256MB')
+ALTER TABLE iceberg_table EXECUTE optimize WHERE partition_key = 1 [按分区优化]
+5.表优化 之 清理孤立无效的文件
+ALTER TABLE iceberg_table EXECUTE remove_orphan_files(retention_threshold => '7d')
+6.升级表的版本如V1升级到V2
+ALTER TABLE iceberg_table SET PROPERTIES format_version = 2;
+7.V2表根据条件进行行级删除操作 (V1表不支持行级删除,只支持分区条件删除)
+delete from iceberg_table where ds='2022120102' and eventid = 'event_1';
+8.修改分区之添加一个分区字段
+ALTER TABLE iceberg_table SET PROPERTIES partitioning = ARRAY[<existing partition columns>, 'my_new_partition_column'];
+9.修改表和字段注释 在Trino修改后同样会在Hive生效
+COMMENT ON TABLE iceberg_table IS 'Table comment';
+COMMENT ON COLUMN iceberg_table.name IS 'Column comment';
+10.TimeTravel查询 临时查询历史某个快照的数据
+SELECT * FROM iceberg.iceberg_db.iceberg_table FOR VERSION AS OF 8954597067493422955;
+SELECT * FROM iceberg.iceberg_db.iceberg_table FOR TIMESTAMP AS OF TIMESTAMP '2022-12-02 09:59:29.803 Europe/Vienna';
+11.回滚当前表状态到某个历史快照的状态
+CALL iceberg.system.rollback_to_snapshot('iceberg_db', 'iceberg_table', 8954597067493422955);
+12.查看表的文件和文件修改时间
+select "$path", "$file_modified_time" from iceberg_table;
+13.查询数据
+select * from iceberg_table limit 10;
+select * from "iceberg_table$data" limit 10; [等价于上面的SQL]
+14.查看表配置参数
+select * from "iceberg_table$properties";
+15.查看表元数据更改历史记录
+select * from "iceberg_table$history";
+16.列出表涉及到的manifest file列表
+select * from "iceberg_table$manifests";
+17.列出表在当前快照(当前状态)下引用的所有数据文件
+select * from "iceberg_table$files";
+18.创建Trino物化视图 只支持Trino中查询
+CREATE OR REPLACE MATERIALIZED VIEW iceberg_view COMMENT 'materializedView' WITH ( format = 'ORC', partitioning = ARRAY['ds'] ) as select appid,ds from iceberg_table;
+CREATE MATERIALIZED VIEW IF NOT EXISTS iceberg_view COMMENT 'materializedView' WITH ( format = 'ORC', partitioning = ARRAY['ds'] ) as select appid,ds from iceberg_table;
+REFRESH MATERIALIZED VIEW iceberg_view; [底层表数据变化导致物化视图与底层表数据不一致时,使用该命令更新物化视图]
+19.如果查询很复杂并且包括连接大型数据集，则在表上运行ANALYZE可以通过收集有关数据的统计信息来提高查询性能
+SET SESSION iceberg.experimental_extended_statistics_enabled = true;
+ANALYZE iceberg_table;
+ANALYZE iceberg_table WITH (columns = ARRAY['col_1', 'col_2']);
+ALTER TABLE iceberg_table EXECUTE drop_extended_stats;  [如果需要重新分析表统计信息,则再重新分析前先清除之前统计的信息]
+20.创建表(本质也是创建HiveCatalog表,不建议在Trino建Iceberg表,因为Hive引擎无法支持)
+CREATE TABLE iceberg_oss_table (
+    c1 integer,
+    c2 date,
+    c3 double
+)
+WITH (
+    format = 'PARQUET',
+    partitioning = ARRAY['c1', 'c2'],
+    location = 'oss://bucket-name/user/iceberg/warehouse/iceberg_oss_table'
+);
+```
 
 ### Iceberg与Spark集成
 下载iceberg-spark-runtime-3.3_2.12-1.0.0.jar到$SPARK_HOME/jars路径
