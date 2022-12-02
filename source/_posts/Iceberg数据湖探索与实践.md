@@ -392,7 +392,7 @@ V1表可以按分区删除数据(如在Trino中delete from iceberg_table where d
 | binary | 任意长度字节数组 | |
 | struct<...> | 任意数据类型组成的结构体 | |
 | list | 任意数据类型组成的List | |
-| map<K,V> | 任意数据类型组成的键值对 | |
+| map<K,V> | 任意数据类型组成的键值对 | 行存储类型,存储和检索时扫描数据量较大 |
 
 ## Iceberg集成
 ### Iceberg与Hive集成
