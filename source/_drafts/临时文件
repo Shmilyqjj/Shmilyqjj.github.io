@@ -624,7 +624,7 @@ spark动态资源分配，没用到Executor时回收资源
 开启动态资源调整需要（on yarn情况下）
 1.将spark.dynamicAllocation.enabled设置为true。意思就是启动动态资源功能
 2.将spark.shuffle.service.enabled设置为true。 在每个nodeManager上设置外部shuffle服务
-　　2.1 将spark-<version>-yarn-shuffle.jar拷贝到每台nodeManager的${HADOOP_HOME}/share/hadoop/yarn/lib/下。
+　　2.1 将$SPARK_HOME/yarn/spark-<version>-yarn-shuffle.jar拷贝到每台nodeManager的${HADOOP_HOME}/share/hadoop/yarn/lib/下。
 　　2.2 配置yarn-site.xml
 　　　　<property>
 　　　　　　<name>yarn.nodemanager.aux-services</name>
