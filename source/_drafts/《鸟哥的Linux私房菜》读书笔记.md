@@ -600,6 +600,14 @@ diff 对比文件差异-左右格式(格式友好)
 diff -y system-auth-ac /etc/pam.d/system-auth-ac
 ```
 
+20. 使用命令直接向crontab中加入或删除调度
+```shell
+# 注意提前备份好crontab -l原来的内容,避免意外情况
+# 一条命令向crontab中加入新调度 */10 * * * * sh /usr/local/complat/trino/bin/trino-auto-restart.sh
+(crontab -l ; echo "*/10 * * * * sh /usr/local/complat/trino/bin/trino-auto-restart.sh") | crontab -
+# 一条命令删除crontab中的trino-auto-restart.sh调度
+(crontab -l | grep -v trino-auto-restart) | crontab -
+```
 
 ## 总结  
 字颜色大小
