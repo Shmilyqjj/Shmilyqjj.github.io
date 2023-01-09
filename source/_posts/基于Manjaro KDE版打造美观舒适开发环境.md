@@ -383,6 +383,10 @@ sudo desktop-file-install syncthing-ui.desktop
 ```
 
 ### Clash科学上网
+方案一.Clash客户端
+yay -S clash-for-windows-chinese
+
+方案二.原版Clash客户端:
 [下载Clash](https://github.com/Dreamacro/clash/releases)
 ```shell
 cd ~/下载
