@@ -555,7 +555,11 @@ insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql sel
 -- 2.FlinkSQL批式查询
 SET execution.runtime-mode = batch;
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
--- 3.FlinkSQL流式查询
+-- 3.FlinkSQL流式查询 
+---- 注:不指定start-snapshot-id则会逐渐回溯全量数据
+---- 指定了start-snapshot-id后,会从该snapshot的数据开始消费
+---- 重启Flink应用时,若不指定上次关闭时的checkpoint或savepoint,则每次重启Flink应用都会从start-snapshot-id指定snapshot开始消费,导致重复消费历史数据
+---- 重启Flink应用时,若指定了上次关闭时的checkpoint或savepoint,则会从上次消费的位点继续消费
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` /*+ OPTIONS('streaming'='true', 'monitor-interval'='5s', 'start-snapshot-id'='3821550127947089987')*/ ;
 -- 4.在Hive中创建Iceberg映射表[只针对HadoopCatalog类型表]
 create external table iceberg_db.hadoop_iceberg_table_flink_sql (
