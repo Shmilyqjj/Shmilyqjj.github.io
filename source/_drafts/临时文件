@@ -2237,6 +2237,7 @@ docker ps -a
 docker start 5c0ac77c1d18
 关闭运行中的容器
 docker stop 5c0ac77c1d18
+docker ps | grep -v "CONTAINER" | awk '{print $1}' | xargs docker stop
 重启容器
 docker restart 5c0ac77c1d18
 查看容器进程列表
