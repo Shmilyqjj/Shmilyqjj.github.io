@@ -2261,6 +2261,13 @@ docker port 043500ec7fc2
  /var/lib/docker/containers/(docker inspect 043500ec7fc2  |grep Id)/config.v2.json
  在ExposedPorts加上要暴露的端口7778
  sudo systemctl start docker
+修改了文件导致无法启动容器,如何恢复文件让容器能正常启动 
+ 使用docker cp命令先下载到本地,修改后再复制回容器
+ docker cp [容器id]：docker容器中配置文件路径 主机路径
+ docker cp 主机路径 [容器id]：docker容器中配置文件路径
+ 例:
+  docker cp superset:/usr/bin/run-server.sh .
+  修改文件内容后docker cp run-server.sh superset:/usr/bin/run-server.sh
 
 示例:
 1.Docker创建MySql
