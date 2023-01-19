@@ -2268,6 +2268,16 @@ docker port 043500ec7fc2
  例:
   docker cp superset:/usr/bin/run-server.sh .
   修改文件内容后docker cp run-server.sh superset:/usr/bin/run-server.sh
+修改容器内hosts文件
+ 方案1:docker run创建容器时增加--add-host a.b.com:xxx.xxx.x.xx 
+ 方案2:如果容易已经创建
+   docker stop 219da1a26f0f
+   sudo systemctl stop docker
+   vim /var/lib/docker/containers/{container_id}/hostconfig.json
+   修改条目"ExtraHosts":["host1:xx.xx.x.xx","host2:xx.xx.xx.xx","host3:xx.xx.xx.xxx"], 
+   sudo systemctl start docker
+   docker start 219da1a26f0f
+ 方案3:容器内应用启动脚本中加入echo "host xx.xx.xx.xxx" >> /etc/hosts  (不推荐)
 
 示例:
 1.Docker创建MySql
