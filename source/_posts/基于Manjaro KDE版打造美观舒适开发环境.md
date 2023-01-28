@@ -489,6 +489,8 @@ source /etc/profile
 export GO_HOME=/opt/Env/go1.18.3
 export PATH=$PATH:$GO_HOME/bin
 sudo pacman -S pkg-config
+# Java反编译工具安装
+yay -S jd-gui
 -------------------------------------------------------------------
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -736,6 +738,43 @@ KDE本身有动态壁纸插件,可以在壁纸设置中下载**SmartER video Wal
 
 
 ## 系统使用小技巧与问题处理
+### 必须掌握的系统备份和恢复技巧
+Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。
+注意：系统检测到有大更新时，不要急于更新，要首先使用timeshift做一个快照，再更新。原因是部分情况下，系统更新后看似没问题，但实际上软件的依赖库版本发生了变化，导致有部分软件无法正常运行了，这种情况不易发现。要养成先快照再升级的习惯。
+系统备份和还原两种方式：
+使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
+使用timeshift的快照备份和还原系统
+1. 按照向导设置：选择快照类型:RSYNC->选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)->选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)->用户主目录(默认全部)
+2. 点击创建 会立刻运行快照创建程序，创建完如图
+![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-37.png) 
+3. 家目录有些文件可能不需要备份，需要排除一部分文件：设定->筛选 可以自定义不对特定模式的文件创建快照
+4. 恢复快照: 选中要恢复的快照 点击恢复即可
+5. 当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:
+通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 
+  ```shell
+  *** 查看可还原的还原点
+  sudo timeshift --list  
+  /dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
+
+  Device : /dev/nvme0n1p9
+  UUID   : d4fa3365-62fe-4488-ba18-b36ddac64c4d
+  Path   : /run/timeshift/backup
+  Mode   : RSYNC
+  Status : OK
+  2 snapshots, 75.5 GB free
+
+  Num     Name                 Tags  Description  
+  ------------------------------------------------------------------------------
+  0    >  2021-08-12_12-24-49  O                  
+  1    >  2021-08-12_14-00-01  M                  
+  *** 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
+  sudo timeshift --restore --snapshot '2021-08-12_14-00-01' --skip-grub
+  ```
+
+6. 无法进入系统也无法进入tty命令行
+参照文章开始的部分创建Manjaro安装盘，进入LiveCD桌面，安装timeshift 按上一步的步骤进行恢复
+恢复完成后桌面无法加载程序快捷方式->解决：yay -Syuu执行系统更新即可
+
 ### plasmashell以及kwin_x11的重启
 ```shell
 # 右键时不出现菜单, 新建文件夹也不显示, 需要重启 plasma, 在终端中运行
@@ -838,43 +877,35 @@ yay -Ps
 yay -Qi package
 ```
 
-
-### 必须掌握的系统备份和恢复技巧
-Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用较高的权限操作，可能会因为种种原因导致系统出现各种问题，所以备份还原是必备的技巧，能在系统宕机或滚挂后可以还原到某个先前的时间节点，来保护我们辛辛苦苦调教了很久的系统不会出意外。
-注意：系统检测到有大更新时，不要急于更新，要首先使用timeshift做一个快照，再更新。原因是部分情况下，系统更新后看似没问题，但实际上软件的依赖库版本发生了变化，导致有部分软件无法正常运行了，这种情况不易发现。要养成先快照再升级的习惯。
-系统备份和还原两种方式：
-使用tar压缩包打包备份系统 https://www.cnblogs.com/smlile-you-me/p/13601039.html
-使用timeshift的快照备份和还原系统
-1. 按照向导设置：选择快照类型:RSYNC->选择快照位置(选一个分区，注意只能选Linux文件系统的分区，不支持远程、NTFS等)->选择快照等级(根据重要性和磁盘空间选择备份周期和保留快照数)->用户主目录(默认全部)
-2. 点击创建 会立刻运行快照创建程序，创建完如图
-![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-37.png) 
-3. 家目录有些文件可能不需要备份，需要排除一部分文件：设定->筛选 可以自定义不对特定模式的文件创建快照
-4. 恢复快照: 选中要恢复的快照 点击恢复即可
-5. 当错误操作导致系统崩溃无法进入界面时，需要进入命令行使用timeshift相关命令恢复:
-通过Ctrl+Alt+F1（一般是F1-F6都可）进入tty终端 输入用户和密码登录 
-  ```shell
-  *** 查看可还原的还原点
-  sudo timeshift --list  
-  /dev/nvme0n1p9 is mounted at: /run/timeshift/backup, options: rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota
-
-  Device : /dev/nvme0n1p9
-  UUID   : d4fa3365-62fe-4488-ba18-b36ddac64c4d
-  Path   : /run/timeshift/backup
-  Mode   : RSYNC
-  Status : OK
-  2 snapshots, 75.5 GB free
-
-  Num     Name                 Tags  Description  
-  ------------------------------------------------------------------------------
-  0    >  2021-08-12_12-24-49  O                  
-  1    >  2021-08-12_14-00-01  M                  
-  *** 还原快照  --skip-grub选项为跳过grub安装，一般来说grub不需要重新安装，除非bios启动无法找到正确的grub启动项，才需要安装
-  sudo timeshift --restore --snapshot '2021-08-12_14-00-01' --skip-grub
-  ```
-
-6. 无法进入系统也无法进入tty命令行
-参照文章开始的部分创建Manjaro安装盘，进入LiveCD桌面，安装timeshift 按上一步的步骤进行恢复
-恢复完成后桌面无法加载程序快捷方式->解决：yay -Syuu执行系统更新即可
+### 手机多屏协同工具-同屏工具
+```shell
+1.安装scrcpy
+sudo pacman -S scrcpy
+scrcpy --help
+scrcpy --max-size 1024  修改分辨率(这里指长或宽最大值1024) 1920*1080会被缩放成1024x576
+scrcpy --bit-rate 6M 修改比特率
+scrcpy --max-fps 15 限制帧率
+scrcpy --record file.mp4 多屏协同的同时录屏(按Ctrl+C以停止录制)
+scrcpy -r file.mkv 多屏协同的同时录屏(按Ctrl+C以停止录制)
+2.手机端连接到scrcpy
+手机打开USB调试 数据线连接手机usb到电脑
+adb devices 查看adb
+打开后 电脑端执行adb usb
+报错信息:error: device unauthorized.
+手机上确认授权
+再次adb usb
+显示restarting in USB mode 表示成功
+3.开启多屏协同
+scrcpy
+scrcpy -m 1920
+scrcpy -m 1024
+scrcpy --turn-screen-off 熄屏镜像
+scrcpy --turn-screen-off -m 1024
+scrcpy -S 熄屏镜像
+更多参数可查看帮助文档:man scrcpy
+每次通过命令连接手机会比较麻烦,可以使用带GUI的Scrcpy:
+yay -S qtscrcpy  功能相同只是带GUI更方便
+```
 
 ### 使用Wine运行Windows程序
 **Wine （“Wine Is Not an Emulator” 的首字母缩写）**是一个能够在多种POSIX-compliant操作系统（诸如Linux，macOS及BSD等）上运行Windows应用的兼容层。Wine不是像虚拟机或者模拟器一样模仿内部的Windows逻辑，而是將Windows API调用翻译成为动态的POSIX调用，免除了性能和其他一些行为的内存占用，让你能够干净地集合Windows应用到你的桌面。
