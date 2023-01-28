@@ -962,6 +962,18 @@ Deepin-Wine是Deepin团队移植的Wine，在其基础上移植的很多软件�
 ### AUR仓库与软件包查询
 https://aur.archlinux.org/packages
 
+### 修复Manjaro系统更新后没声音了-任务栏喇叭是灰色的
+```shell
+systemctl --user status pulseaudio
+systemctl --user status pipewire
+# 发现pulseaudio服务启动失败
+# 去除手动配置开机启动pulseaudio的脚本
+# 如果音频挂了,可以用以下命令尝试修复:
+sudo killall pulseaudio
+systemctl --user restart pulseaudio.service
+systemctl --user restart pulseaudio.socket
+```
+
 ### 系统硬件信息查询
 全部硬件信息输出：
 ```shell
