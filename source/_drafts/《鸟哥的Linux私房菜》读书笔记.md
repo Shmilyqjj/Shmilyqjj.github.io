@@ -282,6 +282,7 @@ date: 2020-08-22 12:19:00
         find /opt -mtime -3  3天内发生修改的文件
         find .|xargs grep -ri "xxx"  查看目录下包含xxx关键字的所有行
         find .|xargs grep -ri "xxx" -l  查看目录下包含xxx关键字的所有文件
+        grep -ri "keyword" *  查看当前目录下含有关键字的文件
         find . -name "*.sql" | xargs grep "keyword"  查看目录下包含keyword关键字的所有sql后缀文件
         find /hadoop/bigdata/ -type f -name "*.sh" -o -name "*.py"  | xargs grep -ri "keyword" | grep -v grep  查看目录下包含keyword关键字的所有sh后缀和py后缀文件
         find /tmp/ -type d -name "spark-*" -mtime +60  查看/tmp/目录下60天前的类型为目录且名称以spark-开头的目录
@@ -290,6 +291,7 @@ date: 2020-08-22 12:19:00
         find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
         find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
         find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
+        find . -name '*.jar' -exec jar -tvf {} \; | grep gson  查看当前目录下引用gson的jar
         rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
 17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
 18.在目录下创建一个文件需要的权限：对该目录有wx权限
@@ -608,6 +610,15 @@ diff -y system-auth-ac /etc/pam.d/system-auth-ac
 # 一条命令删除crontab中的trino-auto-restart.sh调度
 (crontab -l | grep -v trino-auto-restart) | crontab -
 ```
+
+21. 磁盘挂载
+临时:
+mkdir /data
+chmod 1777 /data
+mount /dev/sda1 /data
+永久:
+vim /etc/fstab添加  (df -T查看文件系统类型ext4\btrfs......)
+/dev/sda1 /data btrfs defaults 0 0
 
 ## 总结  
 字颜色大小
