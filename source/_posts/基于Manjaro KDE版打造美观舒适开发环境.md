@@ -631,6 +631,10 @@ sudo pacman -S latte-dock
 ![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-19.png) 
 效果
 ![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-20.png) 
+latte-dock兼容IDEA,PyCharm,Goland启动图标(之前已经配置过他们的快捷方式.desktop文件)
+vim /home/shmily/.config/latte/Unity.layout.latte  (这里选择你正在使用的布局)
+将",file:///home/shmily/tools/IDEs/idea-IC-221.5591.52/jbr/bin/java?iconData=xxxx"部分替换成",applications:IDEA.desktop"
+例如",applications:IDEA.desktop,applications:PyCharm.desktop,applications:GoLand.desktop"
 
 替代品: plank 
 优点: 资源占用较latte-dock小很多,支持多种皮肤下载
