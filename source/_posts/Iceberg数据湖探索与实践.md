@@ -1055,6 +1055,56 @@ Spark实现:
 ### 清理孤立文件
 [**SparkIcebergTableMaintenance$removeOrphanFiles**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
 
+## 异常处理
+### ManifestFile文件丢失
+```err
+2023-01-30 09:36:57,558 WARN  org.apache.flink.runtime.taskmanager.Task [] - IcebergFilesCommitter -> Sink: IcebergSink (1
+/1)#0 (2125b52f518a53194e79e9f5d86dbb78) switched from RUNNING to FAILED with failure cause: org.apache.iceberg.exceptions.NotFoundException:
+ Failed to open input stream for file: oss://xxxxx/user/hive/warehouse/iceberg_db/xxxxx/metadata/f86794c3-750d-4def-ad2d-b726c4c210ad-m0.avro
+        at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+        at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+        at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+        at org.apache.iceberg.ManifestReader.<init>(ManifestReader.java:115)
+        at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+        at org.apache.iceberg.SnapshotProducer.newManifestReader(SnapshotProducer.java:448)
+        at org.apache.iceberg.MergingSnapshotProducer$DataFileMergeManager.newManifestReader(MergingSnapshotProducer.java:1005)
+        at org.apache.iceberg.ManifestMergeManager.createManifest(ManifestMergeManager.java:175)
+        at org.apache.iceberg.ManifestMergeManager.lambda$mergeGroup$1(ManifestMergeManager.java:156)
+        at org.apache.iceberg.util.Tasks$Builder.runTaskWithRetry(Tasks.java:402)
+        at org.apache.iceberg.util.Tasks$Builder.access$300(Tasks.java:68)
+        at org.apache.iceberg.util.Tasks$Builder$1.run(Tasks.java:308)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: java.io.FileNotFoundException: ErrorCode : 25002 , ErrorMsg: File not found.  [RequestId]: ...
+```
+原因: 可能合并任务异常导致
+解决:
+```java
+// 将丢失ManifestFile文件从元数据中移除,以解决表不可用的问题
+        String lostManifestFilePath = "xxxxx"
+        Table table = getTable(dbName, tabName);
+        Snapshot snapshot = table.currentSnapshot();
+        List<ManifestFile> manifestFiles = snapshot.allManifests(table.io());
+        List<ManifestFile> manifestFileDeletes = new ArrayList<>();
+        for (ManifestFile manifestFile : manifestFiles) {
+            String path = manifestFile.path();
+            if (path.equals(lostManifestFilePath)) {
+                manifestFileDeletes.add(manifestFile);
+                break;
+            }
+        }
+        if (manifestFileDeletes.isEmpty()) {
+            throw new Exception(StringUtils.format("Manifest File:%s not in metadata",lostManifestFilePath));
+        }
+        RewriteManifests rewriteManifests = table.rewriteManifests();
+        for (ManifestFile manifestFile : manifestFileDeletes) {
+            rewriteManifests.deleteManifest(manifestFile);
+        }
+        rewriteManifests.commit();
+```
 
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |
