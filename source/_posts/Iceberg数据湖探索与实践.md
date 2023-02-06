@@ -1104,6 +1104,10 @@ Caused by: java.io.FileNotFoundException: ErrorCode : 25002 , ErrorMsg: File not
             rewriteManifests.deleteManifest(manifestFile);
         }
         rewriteManifests.commit();
+// 代码执行过程中可能抛出org.apache.iceberg.exceptions.ValidationException:Replaced and created manifests must have the same number of active files: 0 (new), 5567 (old)
+// 修改iceberg-core位于core/src/main/java/org/apache/iceberg/BaseRewriteManifests.java activeFilesCount方法注释掉如下两行
+//      activeFilesCount += manifest.addedFilesCount();
+//      activeFilesCount += manifest.existingFilesCount();
 ```
 
 ## 对比Hudi和DeltaLake
