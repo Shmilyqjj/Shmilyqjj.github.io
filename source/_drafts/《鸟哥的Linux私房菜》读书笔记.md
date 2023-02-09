@@ -612,6 +612,7 @@ diff -y system-auth-ac /etc/pam.d/system-auth-ac
 ```
 
 21. 磁盘挂载
+```shell
 临时:
 mkdir /data
 chmod 1777 /data
@@ -619,6 +620,17 @@ mount /dev/sda1 /data
 永久:
 vim /etc/fstab添加  (df -T查看文件系统类型ext4\btrfs......)
 /dev/sda1 /data btrfs defaults 0 0
+```
+
+22. 进程优先级设置
+每个进程都有一个介于-20到19之间的NI(nice)值(这个值越小，表示进程”优先级”越高，而值越大“优先级”越低)。默认情况下，进程的NI值为0
+```shell
+sudo renice [优先级] PID
+例:
+sudo renice -20 pid  提到最高优先级
+sudo renice -20  $(ps -ef | grep kwin | grep -v grep | awk '{print $2}')
+sudo renice -20  $(ps -ef | grep latte-dock | grep -v grep | awk '{print $2}')
+```
 
 ## 总结  
 字颜色大小
