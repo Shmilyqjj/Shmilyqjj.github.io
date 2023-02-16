@@ -205,6 +205,12 @@ Savepoint就是解决这个难题的功能。
 流式Flink程序停服维护前进行Savepoint，维护两个小时后重启程序，可以Restore从Savepoint恢复执行程序。因为Savepoint保存着程序退出时Kafka Offset，所以恢复时，会从退出时的Offset继续消费，并利用Event-Time机制赶上最新数据（如果是用ProcessingTime机制，则停机时间段的事件处理结果都在当前的处理时间的窗口，数据不准确，所以这也是Flink支持事件时间的好处）。
 Savepoint特点：
 便于升级应用服务版本、方便集群服务移植、方便Flink版本升级、增加应用并行服务的扩展性、便于A/B测试及假设分析场景对比结果、暂停和恢复服务、归档服务
+异常处理
+```error
+Caused by: java.lang.IllegalStateException: Failed to rollback to checkpoint/savepoint hdfs://xxxx/streamx/checkpoints/user_experience_report/savepoint-46c396-dbca94c40e3a. Cannot map checkpoint/savepoint state for operator 3bcb0372f6a295ec189bc9c72fe8f986 to the new program, because the operator is not available in the new program. If you want to allow to skip this, you can set the --allowNonRestoredState option on the CLI.
+原因: 更新程序后算了更新
+flink-conf.yaml修改execution.savepoint.ignore-unclaimed-state=true或客户端增加--allowNonRestoredState参数
+```
 
 4. EventTime处理
 Flink提供不同时间种类处理支持，EventTime为事件真实发生的时间，是从事件发生的源头产生的时间。
