@@ -42,6 +42,7 @@ date: 2022-10-31 10:10:00
 9. 支持基于乐观锁的并发写: Iceberg基于乐观锁提供了多个程序并发写入的能力并且保证数据线性一致.(乐观创建metadata文件,提交更新会触发metadata原子交换,完成提交)
 10. 文件级数据剪裁: Iceberg通过元数据来对查询进行高效过滤,Iceberg的元数据里面提供了每个数据文件的一些统计信息, 比如最大值, 最小值, Count计数等等. 因此, 查询SQL的过滤条件除了常规的分区, 列过滤, 甚至可以下推到文件级别, 大大加快了查询效率.
 11. 支持多种底层存储格式如Parquet、Avro以及ORC等.
+12. 支持Upsert能力,且更新即可见,但不能过于频繁,若Upsert过于频繁,则需要频繁数据合并
 
 
 ## Iceberg原理
@@ -573,6 +574,119 @@ LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_ta
 tblproperties ('iceberg.catalog'='location_based_table');
 -- 5.HiveSQL查询(能查到实时最新数据)
 select * from iceberg_db.hadoop_iceberg_table_flink_sql; 
+-- 6.FlinkSQL Upsert更新 基于累积窗口统计逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` (
+  actionid STRING,
+  userid STRING,
+  `success_cnt` bigint,
+  `failed_cnt` bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`userid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH('type'='ICEBERG',
+'format-version'='2',   -- 必须是v2表
+'write.upsert.enabled'='true',  -- 指定该参数 使表可upsert
+'engine.hive.enabled'='true',  
+'read.split.target-size'='536870912',
+'write.target-file-size-bytes'='268435456',
+'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='5',  
+'write.distribution-mode'='hash'); 
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` /*+ OPTIONS('upsert-enabled'='true') */   -- 需要指定'upsert-enabled'='true'
+SELECT 
+actionid,
+userid,
+sum(cast(if(`error` = 'ok', 1, 0) as BIGINT)) AS success_cnt,
+sum(cast(if(`error` <> 'ok', 1, 0) as BIGINT)) AS failed_cnt,
+window_start, 
+window_end,
+DATE_FORMAT(window_start, 'yyyyMMdd') AS ds
+FROM 
+    TABLE(
+    CUMULATE(
+      TABLE kafka_table, 
+      DESCRIPTOR(event_time), 
+      INTERVAL '1' MINUTES, 
+      INTERVAL '1' DAY
+      )
+    )
+  GROUP BY 
+    window_start, 
+    window_end,
+    actionid,
+    userid;
+-- 7. FlinkSQL Upsert更新 基于累积窗口计算TopN逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`top_iceberg_table` (
+  actionid STRING,
+  success_cnt bigint,
+  failed_cnt bigint,
+  ranking_num bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH('type'='ICEBERG',
+'format-version'='2',    -- 必须是v2表
+'write.upsert.enabled'='true',  -- 指定该参数 使表可upsert
+'engine.hive.enabled'='true',  
+'read.split.target-size'='536870912',
+'write.target-file-size-bytes'='268435456',
+'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='5',  
+'write.distribution-mode'='hash');
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`user_experience_topn_action_report` /*+ OPTIONS('upsert-enabled'='true') */  -- 需要指定'upsert-enabled'='true'
+SELECT * from (
+    SELECT 
+      actionid, 
+      success_cnt, 
+      failed_cnt, 
+      ROW_NUMBER() OVER (
+        PARTITION BY window_start, 
+        window_end 
+        ORDER BY 
+          failed_cnt asc
+      ) AS rn, 
+      window_start, 
+      window_end, 
+      ds 
+    from (
+        select 
+          actionid, 
+          sum(cast(if(`error` = 'ok', 1, 0) as BIGINT)) AS success_cnt, 
+          sum(cast(if(`error` <> 'ok', 1, 0) as BIGINT)) AS failed_cnt, 
+          window_start, 
+          window_end, 
+          DATE_FORMAT(window_end, 'yyyyMMdd') AS ds 
+        FROM 
+          TABLE(
+            CUMULATE(
+              TABLE kafka_shoulei_odl_odl_xlpan_server_log, 
+              DESCRIPTOR(event_time), 
+              INTERVAL '1' MINUTES, 
+              INTERVAL '1' DAY
+            )
+          ) 
+        GROUP BY 
+          window_start, 
+          window_end, 
+          actionid
+      ) t_inner
+  ) t_outer 
+where 
+  rn <= 100;
 ```
 
 **打通Kafka->Flink SQL->HiveCatalog类型Iceberg表->Hive/Trino**
