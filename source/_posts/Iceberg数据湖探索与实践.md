@@ -1224,6 +1224,40 @@ Caused by: java.io.FileNotFoundException: ErrorCode : 25002 , ErrorMsg: File not
 //      activeFilesCount += manifest.existingFilesCount();
 ```
 
+### Flink写入Iceberg无法找到avro文件,导致任务报错无法写入
+```error
+org.apache.iceberg.exceptions.NotFoundException: Failed to open input stream for file: oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/32759abff25a1366837ed3d146e27d51-55f7b63bf1c8c02b88d8659b98477e64-00000-2-71-00037.avro
+	at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+	at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+	at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+	at org.apache.iceberg.ManifestReader.<init>(ManifestReader.java:115)
+	at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+	at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:72)
+	at org.apache.iceberg.flink.sink.FlinkManifestUtil.readDataFiles(FlinkManifestUtil.java:58)
+	at org.apache.iceberg.flink.sink.FlinkManifestUtil.readCompletedFiles(FlinkManifestUtil.java:113)
+	at org.apache.iceberg.flink.sink.IcebergFilesCommitter.commitUpToCheckpoint(IcebergFilesCommitter.java:244)
+	at org.apache.iceberg.flink.sink.IcebergFilesCommitter.initializeState(IcebergFilesCommitter.java:184)
+	at org.apache.flink.streaming.api.operators.StreamOperatorStateHandler.initializeOperatorState(StreamOperatorStateHandler.java:119)
+	at org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:286)
+	at org.apache.flink.streaming.runtime.tasks.RegularOperatorChain.initializeStateAndOpenOperators(RegularOperatorChain.java:109)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:711)
+	at org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$1.call(StreamTaskActionExecutor.java:55)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreInternal(StreamTask.java:687)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:654)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:958)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:927)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:766)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:575)
+	at java.lang.Thread.run(Thread.java:748)
+  ......
+```
+可能原因: 此文件不是MainfestList文件也不是ManifestFile文件,而是Flink写入Iceberg时一种中间状态的文件,可能原因是checkpoint超时或时间过长,但该异常与合并和清理任务无关
+解决: 
+```
+hdfs dfs -ls -r -t oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/ | grep avro | grep -v snap | grep -v m0 | grep -v m1 | grep -v m2 | grep -v m3
+找到最新avro 拷贝并重命名为缺失的avro 同时优化checkpoint稳定性
+```
+
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |
 | ---- | ---- | ---- | ---- |
