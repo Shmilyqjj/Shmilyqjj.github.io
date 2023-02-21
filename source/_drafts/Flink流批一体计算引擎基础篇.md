@@ -211,6 +211,11 @@ Caused by: java.lang.IllegalStateException: Failed to rollback to checkpoint/sav
 原因: 更新程序后算了更新
 flink-conf.yaml修改execution.savepoint.ignore-unclaimed-state=true或客户端增加--allowNonRestoredState参数
 ```
+Checkpoint优化参数
+state.checkpoints.num-retained=10
+state.backend.rocksdb.incremental.parallelism=4
+state.backend.incremental=true
+state.backend.rocksdb.memory.managed=false
 
 4. EventTime处理
 Flink提供不同时间种类处理支持，EventTime为事件真实发生的时间，是从事件发生的源头产生的时间。
