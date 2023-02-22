@@ -428,7 +428,15 @@ STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
 TBLPROPERTIES (
  'write.distribution-mode'='hash',
  'write.metadata.delete-after-commit.enabled'='true',
- 'write.metadata.previous-versions-max'='5'
+ 'write.metadata.previous-versions-max'='5',
+ 'format-version'='2',
+ 'engine.hive.enabled'='true', 
+ 'write.target-file-size-bytes'='268435456',
+ 'write.format.default'='parquet',
+ 'write.parquet.compression-codec'='zstd',
+ 'write.parquet.compression-level'='10',
+ 'write.avro.compression-codec'='zstd',
+ 'write.avro.compression-level'='10'
 );
 -- 示例3 手动指定catalog名称,指定catalog类型为HiveCatalog类型并建表:
 set iceberg.catalog.<catalog_name>.type=hive;  -- 设置catalog类型
