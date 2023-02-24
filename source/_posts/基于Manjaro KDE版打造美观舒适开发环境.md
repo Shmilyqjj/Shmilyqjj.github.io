@@ -316,6 +316,7 @@ yay -S tenvideo # 腾讯视频
 sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
 sudo pacman -S gimp  # 修图
+sudo pacman -S kdenlive # 视频编辑 (可在应用商店安装选更多功能插件)
 sudo pacman -S neofetch screenfetch  # 输出系统信息
 -------------------------------------------------------------------------------------------------------
 yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
