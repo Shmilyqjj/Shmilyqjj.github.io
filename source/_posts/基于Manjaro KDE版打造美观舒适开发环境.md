@@ -789,6 +789,10 @@ Linux各个依赖包之间存在复杂的依赖关系，同时我们经常使用
 # 需要重启 kwin, 在终端中运行
  kwin_x11 --replace 2>&1 &
 ```
+或者简单命令
+```shell
+systemctl --user restart plasma-kwin_x11
+```
 
 ### 解决无法写和更新NTFS盘数据的问题：
 创建 /usr/bin/fix_ntfs_disk_rw.sh 内容：
