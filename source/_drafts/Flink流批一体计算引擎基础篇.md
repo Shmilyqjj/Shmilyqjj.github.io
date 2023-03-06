@@ -515,7 +515,7 @@ bin/sql-client.sh embedded -i conf/sql-init.sql
 
 
 
-
+taskmanager.memory.managed.fraction  ManagedMemory管理 0-1的浮点数
 
 
 
