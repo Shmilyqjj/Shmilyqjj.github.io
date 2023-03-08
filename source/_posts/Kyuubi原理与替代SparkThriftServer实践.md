@@ -159,73 +159,73 @@ cp spark-env.sh.template spark-env.sh
 # 修改spark-defaults.conf (参数生效优先级: SparkConf > spark-submit Flags > spark-defaults.conf)
 vim spark-defaults.conf
   ## Java设置
-  spark.executorEnv.JAVA_HOME=/usr/java/jdk1.8.0_181
-  spark.yarn.appMasterEnv.JAVA_HOME=/usr/java/jdk1.8.0_181
+  spark.executorEnv.JAVA_HOME /usr/java/jdk1.8.0_181
+  spark.yarn.appMasterEnv.JAVA_HOME /usr/java/jdk1.8.0_181
   ## 开启eventLog用于重构历史已完成任务的WebUI    
-  spark.eventLog.enabled=true
-  spark.eventLog.dir=hdfs:///user/spark/applicationHistory
-  spark.eventLog.compress=true
-  spark.driver.log.dfsDir=/user/spark/driverLogs  （持久化driver日志的路径）
-  spark.driver.log.persistToDfs.enabled=true   （持久化driver日志）
-  spark.history.fs.cleaner.enabled=true  (定期自动清理日志目录，默认一天清理一次，清理7天前的日志文件)
-  spark.history.fs.logDirectory=hdfs:///user/spark/applicationHistory
-  spark.history.ui.port=18080   （访问Spark应用历史记录http://historyServerHost:18080/）
-  spark.history.retainedApplications=30   （缓存中保存的应用历史记录个数，超过会将旧的删除，读更早的日志去磁盘读会慢些）
-  spark.yarn.historyServer.address=http://cdh101:18080   （Yarn Application页面Tracking URL链接可以直接进入HistoryServer查看日志）
-  spark.yarn.historyServer.allowTracking=true  （Yarn Application页面Tracking URL链接可以直接进入HistoryServer查看日志）
+  spark.eventLog.enabled true
+  spark.eventLog.dir hdfs:///user/spark/applicationHistory
+  spark.eventLog.compress true
+  spark.driver.log.dfsDir /user/spark/driverLogs  （持久化driver日志的路径）
+  spark.driver.log.persistToDfs.enabled true   （持久化driver日志）
+  spark.history.fs.cleaner.enabled true  (定期自动清理日志目录，默认一天清理一次，清理7天前的日志文件)
+  spark.history.fs.logDirectory hdfs:///user/spark/applicationHistory
+  spark.history.ui.port 18080   （访问Spark应用历史记录http://historyServerHost:18080/）
+  spark.history.retainedApplications 30   （缓存中保存的应用历史记录个数，超过会将旧的删除，读更早的日志去磁盘读会慢些）
+  spark.yarn.historyServer.address http://cdh101:18080   （Yarn Application页面Tracking URL链接可以直接进入HistoryServer查看日志）
+  spark.yarn.historyServer.allowTracking true  （Yarn Application页面Tracking URL链接可以直接进入HistoryServer查看日志）
   ## local.dir设置为数据盘，避免使用系统分区
-  spark.local.dir=/tmp/spark_temp_data
+  spark.local.dir /tmp/spark_temp_data
   ## 优化设置
-  spark.kryoserializer.buffer.max=512m
-  spark.serializer=org.apache.spark.serializer.KryoSerializer
-  spark.authenticate=false   （关闭数据块传输服务SASL加密认证）
-  spark.io.encryption.enabled=false   （关闭I/O加密）
-  spark.network.crypto.enabled=false  （关闭基于AES算法的RPC加密）
-  spark.shuffle.service.enabled=true  （启用外部ShuffleService提高Shuffle稳定性）
-  spark.shuffle.service.port=7337  （这个外部ShuffleService由YarnNodeManager提供，默认端口7337）
-  spark.shuffle.useOldFetchProtocol=true  （兼容旧的Shuffle协议避免报错）
-  spark.sql.cbo.enabled=true  (启用CBO基于代价的优化-代替RBO基于规则的优化-Optimizer)
-  spark.sql.cbo.starSchemaDetection=true  （星型模型探测，判断列是否是表的主键）
-  spark.sql.datetime.java8API.enabled=false
-  spark.sql.sources.partitionOverwriteMode=dynamic 
-  spark.sql.orc.mergeSchema=true  （ORC格式Schema加载时从所有数据文件收集）
-  spark.sql.parquet.mergeSchema=false (根据情况设置，我们集群大多数都是parquet，从所有文件收集Schema会影响性能，所以从随机一个Parquet文件收集Schema)
-  spark.sql.parquet.writeLegacyFormat=true  （兼容旧集群）
-  spark.sql.autoBroadcastJoinThreshold=1048576  （当前仅支持运行了ANALYZE TABLE <tableName> COMPUTE STATISTICS noscan的Hive Metastore表，以及直接在数据文件上计算统计信息的基于文件的数据源表）
-  spark.sql.adaptive.enabled=true   （Spark AQE[adaptive query execution]启用，AQE的优势：执行计划可动态调整、调整的依据是中间结果的精确统计信息）
-  spark.sql.adaptive.forceApply=false
-  spark.sql.adaptive.logLevel=info
-  spark.sql.adaptive.advisoryPartitionSizeInBytes=256m  （倾斜数据分区拆分，小数据分区合并优化时，建议的分区大小，与spark.sql.adaptive.shuffle.targetPostShuffleInputSize含义相同）
-  spark.sql.adaptive.coalescePartitions.enabled=true  （是否开启合并小数据分区默认开启，调优策略之一）
-  spark.sql.adaptive.coalescePartitions.minPartitionSize=1m  （合并后最小的分区大小）
-  spark.sql.adaptive.coalescePartitions.initialPartitionNum=1024  （合并前的初始分区数）
-  spark.sql.adaptive.fetchShuffleBlocksInBatch=true  （是否批量拉取blocks,而不是一个个的去取，给同一个map任务一次性批量拉取blocks可以减少io 提高性能）
-  spark.sql.adaptive.localShuffleReader.enabled=true （不需要Shuffle操作时，使用LocalShuffleReader，例如将SortMergeJoin转为BrocastJoin）
-  spark.sql.adaptive.skewJoin.enabled=true   （Spark会通过拆分的方式自动处理Join过程中有数据倾斜的分区）
-  spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes=128m
-  spark.sql.adaptive.skewJoin.skewedPartitionFactor=5  （判断倾斜的条件：分区大小大于所有分区大小中位数的5倍，且大于spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes的值）
+  spark.kryoserializer.buffer.max 512m
+  spark.serializer org.apache.spark.serializer.KryoSerializer
+  spark.authenticate false   （关闭数据块传输服务SASL加密认证）
+  spark.io.encryption.enabled false   （关闭I/O加密）
+  spark.network.crypto.enabled false  （关闭基于AES算法的RPC加密）
+  spark.shuffle.service.enabled true  （启用外部ShuffleService提高Shuffle稳定性）
+  spark.shuffle.service.port 7337  （这个外部ShuffleService由YarnNodeManager提供，默认端口7337）
+  spark.shuffle.useOldFetchProtocol true  （兼容旧的Shuffle协议避免报错）
+  spark.sql.cbo.enabled true  (启用CBO基于代价的优化-代替RBO基于规则的优化-Optimizer)
+  spark.sql.cbo.starSchemaDetection true  （星型模型探测，判断列是否是表的主键）
+  spark.sql.datetime.java8API.enabled false
+  spark.sql.sources.partitionOverwriteMode dynamic 
+  spark.sql.orc.mergeSchema true  （ORC格式Schema加载时从所有数据文件收集）
+  spark.sql.parquet.mergeSchema false (根据情况设置，我们集群大多数都是parquet，从所有文件收集Schema会影响性能，所以从随机一个Parquet文件收集Schema)
+  spark.sql.parquet.writeLegacyFormat true  （兼容旧集群）
+  spark.sql.autoBroadcastJoinThreshold 1048576  （当前仅支持运行了ANALYZE TABLE <tableName> COMPUTE STATISTICS noscan的Hive Metastore表，以及直接在数据文件上计算统计信息的基于文件的数据源表）
+  spark.sql.adaptive.enabled true   （Spark AQE[adaptive query execution]启用，AQE的优势：执行计划可动态调整、调整的依据是中间结果的精确统计信息）
+  spark.sql.adaptive.forceApply false
+  spark.sql.adaptive.logLevel info
+  spark.sql.adaptive.advisoryPartitionSizeInBytes 256m  （倾斜数据分区拆分，小数据分区合并优化时，建议的分区大小，与spark.sql.adaptive.shuffle.targetPostShuffleInputSize含义相同）
+  spark.sql.adaptive.coalescePartitions.enabled true  （是否开启合并小数据分区默认开启，调优策略之一）
+  spark.sql.adaptive.coalescePartitions.minPartitionSize 1m  （合并后最小的分区大小）
+  spark.sql.adaptive.coalescePartitions.initialPartitionNum 1024  （合并前的初始分区数）
+  spark.sql.adaptive.fetchShuffleBlocksInBatch true  （是否批量拉取blocks,而不是一个个的去取，给同一个map任务一次性批量拉取blocks可以减少io 提高性能）
+  spark.sql.adaptive.localShuffleReader.enabled true （不需要Shuffle操作时，使用LocalShuffleReader，例如将SortMergeJoin转为BrocastJoin）
+  spark.sql.adaptive.skewJoin.enabled true   （Spark会通过拆分的方式自动处理Join过程中有数据倾斜的分区）
+  spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes 128m
+  spark.sql.adaptive.skewJoin.skewedPartitionFactor 5  （判断倾斜的条件：分区大小大于所有分区大小中位数的5倍，且大于spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes的值）
   ## 默认应用资源设置
-  spark.driver.memory=2G
-  spark.executor.cores=4
-  spark.executor.memory=4G
-  spark.executor.memoryOverhead=2G
-  spark.memory.offHeap.enabled=true
-  spark.memory.offHeap.size=2G
+  spark.driver.memory 2G
+  spark.executor.cores 4
+  spark.executor.memory 4G
+  spark.executor.memoryOverhead 2G
+  spark.memory.offHeap.enabled true
+  spark.memory.offHeap.size 2G
   ## 动态资源设置  具体逻辑见ExecutorAllocationManager这个类
-  spark.dynamicAllocation.enabled=true
-  spark.dynamicAllocation.executorIdleTimeout=60 （executor闲置时间，如果某executor空闲超过60s，则remove此executor）
-  spark.dynamicAllocation.minExecutors=0
-  spark.dynamicAllocation.schedulerBacklogTimeout=5s  （如果有pending task并且等待了5s，则申请增加executor）
-  spark.dynamicAllocation.cachedExecutorIdleTimeout=600 （cache闲置时间，超过此时间，可释放cache所在的executor）
+  spark.dynamicAllocation.enabled true
+  spark.dynamicAllocation.executorIdleTimeout 60 （executor闲置时间，如果某executor空闲超过60s，则remove此executor）
+  spark.dynamicAllocation.minExecutors 0
+  spark.dynamicAllocation.schedulerBacklogTimeout 5s  （如果有pending task并且等待了5s，则申请增加executor）
+  spark.dynamicAllocation.cachedExecutorIdleTimeout 600 （cache闲置时间，超过此时间，可释放cache所在的executor）
   ## 其他设置
-  spark.driver.extraLibraryPath=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native
-  spark.executor.extraLibraryPath=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native
-  spark.yarn.am.extraLibraryPath=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native
-  spark.ui.enabled=true
-  spark.ui.killEnabled=true
-  spark.master=yarn
-  spark.sql.hive.metastore.version=2.1.1
-  spark.sql.hive.metastore.jars=/opt/cloudera/parcels/CDH/lib/hive/lib/*
+  spark.driver.extraLibraryPath /opt/cloudera/parcels/CDH/lib/hadoop/lib/native
+  spark.executor.extraLibraryPath /opt/cloudera/parcels/CDH/lib/hadoop/lib/native
+  spark.yarn.am.extraLibraryPath /opt/cloudera/parcels/CDH/lib/hadoop/lib/native
+  spark.ui.enabled true
+  spark.ui.killEnabled true
+  spark.master yarn
+  spark.sql.hive.metastore.version 2.1.1
+  spark.sql.hive.metastore.jars /opt/cloudera/parcels/CDH/lib/hive/lib/*
 # 修改spark-env.sh
 vim spark-env.sh
   export JAVA_HOME=/usr/java/jdk1.8.0_181
