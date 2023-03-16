@@ -1385,6 +1385,16 @@ Hive客户端不输出表字段(表头)hive.cli.print.header=false
 
 Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
+left join之后的行数变化
+1.与左表行数相同
+   原因：右表中的连接字段没有重复的现象
+        最后不用where语句进行筛选
+2.行数变多
+   原因：右表中的连接字段有重复的现象
+3.行数变少
+   原因：一定是在最后加入了where语句，
+        否则一定不会出现left join后，行数变少的情况。
+
 Python连接Hive
 1.pyspark 
 2.pyhive 
