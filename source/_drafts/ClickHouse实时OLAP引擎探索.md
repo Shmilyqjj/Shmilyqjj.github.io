@@ -369,6 +369,20 @@ select cluster,shard_num,replica_num,host_name,host_address,port,is_local,user f
 └───────────────────────────┴───────────┴─────────────┴───────────┴───────────────┴──────┴──────────┴─────────┘
 ```
 
+### 基于Docker安装ClickHouse
+```shell
+mkdir /data1/clickhouse_data
+docker run -d --name clickhouse-server --ulimit nofile=262144:262144 -p 8123:8123 -p 9000:9000 -p 9009:9009 -p 9004:9004 -p 9005:9005 -v /data1/clickhouse_data:/var/lib/clickhouse -v /data1/clickhouse_logs:/var/log/clickhouse-server -e TZ=Asia/Shanghai yandex/clickhouse-server
+docker exec -it clickhouse-server bash -c "apt-get update;apt-get install vim net-tools -y"
+## 修改配置文件 根据需要修改日志级别,时区,密码等信息
+docker exec -it clickhouse-server bash -c "cp /etc/clickhouse-server/config.xml /etc/clickhouse-server/config.xml.bk"
+docker exec -it clickhouse-server bash -c "vim /etc/clickhouse-server/config.xml" 
+## 登陆
+docker exec -it clickhouse-server bash -c "clickhouse-client -h 127.0.0.1 -d default -m -u default --password '123456'"
+```
+
+
+
 测试分布式表引擎
 ```sql
 -- 分布式引擎本身不存储数据, 但可以在多个服务器上进行分布式查询。

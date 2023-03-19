@@ -42,6 +42,7 @@ date: 2022-10-31 10:10:00
 9. 支持基于乐观锁的并发写: Iceberg基于乐观锁提供了多个程序并发写入的能力并且保证数据线性一致.(乐观创建metadata文件,提交更新会触发metadata原子交换,完成提交)
 10. 文件级数据剪裁: Iceberg通过元数据来对查询进行高效过滤,Iceberg的元数据里面提供了每个数据文件的一些统计信息, 比如最大值, 最小值, Count计数等等. 因此, 查询SQL的过滤条件除了常规的分区, 列过滤, 甚至可以下推到文件级别, 大大加快了查询效率.
 11. 支持多种底层存储格式如Parquet、Avro以及ORC等.
+12. 支持Upsert能力,且更新即可见,但不能过于频繁,若Upsert过于频繁,则需要频繁数据合并
 
 
 ## Iceberg原理
@@ -427,7 +428,15 @@ STORED BY 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'
 TBLPROPERTIES (
  'write.distribution-mode'='hash',
  'write.metadata.delete-after-commit.enabled'='true',
- 'write.metadata.previous-versions-max'='5'
+ 'write.metadata.previous-versions-max'='5',
+ 'format-version'='2',
+ 'engine.hive.enabled'='true', 
+ 'write.target-file-size-bytes'='268435456',
+ 'write.format.default'='parquet',
+ 'write.parquet.compression-codec'='zstd',
+ 'write.parquet.compression-level'='10',
+ 'write.avro.compression-codec'='zstd',
+ 'write.avro.compression-level'='10'
 );
 -- 示例3 手动指定catalog名称,指定catalog类型为HiveCatalog类型并建表:
 set iceberg.catalog.<catalog_name>.type=hive;  -- 设置catalog类型
@@ -555,7 +564,11 @@ insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql sel
 -- 2.FlinkSQL批式查询
 SET execution.runtime-mode = batch;
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
--- 3.FlinkSQL流式查询
+-- 3.FlinkSQL流式查询 
+---- 注:不指定start-snapshot-id则会逐渐回溯全量数据
+---- 指定了start-snapshot-id后,会从该snapshot的数据开始消费
+---- 重启Flink应用时,若不指定上次关闭时的checkpoint或savepoint,则每次重启Flink应用都会从start-snapshot-id指定snapshot开始消费,导致重复消费历史数据
+---- 重启Flink应用时,若指定了上次关闭时的checkpoint或savepoint,则会从上次消费的位点继续消费
 select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` /*+ OPTIONS('streaming'='true', 'monitor-interval'='5s', 'start-snapshot-id'='3821550127947089987')*/ ;
 -- 4.在Hive中创建Iceberg映射表[只针对HadoopCatalog类型表]
 create external table iceberg_db.hadoop_iceberg_table_flink_sql (
@@ -569,6 +582,119 @@ LOCATION 'hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_ta
 tblproperties ('iceberg.catalog'='location_based_table');
 -- 5.HiveSQL查询(能查到实时最新数据)
 select * from iceberg_db.hadoop_iceberg_table_flink_sql; 
+-- 6.FlinkSQL Upsert更新 基于累积窗口统计逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` (
+  actionid STRING,
+  userid STRING,
+  `success_cnt` bigint,
+  `failed_cnt` bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`userid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH('type'='ICEBERG',
+'format-version'='2',   -- 必须是v2表
+'write.upsert.enabled'='true',  -- 指定该参数 使表可upsert
+'engine.hive.enabled'='true',  
+'read.split.target-size'='536870912',
+'write.target-file-size-bytes'='268435456',
+'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='5',  
+'write.distribution-mode'='hash'); 
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` /*+ OPTIONS('upsert-enabled'='true') */   -- 需要指定'upsert-enabled'='true'
+SELECT 
+actionid,
+userid,
+sum(cast(if(`error` = 'ok', 1, 0) as BIGINT)) AS success_cnt,
+sum(cast(if(`error` <> 'ok', 1, 0) as BIGINT)) AS failed_cnt,
+window_start, 
+window_end,
+DATE_FORMAT(window_start, 'yyyyMMdd') AS ds
+FROM 
+    TABLE(
+    CUMULATE(
+      TABLE kafka_table, 
+      DESCRIPTOR(event_time), 
+      INTERVAL '1' MINUTES, 
+      INTERVAL '1' DAY
+      )
+    )
+  GROUP BY 
+    window_start, 
+    window_end,
+    actionid,
+    userid;
+-- 7. FlinkSQL Upsert更新 基于累积窗口计算TopN逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`top_iceberg_table` (
+  actionid STRING,
+  success_cnt bigint,
+  failed_cnt bigint,
+  ranking_num bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH('type'='ICEBERG',
+'format-version'='2',    -- 必须是v2表
+'write.upsert.enabled'='true',  -- 指定该参数 使表可upsert
+'engine.hive.enabled'='true',  
+'read.split.target-size'='536870912',
+'write.target-file-size-bytes'='268435456',
+'write.format.default'='parquet',
+'write.parquet.compression-codec'='zstd',
+'write.parquet.compression-level'='10',
+'write.avro.compression-codec'='zstd',
+'write.avro.compression-level'='10',
+'write.metadata.delete-after-commit.enabled'='true',
+'write.metadata.previous-versions-max'='5',  
+'write.distribution-mode'='hash');
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`user_experience_topn_action_report` /*+ OPTIONS('upsert-enabled'='true') */  -- 需要指定'upsert-enabled'='true'
+SELECT * from (
+    SELECT 
+      actionid, 
+      success_cnt, 
+      failed_cnt, 
+      ROW_NUMBER() OVER (
+        PARTITION BY window_start, 
+        window_end 
+        ORDER BY 
+          failed_cnt asc
+      ) AS rn, 
+      window_start, 
+      window_end, 
+      ds 
+    from (
+        select 
+          actionid, 
+          sum(cast(if(`error` = 'ok', 1, 0) as BIGINT)) AS success_cnt, 
+          sum(cast(if(`error` <> 'ok', 1, 0) as BIGINT)) AS failed_cnt, 
+          window_start, 
+          window_end, 
+          DATE_FORMAT(window_end, 'yyyyMMdd') AS ds 
+        FROM 
+          TABLE(
+            CUMULATE(
+              TABLE kafka_shoulei_odl_odl_xlpan_server_log, 
+              DESCRIPTOR(event_time), 
+              INTERVAL '1' MINUTES, 
+              INTERVAL '1' DAY
+            )
+          ) 
+        GROUP BY 
+          window_start, 
+          window_end, 
+          actionid
+      ) t_inner
+  ) t_outer 
+where 
+  rn <= 100;
 ```
 
 **打通Kafka->Flink SQL->HiveCatalog类型Iceberg表->Hive/Trino**
@@ -1051,6 +1177,94 @@ Spark实现:
 ### 清理孤立文件
 [**SparkIcebergTableMaintenance$removeOrphanFiles**](https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala)
 
+## 异常处理
+### ManifestFile文件丢失
+```err
+2023-01-30 09:36:57,558 WARN  org.apache.flink.runtime.taskmanager.Task [] - IcebergFilesCommitter -> Sink: IcebergSink (1
+/1)#0 (2125b52f518a53194e79e9f5d86dbb78) switched from RUNNING to FAILED with failure cause: org.apache.iceberg.exceptions.NotFoundException:
+ Failed to open input stream for file: oss://xxxxx/user/hive/warehouse/iceberg_db/xxxxx/metadata/f86794c3-750d-4def-ad2d-b726c4c210ad-m0.avro
+        at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+        at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+        at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+        at org.apache.iceberg.ManifestReader.<init>(ManifestReader.java:115)
+        at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+        at org.apache.iceberg.SnapshotProducer.newManifestReader(SnapshotProducer.java:448)
+        at org.apache.iceberg.MergingSnapshotProducer$DataFileMergeManager.newManifestReader(MergingSnapshotProducer.java:1005)
+        at org.apache.iceberg.ManifestMergeManager.createManifest(ManifestMergeManager.java:175)
+        at org.apache.iceberg.ManifestMergeManager.lambda$mergeGroup$1(ManifestMergeManager.java:156)
+        at org.apache.iceberg.util.Tasks$Builder.runTaskWithRetry(Tasks.java:402)
+        at org.apache.iceberg.util.Tasks$Builder.access$300(Tasks.java:68)
+        at org.apache.iceberg.util.Tasks$Builder$1.run(Tasks.java:308)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: java.io.FileNotFoundException: ErrorCode : 25002 , ErrorMsg: File not found.  [RequestId]: ...
+```
+原因: 可能合并任务异常导致
+解决:
+```java
+// 将丢失ManifestFile文件从元数据中移除,以解决表不可用的问题
+        String lostManifestFilePath = "xxxxx"
+        Table table = getTable(dbName, tabName);
+        Snapshot snapshot = table.currentSnapshot();
+        List<ManifestFile> manifestFiles = snapshot.allManifests(table.io());
+        List<ManifestFile> manifestFileDeletes = new ArrayList<>();
+        for (ManifestFile manifestFile : manifestFiles) {
+            String path = manifestFile.path();
+            if (path.equals(lostManifestFilePath)) {
+                manifestFileDeletes.add(manifestFile);
+                break;
+            }
+        }
+        if (manifestFileDeletes.isEmpty()) {
+            throw new Exception(StringUtils.format("Manifest File:%s not in metadata",lostManifestFilePath));
+        }
+        RewriteManifests rewriteManifests = table.rewriteManifests();
+        for (ManifestFile manifestFile : manifestFileDeletes) {
+            rewriteManifests.deleteManifest(manifestFile);
+        }
+        rewriteManifests.commit();
+// 代码执行过程中可能抛出org.apache.iceberg.exceptions.ValidationException:Replaced and created manifests must have the same number of active files: 0 (new), 5567 (old)
+// 修改iceberg-core位于core/src/main/java/org/apache/iceberg/BaseRewriteManifests.java activeFilesCount方法注释掉如下两行
+//      activeFilesCount += manifest.addedFilesCount();
+//      activeFilesCount += manifest.existingFilesCount();
+```
+
+### Flink写入Iceberg无法找到avro文件,导致任务报错无法写入
+```error
+org.apache.iceberg.exceptions.NotFoundException: Failed to open input stream for file: oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/32759abff25a1366837ed3d146e27d51-55f7b63bf1c8c02b88d8659b98477e64-00000-2-71-00037.avro
+	at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+	at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+	at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+	at org.apache.iceberg.ManifestReader.<init>(ManifestReader.java:115)
+	at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+	at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:72)
+	at org.apache.iceberg.flink.sink.FlinkManifestUtil.readDataFiles(FlinkManifestUtil.java:58)
+	at org.apache.iceberg.flink.sink.FlinkManifestUtil.readCompletedFiles(FlinkManifestUtil.java:113)
+	at org.apache.iceberg.flink.sink.IcebergFilesCommitter.commitUpToCheckpoint(IcebergFilesCommitter.java:244)
+	at org.apache.iceberg.flink.sink.IcebergFilesCommitter.initializeState(IcebergFilesCommitter.java:184)
+	at org.apache.flink.streaming.api.operators.StreamOperatorStateHandler.initializeOperatorState(StreamOperatorStateHandler.java:119)
+	at org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:286)
+	at org.apache.flink.streaming.runtime.tasks.RegularOperatorChain.initializeStateAndOpenOperators(RegularOperatorChain.java:109)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:711)
+	at org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$1.call(StreamTaskActionExecutor.java:55)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreInternal(StreamTask.java:687)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:654)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:958)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:927)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:766)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:575)
+	at java.lang.Thread.run(Thread.java:748)
+  ......
+```
+可能原因: 此文件不是MainfestList文件也不是ManifestFile文件,而是Flink写入Iceberg时一种中间状态的文件,可能原因是checkpoint超时或时间过长,但该异常与合并和清理任务无关
+解决: 
+```
+hdfs dfs -ls -r -t oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/ | grep avro | grep -v snap | grep -v m0 | grep -v m1 | grep -v m2 | grep -v m3
+找到最新avro 拷贝并重命名为缺失的avro 同时优化checkpoint稳定性
+```
 
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |

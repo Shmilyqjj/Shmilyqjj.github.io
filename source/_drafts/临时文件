@@ -1385,6 +1385,16 @@ Hive客户端不输出表字段(表头)hive.cli.print.header=false
 
 Hive之序列化与反序列化（SerDe）：https://www.cnblogs.com/rrttp/p/9024153.html
 
+left join之后的行数变化
+1.与左表行数相同
+   原因：右表中的连接字段没有重复的现象
+        最后不用where语句进行筛选
+2.行数变多
+   原因：右表中的连接字段有重复的现象
+3.行数变少
+   原因：一定是在最后加入了where语句，
+        否则一定不会出现left join后，行数变少的情况。
+
 Python连接Hive
 1.pyspark 
 2.pyhive 
@@ -2239,6 +2249,7 @@ docker ps -l
 docker start 5c0ac77c1d18
 关闭运行中的容器
 docker stop 5c0ac77c1d18
+docker ps | grep -v "CONTAINER" | awk '{print $1}' | xargs docker stop
 重启容器
 docker restart 5c0ac77c1d18
 查看容器进程列表
@@ -2267,6 +2278,7 @@ docker port 043500ec7fc2
  /var/lib/docker/containers/(docker inspect 043500ec7fc2  |grep Id)/config.v2.json
  在ExposedPorts加上要暴露的端口7778
  sudo systemctl start docker
+<<<<<<< HEAD
 导出容器
 docker export 043500ec7fc2 > trino_container.tar
 导入容器
@@ -2274,6 +2286,25 @@ cat trino_container.tar | docker import - test/ubuntu:v1
 docker import http://example.com/exampleimage.tgz example/imagerepo
 更新提交镜像(对某个Container做了一定操作后)
 docker commit -m="add openjdk17" -a="qjj" 7c9ca864669a docker.io/almalinux:v1  (-m描述信息 -a镜像作者)
+=======
+修改了文件导致无法启动容器,如何恢复文件让容器能正常启动 
+ 使用docker cp命令先下载到本地,修改后再复制回容器
+ docker cp [容器id]：docker容器中配置文件路径 主机路径
+ docker cp 主机路径 [容器id]：docker容器中配置文件路径
+ 例:
+  docker cp superset:/usr/bin/run-server.sh .
+  修改文件内容后docker cp run-server.sh superset:/usr/bin/run-server.sh
+修改容器内hosts文件
+ 方案1:docker run创建容器时增加--add-host a.b.com:xxx.xxx.x.xx 
+ 方案2:如果容易已经创建
+   docker stop 219da1a26f0f
+   sudo systemctl stop docker
+   vim /var/lib/docker/containers/{container_id}/hostconfig.json
+   修改条目"ExtraHosts":["host1:xx.xx.x.xx","host2:xx.xx.xx.xx","host3:xx.xx.xx.xxx"], 
+   sudo systemctl start docker
+   docker start 219da1a26f0f
+ 方案3:容器内应用启动脚本中加入echo "host xx.xx.xx.xxx" >> /etc/hosts  (不推荐)
+>>>>>>> ff8ea9a61303a3f3fa2657e59a13e757490ea249
 
 示例:
 1.Docker创建MySql
@@ -2460,6 +2491,17 @@ NAT模式：虚拟主机和真实主机网段不同，能访问外网。例子�
 DataX学习
 
 com.google.common.cache.Cache缓存
+
+
+
+---------------------------------------------------------------------------
+MapReduce相关
+reduce个数控制:
+set hive.exec.reducers.max = 30 限制最大reducer数
+set hive.exec.reducers.bytes.per.reducer = 536870912  每个reducer处理的数据量大小(压缩前)
+set mapred.reduce.tasks = 10 指定固定数量的reduce个数(会屏蔽上面两个参数的设置,这个参数如果指定了，hive就不会用它的estimation函数来自动计算reduce的个数，而是用这个参数来启动reducer。默认是-1)
+
+
 
 --------------------------------JVM GC分析--------------------------------
 https://www.cnblogs.com/rainwang/p/7213918.html    GC分析   G1  不研究CMS
