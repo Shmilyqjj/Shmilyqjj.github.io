@@ -2233,6 +2233,8 @@ docker stop 6e393cd0c996
 docker ps
 查看所有创建过的容器
 docker ps -a
+查看最后一次创建的容器
+docker ps -l 
 启动已关闭的容器
 docker start 5c0ac77c1d18
 关闭运行中的容器
@@ -2242,8 +2244,13 @@ docker restart 5c0ac77c1d18
 查看容器进程列表
 docker top 1f3113406de9 
 进入容器
-docker exec -it 1f3113406de9 /bin/bash
-(root权限) docker exec -it -u root 1f3113406de9 bash 
+docker exec -it 1f3113406de9 /bin/bash  (-i交互式操作 -t终端)
+docker exec -itd 1f3113406de9 /bin/bash (-d后台持续运行)
+(root权限) docker exec -it -u root 1f3113406de9 bash   
+查看容器日志
+docker logs 1f3113406de9
+查看容器CPU内存网络等监控信息
+docker stats
 查看容器底层信息
 docker inspect 1f3113406de9 
 查看容器Id
@@ -2260,6 +2267,13 @@ docker port 043500ec7fc2
  /var/lib/docker/containers/(docker inspect 043500ec7fc2  |grep Id)/config.v2.json
  在ExposedPorts加上要暴露的端口7778
  sudo systemctl start docker
+导出容器
+docker export 043500ec7fc2 > trino_container.tar
+导入容器
+cat trino_container.tar | docker import - test/ubuntu:v1
+docker import http://example.com/exampleimage.tgz example/imagerepo
+更新提交镜像(对某个Container做了一定操作后)
+docker commit -m="add openjdk17" -a="qjj" 7c9ca864669a docker.io/almalinux:v1  (-m描述信息 -a镜像作者)
 
 示例:
 1.Docker创建MySql
@@ -2274,7 +2288,18 @@ docker ps
 docker pull trinodb/trino
 docker run --name trino -d -p 8080:8080 trinodb/trino
 
+3.Docker ubuntu
+docker pull ubuntu 
+docker run -i -t ubuntu:latest /bin/bash
 
+4.Docker almaLinux
+docker pull almalinux 
+docker run -i -t almalinux:latest /bin/bash
+
+5.Docker WebApp
+docker pull training/webapp
+docker run -d -P training/webapp python app.py  (-P 将容器内部使用的网络端口随机映射到主机上)
+docker run -d -p 5000:5000 training/webapp python app.py  (-p 设置容器内外端口映射)
 -----------------------------------------------------------------------------
 Java相关
 
