@@ -67,6 +67,8 @@ alter table db.table delete where col=111;
 alter table db.table on cluster cluster_name delete where col=111;
 -- 删除分布式表的分区 分区是两个字段组成 一级分区值为19087，二级分区值为0
 ALTER TABLE db.table_local ON CLUSTER cluster_name DROP PARTITION (19087,0);
+-- 对CK表数据设置TTL 超时数据会被删除 (dt为Date或DateTime类型)
+ALTER TABLE db.table_local MODIFY TTL dt + INTERVAL 1 DAY DELETE;
 ```
 
 
@@ -419,6 +421,9 @@ drop table default.distribute_table on cluster cluster_name; -- 删除分布式�
 -- 清空分布式表数据
 truncate table shard01_db.local_table on cluster cluster_name; -- 清空副本01的表的数据
 truncate table shard02_db.local_table on cluster cluster_name; -- 清空副本02的表的数据
+-- CK修改单个字段值 
+ALTER TABLE shard01_db.local_table UPDATE name='qjj' where id='6';
+ALTER TABLE shard02_db.local_table UPDATE name='qjj' where id='6';
 ```
 使用JDBC连接ClickHouse代码[**ClickHouseJDBC**](https://github.com/Shmilyqjj/Shmily/blob/master/ClickHouse/src/main/java/ClickHouseJDBC.groovy)
 
