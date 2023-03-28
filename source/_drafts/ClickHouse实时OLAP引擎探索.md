@@ -56,9 +56,24 @@ CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
     name2 [type2] [DEFAULT|MATERIALIZED|ALIAS expr2] [compression_codec] [TTL expr2],
     ...
 ) ENGINE = engine
-```
+-- 建表示例
+CREATE TABLE test_local.test_table
+(
+    id Int32 DEFAULT 0,
+    name String DEFAULT '',
+    dt Date
+)
+ENGINE = MergeTree
+PARTITION BY dt
+ORDER BY (id,name)
+SETTINGS index_granularity = 8192;
+-- 插入数据
+insert into test_local.test_table values (1,'qjj',toDate('20230322'));
+insert into test_local.test_table values (2,'qjj',toDate('20230321'));
+insert into test_local.test_table values (2,'qjj',toDate('20230320'));
+-- 删除某个分区 (分区字段为Date类型)
+ALTER TABLE test_local.test_table DROP PARTITION ('2023-03-21');
 
-```sql
 -- 对DateTime64类型求min,max
 select toDateTime(min(toUInt64(time))),toDateTime(max(toUInt64(time))) from db.table;
 -- 根据条件删除数据（异步）
