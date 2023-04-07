@@ -497,6 +497,132 @@ There was an error on [xxx.xx.xxx.xx:9030]: Code: 44. DB::Exception: Cannot add 
 ```
 解决：排查重名字段，去掉即可
 
+3. 使用Trino插入CK执行多个UNION ALL语句报并行度跑满
+```sql
+insert into clickhouse.ck_db.ck_table (
+ client,        
+ vip_type,           
+ group_tag,       
+ users,      
+ col_id,
+ speed_type,
+ user_cnt,
+ dt,
+ type
+) 
+WITH speed_table AS (
+ SELECT 
+ case
+	 when platform = 'xx2' then 'xx'
+	 when platform = 'xx3' then 'xxx'
+    when platform = 'xx4' then 'xxxx'
+    when platform = 'xx5' then 'xxxxx'
+    when platform = 'xx6' then 'xxxxxx'
+	 else '其他'
+ end as client,
+ case 
+    when isvip = '3' then 'xxx'
+    when isvip = '5' then 'xxxx'
+    when isvip = 'total' then 'total'
+    else '其他'
+ end as vip_type,
+ case 
+    when group_tag = 'total' then 'xx'
+    when group_tag = 'aaa' then 'xx'
+    when group_tag = 'bbb' then 'xxx'
+    when group_tag = 'ccc' then 'xxxxx'
+    else '其他区间'
+ end as group_tag,
+ cast(users as bigint) as users,
+ speed_users_1, 
+ speed_users_2, 
+ speed_users_3, 
+ speed_users_4, 
+ speed_users_5, 
+ speed_users_6, 
+ speed_users_7, 
+ speed_users_8, 
+ speed_users_9, 
+ speed_users_10, 
+ speed_users_11, 
+ speed_users_12, 
+ speed_users_13, 
+ speed_users_14, 
+ speed_users_15, 
+ date(date_parse(ds, '%Y%m%d')) as dt, 
+ case when type = 'dd' then 'aaa' when type = 'ww' then 'bbb' else '其他' end as type
+ FROM hive.hive_db.hive_table where ds = '20230407'
+)
+SELECT * FROM(
+SELECT client,vip_type,group_tag,users,'aa' as col_id,'1xxxxx' as speed_type,speed_users_1 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ab' as col_id,'2xxxxx' as speed_type,speed_users_2 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ac' as col_id,'3xxxxx' as speed_type,speed_users_3 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ad' as col_id,'4xxxxx' as speed_type,speed_users_4 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ae' as col_id,'5xxxxx' as speed_type,speed_users_5 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'af' as col_id,'6xxxxx' as speed_type,speed_users_6 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ag' as col_id,'7xxxxx' as speed_type,speed_users_7 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ah' as col_id,'8xxxxx' as speed_type,speed_users_8 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ai' as col_id,'9xxxxx' as speed_type,speed_users_9 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'aj' as col_id,'10xxxxx' as speed_type,speed_users_10 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ak' as col_id,'11xxxxx' as speed_type,speed_users_11 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'al' as col_id,'12xxxxx' as speed_type,speed_users_12 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'am' as col_id,'13xxxxx' as speed_type,speed_users_13 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'an' as col_id,'14xxxxx' as speed_type,speed_users_14 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ao' as col_id,'15xxxxx' as speed_type,speed_users_15 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ap' as col_id,'1yyyyy' as speed_type,users-speed_users_1 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'aq' as col_id,'2yyyyy' as speed_type,users-speed_users_2 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ar' as col_id,'3yyyyy' as speed_type,users-speed_users_3 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'as' as col_id,'4yyyyy' as speed_type,users-speed_users_4 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'at' as col_id,'5yyyyy' as speed_type,users-speed_users_5 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'au' as col_id,'6yyyyy' as speed_type,users-speed_users_6 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'av' as col_id,'7yyyyy' as speed_type,users-speed_users_7 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'aw' as col_id,'8yyyyy' as speed_type,users-speed_users_8 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ax' as col_id,'9yyyyy' as speed_type,users-speed_users_9 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ay' as col_id,'10yyyyy' as speed_type,users-speed_users_10 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'az' as col_id,'11yyyyy' as speed_type,users-speed_users_11 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'ba' as col_id,'12yyyyy' as speed_type,users-speed_users_12 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'bb' as col_id,'13yyyyy' as speed_type,users-speed_users_13 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'bc' as col_id,'14yyyyy' as speed_type,users-speed_users_14 as user_cnt,dt,type FROM speed_table
+UNION ALL 
+SELECT client,vip_type,group_tag,users,'bd' as col_id,'15yyyyy' as speed_type,users-speed_users_15 as user_cnt,dt,type FROM speed_table
+);
+```  
+报错信息:
+```err
+Caused by: java.sql.SQLException: Code: 202, e.displayText() = DB::Exception: Too many simultaneous queries. Maximum: 100 (version 21.1.3.32)
+```
+但当时集群没有很多查询
+原因: trino union all是并行执行的,导致插入CK单张表并发过高,进而导致并行度打满,修改为先创建hive临时表,UNION ALL数据写入临时表,再将临时表通过Trino写入CK,问题解决.
+
+
  
 
 
