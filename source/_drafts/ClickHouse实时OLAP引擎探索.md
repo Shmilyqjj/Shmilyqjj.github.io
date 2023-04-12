@@ -622,8 +622,14 @@ Caused by: java.sql.SQLException: Code: 202, e.displayText() = DB::Exception: To
 但当时集群没有很多查询
 原因: trino union all是并行执行的,导致插入CK单张表并发过高,进而导致并行度打满,修改为先创建hive临时表,UNION ALL数据写入临时表,再将临时表通过Trino写入CK,问题解决.
 
+4. 计算字段与原始字段名称重复
+```err
+DB::Exception: There is no supertype for types String, UInt8 because some of them are String/FixedString and some of them are not: while executing xxxxx
+```
+原因: 计算字段名与原始表中的字段名相同,会抛出这个错误 如 sum(value) as value,dictGetString('xxx_dict', 'dict_key',search_key) as search_key ...
+解决: 避免计算后字段名与原表字段同名
 
- 
+
 
 
 ## 参考
