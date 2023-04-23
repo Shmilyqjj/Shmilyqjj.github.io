@@ -311,7 +311,7 @@ env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-TIM/ deepin-wine5 winecfg
 -------------------------------------------------------------------------------------------------------
 sudo pacman -S google-chrome  # Chrome
-sudo pacman -S netease-cloud-music  # 网易云音乐
+yay -S yesplaymusic  # (推荐代替sudo pacman -S netease-cloud-music网易云音乐)代替网易云音乐Linux客户端的音乐软件
 yay -S tenvideo # 腾讯视频
 sudo pacman -S unrar unzip p7zip  # 解压
 ### 安装WPS：软件商店安装如下包：wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn ttf-wps-fonts
@@ -834,6 +834,9 @@ echo 3 > /proc/sys/vm/drop_caches
 日志清理
 journalctl --disk-usage 查看日志占用
 sudo journalctl --vacuum-size=500M  限制归档日志大小，对日志做清除操作，适用于/var占用较大的场景
+pacman安装包清理
+sudo pacman -Scc 
+其他数据清理与空间释放->结合Filelight工具查看文件大小分布,进而手动清理
 
 ### 搜索工具
 Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等
