@@ -594,7 +594,14 @@ A684C2DC 0B1583D4 19CBD290 217618CD
 DD9AF44B 99C49590 D2DBDEE1 75860FD2
 8C8BB2AD B2ECE5A4 EFC08AF2 25A9B864
 ------ END LICENSE ------​
+# DBeaver 数据库管理工具安装
+sudo pacman -S dbeaver
+修改DBeaver默认JDK版本为JDK11以上:
+sudo vim /usr/lib/dbeaver/dbeaver.ini 添加
+-vm 
+/usr/java/jdk-11.0.16/bin
 ```
+
 
 ### 虚拟机软件安装
 安装VirtualBox:
