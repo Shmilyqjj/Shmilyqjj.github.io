@@ -496,6 +496,17 @@ yay -S jd-gui
 Python源切换
 sudo pip config --global set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip config --global set install.trusted-host pypi.tuna.tsinghua.edu.cn
+Anaconda安装
+sudo pacman -S anaconda
+sudo vim /etc/profile增加
+export PATH=/opt/anaconda/bin:$PATH
+source  /etc/profile
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+Python环境配置
+conda create -n py310_auto_gpt python=3.10
+激活环境conda activate py310_auto_gpt 取消激活conda deactivate
+查看已有环境conda info -e
+删除某个环境conda remove -n py310_auto_gpt --all
 ----------------------------------------------------------------------------------------
 Mysql安装：
 pacman -Si mysql	 # 查看仓库中的MySQL版本号
@@ -838,6 +849,40 @@ pacman安装包清理
 sudo pacman -Scc 
 其他数据清理与空间释放->结合Filelight工具查看文件大小分布,进而手动清理
 
+### 内存管理优化
+系统原生内存管理问题: 内存用尽时会导致系统卡死无法操作,等待OOM-Killer机制释放要很久,影响系统使用体验
+由于Linux内核的oom-killer机制不够完善,一旦系统内存爆满,会出现系统卡死,等待很长时间才会kill掉占用较大的进程.
+所以使用earlyoom进行早期的内存管理,及时杀进程以避免系统卡死
+```shell
+sudo pacman -S earlyoom
+systemctl enable earlyoom;systemctl start earlyoom;systemctl status earlyoom 
+```
+配置earlyoom:
+默认配置:
+剩余可用物理内存小于 10% 和 剩余交换内存小于10%时，就会触发早期OOM
+SIGTERM when mem <= 10 % and swap <= 10 %,
+SIGKILL when mem <= 5 % and swap <= 5 %
+如果觉得剩余内存保留太多，可以编辑 earlyoom 的配置文件 vim /etc/default/earlyoom
+编辑好配置文件后 重启服务生效配置systemctl restart earlyoom
+建议配置:EARLYOOM_ARGS="-r 60 -m 1 -s 5 --avoid '(^|/)(init|Xorg|sshd)$'"
+参数解释:
+-r 60 代表每60秒打印一次内存统计信息
+-m 1 代表保留物理内存为1%
+-s 5 代表保留交换内存为5%
+–avoid ‘(^|/)(init|Xorg|sshd)$’ 代表任何时候不要杀死名字带有 init，Xorg，sshd 的进程
+
+### SWAP优化
+```shell
+# 临时降低使用swap的权重(使用swap的积极程度)
+配置 sudo sysctl vm.swappiness=20   (0-100 数值越大,越积极使用Swap)
+查看 cat /proc/sys/vm/swappiness
+# 永久生效降低使用swap权重 
+vim /etc/sysctl.conf
+vm.swappiness=20
+# 刷新生效
+sysctl -p
+```
+
 ### 搜索工具
 Alt+Space 全局搜索工具 会在桌面上方弹出搜索框 可以搜索应用、文件、目录、服务、设置等
 ![alt ](https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Manjaro/ManjaroInstall-36.png) 
@@ -994,11 +1039,15 @@ systemctl --user restart pulseaudio.service
 systemctl --user restart pulseaudio.socket
 ```
 
-### 系统硬件信息查询
-全部硬件信息输出：
+### 系统信息查询
+1. 全部硬件信息输出：
 ```shell
  sudo dmidecode  >> hardware.info
  hwinfo
+```
+2. 查看开机记录
+```shell
+last reboot
 ```
 
 ### 钉钉Linux版无法输入中文
