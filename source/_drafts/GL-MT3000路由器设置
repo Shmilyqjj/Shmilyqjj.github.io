@@ -1,0 +1,11 @@
+1. 添加阿里云源
+src/gz aliyun_core https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/packages
+src/gz aliyun_base https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/base/
+src/gz aliyun_luci https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/luci
+src/gz aliyun_packages https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/packages
+src/gz aliyun_routing https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/routing
+src/gz aliyun_telephony https://mirrors.aliyun.com/openwrt/releases/21.02.1/packages/aarch64_cortex-a53/telephony
+
+2. openclash设置
+服务->OpenClash ->全局设置->常规设置->DNS监听端口 7874 
+网络->DHCP/DNS->DNS转发->127.0.0.1#7874
