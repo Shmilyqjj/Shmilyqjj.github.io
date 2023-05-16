@@ -1266,6 +1266,13 @@ hdfs dfs -ls -r -t oss://bucket_name/user/hive/warehouse/iceberg_db/user_experie
 找到最新avro 拷贝并重命名为缺失的avro 同时优化checkpoint稳定性
 ```
 
+### HiveCatalog下锁表造成提交commit失败
+```error
+23/05/14 03:32:34 INFO ApplicationMaster: Final app status: FAILED, exitCode: 15, (reason: User class threw exception: org.apache.iceberg.exceptions.CommitFailedException: Timed out after 183898 ms waiting for lock on iceberg_db.user_experience_report_user_details
+```
+解决：到Hive元数据库select * from metastore.hive_locks; DELETE FROM metastore.hive_locks WHERE HL_DB='iceberg_db' AND HL_TABLE='user_experience_report_user_details';再重跑iceberg任务即可
+
+
 ## 对比Hudi和DeltaLake
 | 对比维度\技术 | Iceberg | Hudi | DeltaLake |
 | ---- | ---- | ---- | ---- |
