@@ -13,9 +13,7 @@ sudo systemctl enable zerotier-one
 sudo systemctl start zerotier-one
 sudo zerotier-cli join <ZeroTire Network ID>
 
-
 3. openclash设置
 服务->OpenClash ->全局设置->常规设置->DNS监听端口 7874 
 网络->DHCP/DNS->DNS转发->127.0.0.1#7874
 
-4.
