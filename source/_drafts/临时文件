@@ -2314,10 +2314,20 @@ Docker in Docker （dind）
 方法2：把容器当作docker客户端，将/var/run/docker.sock映射进容器，容器就能使用宿主机的docker服务，也能实现dind，但不安全。
 Dockerfile
 FROM docker:dind 
+MAINTAINER shmily
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
     && apk add bash \
     && apk add wget \
+    && apk add vim \
+    && apk add openjdk8 \
+    && apk add maven \
     && echo "apk done"
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+ENV MAVEN_HOME=/usr/share/java/maven-3
+ENV PATH $JAVA_HOME/bin:$PATH
+ENV PATH $MAVEN_HOME/bin:$PATH
+EXPOSE 10000 10001 10002
+
 docker build -t shmily/dind .
 docker run --name dind --privileged -d shmily/dind:latest 
 docker exec dind /bin/bash -c "docker ps"
