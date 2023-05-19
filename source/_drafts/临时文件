@@ -2308,6 +2308,20 @@ docker commit -m="add openjdk17" -a="qjj" 7c9ca864669a docker.io/almalinux:v1  (
    sudo systemctl start docker
    docker start 219da1a26f0f
  方案3:容器内应用启动脚本中加入echo "host xx.xx.xx.xxx" >> /etc/hosts  (不推荐)
+Docker in Docker （dind）
+在docker容器内启动docker。场景：服务部署在docker内，服务需要调用docker进行镜像拉取，构建，推送，则需要Docker in Docker(dind)。
+方法1：在容器内启动Docker服务需要使用systemctl启动容器内docker，以及外部docker容器有docker run --privileged=true权限;可以使用docker:dind镜像
+方法2：把容器当作docker客户端，将/var/run/docker.sock映射进容器，容器就能使用宿主机的docker服务，也能实现dind，但不安全。
+Dockerfile
+FROM docker:dind 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk add bash \
+    && apk add wget \
+    && echo "apk done"
+docker build -t shmily/dind .
+docker run --name dind --privileged -d shmily/dind:latest 
+docker exec dind /bin/bash -c "docker ps"
+
 
 示例:
 1.Docker创建MySql
