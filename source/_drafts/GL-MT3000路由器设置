@@ -14,6 +14,70 @@ sudo systemctl start zerotier-one
 sudo zerotier-cli join <ZeroTire Network ID>
 
 3. openclash设置
-服务->OpenClash ->全局设置->常规设置->DNS监听端口 7874 
+服务->OpenClash ->
+插件设置->模式(勾选Fake-IP模式)->DNS设置->本地DNS劫持(使用Dnsmasq转发)->勾选(禁止 Dnsmasq 缓存 DNS)
+覆写设置->常规设置->DNS监听端口(7874) 
+不勾选ipv6相关设置
 网络->DHCP/DNS->DNS转发->127.0.0.1#7874
+
+
+4. ftp服务
+/etc/vsftpd.conf内容如下
+background=YES
+listen=YES
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_umask=022
+check_shell=NO
+session_support=NO
+anon_mkdir_write_enable=YES
+anon_other_write_enable=YES
+allow_writeable_chroot=YES
+anon_upload_enable=YES
+local_root=/tmp/mountd/disk1_part1
+userlist_enable=YES
+userlist_deny=NO
+chroot_list_file=/etc/vsftpd.chroot_list
+chroot_local_user=YES
+chroot_list_enable=NO
+/etc/vsftpd.chroot_list内容如下
+root
+/etc/vsftpd.user_list内容如下
+root
+启动vsfpd服务并设置为开机启动
+/etc/init.d/vsftpd start
+/etc/init.d/vsftpd enable
+测试：
+从ftp列出文件
+curl -u"root:*****" ftp://172.22.95.56/表盘/
+从ftp下载文件
+wget --user root --password ***** ftp://172.22.95.56/表盘/bz.jpg
+向ftp上传文件
+curl -u"root:*****" ftp://172.22.95.56/表盘/ -T /tmp/xxx.txt
+删除ftp文件
+curl -u"root:*****" ftp://172.22.95.56/表盘/ -X "DELE xxx.txt"
+
+5.ADGuardHome
+设置->DNS设置->内容如下->并行请求
+119.29.29.29
+180.76.76.76
+223.5.5.5
+202.96.134.133
+8.8.8.8
+DNS设置->缓存大小10485760->覆盖最小TTL值:300->覆盖最大TTL值31536000->乐观缓存
+过滤器->DNS拦截列表
+AdGuard DNS filter https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+adblock https://anti-ad.net/easylist.txt
+EasyList_China https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt
+EasyList_ABP https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt
+Easy_Privacy https://easylist-downloads.adblockplus.org/easyprivacy.txt
+CHN: AdRules DNS List https://adguardteam.github.io/HostlistsRegistry/assets/filter_29.txt
+CHN: anti-AD https://adguardteam.github.io/HostlistsRegistry/assets/filter_21.txt
+设置上游：
+OpenClash->覆写设置->DNS设置->勾选（*自定义上游 DNS 服务器）->勾选（追加上游DNS）->勾选（追加默认DNS）->(勾选Fake-IP 持久化
+)->设置自定义上游 DNS 服务器(并勾选)
+NameServer 127.0.0.1  530  UDP 
+NameServer 192.168.8.1  530  UDP 
+重启OpenClash
 
