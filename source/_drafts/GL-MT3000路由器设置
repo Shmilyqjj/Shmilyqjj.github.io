@@ -19,7 +19,24 @@ sudo zerotier-cli join <ZeroTire Network ID>
 覆写设置->常规设置->DNS监听端口(7874) 
 不勾选ipv6相关设置
 网络->DHCP/DNS->DNS转发->127.0.0.1#7874
-
+在配置文件中添加OpenClash规则
+配置管理->配置文件列表->编辑 添加一个名为AnyDesk的规则，指定xxxx.anydesk.com的代理规则
+在相似的地方添加如下内容
+修改部分：
+  - name: AnyDesk
+    type: select
+    proxies:
+      - DIRECT
+      - Proxies
+      - Domestic
+      - Hong Kong-01
+      - Hong Kong-02
+      - 其他节点...
+......
+rules:
+ - DOMAIN-SUFFIX,anydesk.com,AnyDesk
+保存配置->应用配置 
+在openclash web管理页面配置AnyDesk的代理规则即可
 
 4. ftp服务
 /etc/vsftpd.conf内容如下
