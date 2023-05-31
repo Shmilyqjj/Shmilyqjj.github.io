@@ -304,7 +304,7 @@ sudo pacman -S yay
 yay --aururl https://aur.tuna.tsinghua.edu.cn --save
 sudo pacman -Sy base-devel
 yay -S com.qq.weixin.spark
-yay -S com.qq.tim.spark
+yay -S linuxqq
 yay -S ocs-url
 增大dpi避免窗口和字体过小（在打开的窗口中设置 2k屏幕建议值168-192）：
 env WINEPREFIX=/home/shmily/.deepinwine/Spark-WeChat/ deepin-wine5 winecfg
