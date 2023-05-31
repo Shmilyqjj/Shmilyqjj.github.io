@@ -457,6 +457,7 @@ CMS收集器是否会扫描年轻代？
 commands:
 JDK9之前：jmap -heap <pid>
 JDK9及之后：jhsdb jmap --heap --pid <pid>
+G1 Heap(used) = G1 Young Generation(Eden Space+Survivor Space)(used) + G1 Old Generation(used)
 
 ## 小标题1  
 
