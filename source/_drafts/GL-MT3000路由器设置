@@ -98,7 +98,7 @@ NameServer 127.0.0.1  530  UDP
 NameServer 192.168.8.1  530  UDP 
 重启OpenClash
 
-6. Python pip安装
+6. Python软件 安装pip,you-get
 opkg install python3-pip
-清理安装包缓存 建议每次安装pip包后执行
-pip cache purge
+pip install you-get
+pip cache purge  # 清理安装包缓存 建议每次安装pip包后执行
