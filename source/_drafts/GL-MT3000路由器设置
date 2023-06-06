@@ -107,3 +107,17 @@ pip cache purge  # 清理安装包缓存 建议每次安装pip包后执行
 https://github.com/Ardentwheel/luci-app-cifs/ 下载luci-app-cifs_1.2-1.2_all.ipk
 opkg install luci-app-cifs_1.2-1.2_all.ipk
 然后可在服务中找到Mounting NAT drives
+
+8. 下载工具
+aria2 
+openwrt软件仓库安装aria2，luci-app-aria2，luci-i18n-aria2-zh-cn，ariang，ariang-nginx这几个包
+修改如下文件（解决ariang访问403问题）
+vim /usr/lib/lua/luci/view/aria2/settings_header.htm 
+window.open(protocol + '//' + host + '/' + path);
+改成
+window.open(protocol + '//' + host + '/' + path + '/index.html');
+并重启或reload nginx
+/etc/init.d/nginx restart
+/etc/init.d/nginx reload
+设置aria2：
+服务->aria2->RPC选项->RPC 认证方式(选令牌)->进入ariaNg页面->AriaNg设置->RPC->Aria2 RPC密钥->填入后刷新页面
