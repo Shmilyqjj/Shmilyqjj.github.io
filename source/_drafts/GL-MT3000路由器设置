@@ -106,6 +106,7 @@ pip cache purge  # 清理安装包缓存 建议每次安装pip包后执行
 7. 挂载工具
 https://github.com/Ardentwheel/luci-app-cifs/ 下载luci-app-cifs_1.2-1.2_all.ipk
 opkg install luci-app-cifs_1.2-1.2_all.ipk
+opkg install cifsmount
 然后可在服务中找到Mounting NAT drives
 
 8. 下载工具
