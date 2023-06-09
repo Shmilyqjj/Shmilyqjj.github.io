@@ -319,8 +319,26 @@ sudo pacman -S gimp  # 修图
 sudo pacman -S kdenlive # 视频编辑 (可在应用商店安装选更多功能插件)
 sudo pacman -S neofetch screenfetch  # 输出系统信息
 -------------------------------------------------------------------------------------------------------
-yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service #远程桌面工具
-### 远程桌面连接工具remmina
+#远程桌面工具
+1. x11vnc
+linux x11vnc 远程桌面（X11桌面环境适用，不适用于wayland）
+服务端配置：
+sudo pacman -S x11vnc   # 安装x11vnc
+x11vnc -storepasswd     # 设置VNC的连接密码
+vim x11vnc-start.sh     # x11vnc服务启动脚本
+  #!/bin/bash 
+  x11vnc -display :0 -forever -shared -rfbauth ~/.vnc/passwd -bg -o /tmp/x11vnc.log -rfbport 5900 -ncache 10 -ncache_cr
+将VNC Server设置成随系统启动后自动在后台启动
+将x11vnc-start.sh添加到 设置->开机与关机->自动启动 中 
+手动执行x11vnc-start.sh或重启Linux系统
+远程连接工具
+Windows：RealVNC Viewer
+Linux： Remmina
+2.anydesk
+yay -S anydesk
+3.todesk
+yay -S todesk;sudo systemctl enable todeskd.service;sudo systemctl start todeskd.service;sudo systemctl status todeskd.service 
+### 远程桌面连接客户端remmina
 sudo pacman -S remmina
 安装工程会提示
 remmina 的可选依赖
