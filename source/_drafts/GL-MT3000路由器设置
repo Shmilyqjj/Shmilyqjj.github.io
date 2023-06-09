@@ -128,3 +128,7 @@ window.open(protocol + '//' + host + '/' + path + '/index.html');
 /etc/init.d/nginx reload
 设置aria2：
 服务->aria2->RPC选项->RPC 认证方式(选令牌)->进入ariaNg页面->AriaNg设置->RPC->Aria2 RPC密钥->填入后刷新页面
+加速BT下载-设置Trackers：
+Aria2设置->BitTorrent设置->BT服务器地址(bt-tracker)->从开源项目https://github.com/ngosang/trackerslist获得Trackers地址，注意aria2支持的tracker列表要用逗号隔开，注意转换
+关闭做种：
+Aria2设置->BitTorrent设置->最小做种时间(seed-time)设置为0
