@@ -132,3 +132,5 @@ window.open(protocol + '//' + host + '/' + path + '/index.html');
 Aria2设置->BitTorrent设置->BT服务器地址(bt-tracker)->从开源项目https://github.com/ngosang/trackerslist获得Trackers地址，注意aria2支持的tracker列表要用逗号隔开，注意转换
 关闭做种：
 Aria2设置->BitTorrent设置->最小做种时间(seed-time)设置为0
+DHT设置：
+寻找一个dht文件，替换掉配置中的DHT文件
