@@ -104,9 +104,15 @@ pip install you-get
 pip cache purge  # 清理安装包缓存 建议每次安装pip包后执行
 
 7. 挂载工具
+opkg update
 https://github.com/Ardentwheel/luci-app-cifs/ 下载luci-app-cifs_1.2-1.2_all.ipk
 opkg install luci-app-cifs_1.2-1.2_all.ipk
-opkg install cifsmount
+opkg install kmod-fs-cifs
+opkg install kmod-nls-utf8 kmod-nls-base kmod-crypto-hmac kmod-crypto-md5 kmod-crypto-misc cifsmount
+挂载
+mount -t cifs //cifs-server/share /localfolder -o user=username,password=password
+匿名访问
+mount -t cifs //cifs-server/share /localfolder -o guest
 然后可在服务中找到Mounting NAT drives
 
 8. 下载工具
