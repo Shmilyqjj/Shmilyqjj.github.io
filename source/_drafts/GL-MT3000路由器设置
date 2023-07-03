@@ -134,3 +134,49 @@ Aria2设置->BitTorrent设置->BT服务器地址(bt-tracker)->从开源项目htt
 Aria2设置->BitTorrent设置->最小做种时间(seed-time)设置为0
 DHT设置：
 寻找一个dht文件，替换掉配置中的DHT文件
+
+9. 端口扫描
+opkg install nmap
+nmap -sT -p- 192.168.8.179
+nmap -sU -p- 192.168.8.179
+
+10. 调试安卓设备
+opkg install adb
+
+11. 极米投影仪远程操作
+以远程连接路由器ssh后，操作投影仪关机为例
+# pip install asyncudp asyncio
+# Reference from https://github.com/manymuch/Xgimi-4-Home-Assistant.git
+import asyncudp
+import asyncio
+command_dict = {
+            "ok": "KEYPRESSES:49",
+            "play": "KEYPRESSES:49",
+            "pause": "KEYPRESSES:49",
+            "power": "KEYPRESSES:116",
+            "back": "KEYPRESSES:48",
+            "home": "KEYPRESSES:35",
+            "menu": "KEYPRESSES:139",
+            "right": "KEYPRESSES:37",
+            "left": "KEYPRESSES:50",
+            "up": "KEYPRESSES:36",
+            "down": "KEYPRESSES:38",
+            "volumedown": "KEYPRESSES:114",
+            "volumeup": "KEYPRESSES:115",
+            "poweroff": "KEYPRESSES:30",
+            "volumemute": "KEYPRESSES:113",
+        }
+MY_GIMI_LOCAL_IP="192.168.8.179"
+COMMAND_PORT = 16735
+ADVANCE_PORT = 16750
+alive_port = 554
+# 要执行关机
+act = "poweroff"
+msg = command_dict.get(act)
+if msg == None:
+    raise NameError("act is not supported.")
+remote_addr = (MY_GIMI_LOCAL_IP, COMMAND_PORT)
+async def send():
+    sock = (await asyncudp.create_socket(remote_addr=remote_addr))
+    sock.sendto(msg.encode("utf-8"))
+asyncio.run(send())
