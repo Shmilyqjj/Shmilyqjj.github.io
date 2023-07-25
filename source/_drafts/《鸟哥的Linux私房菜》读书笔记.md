@@ -291,7 +291,7 @@ date: 2020-08-22 12:19:00
         find ~ -type l -a -name 下载 -exec ls -l {} \;  找家目录下类型为链接的且名称为“下载”的文件并ll显示（-a表示and）
         find ~ -perm 4777 -o -name aaa 找权限为4777的或名称为aaa的文件或目录（-o表示or）
         find ~ -type f -a ! -user shmily -exec ls -lh {} \;  找类型为文件的且所有者非shmily的文件并执行ll -h输出信息（！表示非）
-        find . -name '*.jar' -exec jar -tvf {} \; | grep gson  查看当前目录下引用gson的jar
+        find . -name '*.jar' -exec jar -tvf {} \; | grep gson  查看当前目录下引用gson的jar  （依赖apt install unzip openjdk-8-jdk）
         rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
 17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
 18.在目录下创建一个文件需要的权限：对该目录有wx权限

@@ -1316,6 +1316,9 @@ Hive相关
 
 HiveClient开启Debug模式运行 hive --hiveconf hive.root.logger=DEBUG,console
 
+HiveClient开启血缘输出
+hive --hiveconf hive.in.test=true --hiveconf hive.exec.post.hooks=org.apache.hadoop.hive.ql.hooks.LinegerLog
+
 Hive查询所有function
 SHOW FUNCTIONS;
 Hive查看function的介绍
