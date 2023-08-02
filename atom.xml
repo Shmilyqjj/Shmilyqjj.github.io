@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://shmily-qjj.top/"/>
-  <updated>2022-07-31T13:26:08.583Z</updated>
+  <updated>2023-08-02T14:42:26.750Z</updated>
   <id>https://shmily-qjj.top/</id>
   
   <author>
@@ -17,11 +17,55 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Hive列级血缘与元数据收集</title>
+    <link href="https://shmily-qjj.top/3d59c888/"/>
+    <id>https://shmily-qjj.top/3d59c888/</id>
+    <published>2023-08-02T04:16:00.000Z</published>
+    <updated>2023-08-02T14:42:26.750Z</updated>
+    
+    <summary type="html">
+    
+      Hive列级血缘与元数据实时收集
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="数仓" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E4%BB%93/"/>
+    
+      <category term="数据治理" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E6%B2%BB%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Iceberg数据湖探索与实践</title>
+    <link href="https://shmily-qjj.top/38dd005e/"/>
+    <id>https://shmily-qjj.top/38dd005e/</id>
+    <published>2022-10-31T02:10:00.000Z</published>
+    <updated>2023-05-24T17:00:20.462Z</updated>
+    
+    <summary type="html">
+    
+      Iceberg数据湖相关知识探索与实践
+    
+    </summary>
+    
+      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Iceberg" scheme="https://shmily-qjj.top/tags/Iceberg/"/>
+    
+      <category term="数据湖" scheme="https://shmily-qjj.top/tags/%E6%95%B0%E6%8D%AE%E6%B9%96/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Linux Bind服务配置DNS解析</title>
     <link href="https://shmily-qjj.top/39a9ed67/"/>
     <id>https://shmily-qjj.top/39a9ed67/</id>
     <published>2022-06-01T12:12:10.000Z</published>
-    <updated>2022-07-31T13:26:08.583Z</updated>
+    <updated>2022-12-11T05:35:07.907Z</updated>
     
     <summary type="html">
     
@@ -45,7 +89,7 @@
     <link href="https://shmily-qjj.top/ee1c2df4/"/>
     <id>https://shmily-qjj.top/ee1c2df4/</id>
     <published>2022-04-29T08:39:12.000Z</published>
-    <updated>2022-07-31T13:26:08.577Z</updated>
+    <updated>2023-03-19T15:36:21.800Z</updated>
     
     <summary type="html">
     
@@ -69,7 +113,7 @@
     <link href="https://shmily-qjj.top/84534d72/"/>
     <id>https://shmily-qjj.top/84534d72/</id>
     <published>2021-12-15T08:30:00.000Z</published>
-    <updated>2022-07-31T13:26:08.584Z</updated>
+    <updated>2022-12-11T05:35:07.911Z</updated>
     
     <summary type="html">
     
@@ -93,7 +137,7 @@
     <link href="https://shmily-qjj.top/3f34ebe3/"/>
     <id>https://shmily-qjj.top/3f34ebe3/</id>
     <published>2021-07-07T03:22:00.000Z</published>
-    <updated>2022-07-31T13:26:08.584Z</updated>
+    <updated>2023-06-09T17:26:21.944Z</updated>
     
     <summary type="html">
     
@@ -115,7 +159,7 @@
     <link href="https://shmily-qjj.top/4c197c46/"/>
     <id>https://shmily-qjj.top/4c197c46/</id>
     <published>2021-03-12T06:46:00.000Z</published>
-    <updated>2022-08-13T07:07:06.253Z</updated>
+    <updated>2022-12-11T05:35:07.910Z</updated>
     
     <summary type="html">
     
@@ -137,7 +181,7 @@
     <link href="https://shmily-qjj.top/BigdataExceptionsSummary/"/>
     <id>https://shmily-qjj.top/BigdataExceptionsSummary/</id>
     <published>2021-01-30T04:50:00.000Z</published>
-    <updated>2022-08-13T04:08:20.200Z</updated>
+    <updated>2023-08-02T14:51:42.958Z</updated>
     
     <summary type="html">
     
@@ -159,7 +203,7 @@
     <link href="https://shmily-qjj.top/1ae37d82/"/>
     <id>https://shmily-qjj.top/1ae37d82/</id>
     <published>2021-01-17T02:18:30.000Z</published>
-    <updated>2022-07-31T13:26:08.587Z</updated>
+    <updated>2022-12-11T05:35:07.906Z</updated>
     
     <summary type="html">
     
@@ -181,7 +225,7 @@
     <link href="https://shmily-qjj.top/2020Summary/"/>
     <id>https://shmily-qjj.top/2020Summary/</id>
     <published>2021-01-01T00:08:08.000Z</published>
-    <updated>2022-08-14T13:58:02.111Z</updated>
+    <updated>2022-12-11T05:35:07.920Z</updated>
     
     <summary type="html">
     
@@ -203,7 +247,7 @@
     <link href="https://shmily-qjj.top/4cf161e5/"/>
     <id>https://shmily-qjj.top/4cf161e5/</id>
     <published>2020-12-11T14:16:00.000Z</published>
-    <updated>2022-07-31T13:26:08.584Z</updated>
+    <updated>2022-12-11T05:35:07.919Z</updated>
     
     <summary type="html">
     
@@ -227,7 +271,7 @@
     <link href="https://shmily-qjj.top/f5da73a2/"/>
     <id>https://shmily-qjj.top/f5da73a2/</id>
     <published>2020-10-20T05:19:00.000Z</published>
-    <updated>2022-08-13T14:41:07.601Z</updated>
+    <updated>2022-12-11T05:35:07.917Z</updated>
     
     <summary type="html">
     
@@ -249,7 +293,7 @@
     <link href="https://shmily-qjj.top/pyspark_pandas/"/>
     <id>https://shmily-qjj.top/pyspark_pandas/</id>
     <published>2020-08-10T03:26:08.000Z</published>
-    <updated>2022-08-13T14:41:07.608Z</updated>
+    <updated>2022-12-11T05:35:07.913Z</updated>
     
     <summary type="html">
     
@@ -273,7 +317,7 @@
     <link href="https://shmily-qjj.top/2ed52290/"/>
     <id>https://shmily-qjj.top/2ed52290/</id>
     <published>2020-07-26T03:16:00.000Z</published>
-    <updated>2022-08-13T14:41:07.588Z</updated>
+    <updated>2022-12-11T05:35:07.927Z</updated>
     
     <summary type="html">
     
@@ -293,7 +337,7 @@
     <link href="https://shmily-qjj.top/5f26355/"/>
     <id>https://shmily-qjj.top/5f26355/</id>
     <published>2020-07-05T04:26:08.000Z</published>
-    <updated>2022-08-13T14:41:07.619Z</updated>
+    <updated>2022-12-11T05:35:07.901Z</updated>
     
     <summary type="html">
     
@@ -317,7 +361,7 @@
     <link href="https://shmily-qjj.top/6a894937/"/>
     <id>https://shmily-qjj.top/6a894937/</id>
     <published>2020-04-27T07:45:00.000Z</published>
-    <updated>2022-08-13T13:54:49.577Z</updated>
+    <updated>2022-12-11T05:35:07.915Z</updated>
     
     <summary type="html">
     
@@ -339,7 +383,7 @@
     <link href="https://shmily-qjj.top/7c15e85/"/>
     <id>https://shmily-qjj.top/7c15e85/</id>
     <published>2020-03-24T02:16:00.000Z</published>
-    <updated>2022-08-13T14:41:07.616Z</updated>
+    <updated>2022-12-11T05:35:07.908Z</updated>
     
     <summary type="html">
     
@@ -359,7 +403,7 @@
     <link href="https://shmily-qjj.top/508b5c7/"/>
     <id>https://shmily-qjj.top/508b5c7/</id>
     <published>2020-03-21T04:19:00.000Z</published>
-    <updated>2022-08-13T14:41:07.588Z</updated>
+    <updated>2023-06-06T15:26:38.111Z</updated>
     
     <summary type="html">
     
@@ -379,7 +423,7 @@
     <link href="https://shmily-qjj.top/6f97dc89/"/>
     <id>https://shmily-qjj.top/6f97dc89/</id>
     <published>2020-02-11T03:20:08.000Z</published>
-    <updated>2022-08-13T14:41:07.588Z</updated>
+    <updated>2022-12-11T05:35:07.924Z</updated>
     
     <summary type="html">
     
@@ -401,7 +445,7 @@
     <link href="https://shmily-qjj.top/174820fd/"/>
     <id>https://shmily-qjj.top/174820fd/</id>
     <published>2020-02-11T02:16:00.000Z</published>
-    <updated>2022-08-13T14:41:07.619Z</updated>
+    <updated>2022-12-11T05:35:07.901Z</updated>
     
     <summary type="html">
     
@@ -415,48 +459,6 @@
       <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
     
       <category term="Zeppelin" scheme="https://shmily-qjj.top/tags/Zeppelin/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分享我的技术调研流程</title>
-    <link href="https://shmily-qjj.top/4b21953d/"/>
-    <id>https://shmily-qjj.top/4b21953d/</id>
-    <published>2020-01-03T13:10:00.000Z</published>
-    <updated>2022-08-13T14:41:07.603Z</updated>
-    
-    <summary type="html">
-    
-      如何流程化做好一份技术调研任务？
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="技术调研" scheme="https://shmily-qjj.top/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Alluxio-基于内存的虚拟分布式存储系统</title>
-    <link href="https://shmily-qjj.top/44511/"/>
-    <id>https://shmily-qjj.top/44511/</id>
-    <published>2020-01-01T14:16:00.000Z</published>
-    <updated>2022-08-13T15:12:15.473Z</updated>
-    
-    <summary type="html">
-    
-      Alluxio干货分享
-    
-    </summary>
-    
-      <category term="技术" scheme="https://shmily-qjj.top/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="大数据" scheme="https://shmily-qjj.top/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
-    
-      <category term="Alluxio" scheme="https://shmily-qjj.top/tags/Alluxio/"/>
     
   </entry>
   

@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 这个head中的属性会影响全局的，比如全局变色可以在这修改，下面是例子： -->
+  <style type="text/css"> html {FILTER: grayscale(0)}</style>   <!-- 2020.4.4新冠病毒默哀日 调节网页为灰色  灰度设置 百分比 0-100  -->
+  <meta charset="utf-8">
+  <!-- baidu站长工具认证 -->
+  <meta name="baidu-site-verification" content="code-DIsXeN91UI" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">Iceberg数据湖探索与实践 | 佳境的小本本</title>
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "佳境Shmily";
+  mashiro_option.author_name = "Shmily";
+  mashiro_option.site_url = "shmily-qjj.top";
+  mashiro_option.v_appId = "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz";
+  mashiro_option.v_appKey = "xIEyTcrkTuJLz6ewPbpTj8mz";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(0).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(9).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(10).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(11).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(18).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(21).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(22).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(23).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(26).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(27).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(28).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(29).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(30).webp,https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/cover/(31).webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="shmily-qjj.top">
+          <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>记得每天要早睡呀！</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="https://github.com/Shmilyqjj" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/github.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://music.163.com/artist?id=13610347&amp;userid=318926152" target="_blank" class="social-github" title="CloudMusic">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wangyiyun.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="https://space.bilibili.com/55921513" target="_blank" class="social-github" title="bilibili">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/bilibili.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="mailto:710552907@qq.com?subject=test&amp;cc=sample@hotmail.com&amp;body=use mailto sample" target="_blank" class="social-github" title="email">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/email.svg">
+                  </a>
+                </li>
+              
+            
+              
+                <li>
+                  <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=710552907&amp;site=qq&amp;menu=yes" target="_blank" class="social-github" title="qq">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/qq.png">
+                  </a>
+                </li>
+              
+            
+              
+                <li class="wechat">
+                  <a href="/#">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/social/wechat.png">
+                  </a>
+                  <div class="wechatInner">
+                    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/WeChat.jpg">
+                  </div>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">佳境</span>
+            <span class="shironeko">Shmily</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                          生活
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                          <i class="fa fa-music" aria-hidden="true"></i>
+                          音乐
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          随想
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E5%85%B6%E4%BB%96/">
+                          <i class="fa fa-book" aria-hidden="true"></i>
+                          其他
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="javascript:;">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+                    清单
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/bangumi/">
+                          <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                          看剧
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/tags/">
+                          <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                          书单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/music/">
+                          <i class="fa fa-headphones" aria-hidden="true"></i>
+                          歌单
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/album/">
+                          <i class="fa fa-photo" aria-hidden="true"></i>
+                          相册
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/comment/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+                    留言板
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    博友圈
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/donate/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+                    赞赏
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          技术
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/lab/">
+                          <i class="fa fa-cogs" aria-hidden="true"></i>
+                          Lab
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/client/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+                    客户端
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/atom.xml">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+                    RSS
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+<!-- 屏蔽F12查看文章内容+避免图片被拖拽保存 -->
+
+  <script language="Javascript">
+    document.onkeydown=function (e){
+      var currKey=0,evt=e||window.event;
+      currKey=evt.keyCode||evt.which||evt.charCode;
+      if (currKey >111 && currKey < 124) {
+        window.event.cancelBubble = true;
+        window.event.returnValue = false;
+      }
+    }
+    for (i in document.images) document.images[i].ondragstart = imgdragstart;
+    function imgdragstart() {
+      return false;
+    }
+  </script>
+
+
+<!-- 实现文章的notshow和nocopy属性，支持模糊、屏蔽文章内容，禁止复制功能 -->
+
+  <!-- 对于未指定notshow属性或未指定nocopy属性的 或为false的，恢复可复制可选择权限 -->
+  <script language="Javascript">
+    document.oncontextmenu="";
+    document.onselectstart=true;
+  </script>
+  
+
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-cover.jpg);" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-cover.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      Iceberg数据湖探索与实践</h1>
+      <p class="entry-census">
+        <span>
+          <a href="shmily-qjj.top">
+            <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/custom/avatar.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="shmily-qjj.top">佳境</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2022-10-31<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="Iceberg数据湖探索与实践"><a href="#Iceberg数据湖探索与实践" class="headerlink" title="Iceberg数据湖探索与实践"></a>Iceberg数据湖探索与实践</h1><h2 id="概念引入–数据湖"><a href="#概念引入–数据湖" class="headerlink" title="概念引入–数据湖"></a>概念引入–数据湖</h2><ul>
+<li><strong>数据湖是一种存储数据的方式</strong>,用于组织不同数据结构.本质上是一种企业数据架构方法,物理实现上则是基于数据存储平台(例如Hadoop,OSS,S3等存储系统),<strong>集中存储企业内海量的、多来源,多种类的数据,并支持对数据进行快速加工和分析</strong>.</li>
+<li><strong>数据湖的主要思想是对企业中的所有数据进行统一存储</strong>,从原始数据转换为用于报告、可视化、分析和机器学习等各种任务的目标数据.</li>
+<li>数据湖中的数据包括结构化数据（关系数据库数据）,半结构化数据（CSV、XML、JSON等）,非结构化数据（电子邮件,文档,PDF）和二进制数据（图像、音频、视频）,从而形成一个容纳所有形式数据的集中式数据存储.</li>
+</ul>
+<h2 id="Iceberg简介"><a href="#Iceberg简介" class="headerlink" title="Iceberg简介"></a>Iceberg简介</h2><p><strong>Iceberg是一种高性能的TableFormat(表格式),定义了数据、元数据的组织方式,支持在Spark、Trino、Flink、Hive及Impala等计算引擎中使用.</strong></p>
+<h3 id="Iceberg特性"><a href="#Iceberg特性" class="headerlink" title="Iceberg特性"></a>Iceberg特性</h3><ol>
+<li>真正的流批一体: 上游写入数据后下游立即可查,满足实时场景;Iceberg提供了流批读取和流批写入接口,用户可以在同一个流程同时处理流批数据,使得流批处理可以使用相同的存储模型,简化了ETL思路.</li>
+<li>支持异构计算和存储引擎: 存储上支持常见存储如HDFS以及各种对象存储(不与底层存储强绑定);计算上支持Flink,Spark,Presto,Hive等常见计算引擎.</li>
+<li>Schema Evolution(模式演化): 支持无副作用地增(ADD)删(Drop)改(Update)列,改变列顺序(Reorder)以及重命名列(Rename),且代价很低(只涉及元数据操作,不存在数据重新读写操作)(Iceberg使用唯一ID定位列,新增列会分配新的ID,所以列不会错位)</li>
+<li>Partition Evolution(分区演化): 在已有的表上改变分区策略时,之前的分区数据不会变且依然采用老的分区策略,新数据会采用新的分区策略.在Iceberg元数据里,两个分区策略相互独立.比如以前有个天分区表,现在业务需要小时分区,按Hive数仓的处理方式需要重新建表,但Iceberg表直接在原表上更改分区布局即可.<br><img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-1.png" alt="alt"></li>
+<li>支持隐藏分区: Iceberg的分区信息不需要人工维护,可以被隐藏起来.与Hive指定分区字段的方式不同,Iceberg的分区字段(分区策略)支持通过某字段计算出来,在建表或者修改分区策略之后, 新的数据会自动计算所属于的分区,查询时Iceberg会自动过滤不需要扫描的数据,避免了因用户SQL未指定分区过滤条件而导致的性能问题,让用户更专注业务逻辑而无需考虑分区字段过滤问题.(Iceberg分区信息和数据存储目录是相互独立开的,使得Iceberg表分区可以被修改,而且不涉及数据迁移;分区信息不存在HMS,减轻了HMS的压力)</li>
+<li>分区演化和隐藏分区使得业务可以方便地调整分区策略.</li>
+<li>Time Travel: 可以查询历史某一时间点snapshot的数据,支持回滚到历史snapshot.</li>
+<li>支持事务(ACID): Iceberg提供了边读边写的能力,上游数据写入即可见,通过事务,保证了下游组件只能消费已经commit的数据,无法读到未提交的数据.支持添加删除更新数据.</li>
+<li>支持基于乐观锁的并发写: Iceberg基于乐观锁提供了多个程序并发写入的能力并且保证数据线性一致.(乐观创建metadata文件,提交更新会触发metadata原子交换,完成提交)</li>
+<li>文件级数据剪裁: Iceberg通过元数据来对查询进行高效过滤,Iceberg的元数据里面提供了每个数据文件的一些统计信息, 比如最大值, 最小值, Count计数等等. 因此, 查询SQL的过滤条件除了常规的分区, 列过滤, 甚至可以下推到文件级别, 大大加快了查询效率.</li>
+<li>支持多种底层存储格式如Parquet、Avro以及ORC等.</li>
+<li>支持Upsert能力,且更新即可见,但不能过于频繁,若Upsert过于频繁,则需要频繁数据合并</li>
+</ol>
+<h2 id="Iceberg原理"><a href="#Iceberg原理" class="headerlink" title="Iceberg原理"></a>Iceberg原理</h2><h3 id="Iceberg元数据"><a href="#Iceberg元数据" class="headerlink" title="Iceberg元数据"></a>Iceberg元数据</h3><p><img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-2.png" alt="alt"><br>1.<strong>DataFiles数据文件</strong> 存放真实数据文件,由一个或多个ManifestFile跟踪</p>
+<p>2.<strong>MetadataFile文件</strong> “*.metadata.json”文件,Iceberg表某时刻的状态,里面记录了表Schema,分区配置,表参数,snapshot记录以及这个时刻涉及到的所有的ManifestList.</p>
+<p>3.<strong>ManifestList清单列表</strong> “snap-*.avro”文件,存储了构建快照的所有ManifestFile列表,每个ManifestFile在里面占一行,每行存储了ManifestFile路径,分区范围,增删文件信息,来为查询时提供过滤能力,提高性能.一个快照对应一个ManifestList文件.</p>
+<p>4.<strong>ManifestFile清单文件</strong> 非snap开头的avro格式文件,包含了DataFiles列表,每行包含一个数据文件的详细描述(状态,路径,分区信息,列级别的统计信息,最大值最小值空值个数,文件大小,行数等),为查询时提供过滤能力,提高性能.</p>
+<p><strong>HadoopCatalog与HiveCatalog表的目录结构</strong><br><img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/DataLake/Iceberg/Iceberg-3.png" alt="alt"><br>差异:<br>1.HadoopCatalog表MetadataFile命名为*.metadata.json,与HiveCatalog表ManifestList命名规范不同<br>2.HadoopCatalog表通过version-hint.text记录最新快照ID,HiveCatalog通过HiveMetaStore记录最新metadata_location.<br>3.HadoopCatalog与HiveCatalog表元数据不互通,无法互相转换</p>
+<p><strong>HadoopCatalog表元数据解析</strong>  </p>
+<pre><code class="shell"># 查看avro文件内容
+wget https://repo1.maven.org/maven2/org/apache/avro/avro-tools/1.11.1/avro-tools-1.11.1.jar
+java -jar avro-tools-1.11.1.jar tojson xxx.avro</code></pre>
+<p>MetadataFile文件 v3.metadata.json</p>
+<pre><code class="json">&#123;
+  &quot;format-version&quot; : 1,
+  &quot;table-uuid&quot; : &quot;eeffbc08-9156-4a6f-8380-6138c6b67889&quot;,
+  &quot;location&quot; : &quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table&quot;,
+  &quot;last-updated-ms&quot; : 1667357677633,
+  &quot;last-column-id&quot; : 4,
+  &quot;schema&quot; : &#123;
+    &quot;type&quot; : &quot;struct&quot;,
+    &quot;schema-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;id&quot; : 1,
+      &quot;name&quot; : &quot;id&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;long&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 2,
+      &quot;name&quot; : &quot;name&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 3,
+      &quot;name&quot; : &quot;age&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;int&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 4,
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125; ]
+  &#125;,
+  &quot;current-schema-id&quot; : 0,
+  &quot;schemas&quot; : [ &#123;
+    &quot;type&quot; : &quot;struct&quot;,
+    &quot;schema-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;id&quot; : 1,
+      &quot;name&quot; : &quot;id&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;long&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 2,
+      &quot;name&quot; : &quot;name&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 3,
+      &quot;name&quot; : &quot;age&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;int&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 4,
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125; ]
+  &#125; ],
+  &quot;partition-spec&quot; : [ &#123;
+    &quot;name&quot; : &quot;dt&quot;,
+    &quot;transform&quot; : &quot;identity&quot;,
+    &quot;source-id&quot; : 4,
+    &quot;field-id&quot; : 1000
+  &#125; ],
+  &quot;default-spec-id&quot; : 0,
+  &quot;partition-specs&quot; : [ &#123;
+    &quot;spec-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;transform&quot; : &quot;identity&quot;,
+      &quot;source-id&quot; : 4,
+      &quot;field-id&quot; : 1000
+    &#125; ]
+  &#125; ],
+  &quot;last-partition-id&quot; : 1000,
+  &quot;default-sort-order-id&quot; : 0,
+  &quot;sort-orders&quot; : [ &#123;
+    &quot;order-id&quot; : 0,
+    &quot;fields&quot; : [ ]
+  &#125; ],
+  &quot;properties&quot; : &#123;
+    &quot;EXTERNAL&quot; : &quot;TRUE&quot;,
+    &quot;write.metadata.previous-versions-max&quot; : &quot;5&quot;,
+    &quot;bucketing_version&quot; : &quot;2&quot;,
+    &quot;write.metadata.delete-after-commit.enabled&quot; : &quot;true&quot;,
+    &quot;write.distribution-mode&quot; : &quot;hash&quot;,
+    &quot;storage_handler&quot; : &quot;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&quot;
+  &#125;,
+  &quot;current-snapshot-id&quot; : 1244418053907939374,
+  &quot;refs&quot; : &#123;
+    &quot;main&quot; : &#123;
+      &quot;snapshot-id&quot; : 1244418053907939374,
+      &quot;type&quot; : &quot;branch&quot;
+    &#125;
+  &#125;,
+  &quot;snapshots&quot; : [ &#123;
+    &quot;snapshot-id&quot; : 7688152750730458585,
+    &quot;timestamp-ms&quot; : 1667357628763,
+    &quot;summary&quot; : &#123;
+      &quot;operation&quot; : &quot;append&quot;,
+      &quot;added-data-files&quot; : &quot;1&quot;,
+      &quot;added-records&quot; : &quot;2&quot;,
+      &quot;added-files-size&quot; : &quot;1272&quot;,
+      &quot;changed-partition-count&quot; : &quot;1&quot;,
+      &quot;total-records&quot; : &quot;2&quot;,
+      &quot;total-files-size&quot; : &quot;1272&quot;,
+      &quot;total-data-files&quot; : &quot;1&quot;,
+      &quot;total-delete-files&quot; : &quot;0&quot;,
+      &quot;total-position-deletes&quot; : &quot;0&quot;,
+      &quot;total-equality-deletes&quot; : &quot;0&quot;
+    &#125;,
+    &quot;manifest-list&quot; : &quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/metadata/snap-7688152750730458585-1-f0e6c6ca-51a7-42e6-b412-4036e27c7d98.avro&quot;,
+    &quot;schema-id&quot; : 0
+  &#125;, &#123;
+    &quot;snapshot-id&quot; : 1244418053907939374,
+    &quot;parent-snapshot-id&quot; : 7688152750730458585,
+    &quot;timestamp-ms&quot; : 1667357677633,
+    &quot;summary&quot; : &#123;
+      &quot;operation&quot; : &quot;append&quot;,
+      &quot;added-data-files&quot; : &quot;1&quot;,
+      &quot;added-records&quot; : &quot;1&quot;,
+      &quot;added-files-size&quot; : &quot;1166&quot;,
+      &quot;changed-partition-count&quot; : &quot;1&quot;,
+      &quot;total-records&quot; : &quot;3&quot;,
+      &quot;total-files-size&quot; : &quot;2438&quot;,
+      &quot;total-data-files&quot; : &quot;2&quot;,
+      &quot;total-delete-files&quot; : &quot;0&quot;,
+      &quot;total-position-deletes&quot; : &quot;0&quot;,
+      &quot;total-equality-deletes&quot; : &quot;0&quot;
+    &#125;,
+    &quot;manifest-list&quot; : &quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/metadata/snap-1244418053907939374-1-44671db7-02ca-47c1-a229-c7f62d8aa12f.avro&quot;,
+    &quot;schema-id&quot; : 0
+  &#125; ],
+  &quot;snapshot-log&quot; : [ &#123;
+    &quot;timestamp-ms&quot; : 1667357628763,
+    &quot;snapshot-id&quot; : 7688152750730458585
+  &#125;, &#123;
+    &quot;timestamp-ms&quot; : 1667357677633,
+    &quot;snapshot-id&quot; : 1244418053907939374
+  &#125; ],
+  &quot;metadata-log&quot; : [ &#123;
+    &quot;timestamp-ms&quot; : 1667357528190,
+    &quot;metadata-file&quot; : &quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/metadata/v1.metadata.json&quot;
+  &#125;, &#123;
+    &quot;timestamp-ms&quot; : 1667357628763,
+    &quot;metadata-file&quot; : &quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/metadata/v2.metadata.json&quot;
+  &#125; ]
+&#125;</code></pre>
+<p>ManifestList清单列表文件 snap-7688152750730458585-1-f0e6c6ca-51a7-42e6-b412-4036e27c7d98.avro</p>
+<pre><code class="json">&#123;&quot;manifest_path&quot;:&quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/metadata/f0e6c6ca-51a7-42e6-b412-4036e27c7d98-m0.avro&quot;,&quot;manifest_length&quot;:6189,&quot;partition_spec_id&quot;:0,&quot;added_snapshot_id&quot;:&#123;&quot;long&quot;:7688152750730458585&#125;,&quot;added_data_files_count&quot;:&#123;&quot;int&quot;:1&#125;,&quot;existing_data_files_count&quot;:&#123;&quot;int&quot;:0&#125;,&quot;deleted_data_files_count&quot;:&#123;&quot;int&quot;:0&#125;,&quot;partitions&quot;:&#123;&quot;array&quot;:[&#123;&quot;contains_null&quot;:false,&quot;contains_nan&quot;:&#123;&quot;boolean&quot;:false&#125;,&quot;lower_bound&quot;:&#123;&quot;bytes&quot;:&quot;20221011&quot;&#125;,&quot;upper_bound&quot;:&#123;&quot;bytes&quot;:&quot;20221011&quot;&#125;&#125;]&#125;,&quot;added_rows_count&quot;:&#123;&quot;long&quot;:2&#125;,&quot;existing_rows_count&quot;:&#123;&quot;long&quot;:0&#125;,&quot;deleted_rows_count&quot;:&#123;&quot;long&quot;:0&#125;&#125;</code></pre>
+<p>ManifestFile清单文件 f0e6c6ca-51a7-42e6-b412-4036e27c7d98-m0.avro</p>
+<pre><code class="json">&#123;&quot;status&quot;:1,&quot;snapshot_id&quot;:&#123;&quot;long&quot;:7688152750730458585&#125;,&quot;data_file&quot;:&#123;&quot;file_path&quot;:&quot;hdfs://shmily:8020/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table/data/dt=20221011/00000-0-hive_20221102105315_5bb17fc0-3092-4bed-8839-253f19117b6d-job_1667357081446_0001-00001.parquet&quot;,&quot;file_format&quot;:&quot;PARQUET&quot;,&quot;partition&quot;:&#123;&quot;dt&quot;:&#123;&quot;string&quot;:&quot;20221011&quot;&#125;&#125;,&quot;record_count&quot;:2,&quot;file_size_in_bytes&quot;:1272,&quot;block_size_in_bytes&quot;:67108864,&quot;column_sizes&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:55&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:59&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:93&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:101&#125;]&#125;,&quot;value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:2&#125;]&#125;,&quot;null_value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:0&#125;]&#125;,&quot;nan_value_counts&quot;:&#123;&quot;array&quot;:[]&#125;,&quot;lower_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;abc&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221011&quot;&#125;]&#125;,&quot;upper_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;qjj&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221011&quot;&#125;]&#125;,&quot;key_metadata&quot;:null,&quot;split_offsets&quot;:&#123;&quot;array&quot;:[4]&#125;,&quot;sort_order_id&quot;:&#123;&quot;int&quot;:0&#125;&#125;&#125;</code></pre>
+<p><strong>HiveCatalog表元数据解析</strong><br>MetadataFile文件 00001-66c5832f-9d6d-4674-9a52-2aa6b8e29991.metadata.json </p>
+<pre><code class="json">&#123;
+  &quot;format-version&quot; : 1,
+  &quot;table-uuid&quot; : &quot;5397c8ee-2b24-4eea-83ae-55e024ccd2c0&quot;,
+  &quot;location&quot; : &quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table&quot;,
+  &quot;last-updated-ms&quot; : 1665470339331,
+  &quot;last-column-id&quot; : 4,
+  &quot;schema&quot; : &#123;
+    &quot;type&quot; : &quot;struct&quot;,
+    &quot;schema-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;id&quot; : 1,
+      &quot;name&quot; : &quot;id&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;long&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 2,
+      &quot;name&quot; : &quot;name&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 3,
+      &quot;name&quot; : &quot;age&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;int&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 4,
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125; ]
+  &#125;,
+  &quot;current-schema-id&quot; : 0,
+  &quot;schemas&quot; : [ &#123;
+    &quot;type&quot; : &quot;struct&quot;,
+    &quot;schema-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;id&quot; : 1,
+      &quot;name&quot; : &quot;id&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;long&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 2,
+      &quot;name&quot; : &quot;name&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 3,
+      &quot;name&quot; : &quot;age&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;int&quot;
+    &#125;, &#123;
+      &quot;id&quot; : 4,
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;required&quot; : false,
+      &quot;type&quot; : &quot;string&quot;
+    &#125; ]
+  &#125; ],
+  &quot;partition-spec&quot; : [ &#123;
+    &quot;name&quot; : &quot;dt&quot;,
+    &quot;transform&quot; : &quot;identity&quot;,
+    &quot;source-id&quot; : 4,
+    &quot;field-id&quot; : 1000
+  &#125; ],
+  &quot;default-spec-id&quot; : 0,
+  &quot;partition-specs&quot; : [ &#123;
+    &quot;spec-id&quot; : 0,
+    &quot;fields&quot; : [ &#123;
+      &quot;name&quot; : &quot;dt&quot;,
+      &quot;transform&quot; : &quot;identity&quot;,
+      &quot;source-id&quot; : 4,
+      &quot;field-id&quot; : 1000
+    &#125; ]
+  &#125; ],
+  &quot;last-partition-id&quot; : 1000,
+  &quot;default-sort-order-id&quot; : 0,
+  &quot;sort-orders&quot; : [ &#123;
+    &quot;order-id&quot; : 0,
+    &quot;fields&quot; : [ ]
+  &#125; ],
+  &quot;properties&quot; : &#123;
+    &quot;engine.hive.enabled&quot; : &quot;true&quot;,
+    &quot;write.metadata.previous-versions-max&quot; : &quot;5&quot;,
+    &quot;bucketing_version&quot; : &quot;2&quot;,
+    &quot;write.metadata.delete-after-commit.enabled&quot; : &quot;true&quot;,
+    &quot;write.distribution-mode&quot; : &quot;hash&quot;,
+    &quot;storage_handler&quot; : &quot;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&quot;
+  &#125;,
+  &quot;current-snapshot-id&quot; : 6283861985931247372,
+  &quot;refs&quot; : &#123;
+    &quot;main&quot; : &#123;
+      &quot;snapshot-id&quot; : 6283861985931247372,
+      &quot;type&quot; : &quot;branch&quot;
+    &#125;
+  &#125;,
+  &quot;snapshots&quot; : [ &#123;
+    &quot;snapshot-id&quot; : 6283861985931247372,
+    &quot;timestamp-ms&quot; : 1665470339331,
+    &quot;summary&quot; : &#123;
+      &quot;operation&quot; : &quot;append&quot;,
+      &quot;added-data-files&quot; : &quot;2&quot;,
+      &quot;added-records&quot; : &quot;3&quot;,
+      &quot;added-files-size&quot; : &quot;2438&quot;,
+      &quot;changed-partition-count&quot; : &quot;2&quot;,
+      &quot;total-records&quot; : &quot;3&quot;,
+      &quot;total-files-size&quot; : &quot;2438&quot;,
+      &quot;total-data-files&quot; : &quot;2&quot;,
+      &quot;total-delete-files&quot; : &quot;0&quot;,
+      &quot;total-position-deletes&quot; : &quot;0&quot;,
+      &quot;total-equality-deletes&quot; : &quot;0&quot;
+    &#125;,
+    &quot;manifest-list&quot; : &quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/metadata/snap-6283861985931247372-1-825f6beb-3be7-485c-b338-8dec6068be94.avro&quot;,
+    &quot;schema-id&quot; : 0
+  &#125; ],
+  &quot;snapshot-log&quot; : [ &#123;
+    &quot;timestamp-ms&quot; : 1665470339331,
+    &quot;snapshot-id&quot; : 6283861985931247372
+  &#125; ],
+  &quot;metadata-log&quot; : [ &#123;
+    &quot;timestamp-ms&quot; : 1665470256700,
+    &quot;metadata-file&quot; : &quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/metadata/00000-d4b0dc94-f59f-4968-950c-31d22c2aab0d.metadata.json&quot;
+  &#125; ]
+&#125;</code></pre>
+<p>ManifestList清单列表文件   snap-6283861985931247372-1-825f6beb-3be7-485c-b338-8dec6068be94.avro</p>
+<pre><code class="json">&#123;&quot;manifest_path&quot;:&quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/metadata/825f6beb-3be7-485c-b338-8dec6068be94-m0.avro&quot;,&quot;manifest_length&quot;:6234,&quot;partition_spec_id&quot;:0,&quot;added_snapshot_id&quot;:&#123;&quot;long&quot;:6283861985931247372&#125;,&quot;added_data_files_count&quot;:&#123;&quot;int&quot;:2&#125;,&quot;existing_data_files_count&quot;:&#123;&quot;int&quot;:0&#125;,&quot;deleted_data_files_count&quot;:&#123;&quot;int&quot;:0&#125;,&quot;partitions&quot;:&#123;&quot;array&quot;:[&#123;&quot;contains_null&quot;:false,&quot;contains_nan&quot;:&#123;&quot;boolean&quot;:false&#125;,&quot;lower_bound&quot;:&#123;&quot;bytes&quot;:&quot;20221010&quot;&#125;,&quot;upper_bound&quot;:&#123;&quot;bytes&quot;:&quot;20221011&quot;&#125;&#125;]&#125;,&quot;added_rows_count&quot;:&#123;&quot;long&quot;:3&#125;,&quot;existing_rows_count&quot;:&#123;&quot;long&quot;:0&#125;,&quot;deleted_rows_count&quot;:&#123;&quot;long&quot;:0&#125;&#125;</code></pre>
+<p>ManifestFile清单文件 825f6beb-3be7-485c-b338-8dec6068be94-m0.avro</p>
+<pre><code class="json">&#123;&quot;status&quot;:1,&quot;snapshot_id&quot;:&#123;&quot;long&quot;:6283861985931247372&#125;,&quot;data_file&quot;:&#123;&quot;file_path&quot;:&quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/data/dt=20221011/00000-0-shmily_20221011143858_89f7e99f-7227-4b19-9a44-b6807cf3b718-job_local1764035342_0002-00001.parquet&quot;,&quot;file_format&quot;:&quot;PARQUET&quot;,&quot;partition&quot;:&#123;&quot;dt&quot;:&#123;&quot;string&quot;:&quot;20221011&quot;&#125;&#125;,&quot;record_count&quot;:2,&quot;file_size_in_bytes&quot;:1272,&quot;block_size_in_bytes&quot;:67108864,&quot;column_sizes&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:55&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:59&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:93&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:101&#125;]&#125;,&quot;value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:2&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:2&#125;]&#125;,&quot;null_value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:0&#125;]&#125;,&quot;nan_value_counts&quot;:&#123;&quot;array&quot;:[]&#125;,&quot;lower_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;abc&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221011&quot;&#125;]&#125;,&quot;upper_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;qjj&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221011&quot;&#125;]&#125;,&quot;key_metadata&quot;:null,&quot;split_offsets&quot;:&#123;&quot;array&quot;:[4]&#125;,&quot;sort_order_id&quot;:&#123;&quot;int&quot;:0&#125;&#125;&#125;
+&#123;&quot;status&quot;:1,&quot;snapshot_id&quot;:&#123;&quot;long&quot;:6283861985931247372&#125;,&quot;data_file&quot;:&#123;&quot;file_path&quot;:&quot;hdfs://shmily:8020/user/hive/warehouse/iceberg_db.db/hive_iceberg_partitioned_table/data/dt=20221010/00000-0-shmily_20221011143858_89f7e99f-7227-4b19-9a44-b6807cf3b718-job_local1764035342_0002-00002.parquet&quot;,&quot;file_format&quot;:&quot;PARQUET&quot;,&quot;partition&quot;:&#123;&quot;dt&quot;:&#123;&quot;string&quot;:&quot;20221010&quot;&#125;&#125;,&quot;record_count&quot;:1,&quot;file_size_in_bytes&quot;:1166,&quot;block_size_in_bytes&quot;:67108864,&quot;column_sizes&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:51&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:53&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:51&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:59&#125;]&#125;,&quot;value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:1&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:1&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:1&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:1&#125;]&#125;,&quot;null_value_counts&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:0&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:0&#125;]&#125;,&quot;nan_value_counts&quot;:&#123;&quot;array&quot;:[]&#125;,&quot;lower_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0003\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;abc&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221010&quot;&#125;]&#125;,&quot;upper_bounds&quot;:&#123;&quot;array&quot;:[&#123;&quot;key&quot;:1,&quot;value&quot;:&quot;\u0003\u0000\u0000\u0000\u0000\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:2,&quot;value&quot;:&quot;abc&quot;&#125;,&#123;&quot;key&quot;:3,&quot;value&quot;:&quot;\u0018\u0000\u0000\u0000&quot;&#125;,&#123;&quot;key&quot;:4,&quot;value&quot;:&quot;20221010&quot;&#125;]&#125;,&quot;key_metadata&quot;:null,&quot;split_offsets&quot;:&#123;&quot;array&quot;:[4]&#125;,&quot;sort_order_id&quot;:&#123;&quot;int&quot;:0&#125;&#125;&#125;</code></pre>
+<h3 id="Iceberg表类型"><a href="#Iceberg表类型" class="headerlink" title="Iceberg表类型"></a>Iceberg表类型</h3><p>当Iceberg添加了新特性但该新特性破坏了向前兼容性时,表的version会增加,以保证旧的表版本仍然可以兼容.<br>Iceberg当前有V1和V2两种表类型,建表时由property-version指定.<br><a target="_blank" rel="noopener" href="https://iceberg.apache.org/spec/#version-1-analytic-data-tables">Version 1: Analytic Data Tables 🔗</a> 基于不可变文件格式管理的大型分析表<br>V1表可以按分区删除数据(如在Trino中delete from iceberg_table where ds=’2022120114’;),删除并不会真正删除数据,而是commit新的元数据新的快照,只要旧快照未过期,仍然可以回滚到删除前的状态,但一旦快照过期,数据文件会被删除无法还原;V1表不支持行级删除(会报错failed: Iceberg table updates require at least format version 2)</p>
+<p><a target="_blank" rel="noopener" href="https://iceberg.apache.org/spec/#version-2-row-level-deletes">Version 2: Row-level Deletes 🔗</a> 较Version 1添加了行级更新\删除能力;添加了Delete files以对现有数据文件中删除的行进行编码。Version2可实现删除或替换不可变数据文件中的单个行，而无需重写文件。</p>
+<h3 id="Iceberg表数据类型"><a href="#Iceberg表数据类型" class="headerlink" title="Iceberg表数据类型"></a>Iceberg表数据类型</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>介绍</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>int</td>
+<td>32位有符号整形</td>
+<td>可转为long</td>
+</tr>
+<tr>
+<td>long</td>
+<td>64位有符号整形</td>
+<td></td>
+</tr>
+<tr>
+<td>float</td>
+<td>单精度浮点型</td>
+<td>可转为double</td>
+</tr>
+<tr>
+<td>double</td>
+<td>双精度浮点型</td>
+<td></td>
+</tr>
+<tr>
+<td>decimal(P,S)</td>
+<td>固定小数点类型数值</td>
+<td>精度P,决定总位数;比例S,决定小数位数;P必须小于等于38</td>
+</tr>
+<tr>
+<td>date</td>
+<td>日期,不含时间和时区</td>
+<td></td>
+</tr>
+<tr>
+<td>time</td>
+<td>时间,不含日期和时区</td>
+<td>以微妙存储</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>不含时区的时间戳</td>
+<td>以微妙存储</td>
+</tr>
+<tr>
+<td>timestamptz</td>
+<td>含时区的时间戳</td>
+<td>以微妙存储</td>
+</tr>
+<tr>
+<td>string</td>
+<td>字符串,任意长度</td>
+<td>Encoded with UTF-8</td>
+</tr>
+<tr>
+<td>fixed(L)</td>
+<td>固定长度为L的字节数组</td>
+<td></td>
+</tr>
+<tr>
+<td>binary</td>
+<td>任意长度字节数组</td>
+<td></td>
+</tr>
+<tr>
+<td>struct&lt;…&gt;</td>
+<td>任意数据类型组成的结构体</td>
+<td></td>
+</tr>
+<tr>
+<td>list</td>
+<td>任意数据类型组成的List</td>
+<td></td>
+</tr>
+<tr>
+<td>map&lt;K,V&gt;</td>
+<td>任意数据类型组成的键值对</td>
+<td>行存储类型,存储和检索时扫描数据量较大</td>
+</tr>
+</tbody></table>
+<h2 id="Iceberg集成"><a href="#Iceberg集成" class="headerlink" title="Iceberg集成"></a>Iceberg集成</h2><h3 id="Iceberg与Hive集成"><a href="#Iceberg与Hive集成" class="headerlink" title="Iceberg与Hive集成"></a>Iceberg与Hive集成</h3><p>添加iceberg-hive-runtime-0.14.1.jar,libfb303-0.9.3.jar两个jar到$HIVE_HOME/auxlib下<br>添加<strong>iceberg.engine.hive.enabled=true</strong>参数到hive-site.xml</p>
+<p>Hive创建Iceberg表<br>(Hive操作Iceberg支持多种Catalog，支持Hadoop、Hive(默认)、location_based_table、Custom几种管理方式,其中前三种是开箱即用的)</p>
+<p>1.<strong>HiveCatalog</strong>类型(表元数据信息使用HiveMetaStore来管理，依赖Hive):</p>
+<pre><code class="sql">-- 不设置Catalog类型时默认会使用HiveCatalog类型的Iceberg表
+-- 示例1 非分区表
+CREATE TABLE iceberg_db.hive_iceberg_table (
+  id BIGINT,
+  name STRING
+)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+LOCATION &#39;/user/hive/warehouse/iceberg_db.db/hive_iceberg_table&#39;
+TBLPROPERTIES (
+ &#39;write.distribution-mode&#39;=&#39;hash&#39;,  -- 数据写入参数,设置为hash表示按key哈希,每一个Partition数据最多由一个Task来写入，减少小文件
+ &#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,   -- (每次提交后是否删除旧元数据文件) 自动清理旧元数据 metadata.json 不能清理manifest和snapshot的avro文件
+ &#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;  -- 保留的metadata.json数量
+);
+-- 示例2 分区表
+CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+TBLPROPERTIES (
+ &#39;write.distribution-mode&#39;=&#39;hash&#39;,
+ &#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+ &#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;,
+ &#39;format-version&#39;=&#39;2&#39;,
+ &#39;engine.hive.enabled&#39;=&#39;true&#39;, 
+ &#39;write.target-file-size-bytes&#39;=&#39;268435456&#39;,
+ &#39;write.format.default&#39;=&#39;parquet&#39;,
+ &#39;write.parquet.compression-codec&#39;=&#39;zstd&#39;,
+ &#39;write.parquet.compression-level&#39;=&#39;10&#39;,
+ &#39;write.avro.compression-codec&#39;=&#39;zstd&#39;,
+ &#39;write.avro.compression-level&#39;=&#39;10&#39;
+);
+-- 示例3 手动指定catalog名称,指定catalog类型为HiveCatalog类型并建表:
+set iceberg.catalog.&lt;catalog_name&gt;.type=hive;  -- 设置catalog类型
+CREATE TABLE iceberg_db.hive_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+TBLPROPERTIES (
+&#39;iceberg.catalog&#39;=&#39;&lt;catalog_name&gt;&#39;,
+ &#39;write.distribution-mode&#39;=&#39;hash&#39;,
+ &#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+ &#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;
+);</code></pre>
+<p>HiveCatalog表在HMS中保存了很多Table Parameters信息,如current-schema,current-snapshot-xx,default-partition-spec,metadata_location,previous_metadata_location,snapshot-count等信息.</p>
+<p>HiveCatalog表在Hive下存在的问题: 在Kerberos认证的HMS环境下,Hive客户端可以建表和查询,但无法inssert数据;可以使用beeline+hiveserver2进行Iceberg表的insert操作.<br>适用场景: HiveCatalog在兼容性方面有天然的优势,几乎大部分常见计算引擎都支持HiveCatalog,而其他类型的Catalog则有不被计算引擎支持的可能.尤其是如果使用Iceberg自定义Catalog,则需要为每个试用Iceberg的引擎做一定的开发工作以兼容自定义Catalog.</p>
+<p>2.<strong>HadoopCatalog</strong>类型(元数据信息使用底层外部存储来管理)</p>
+<pre><code class="sql">set iceberg.catalog.&lt;catalog_name&gt;.type=hadoop;  -- 必须每次设置catalog类型
+set iceberg.catalog.&lt;catalog_name&gt;.warehouse=hdfs://nameservice/user/iceberg/warehouse;  -- 必须每次设置warehouse存储路径
+create external table iceberg_db.hadoop_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age int
+) partitioned by (dt string)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+LOCATION &#39;hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_partitioned_table&#39;  -- 路径必须是$&#123;iceberg.catalog.&lt;catalog_name&gt;.warehous&#125;/$&#123;db_name&#125;/$&#123;table_name&#125;
+tblproperties (
+    &#39;iceberg.catalog&#39;=&#39;&lt;catalog_name&gt;&#39;,
+    &#39;write.distribution-mode&#39;=&#39;hash&#39;,
+    &#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+    &#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;
+);</code></pre>
+<p>3.<strong>LocationBasedTable</strong>(外部存储中<strong>已经存在HadoopCatalog类型Iceberg表</strong>的数据,将其<strong>映射</strong>到Hive表)<br>HDFS已经存在了Iceberg格式表的数据，我们可以指定tblproperties(‘iceberg.catalog’=’location_based_table’)和LOCATION,它会去指定的LOCATION路径下加载iceberg表数据.前提LOCATION下已经存在Iceberg格式表数据了.<br>建表时不需要加PARTITION BY,只需要加字段即可.</p>
+<pre><code class="sql">create external table iceberg_db.location_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age INT,
+  dt STRING
+)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+LOCATION &#39;hdfs://nameservice/user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table&#39;
+tblproperties (&#39;iceberg.catalog&#39;=&#39;location_based_table&#39;);
+或
+create table iceberg_db.location_iceberg_partitioned_table (
+  id BIGINT,
+  name STRING,
+  age INT,
+  dt STRING
+)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+LOCATION &#39;hdfs://nameservice/user/iceberg/warehouse/iceberg_db/location_iceberg_partitioned_table&#39;
+tblproperties (&#39;iceberg.catalog&#39;=&#39;location_based_table&#39;);</code></pre>
+<p>推荐场景: 外部计算引擎均支持HadoopCatalog类型Iceberg表的情况下,比如Flink、Spark等引擎写入的数据，可以使用这种方式创建Hive表来打通Hive.<br>不推荐场景: 需要使用Trino分析该表.(因为Trino当前不支持HadoopCatalog类型Iceberg表)<br>注意: <strong>外部存储上的Iceberg表,Catalog必须是HadoopCatalog类型的，否则无法读取数据。</strong>如果是其他Catalog类型,表创建时会报错File does not exist: /table_path…/metadata/version-hint.text，表能创建成功，但查询结果为空。</p>
+<p>4.<strong>CustomCatalog</strong>自定义Catalog,通过Iceberg提供的API定制Catalog,使Iceberg能更加灵活地使用各类元数据管理方案.<br>适用场景: 需要与Hive Hadoop等解耦的场景,以及需要灵活管理元数据的场景.在元数据管理和兼容计算引擎方面需要一定的开发工作量.</p>
+<h3 id="Iceberg与Flink集成"><a href="#Iceberg与Flink集成" class="headerlink" title="Iceberg与Flink集成"></a>Iceberg与Flink集成</h3><p>Flink 1.14则下载iceberg-flink-runtime-1.14-0.14.1.jar 放入$FLINK_HOME/lib目录下</p>
+<ol>
+<li><p>Flink DataStreamAPI集成Iceberg<br>写了几个案例:<br>Kafka数据通过Flink Datastream API写入Iceberg:<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Flink/src/main/java/flink/study/streaming/sink/iceberg/KafkaSinkHadoopCatalogIcebergTable.java"><strong>KafkaSinkHadoopCatalogIcebergTable</strong></a><br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Flink/src/main/java/flink/study/streaming/sink/iceberg/KafkaSinkHiveCatalogIcebergTable.java"><strong>KafkaSinkHiveCatalogIcebergTable</strong></a><br>通过Flink Datastream API读取Iceberg:<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Flink/src/main/java/flink/study/streaming/source/iceberg/HadoopCatalogIcebergTableSource.java"><strong>HadoopCatalogIcebergTableSource</strong></a><br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Flink/src/main/java/flink/study/streaming/source/iceberg/HiveCatalogIcebergTableSource.java"><strong>HiveCatalogIcebergTableSource</strong></a></p>
+</li>
+<li><p>Flink SQL集成Iceberg</p>
+</li>
+</ol>
+<p><strong>打通Kafka-&gt;Flink SQL-&gt;HadoopCatalog类型Iceberg表-&gt;Hive</strong></p>
+<pre><code class="sql">-- 启动flink集群：cd $FLINK_HOME ; bin/start-cluster.sh
+-- 启动FlinkSQL Console：bin/sql-client.sh embedded shell
+set execution.checkpointing.interval=10sec; -- 必须设置checkpoint  靠checkpoint提交更新数据到Iceberg
+SET execution.runtime-mode = streaming;  -- 流式写
+CREATE TABLE t_kafka_source (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    &#39;connector&#39; = &#39;kafka&#39;,
+    &#39;topic&#39; = &#39;flink_topic1&#39;,  
+    &#39;scan.startup.mode&#39; = &#39;latest-offset&#39;,
+    &#39;properties.bootstrap.servers&#39; = &#39;cdh101:9092,cdh102:9092,cdh103:9092,cdh104:9092&#39;,
+    &#39;properties.group.id&#39; = &#39;test&#39;,
+    &#39;format&#39; = &#39;csv&#39;
+);
+-- 1.写入Iceberg表[HadoopCatalog类型]
+CREATE CATALOG hadoop_iceberg_catalog WITH (
+  &#39;type&#39;=&#39;iceberg&#39;,  -- 创建HadoopCatalog类型Iceberg表在FlinkSQL中的Catalog
+  &#39;catalog-type&#39;=&#39;hadoop&#39;,
+  &#39;warehouse&#39;=&#39;hdfs://nameservice/user/iceberg/warehouse&#39;,
+  &#39;property-version&#39;=&#39;1&#39;
+);
+CREATE TABLE if not exists `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` (
+   id BIGINT,
+   name STRING,
+   age INT,
+   dt STRING
+) PARTITIONED BY (dt)
+WITH(&#39;type&#39;=&#39;ICEBERG&#39;,
+&#39;engine.hive.enabled&#39;=&#39;true&#39;,  -- 支持hive查询(实测发现不加也没影响)
+&#39;read.split.target-size&#39;=&#39;1073741824&#39;, -- 减少split数提升查询效率
+&#39;write.target-file-size-bytes&#39;=&#39;134217728&#39;,
+&#39;write.format.default&#39;=&#39;parquet&#39;,
+&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+&#39;write.metadata.previous-versions-max&#39;=&#39;9&#39;,  
+&#39;write.distribution-mode&#39;=&#39;hash&#39;); 
+insert into hadoop_iceberg_catalog.iceberg_db.hadoop_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;
+-- 2.FlinkSQL批式查询
+SET execution.runtime-mode = batch;
+select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql`;
+-- 3.FlinkSQL流式查询 
+---- 注:不指定start-snapshot-id则会逐渐回溯全量数据
+---- 指定了start-snapshot-id后,会从该snapshot的数据开始消费
+---- 重启Flink应用时,若不指定上次关闭时的checkpoint或savepoint,则每次重启Flink应用都会从start-snapshot-id指定snapshot开始消费,导致重复消费历史数据
+---- 重启Flink应用时,若指定了上次关闭时的checkpoint或savepoint,则会从上次消费的位点继续消费
+select id,name,age,dt from `hadoop_iceberg_catalog`.`iceberg_db`.`hadoop_iceberg_table_flink_sql` /*+ OPTIONS(&#39;streaming&#39;=&#39;true&#39;, &#39;monitor-interval&#39;=&#39;5s&#39;, &#39;start-snapshot-id&#39;=&#39;3821550127947089987&#39;)*/ ;
+-- 4.在Hive中创建Iceberg映射表[只针对HadoopCatalog类型表]
+create external table iceberg_db.hadoop_iceberg_table_flink_sql (
+  id BIGINT,
+  name STRING,
+  age INT,
+  dt STRING
+)
+STORED BY &#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;
+LOCATION &#39;hdfs://nameservice/user/iceberg/warehouse/iceberg_db/hadoop_iceberg_table_flink_sql&#39;
+tblproperties (&#39;iceberg.catalog&#39;=&#39;location_based_table&#39;);
+-- 5.HiveSQL查询(能查到实时最新数据)
+select * from iceberg_db.hadoop_iceberg_table_flink_sql; 
+-- 6.FlinkSQL Upsert更新 基于累积窗口统计逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` (
+  actionid STRING,
+  userid STRING,
+  `success_cnt` bigint,
+  `failed_cnt` bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`userid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH(&#39;type&#39;=&#39;ICEBERG&#39;,
+&#39;format-version&#39;=&#39;2&#39;,   -- 必须是v2表
+&#39;write.upsert.enabled&#39;=&#39;true&#39;,  -- 指定该参数 使表可upsert
+&#39;engine.hive.enabled&#39;=&#39;true&#39;,  
+&#39;read.split.target-size&#39;=&#39;536870912&#39;,
+&#39;write.target-file-size-bytes&#39;=&#39;268435456&#39;,
+&#39;write.format.default&#39;=&#39;parquet&#39;,
+&#39;write.parquet.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.parquet.compression-level&#39;=&#39;10&#39;,
+&#39;write.avro.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.avro.compression-level&#39;=&#39;10&#39;,
+&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+&#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;,  
+&#39;write.distribution-mode&#39;=&#39;hash&#39;); 
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`summary_iceberg_table` /*+ OPTIONS(&#39;upsert-enabled&#39;=&#39;true&#39;) */   -- 需要指定&#39;upsert-enabled&#39;=&#39;true&#39;
+SELECT 
+actionid,
+userid,
+sum(cast(if(`error` = &#39;ok&#39;, 1, 0) as BIGINT)) AS success_cnt,
+sum(cast(if(`error` &lt;&gt; &#39;ok&#39;, 1, 0) as BIGINT)) AS failed_cnt,
+window_start, 
+window_end,
+DATE_FORMAT(window_start, &#39;yyyyMMdd&#39;) AS ds
+FROM 
+    TABLE(
+    CUMULATE(
+      TABLE kafka_table, 
+      DESCRIPTOR(event_time), 
+      INTERVAL &#39;1&#39; MINUTES, 
+      INTERVAL &#39;1&#39; DAY
+      )
+    )
+  GROUP BY 
+    window_start, 
+    window_end,
+    actionid,
+    userid;
+-- 7. FlinkSQL Upsert更新 基于累积窗口计算TopN逻辑 (注意upsert次数过多会导致查询性能很差,如果频繁upsert,则需要频繁做compact来保证查询性能,可根据需要设置只保留1-3个snapshot)
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`top_iceberg_table` (
+  actionid STRING,
+  success_cnt bigint,
+  failed_cnt bigint,
+  ranking_num bigint,
+  window_start TIMESTAMP(3) NOT NULL,
+  window_end TIMESTAMP(3) NOT NULL,
+  ds STRING,
+  PRIMARY KEY(`actionid`,`ds`) NOT ENFORCED  -- 必须设置主键 根据主键upsert
+) PARTITIONED BY (ds)
+WITH(&#39;type&#39;=&#39;ICEBERG&#39;,
+&#39;format-version&#39;=&#39;2&#39;,    -- 必须是v2表
+&#39;write.upsert.enabled&#39;=&#39;true&#39;,  -- 指定该参数 使表可upsert
+&#39;engine.hive.enabled&#39;=&#39;true&#39;,  
+&#39;read.split.target-size&#39;=&#39;536870912&#39;,
+&#39;write.target-file-size-bytes&#39;=&#39;268435456&#39;,
+&#39;write.format.default&#39;=&#39;parquet&#39;,
+&#39;write.parquet.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.parquet.compression-level&#39;=&#39;10&#39;,
+&#39;write.avro.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.avro.compression-level&#39;=&#39;10&#39;,
+&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+&#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;,  
+&#39;write.distribution-mode&#39;=&#39;hash&#39;);
+INSERT INTO `hive_iceberg_catalog`.`iceberg_db`.`user_experience_topn_action_report` /*+ OPTIONS(&#39;upsert-enabled&#39;=&#39;true&#39;) */  -- 需要指定&#39;upsert-enabled&#39;=&#39;true&#39;
+SELECT * from (
+    SELECT 
+      actionid, 
+      success_cnt, 
+      failed_cnt, 
+      ROW_NUMBER() OVER (
+        PARTITION BY window_start, 
+        window_end 
+        ORDER BY 
+          failed_cnt asc
+      ) AS rn, 
+      window_start, 
+      window_end, 
+      ds 
+    from (
+        select 
+          actionid, 
+          sum(cast(if(`error` = &#39;ok&#39;, 1, 0) as BIGINT)) AS success_cnt, 
+          sum(cast(if(`error` &lt;&gt; &#39;ok&#39;, 1, 0) as BIGINT)) AS failed_cnt, 
+          window_start, 
+          window_end, 
+          DATE_FORMAT(window_end, &#39;yyyyMMdd&#39;) AS ds 
+        FROM 
+          TABLE(
+            CUMULATE(
+              TABLE kafka_shoulei_odl_odl_xlpan_server_log, 
+              DESCRIPTOR(event_time), 
+              INTERVAL &#39;1&#39; MINUTES, 
+              INTERVAL &#39;1&#39; DAY
+            )
+          ) 
+        GROUP BY 
+          window_start, 
+          window_end, 
+          actionid
+      ) t_inner
+  ) t_outer 
+where 
+  rn &lt;= 100;</code></pre>
+<p><strong>打通Kafka-&gt;Flink SQL-&gt;HiveCatalog类型Iceberg表-&gt;Hive/Trino</strong></p>
+<pre><code class="sql">-- 写入Iceberg表[HiveCatalog类型]
+-- 启动flink集群：cd $FLINK_HOME ; bin/start-cluster.sh
+-- 启动FlinkSQL Console：bin/sql-client.sh embedded -j iceberg-flink-runtime-1.13-0.14.0.jar -j  /opt/cloudera/parcels/CDH/jars/hive-metastore-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-common-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/hive-serde-2.1.1-cdh6.3.1.jar -j /opt/cloudera/parcels/CDH/jars/libfb303-0.9.3.jar -j /opt/cloudera/parcels/CDH/jars/hive-shims-common-2.1.1-cdh6.3.1.jar shell
+set execution.checkpointing.interval=10sec; -- 必须设置checkpoint  靠checkpoint提交更新数据到Iceberg
+SET execution.runtime-mode = streaming;  -- 流式写
+CREATE TABLE t_kafka_source (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    &#39;connector&#39; = &#39;kafka&#39;,
+    &#39;topic&#39; = &#39;flink_topic1&#39;,  
+    &#39;scan.startup.mode&#39; = &#39;latest-offset&#39;,
+    &#39;properties.bootstrap.servers&#39; = &#39;cdh101:9092,cdh102:9092,cdh103:9092,cdh104:9092&#39;,
+    &#39;properties.group.id&#39; = &#39;test&#39;,
+    &#39;format&#39; = &#39;csv&#39;
+);
+CREATE CATALOG hive_iceberg_catalog WITH (
+  &#39;type&#39;=&#39;iceberg&#39;,
+  &#39;catalog-type&#39;=&#39;hive&#39;,
+  &#39;uri&#39;=&#39;thrift://cdh101:9083,thrift://cdh103:9083&#39;,
+  &#39;clients&#39;=&#39;5&#39;,
+  &#39;property-version&#39;=&#39;1&#39;,
+  &#39;warehouse&#39;=&#39;hdfs://nameservice/user/iceberg/warehouse&#39;,
+  &#39;hive-conf-dir&#39;=&#39;/etc/ecm/hive-conf&#39;   -- 如果hive是kerberos认证的,必须要加hive-conf-dir参数,非kerberos集群可忽略
+);
+CREATE TABLE if not exists `hive_iceberg_catalog`.`iceberg_db`.`hive_iceberg_table_flink_sql` (
+   id BIGINT,
+   name STRING,
+   age INT,
+   dt STRING
+) PARTITIONED BY (dt)
+WITH(&#39;type&#39;=&#39;ICEBERG&#39;,
+&#39;engine.hive.enabled&#39;=&#39;true&#39;,
+&#39;read.split.target-size&#39;=&#39;1073741824&#39;,
+&#39;write.target-file-size-bytes&#39;=&#39;536870912&#39;,
+&#39;write.format.default&#39;=&#39;parquet&#39;,
+&#39;write.parquet.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.parquet.compression-level&#39;=&#39;10&#39;,
+&#39;write.avro.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.avro.compression-level&#39;=&#39;10&#39;,
+&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+&#39;write.metadata.previous-versions-max&#39;=&#39;5&#39;,
+&#39;write.distribution-mode&#39;=&#39;none&#39;);
+insert into hive_iceberg_catalog.iceberg_db.hive_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;</code></pre>
+<p>写入HiveCatalogIceberg表后，在Hive可以直接看到并查询表iceberg_db.hive_iceberg_table_flink_sql.<br>也可以先在hive创建表,再Flink写入,均正常.<br>Trino中也可以直接看到并查询该表.<br>3. StreamPark集成Iceberg(基于HiveCatalog)<br>StreamPark是基于Flink SQL的流式计算平台.在StreamPark上可以很方便地开发实时操作Iceberg的Flink任务.<br>环境: Hadoop 3.2.1 + Hive 3.1.2 + Iceberg 0.14.1 + Flink 1.14.5 + StreamPark 1.2.4 + OSS<br>FlinkSQL编写:</p>
+<pre><code class="sql">CREATE CATALOG hive_iceberg_catalog WITH (
+  &#39;type&#39;=&#39;iceberg&#39;,
+  &#39;catalog-type&#39;=&#39;hive&#39;,
+  &#39;uri&#39;=&#39;thrift://thrift-host:9083&#39;,
+  &#39;clients&#39;=&#39;5&#39;,
+  &#39;property-version&#39;=&#39;1&#39;,
+  &#39;warehouse&#39;=&#39;oss://bucket_name/data/iceberg/warehouse&#39;,
+  &#39;hive-conf-dir&#39;=&#39;/etc/ecm/hive-conf&#39;
+);
+-- Kafka source table
+CREATE TABLE t_kafka_source (
+    id BIGINT,
+    name STRING,
+    age INT,
+    dt STRING
+) WITH (
+    &#39;connector&#39; = &#39;kafka&#39;,
+    &#39;topic&#39; = &#39;t_qjj_flink_test&#39;,  
+    &#39;scan.startup.mode&#39; = &#39;latest-offset&#39;,
+    &#39;properties.bootstrap.servers&#39; = &#39;broker1:9092,broker2:9092,broker3:9092&#39;,
+    &#39;properties.group.id&#39; = &#39;test&#39;,
+    &#39;format&#39; = &#39;csv&#39;
+);
+-- Iceberg target table
+CREATE TABLE IF NOT EXISTS `hive_iceberg_catalog`.`iceberg_db`.`hive_krb_iceberg_table_flink_sql` (
+   id BIGINT,
+   name STRING,
+   age INT,
+   dt STRING
+) PARTITIONED BY (dt)
+WITH(&#39;type&#39;=&#39;ICEBERG&#39;,
+&#39;engine.hive.enabled&#39;=&#39;true&#39;,
+&#39;read.split.target-size&#39;=&#39;1073741824&#39;,
+&#39;write.target-file-size-bytes&#39;=&#39;536870912&#39;,
+&#39;write.format.default&#39;=&#39;parquet&#39;,
+&#39;write.parquet.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.parquet.compression-level&#39;=&#39;10&#39;,
+&#39;write.avro.compression-codec&#39;=&#39;zstd&#39;,
+&#39;write.avro.compression-level&#39;=&#39;10&#39;,
+&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39;,
+&#39;write.metadata.previous-versions-max&#39;=&#39;10&#39;,
+&#39;write.distribution-mode&#39;=&#39;none&#39;);
+-- Insert data
+insert into hive_iceberg_catalog.iceberg_db.hive_krb_iceberg_table_flink_sql select id,name,age,dt from t_kafka_source;</code></pre>
+<p>依赖jar:</p>
+<pre><code class="xml">  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.iceberg&lt;/groupId&gt;
+    &lt;artifactId&gt;iceberg-flink-runtime-1.14&lt;/artifactId&gt;
+    &lt;version&gt;0.14.1&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.hive&lt;/groupId&gt;
+    &lt;artifactId&gt;hive-metastore&lt;/artifactId&gt;
+    &lt;version&gt;3.1.2&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;
+    &lt;artifactId&gt;libthrift&lt;/artifactId&gt;
+    &lt;version&gt;0.9.3&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;
+    &lt;artifactId&gt;libfb303&lt;/artifactId&gt;
+    &lt;version&gt;0.9.3&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.hive&lt;/groupId&gt;
+    &lt;artifactId&gt;hive-common&lt;/artifactId&gt;
+    &lt;version&gt;3.1.2&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.hive&lt;/groupId&gt;
+    &lt;artifactId&gt;hive-serde&lt;/artifactId&gt;
+    &lt;version&gt;3.1.2&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.hive.shims&lt;/groupId&gt;
+    &lt;artifactId&gt;hive-shims-common&lt;/artifactId&gt;
+    &lt;version&gt;3.1.2&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.apache.flink&lt;/groupId&gt;
+    &lt;artifactId&gt;flink-connector-kafka_2.12&lt;/artifactId&gt;
+    &lt;version&gt;1.14.5&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;commons-cli&lt;/groupId&gt;
+    &lt;artifactId&gt;commons-cli&lt;/artifactId&gt;
+    &lt;version&gt;1.3.1&lt;/version&gt;
+  &lt;/dependency&gt;</code></pre>
+<p>可能出现的异常:</p>
+<pre><code class="err">Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
+        at org.apache.flink.runtime.entrypoint.parser.CommandLineOptions.&lt;clinit&gt;(CommandLineOptions.java:27)</code></pre>
+<p>原因: streamx在下载hive依赖时,下载了它的子依赖,且hive使用的commons-cli与streamx使用的commons-cli版本不一致,导致jar冲突.<br>解决: 每次build后手动删除hdfs dfs -rm -f hdfs://ns/streamx/workspace/项目ID/lib/commons-cli-1.2.jar</p>
+<h3 id="Iceberg与Trino集成"><a href="#Iceberg与Trino集成" class="headerlink" title="Iceberg与Trino集成"></a>Iceberg与Trino集成</h3><p>Trino整合Iceberg需要配置$TRINO_HOME/etc/catalog/iceberg.properties内容如下:</p>
+<pre><code>connector.name=iceberg
+iceberg.file-format=PARQUET
+hive.metastore.service.principal=hive/metastore-server-ip@realm-name 
+hive.metastore.authentication.type=KERBEROS
+hive.metastore.uri=thrift://metastore-server-ip:9083,metastore-server-ip-bk:9083
+hive.metastore.client.principal=principal-in-hive-keytab
+hive.metastore.client.keytab=/path/to/hive.keytab
+hive.config.resources=/etc/ecm/hadoop-conf/core-site.xml, /etc/ecm/hadoop-conf/hdfs-site.xml
+iceberg.compression-codec=SNAPPY</code></pre>
+<p>若需要其支持外部存储例如oss,则需要将jindo-core-4.3.0.jar和jindo-sdk-4.3.0.jar两个jar拷贝到$TRINO_HOME/plugin/iceberg/和$TRINO_HOME/plugin/hive/以兼容外部存储.</p>
+<p>Trino当前仅支持HiveCatalog类型的Iceberg表,不支持HadoopCatalog类型Iceberg表.如果查询的是HadoopCatalog,location_based_table,Custome类型的Iceberg表会报错:Table is missing [metadata_location] property: iceberg_db.iceberg_table</p>
+<p>Trino操作Iceberg表常用操作:</p>
+<pre><code class="sql">1.查看有哪些分区
+select * from &quot;iceberg_table$partitions&quot;;
+2.查看有哪些快照
+select * from &quot;iceberg_table$snapshots&quot;;
+SELECT snapshot_id,committed_at FROM &quot;iceberg_table$snapshots&quot; ORDER BY committed_at;
+3.表优化 之 快照过期
+ALTER TABLE iceberg_table EXECUTE expire_snapshots(retention_threshold =&gt; &#39;7d&#39;)
+4.表优化 之 文件合并
+ALTER TABLE iceberg_table EXECUTE optimize [默认合并小于file_size_threshold的数据文件,file_size_threshold默认100MB]
+ALTER TABLE iceberg_table EXECUTE optimize(file_size_threshold =&gt; &#39;256MB&#39;)
+ALTER TABLE iceberg_table EXECUTE optimize WHERE partition_key = 1 [按分区优化]
+5.表优化 之 清理孤立无效的文件
+ALTER TABLE iceberg_table EXECUTE remove_orphan_files(retention_threshold =&gt; &#39;7d&#39;)
+6.升级表的版本如V1升级到V2
+ALTER TABLE iceberg_table SET PROPERTIES format_version = 2;
+7.V2表根据条件进行行级删除操作 (V1表不支持行级删除,只支持分区条件删除)
+delete from iceberg_table where ds=&#39;2022120102&#39; and eventid = &#39;event_1&#39;;
+8.修改分区之添加一个分区字段
+ALTER TABLE iceberg_table SET PROPERTIES partitioning = ARRAY[&lt;existing partition columns&gt;, &#39;my_new_partition_column&#39;];
+9.修改表和字段注释 在Trino修改后同样会在Hive生效
+COMMENT ON TABLE iceberg_table IS &#39;Table comment&#39;;
+COMMENT ON COLUMN iceberg_table.name IS &#39;Column comment&#39;;
+10.TimeTravel查询 临时查询历史某个快照的数据
+SELECT * FROM iceberg.iceberg_db.iceberg_table FOR VERSION AS OF 8954597067493422955;
+SELECT * FROM iceberg.iceberg_db.iceberg_table FOR TIMESTAMP AS OF TIMESTAMP &#39;2022-12-02 09:59:29.803 Europe/Vienna&#39;;
+11.回滚当前表状态到某个历史快照的状态
+CALL iceberg.system.rollback_to_snapshot(&#39;iceberg_db&#39;, &#39;iceberg_table&#39;, 8954597067493422955);
+12.查看表的文件和文件修改时间
+select &quot;$path&quot;, &quot;$file_modified_time&quot; from iceberg_table;
+13.查询数据
+select * from iceberg_table limit 10;
+select * from &quot;iceberg_table$data&quot; limit 10; [等价于上面的SQL]
+14.查看表配置参数
+select * from &quot;iceberg_table$properties&quot;;
+15.查看表元数据更改历史记录
+select * from &quot;iceberg_table$history&quot;;
+16.列出表涉及到的manifest file列表
+select * from &quot;iceberg_table$manifests&quot;;
+17.列出表在当前快照(当前状态)下引用的所有数据文件
+select * from &quot;iceberg_table$files&quot;;
+18.创建Trino物化视图 只支持Trino中查询
+CREATE OR REPLACE MATERIALIZED VIEW iceberg_view COMMENT &#39;materializedView&#39; WITH ( format = &#39;ORC&#39;, partitioning = ARRAY[&#39;ds&#39;] ) as select appid,ds from iceberg_table;
+CREATE MATERIALIZED VIEW IF NOT EXISTS iceberg_view COMMENT &#39;materializedView&#39; WITH ( format = &#39;ORC&#39;, partitioning = ARRAY[&#39;ds&#39;] ) as select appid,ds from iceberg_table;
+REFRESH MATERIALIZED VIEW iceberg_view; [底层表数据变化导致物化视图与底层表数据不一致时,使用该命令更新物化视图]
+19.如果查询很复杂并且包括连接大型数据集，则在表上运行ANALYZE可以通过收集有关数据的统计信息来提高查询性能
+SET SESSION iceberg.experimental_extended_statistics_enabled = true;
+ANALYZE iceberg_table;
+ANALYZE iceberg_table WITH (columns = ARRAY[&#39;col_1&#39;, &#39;col_2&#39;]);
+ALTER TABLE iceberg_table EXECUTE drop_extended_stats;  [如果需要重新分析表统计信息,则再重新分析前先清除之前统计的信息]
+20.创建表(本质也是创建HiveCatalog表,不建议在Trino建Iceberg表,因为Hive引擎无法支持)
+CREATE TABLE iceberg_oss_table (
+    c1 integer,
+    c2 date,
+    c3 double
+)
+WITH (
+    format = &#39;PARQUET&#39;,
+    partitioning = ARRAY[&#39;c1&#39;, &#39;c2&#39;],
+    location = &#39;oss://bucket-name/user/iceberg/warehouse/iceberg_oss_table&#39;
+);</code></pre>
+<h3 id="Iceberg与Spark集成"><a href="#Iceberg与Spark集成" class="headerlink" title="Iceberg与Spark集成"></a>Iceberg与Spark集成</h3><p>下载iceberg-spark-runtime-3.3_2.12-1.0.0.jar到$SPARK_HOME/jars路径<br>编辑$SPARK_HOME/conf/spark-defaults.conf添加如下内容</p>
+<pre><code class="conf">spark.sql.catalog.spark_catalog  org.apache.iceberg.spark.SparkSessionCatalog
+spark.sql.catalog.spark_catalog.type  hive</code></pre>
+<p>Spark创建的Iceberg表打通Hive</p>
+<pre><code class="sql">-- Spark创建Iceberg表
+CREATE TABLE spark_catalog.default.qjj_iceberg_test (
+    id bigint COMMENT &#39;unique id&#39;,
+    data string
+) USING iceberg
+LOCATION &#39;oss://bucket-name/user/hive/warehouse/qjj_iceberg_test&#39;;
+-- Hive中兼容Spark创建的Iceberg表需要做的操作
+ALTER TABLE qjj_iceberg_test SET FILEFORMAT INPUTFORMAT &quot;org.apache.iceberg.mr.hive.HiveIcebergInputFormat&quot; OUTPUTFORMAT &quot;org.apache.iceberg.mr.hive.HiveIcebergOutputFormat&quot; SERDE &quot;org.apache.iceberg.mr.hive.HiveIcebergSerDe&quot;;
+alter table qjj_iceberg_test set TBLPROPERTIES (&#39;storage_handler&#39;=&#39;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#39;);</code></pre>
+<p>注: Hive创建的Iceberg表可以直接被Spark读取</p>
+<h2 id="Iceberg表管理维护"><a href="#Iceberg表管理维护" class="headerlink" title="Iceberg表管理维护"></a>Iceberg表管理维护</h2><p>数据实时写入Iceberg表会频繁发生Commit操作,产生大量元数据文件和数据文件,文件数膨胀和小文件问题会使其性能下降,甚至影响底层存储系统稳定性.目前Iceberg表并不能像Hudi一样自动处理小文件问题,需要一定的手动维护工作.<br>以下是发生31次commit后,Iceberg表目录树形结构.</p>
+<pre><code class="tree">hadoop_iceberg_partitioned_table
+├── data
+│   ├── dt=20221010
+│   │   └── 00000-0-hive_20221102105407_0605b24c-e823-4244-a994-83887ea7e430-job_1667357081446_0002-00001.parquet
+│   ├── dt=20221011
+│   │   └── 00000-0-hive_20221102105315_5bb17fc0-3092-4bed-8839-253f19117b6d-job_1667357081446_0001-00001.parquet
+│   └── dt=20221104
+│       ├── 00000-0-shmily_20221104104344_a66cc954-b33c-48df-812c-cc59d609ec59-job_1667529535736_0001-00001.parquet
+│       ├── 00000-0-shmily_20221104104714_7bc45bcf-b8dc-4730-b9b5-d0c92ae46d5d-job_1667529535736_0002-00001.parquet
+│       ├── 00000-0-shmily_20221104104805_4a490286-3499-43fb-affb-4317e07128d1-job_1667529535736_0003-00001.parquet
+│       ├── 00000-0-shmily_20221104104851_71127db1-1170-4a38-a3d4-83e296fd3330-job_1667529535736_0004-00001.parquet
+│       ├── 00000-0-shmily_20221104105901_1d66566e-af6c-4311-b123-86cfd18e0102-job_1667529535736_0005-00001.parquet
+│       ├── 00000-0-shmily_20221104110033_e6e579d7-b08f-48b1-9277-b51b318dec7c-job_1667529535736_0006-00001.parquet
+│       ├── 00000-0-shmily_20221104110100_345a4caa-bb75-4ea4-be5c-51a2420c428d-job_1667529535736_0007-00001.parquet
+│       ├── 00000-0-shmily_20221104110124_bbb8626e-3d06-48a4-be6a-3ef061be4122-job_1667529535736_0008-00001.parquet
+│       ├── 00000-0-shmily_20221104110152_13d0e1a5-6630-4dc2-ae24-ee104cbca3b5-job_1667529535736_0009-00001.parquet
+│       ├── 00000-0-shmily_20221104110158_4283a83a-2662-4a89-8311-e8f89fe64603-job_1667529535736_0010-00001.parquet
+│       ├── 00000-0-shmily_20221104110218_66253aad-58ca-4121-b454-8383e1ae7aae-job_1667529535736_0011-00001.parquet
+│       ├── 00000-0-shmily_20221104110245_c041e352-dacd-4f5e-9fb4-ca321b4b3468-job_1667529535736_0012-00001.parquet
+│       ├── 00000-0-shmily_20221104110311_29653ebe-6426-4163-8ace-7b1d305c9253-job_1667529535736_0013-00001.parquet
+│       ├── 00000-0-shmily_20221104110336_35708806-e3a6-4746-851a-e8d306812810-job_1667529535736_0014-00001.parquet
+│       ├── 00000-0-shmily_20221104110400_d1949e60-6123-49ff-8a85-0281651cf0b2-job_1667529535736_0015-00001.parquet
+│       ├── 00000-0-shmily_20221104110425_e0cdc030-7d88-4b5f-8956-c95ffd71e698-job_1667529535736_0016-00001.parquet
+│       ├── 00000-0-shmily_20221104110448_e144f00c-60b7-4935-a749-d3d88eba828a-job_1667529535736_0017-00001.parquet
+│       ├── 00000-0-shmily_20221104110513_01b3285c-a3c8-490c-bc3c-5dbd696824e8-job_1667529535736_0018-00001.parquet
+│       ├── 00000-0-shmily_20221104110538_bbe889dd-8615-4019-b6cc-636d1503dc8c-job_1667529535736_0019-00001.parquet
+│       ├── 00000-0-shmily_20221104110602_09da4a19-c2ac-46af-af6c-5d97a3fbdcd9-job_1667529535736_0020-00001.parquet
+│       ├── 00000-0-shmily_20221104110627_b1544cff-a0c2-4310-a06a-cd6103e40e9d-job_1667529535736_0021-00001.parquet
+│       ├── 00000-0-shmily_20221104110651_a7e21f79-764d-4e62-8174-109dc4f1e7e2-job_1667529535736_0022-00001.parquet
+│       ├── 00000-0-shmily_20221104110716_a657cb8b-45be-4484-9a21-bc2814e0c6b1-job_1667529535736_0023-00001.parquet
+│       ├── 00000-0-shmily_20221104110742_f0e29e2e-4225-4e42-9699-524a19dacf44-job_1667529535736_0024-00001.parquet
+│       ├── 00000-0-shmily_20221104110805_1827ea66-b863-4ecb-adc2-285470309490-job_1667529535736_0025-00001.parquet
+│       ├── 00000-0-shmily_20221104110831_1019e38e-4845-4792-83fb-39822e497983-job_1667529535736_0026-00001.parquet
+│       ├── 00000-0-shmily_20221104110919_4f1e3e96-1d37-40f3-aa2e-2a0139170381-job_1667529535736_0027-00001.parquet
+│       ├── 00000-0-shmily_20221104110943_9ff35be2-cec0-4389-843e-395c7c6ec428-job_1667529535736_0028-00001.parquet
+│       └── 00000-0-shmily_20221104111008_7a8ca8e3-d4c6-4aa1-81b6-c79d6ba7dd4f-job_1667529535736_0029-00001.parquet
+├── metadata
+│   ├── 03710058-d552-4dc1-b9cb-9340729e8f5e-m0.avro
+│   ├── 09fd33b8-c9ce-4f7c-b871-ca31f096e3b1-m0.avro
+│   ├── 12169e7b-13cb-4393-8158-1c9effe14e8f-m0.avro
+│   ├── 2e834cae-756b-4498-a82a-2418db4b1092-m0.avro
+│   ├── 3486a62e-1d74-49bd-bad3-c61187fac97f-m0.avro
+│   ├── 3a9351b4-388b-44d9-8243-4a11189d81b2-m0.avro
+│   ├── 3d0a560f-06f4-4402-a388-0b3cc7e25598-m0.avro
+│   ├── 40862af2-6d95-40b8-a979-2360ea3b7175-m0.avro
+│   ├── 44671db7-02ca-47c1-a229-c7f62d8aa12f-m0.avro
+│   ├── 551c586b-9c4d-4ca4-a0ef-d46c30fb01f8-m0.avro
+│   ├── 5baf0fec-3247-48f3-84f6-2f6402e866c7-m0.avro
+│   ├── 639416fc-47c0-452e-a1d9-f17864cf008f-m0.avro
+│   ├── 63ab2797-6a07-4886-9c27-43765bc31851-m0.avro
+│   ├── 74ca6f5e-4eab-45d9-b0b1-04ba48e53971-m0.avro
+│   ├── 8a4ce917-5986-4a95-9573-62103a116559-m0.avro
+│   ├── 90bcc77d-5516-4c3e-96c8-242713920b1b-m0.avro
+│   ├── 9f87073d-4cbc-46e9-b4dd-42fc28c86726-m0.avro
+│   ├── a4c74672-5ace-4a79-aca9-677926532794-m0.avro
+│   ├── b0e01ba5-bbe9-4ce4-ad9e-f07ab774a041-m0.avro
+│   ├── b1a2cd1f-e30a-4c45-9119-9ba0e185cc58-m0.avro
+│   ├── b209efb3-aab3-4bc2-a821-0557a0cda8d3-m0.avro
+│   ├── b7c5b752-49d4-4840-8990-fb4a84e0f71d-m0.avro
+│   ├── b9ba125d-bd76-483d-94f7-f6a9b664f633-m0.avro
+│   ├── bcc5bf7b-7f01-4969-9f4c-cc9c1c920029-m0.avro
+│   ├── d5b51efd-32b4-4948-9cc8-f2422919f1d7-m0.avro
+│   ├── d6492cb2-7012-4668-9af9-c25cbe4df95a-m0.avro
+│   ├── e511d02d-ecd8-4a3f-b8b7-45ad864026dc-m0.avro
+│   ├── e652600f-4167-4f59-92cc-45faf15b03b1-m0.avro
+│   ├── f0e6c6ca-51a7-42e6-b412-4036e27c7d98-m0.avro
+│   ├── f3646fc2-7e64-4395-8adc-cd6a75413d37-m0.avro
+│   ├── f91de7e0-2bf3-4804-bb28-64b61ebc588f-m0.avro
+│   ├── snap-1244418053907939374-1-44671db7-02ca-47c1-a229-c7f62d8aa12f.avro
+│   ├── snap-1477308230043616149-1-f91de7e0-2bf3-4804-bb28-64b61ebc588f.avro
+│   ├── snap-1490572932134542813-1-5baf0fec-3247-48f3-84f6-2f6402e866c7.avro
+│   ├── snap-1778869542790618047-1-12169e7b-13cb-4393-8158-1c9effe14e8f.avro
+│   ├── snap-2054318792294634903-1-f3646fc2-7e64-4395-8adc-cd6a75413d37.avro
+│   ├── snap-2520326235035414997-1-b7c5b752-49d4-4840-8990-fb4a84e0f71d.avro
+│   ├── snap-3185789235788477057-1-e652600f-4167-4f59-92cc-45faf15b03b1.avro
+│   ├── snap-3406584701390941146-1-b209efb3-aab3-4bc2-a821-0557a0cda8d3.avro
+│   ├── snap-3684994728472824032-1-9f87073d-4cbc-46e9-b4dd-42fc28c86726.avro
+│   ├── snap-3706799770416474623-1-a4c74672-5ace-4a79-aca9-677926532794.avro
+│   ├── snap-3951591399252751391-1-3a9351b4-388b-44d9-8243-4a11189d81b2.avro
+│   ├── snap-4081427338556096982-1-d5b51efd-32b4-4948-9cc8-f2422919f1d7.avro
+│   ├── snap-4367759472594176887-1-b0e01ba5-bbe9-4ce4-ad9e-f07ab774a041.avro
+│   ├── snap-4477640749996566080-1-63ab2797-6a07-4886-9c27-43765bc31851.avro
+│   ├── snap-4792262885242972970-1-551c586b-9c4d-4ca4-a0ef-d46c30fb01f8.avro
+│   ├── snap-501818490576080743-1-3486a62e-1d74-49bd-bad3-c61187fac97f.avro
+│   ├── snap-558299450529529123-1-bcc5bf7b-7f01-4969-9f4c-cc9c1c920029.avro
+│   ├── snap-6000755959745218957-1-09fd33b8-c9ce-4f7c-b871-ca31f096e3b1.avro
+│   ├── snap-6590633258547705279-1-639416fc-47c0-452e-a1d9-f17864cf008f.avro
+│   ├── snap-70006429373167712-1-d6492cb2-7012-4668-9af9-c25cbe4df95a.avro
+│   ├── snap-7258286604987289050-1-03710058-d552-4dc1-b9cb-9340729e8f5e.avro
+│   ├── snap-7353150060042609479-1-e511d02d-ecd8-4a3f-b8b7-45ad864026dc.avro
+│   ├── snap-7512257803790292671-1-b9ba125d-bd76-483d-94f7-f6a9b664f633.avro
+│   ├── snap-7520911403174383355-1-90bcc77d-5516-4c3e-96c8-242713920b1b.avro
+│   ├── snap-7612339408675772086-1-40862af2-6d95-40b8-a979-2360ea3b7175.avro
+│   ├── snap-7688152750730458585-1-f0e6c6ca-51a7-42e6-b412-4036e27c7d98.avro
+│   ├── snap-8654338094020315416-1-8a4ce917-5986-4a95-9573-62103a116559.avro
+│   ├── snap-8685114841540976719-1-b1a2cd1f-e30a-4c45-9119-9ba0e185cc58.avro
+│   ├── snap-8693851636236625016-1-2e834cae-756b-4498-a82a-2418db4b1092.avro
+│   ├── snap-8855760427151465849-1-3d0a560f-06f4-4402-a388-0b3cc7e25598.avro
+│   ├── snap-9102081850556452524-1-74ca6f5e-4eab-45d9-b0b1-04ba48e53971.avro
+│   ├── v1.metadata.json
+│   ├── v2.metadata.json
+│   ├── v3.metadata.json
+│   ├── v4.metadata.json
+│   ├── v5.metadata.json
+│   ├── v6.metadata.json
+│   ├── v7.metadata.json
+│   ├── v8.metadata.json
+│   ├── v9.metadata.json
+│   ├── v10.metadata.json
+│   ├── v11.metadata.json
+│   ├── v12.metadata.json
+│   ├── v13.metadata.json
+│   ├── v14.metadata.json
+│   ├── v15.metadata.json
+│   ├── v16.metadata.json
+│   ├── v17.metadata.json
+│   ├── v18.metadata.json
+│   ├── v19.metadata.json
+│   ├── v20.metadata.json
+│   ├── v21.metadata.json
+│   ├── v22.metadata.json
+│   ├── v23.metadata.json
+│   ├── v24.metadata.json
+│   ├── v25.metadata.json
+│   ├── v26.metadata.json
+│   ├── v27.metadata.json
+│   ├── v28.metadata.json
+│   ├── v29.metadata.json
+│   ├── v30.metadata.json
+│   ├── v31.metadata.json
+│   ├── v32.metadata.json
+│   └── version-hint.text
+└── temp</code></pre>
+<p>其中有32个MetadataFile文件(metadata.json),31个ManifestList文件(snap-*.avro),31个ManifestFile文件(xx-m0.avro)以及31个DataFile(xx.parquet)文件.<br>n次commit会带来3n+1个文件落盘.<br>执行清理(合并数据文件-&gt;清理过期快照-&gt;重写ManifestFile-&gt;清理孤立文件)后,小文件数量多的问题会有明显改善,结果如下:</p>
+<pre><code class="tree">hadoop_iceberg_partitioned_table_after
+├── data
+│   ├── dt=20221010
+│   │   ├── 00000-0-hive_20221102105407_0605b24c-e823-4244-a994-83887ea7e430-job_1667357081446_0002-00001.parquet
+│   │   ├── 00000-1-5ea18300-180b-465d-8310-bbbf422e15b8-00001.parquet
+│   │   ├── 00000-1-78fcc067-f967-465f-be58-f5beff8561dd-00001.parquet
+│   │   ├── 00000-2-be5c1e4a-254f-4503-9ff5-f8817a9e92f7-00001.parquet
+│   │   └── 00000-613-8bdfbded-0300-425a-8201-031920536100-00001.parquet
+│   ├── dt=20221011
+│   │   ├── 00000-0-d75b9b2f-4794-42e2-94fe-f6ae22ccd7d9-00001.parquet
+│   │   ├── 00000-0-hive_20221102105315_5bb17fc0-3092-4bed-8839-253f19117b6d-job_1667357081446_0001-00001.parquet
+│   │   ├── 00000-2-1402730f-cc62-4daf-a47e-a8aecaa545c8-00001.parquet
+│   │   ├── 00000-2-73f4cb74-1ab1-494d-ba4d-242b070bb82d-00001.parquet
+│   │   └── 00000-611-6edbc04e-0919-4ae4-be30-89a8b91478e6-00001.parquet
+│   └── dt=20221104
+│       ├── 00000-0-11b9e51d-1ebd-496c-ae07-9e480c92c35e-00001.parquet
+│       ├── 00000-0-274072c6-cefa-4395-ab31-016eacd19f08-00001.parquet
+│       ├── 00000-0-ad26a63a-9b36-4c7d-9cb9-109aafae96fc-00001.parquet
+│       ├── 00000-1-bd95039f-65c4-4b19-938e-185d615e3e0d-00001.parquet
+│       └── 00000-612-73dd262d-7377-42f7-87e8-024447dc6fd6-00001.parquet
+├── metadata
+│   ├── 6d24ddd9-be10-42f3-a5d6-4551ee5a8bf0-m0.avro
+│   ├── 79077b45-29e8-4d19-89a0-aef243b6a4ca-m0.avro
+│   ├── 79077b45-29e8-4d19-89a0-aef243b6a4ca-m1.avro
+│   ├── 7f9cc85d-0de4-4c4c-bde7-54d4f4f78447-m0.avro
+│   ├── ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3-m0.avro
+│   ├── ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3-m1.avro
+│   ├── d2eeb7b2-9607-4c5b-bdc5-6cfe2c81ed94-m0.avro
+│   ├── e52f34b0-ff45-4207-87a0-95b1897da11a-m0.avro
+│   ├── e52f34b0-ff45-4207-87a0-95b1897da11a-m1.avro
+│   ├── e715d26c-152c-4ff3-9533-7860d920503d-m0.avro
+│   ├── e715d26c-152c-4ff3-9533-7860d920503d-m1.avro
+│   ├── snap-2296367325872747730-1-e715d26c-152c-4ff3-9533-7860d920503d.avro
+│   ├── snap-3114464783889165727-1-6d24ddd9-be10-42f3-a5d6-4551ee5a8bf0.avro
+│   ├── snap-4397206702551297792-1-ae99e2ab-fcc5-44b0-bd94-f2d73eab22f3.avro
+│   ├── snap-5015314203544980905-1-7f9cc85d-0de4-4c4c-bde7-54d4f4f78447.avro
+│   ├── snap-761586103173871579-1-79077b45-29e8-4d19-89a0-aef243b6a4ca.avro
+│   ├── snap-8390029841836840556-1-d2eeb7b2-9607-4c5b-bdc5-6cfe2c81ed94.avro
+│   ├── snap-8895954507409072148-1-e52f34b0-ff45-4207-87a0-95b1897da11a.avro
+│   ├── v38.metadata.json
+│   ├── v39.metadata.json
+│   ├── v40.metadata.json
+│   ├── v41.metadata.json
+│   ├── v42.metadata.json
+│   ├── v43.metadata.json
+│   └── version-hint.text
+└── temp</code></pre>
+<h3 id="metadata数控制"><a href="#metadata数控制" class="headerlink" title="metadata数控制"></a>metadata数控制</h3><p>在Iceberg中,每次触发事务提交都会生成一个metadata.json,应当避免metadata文件无限增长,可以在建表时指定如下参数:</p>
+<pre><code class="conf">&#39;write.metadata.delete-after-commit.enabled&#39;=&#39;true&#39; # 发生commit后,是否删除比较旧的metadata文件
+&#39;write.metadata.previous-versions-max&#39;=&#39;9&#39; # 保留的最大历史metadata文件数量,超过该历史版本数量的老的metadata文件会被删除</code></pre>
+<p>这样可以自动控制MetadataFile文件数为9个.</p>
+<h3 id="清理过期snapshot"><a href="#清理过期snapshot" class="headerlink" title="清理过期snapshot"></a>清理过期snapshot</h3><p>清理Iceberg表过期快照的Demo<br>Flink实现:<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/ClearExpiredSnapshots.scala"><strong>ClearExpiredSnapshots</strong></a><br>Spark实现:<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala"><strong>SparkIcebergTableMaintenance$expireSnapshots</strong></a></p>
+<h3 id="数据文件重写"><a href="#数据文件重写" class="headerlink" title="数据文件重写"></a>数据文件重写</h3><p>流式数据写入可能会产生大量小的数据文件,Iceberg提供了rewriteDataFiles(Compaction)操作,可以定期合并小文件,提高查询性能.<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala"><strong>SparkIcebergTableMaintenance$compactDataFiles</strong></a></p>
+<h3 id="元数据文件重写"><a href="#元数据文件重写" class="headerlink" title="元数据文件重写"></a>元数据文件重写</h3><p>每次Commit都会产生一个metadata文件,随着时间的推移,实时任务写入的MetadataFile数越来越多,做合并可以降低文件数,提升查询效率.<br><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala"><strong>SparkIcebergTableMaintenance$rewriteManifests</strong></a></p>
+<h3 id="清理孤立文件"><a href="#清理孤立文件" class="headerlink" title="清理孤立文件"></a>清理孤立文件</h3><p><a target="_blank" rel="noopener" href="https://github.com/Shmilyqjj/Shmily/blob/master/Iceberg/src/main/scala/top/shmily_qjj/iceberg/table/maintenance/SparkIcebergTableMaintenance.scala"><strong>SparkIcebergTableMaintenance$removeOrphanFiles</strong></a></p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><h3 id="ManifestFile文件丢失"><a href="#ManifestFile文件丢失" class="headerlink" title="ManifestFile文件丢失"></a>ManifestFile文件丢失</h3><pre><code class="err">2023-01-30 09:36:57,558 WARN  org.apache.flink.runtime.taskmanager.Task [] - IcebergFilesCommitter -&gt; Sink: IcebergSink (1
+/1)#0 (2125b52f518a53194e79e9f5d86dbb78) switched from RUNNING to FAILED with failure cause: org.apache.iceberg.exceptions.NotFoundException:
+ Failed to open input stream for file: oss://xxxxx/user/hive/warehouse/iceberg_db/xxxxx/metadata/f86794c3-750d-4def-ad2d-b726c4c210ad-m0.avro
+        at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+        at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+        at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+        at org.apache.iceberg.ManifestReader.&lt;init&gt;(ManifestReader.java:115)
+        at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+        at org.apache.iceberg.SnapshotProducer.newManifestReader(SnapshotProducer.java:448)
+        at org.apache.iceberg.MergingSnapshotProducer$DataFileMergeManager.newManifestReader(MergingSnapshotProducer.java:1005)
+        at org.apache.iceberg.ManifestMergeManager.createManifest(ManifestMergeManager.java:175)
+        at org.apache.iceberg.ManifestMergeManager.lambda$mergeGroup$1(ManifestMergeManager.java:156)
+        at org.apache.iceberg.util.Tasks$Builder.runTaskWithRetry(Tasks.java:402)
+        at org.apache.iceberg.util.Tasks$Builder.access$300(Tasks.java:68)
+        at org.apache.iceberg.util.Tasks$Builder$1.run(Tasks.java:308)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: java.io.FileNotFoundException: ErrorCode : 25002 , ErrorMsg: File not found.  [RequestId]: ...</code></pre>
+<p>原因: 可能合并任务异常导致<br>解决:</p>
+<pre><code class="java">// 将丢失ManifestFile文件从元数据中移除,以解决表不可用的问题
+        String lostManifestFilePath = &quot;xxxxx&quot;
+        Table table = getTable(dbName, tabName);
+        Snapshot snapshot = table.currentSnapshot();
+        List&lt;ManifestFile&gt; manifestFiles = snapshot.allManifests(table.io());
+        List&lt;ManifestFile&gt; manifestFileDeletes = new ArrayList&lt;&gt;();
+        for (ManifestFile manifestFile : manifestFiles) &#123;
+            String path = manifestFile.path();
+            if (path.equals(lostManifestFilePath)) &#123;
+                manifestFileDeletes.add(manifestFile);
+                break;
+            &#125;
+        &#125;
+        if (manifestFileDeletes.isEmpty()) &#123;
+            throw new Exception(StringUtils.format(&quot;Manifest File:%s not in metadata&quot;,lostManifestFilePath));
+        &#125;
+        RewriteManifests rewriteManifests = table.rewriteManifests();
+        for (ManifestFile manifestFile : manifestFileDeletes) &#123;
+            rewriteManifests.deleteManifest(manifestFile);
+        &#125;
+        rewriteManifests.commit();
+// 代码执行过程中可能抛出org.apache.iceberg.exceptions.ValidationException:Replaced and created manifests must have the same number of active files: 0 (new), 5567 (old)
+// 修改iceberg-core位于core/src/main/java/org/apache/iceberg/BaseRewriteManifests.java activeFilesCount方法注释掉如下两行
+//      activeFilesCount += manifest.addedFilesCount();
+//      activeFilesCount += manifest.existingFilesCount();</code></pre>
+<h3 id="Flink写入Iceberg无法找到avro文件-导致任务报错无法写入"><a href="#Flink写入Iceberg无法找到avro文件-导致任务报错无法写入" class="headerlink" title="Flink写入Iceberg无法找到avro文件,导致任务报错无法写入"></a>Flink写入Iceberg无法找到avro文件,导致任务报错无法写入</h3><pre><code class="error">org.apache.iceberg.exceptions.NotFoundException: Failed to open input stream for file: oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/32759abff25a1366837ed3d146e27d51-55f7b63bf1c8c02b88d8659b98477e64-00000-2-71-00037.avro
+    at org.apache.iceberg.hadoop.HadoopInputFile.newStream(HadoopInputFile.java:183)
+    at org.apache.iceberg.avro.AvroIterable.newFileReader(AvroIterable.java:100)
+    at org.apache.iceberg.avro.AvroIterable.getMetadata(AvroIterable.java:65)
+    at org.apache.iceberg.ManifestReader.&lt;init&gt;(ManifestReader.java:115)
+    at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:91)
+    at org.apache.iceberg.ManifestFiles.read(ManifestFiles.java:72)
+    at org.apache.iceberg.flink.sink.FlinkManifestUtil.readDataFiles(FlinkManifestUtil.java:58)
+    at org.apache.iceberg.flink.sink.FlinkManifestUtil.readCompletedFiles(FlinkManifestUtil.java:113)
+    at org.apache.iceberg.flink.sink.IcebergFilesCommitter.commitUpToCheckpoint(IcebergFilesCommitter.java:244)
+    at org.apache.iceberg.flink.sink.IcebergFilesCommitter.initializeState(IcebergFilesCommitter.java:184)
+    at org.apache.flink.streaming.api.operators.StreamOperatorStateHandler.initializeOperatorState(StreamOperatorStateHandler.java:119)
+    at org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:286)
+    at org.apache.flink.streaming.runtime.tasks.RegularOperatorChain.initializeStateAndOpenOperators(RegularOperatorChain.java:109)
+    at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:711)
+    at org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$1.call(StreamTaskActionExecutor.java:55)
+    at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreInternal(StreamTask.java:687)
+    at org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:654)
+    at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:958)
+    at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:927)
+    at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:766)
+    at org.apache.flink.runtime.taskmanager.Task.run(Task.java:575)
+    at java.lang.Thread.run(Thread.java:748)
+  ......</code></pre>
+<p>可能原因: 此文件不是MainfestList文件也不是ManifestFile文件,而是Flink写入Iceberg时一种中间状态的文件,可能原因是checkpoint超时或时间过长,但该异常与合并和清理任务无关<br>解决: </p>
+<pre><code>hdfs dfs -ls -r -t oss://bucket_name/user/hive/warehouse/iceberg_db/user_experience_report/metadata/ | grep avro | grep -v snap | grep -v m0 | grep -v m1 | grep -v m2 | grep -v m3
+找到最新avro 拷贝并重命名为缺失的avro 同时优化checkpoint稳定性</code></pre>
+<h3 id="HiveCatalog下锁表造成提交commit失败"><a href="#HiveCatalog下锁表造成提交commit失败" class="headerlink" title="HiveCatalog下锁表造成提交commit失败"></a>HiveCatalog下锁表造成提交commit失败</h3><pre><code class="error">23/05/14 03:32:34 INFO ApplicationMaster: Final app status: FAILED, exitCode: 15, (reason: User class threw exception: org.apache.iceberg.exceptions.CommitFailedException: Timed out after 183898 ms waiting for lock on iceberg_db.user_experience_report_user_details</code></pre>
+<p>解决：到Hive元数据库select * from metastore.hive_locks; DELETE FROM metastore.hive_locks WHERE HL_DB=’iceberg_db’ AND HL_TABLE=’user_experience_report_user_details’;再重跑iceberg任务即可</p>
+<h2 id="对比Hudi和DeltaLake"><a href="#对比Hudi和DeltaLake" class="headerlink" title="对比Hudi和DeltaLake"></a>对比Hudi和DeltaLake</h2><table>
+<thead>
+<tr>
+<th>对比维度\技术</th>
+<th>Iceberg</th>
+<th>Hudi</th>
+<th>DeltaLake</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据管理</td>
+<td>通过metadata文件管理</td>
+<td>通过metadata文件管理</td>
+<td>通过metadata文件管理</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>流批一体,高性能分析与可靠数据管理</td>
+<td>流批一体,Upsert场景</td>
+<td>流批一体,融合Spark生态</td>
+</tr>
+<tr>
+<td>ACID</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>ACID隔离级别</td>
+<td>Write Serialization(写串行执行)</td>
+<td>Snapshot Isolation(写数据若无交集则并发写,否则串行)</td>
+<td>Serialization(读写都必须串行)/Write Serialization/Snapshot Isolation</td>
+</tr>
+<tr>
+<td>Schema演化</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>数据操作</td>
+<td>支持Update/Delete</td>
+<td>支持Upsert/Delete</td>
+<td>支持Update/Delete/Merge</td>
+</tr>
+<tr>
+<td>流式读</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>流式写</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>并发控制</td>
+<td>乐观</td>
+<td>乐观</td>
+<td>乐观</td>
+</tr>
+<tr>
+<td>文件清理</td>
+<td>手动</td>
+<td>自动</td>
+<td>手动</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>手动</td>
+<td>自动</td>
+<td>手动</td>
+</tr>
+<tr>
+<td>外部依赖</td>
+<td>完全解耦</td>
+<td>依赖Spark</td>
+<td>依赖Spark</td>
+</tr>
+<tr>
+<td>CopyOnWrite</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>MergeOnRead</td>
+<td>v2表支持,v1表不支持</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>字段加密</td>
+<td>v3表计划支持</td>
+<td>不支持</td>
+<td>不支持</td>
+</tr>
+</tbody></table>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest">Apache Iceberg</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/429898023">Iceberg概述</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1936522">深度对比 Delta、Iceberg 和 Hudi 三大开源数据湖方案</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏<div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/aliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/donate/weChatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/3d59c888/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/technology/tech05.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/technology/tech05.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                Hive列级血缘与元数据收集</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/39a9ed67/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Linux/DNS/DNS-cover.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/BlogImages/Linux/DNS/DNS-cover.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                Linux Bind服务配置DNS解析</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+<div id="vcomments"></div>
+<script>
+  window.onload = function(){
+      var valine = new Valine();
+      valine.init({
+        el: '#vcomments',
+        appId: "zUyVEaHo59RUUwiPTChPEeBj-gzGzoHsz",
+        appKey: "xIEyTcrkTuJLz6ewPbpTj8mz",
+        path: window.location.pathname,
+        placeholder: "缘分使我们相遇！留下足迹吧..."
+      })
+  }
+</script>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <a href="shmily-qjj.top" class="profile gravatar"><img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/custom/avatar.jpg" itemprop="image" alt="佳境" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="shmily-qjj.top" itemprop="url" rel="author">佳境</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i>你自以为的极限,只是别人的起点</p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 佳境Shmily<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/Resources/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2020</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Powered by <a href="https://hexo.io/zh-cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hexo</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> 佳境Shmily</a>  <!-- &<a href="shmily-qjj.top" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a> -->
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "http://pyp1a3dme.bkt.clouddn.com/","name":"blog-my_heart_will_go_on.mp4,blog-big_fish.mp4,blog_sakura.mp4,videoblog-metro.mp4,videoblog-xxdsx.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/Shmilyqjj/Shmily-Web@master/cdn_sources/img/custom/avatar.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">佳境Shmily</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="https://github.com/Shmilyqjj" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+        <a href="http://music.163.com/artist?id=13610347&userid=318926152" class="fa fa-weibo" target="_blank" style="color: #dd4b39; margin-left:20px"></a>
+      
+        <a href="https://wpa.qq.com/msgrd?v=3&uin=710552907&site=qq&menu=yes" class="fa fa-qq" target="_blank" style="color: #25c6fe; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E6%8A%80%E6%9C%AF/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  生活
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9F%B3%E4%B9%90/">
+                  <i class="fa fa-music" aria-hidden="true"></i>
+                  音乐
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E9%9A%8F%E6%83%B3/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  随想
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E5%85%B6%E4%BB%96/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                  其他
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="javascript:;">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-list-ul faa-vertical" aria-hidden="true"></i>
+            清单
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/bangumi/">
+                  <i class="fa fa-film faa-vertical" aria-hidden="true"></i>
+                  看剧
+                </a>
+              </li>
+            
+              <li>
+                <a href="/tags/">
+                  <i class="fa fa-th-list faa-bounce" aria-hidden="true"></i>
+                  书单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/music/">
+                  <i class="fa fa-headphones" aria-hidden="true"></i>
+                  歌单
+                </a>
+              </li>
+            
+              <li>
+                <a href="/album/">
+                  <i class="fa fa-photo" aria-hidden="true"></i>
+                  相册
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/comment/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-pencil-square-o faa-tada" aria-hidden="true"></i>
+            留言板
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            博友圈
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/donate/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-heart faa-pulse" aria-hidden="true"></i>
+            赞赏
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a target="_blank" rel="noopener" href="https://tech.shmily-qjj.top/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  技术
+                </a>
+              </li>
+            
+              <li>
+                <a href="/lab/">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  Lab
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/client/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-android faa-vertical" aria-hidden="true"></i>
+            客户端
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/atom.xml">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-rss faa-pulse" aria-hidden="true"></i>
+            RSS
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2020 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<div class="aplayer"
+
+    data-id="2368663800"
+
+    data-server="netease"
+
+    data-type="playlist"
+
+    data-fixed="true"
+
+    data-autoplay="false"
+
+    data-loop="all"
+
+    data-order="random"
+
+    data-preload="auto"
+
+    data-volume="0.7"
+
+    data-mutex="true"
+
+    data-mini="true"
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"relative","left":"30px","width":150,"height":256},"mobile":{"show":false},"log":false,"tagMode":false});</script></body>
+</html>
