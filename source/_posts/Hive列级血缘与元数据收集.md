@@ -14,7 +14,7 @@ tags:
   - 表级血缘
   - 数据治理
 keywords: 血缘
-description: 表级血缘解析及原理
+description: Hive列级血缘与元数据实时收集
 photos: >-
   https://blog-images-1257889704.cos.ap-chengdu.myqcloud.com/CategoryImages/technology/tech05.jpg
 date: 2023-08-02 12:16:00
