@@ -11,7 +11,6 @@ categories:
 comments: true
 tags:
   - 数仓
-  - 表级血缘
   - 数据治理
 keywords: 血缘
 description: Hive列级血缘与元数据实时收集

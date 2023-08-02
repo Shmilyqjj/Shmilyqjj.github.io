@@ -91,7 +91,7 @@ admin:
 deploy:
   - type: git
     repo:
-      coding: https://e.coding.net/Shmilyqjj/Shmilyqjj.github.io.git
+      coding: https://e.coding.net/Shmilyqjj/Shmilyqjj.github.io/shmily-qjj.coding.io.git
       github: https://github.com/Shmilyqjj/Shmilyqjj.github.io
     branch: master
   - type: baidu_url_submitter
