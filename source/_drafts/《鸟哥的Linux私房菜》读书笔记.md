@@ -294,6 +294,7 @@ date: 2020-08-22 12:19:00
         find . -name '*.jar' -exec jar -tvf {} \; | grep gson  查看当前目录下引用gson的jar  （依赖apt install unzip openjdk-8-jdk）
         rm -f $(find . -type f -name "core.*" -mtime +100)  删除当前目录下修改时间为100天以前的前缀为core.文件
         rm -f $(find . -type f -name "*.txt" -o -name "*.csv" -mtime +100) 删除当前目录下修改时间为100天以前的后缀为txt或csv的文件
+        find /path/path -type f -name "*.txt" -o -name "*.csv" -mtime +99 | xargs rm  删除/path/path目录下修改时间为100天以前的后缀为txt或csv的文件
 17.进入目录需要x权限，在目录下ls需要r权限，读取文件需要对其路径上的目录有x权限对文件有r权限，修改文件需要对其路径上的目录有x权限对文件有rw权限
 18.在目录下创建一个文件需要的权限：对该目录有wx权限
 ```
