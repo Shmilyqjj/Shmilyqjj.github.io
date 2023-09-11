@@ -641,10 +641,13 @@ sudo renice -20  $(ps -ef | grep latte-dock | grep -v grep | awk '{print $2}')
 <font face="verdana" color="green"  size="3">This is some text!</font>
 
 23. HTTP压测
+方法1:
+sudo pacman -S wrk
+wrk -t100 -c1000 https://www.baidu.com
+方法2:
 sudo pacman -S apache 
 并发100 共1000个请求 压力测试
 ab -n 1000 -c 100 https://www.baidu.com/  
-
 
 ## 参考资料  
 《鸟哥的Linux私房菜》
