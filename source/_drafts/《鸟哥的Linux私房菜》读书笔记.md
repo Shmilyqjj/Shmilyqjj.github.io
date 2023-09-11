@@ -640,6 +640,10 @@ sudo renice -20  $(ps -ef | grep latte-dock | grep -v grep | awk '{print $2}')
 <font size="2" color="blue">This is some text!</font>
 <font face="verdana" color="green"  size="3">This is some text!</font>
 
+23. HTTP压测
+sudo pacman -S apache 
+并发100 共1000个请求 压力测试
+ab -n 1000 -c 100 https://www.baidu.com/  
 
 
 ## 参考资料  
