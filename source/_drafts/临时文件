@@ -1349,6 +1349,22 @@ FUNC_RU b,
 DBS c
 where a.func_id = b.func_id and a.DB_ID=c.DB_ID;
 
+Hive表存储大小统计
+非分区表(在元数据库里是表粒度的大小统计):
+SELECT
+    tbls.TBL_ID,
+    tbls.TBL_NAME,
+    table_params.PARAM_VALUE AS totalsize
+FROM
+    dbs JOIN tbls ON dbs.DB_ID = tbls.DB_ID LEFT JOIN table_params ON tbls.TBL_ID = table_params.TBL_ID
+WHERE
+    table_params.PARAM_KEY = 'totalSize'
+ORDER BY
+    CAST(table_params.PARAM_VALUE AS UNSIGNED) DESC LIMIT 20;
+
+分区表(在元数据库里是分区粒度的大小统计):
+select sum(cast(b.PARAM_VALUE as unsigned)) as totalSize from (select part_id from partitions where TBL_ID = '808408') a left join (select * from partition_params where param_key = 'totalSize') b on a.part_id = b.part_id;
+
 
 Hive开启自动文件合并
    <property>
