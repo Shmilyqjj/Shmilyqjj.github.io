@@ -649,6 +649,21 @@ sudo pacman -S apache
 并发100 共1000个请求 压力测试
 ab -n 1000 -c 100 https://www.baidu.com/  
 
+24. 文件拆分
+Linux中使用split命令进行文件拆分
+(1) 将data.txt按行拆分成多个文件,文件名为data_part00.txt,data_part01.txt,data_part02.txt......
+split -d -l 100000 data.txt  data_part --additional-suffix=.txt
+(2) 将data.txt拆分成多个指定大小的文件,文件名为data_part00.txt,data_part01.txt,data_part02.txt...... (这种方式做不到按行切分,可能存在首行或尾行数据不完整)
+split -d -b 1024M data.txt  data_part --additional-suffix=.txt
+(3) 将data.txt拆分成指定文件数且完整按行切分,文件名为data_part00.txt,data_part01.txt,data_part02.txt......
+split -n l/40 data.txt data_part --additional-suffix=.txt # 平均拆分为40个文件,文件名为data_part00.txt,data_part01.txt,data_part02.txt......
+(4) 流式拆分读取到的数据为多个文件
+hdfs dfs -text /tmp/data/* | split -n r/40  # 读取hdfs上/tmp/data/目录下所有文件,将内容拆分为40个文件落到本地磁盘
+
+25. 文件合并
+Linux中使用cat命令进行文件合并
+cat /tmp/data_part*.txt > data.txt
+
 ## 参考资料  
 《鸟哥的Linux私房菜》
 
