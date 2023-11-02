@@ -664,6 +664,23 @@ hdfs dfs -text /tmp/data/* | split -n r/40  # 读取hdfs上/tmp/data/目录下�
 Linux中使用cat命令进行文件合并
 cat /tmp/data_part*.txt > data.txt
 
+26. 文件同步
+rsync命令用于数据文件同步
+rsync特点：a.可以镜像保存整个目录树和文件系统 b.可以保留原有的权限，owner，group，时间，软硬链接，文件属性等信息 c.传输效率高，只比较变化的 d.支持匿名传输，也可以做验证，加强安全
+(1)本地同步
+rsync --delete -avzP /dir1/ /dir2/  # dir1下所有文件同步到dir2下 显示详细信息,进度,传输时压缩提效,以dir1为主,对dir2同步,多则删少则补 保持两个目录一致
+(2)远程同步
+rsync -avzP root@192.168.8.1:/etc/hosts /dir1/     #将@192.168.8.1服务器/etc/hosts文件拷贝到本地/dir1文件夹下
+(3)排除部分文件的同步
+rsync --delete --exclude-from exclude_list.txt -avzP src tgt
+vim exclude_list.txt 内容如下:
+```exclude_list.txt
+*.jar
+*.log
+*.log.*
+```
+
+
 ## 参考资料  
 《鸟哥的Linux私房菜》
 
