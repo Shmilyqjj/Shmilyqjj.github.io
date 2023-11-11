@@ -10,7 +10,7 @@ acl allow execute always = yes
 
 ### 2.开机自启脚本
 ```
-vim /etc/init.d/z_startup_script 内容固定如下
+vim /etc/init.d/z_startup_script 内容固定如下 (绿联nas的ugos系统基于openwrt，故服务启动脚本使用openwrt固定的形式)
 #!/bin/bash /etc/rc.common
 START=99
 start(){
