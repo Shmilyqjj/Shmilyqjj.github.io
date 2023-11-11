@@ -1,14 +1,14 @@
 # DX4600 Pro Nas设置和操作
 
-## 系统调整
-### SMB挂载到Windows后无权限执行exe文件
+## 一.系统调整
+### 1.SMB挂载到Windows后无权限执行exe文件
 ```shell
 vim /etc/samba/smb.conf.template 增加参数
 acl allow execute always = yes
 保存，在页面重启SMB服务
 ```
 
-### 开机自启脚本
+### 2.开机自启脚本
 ```
 vim /etc/init.d/z_startup_script 内容固定如下
 #!/bin/bash /etc/rc.common
@@ -32,16 +32,16 @@ chmod +x /etc/init.d/z_startup_script
 注意：START设为99，优先级最低，由于openwrt系统按文件字典序的顺序执行脚本，为了避免你的自定义脚本影响系统启动，需要降低你的脚本的优先级，所以z开头
 ```
 
-### 系统日志
+### 3.系统日志
 类似于/var/log/messages 抑或是journalctl
 在绿联nas中可以通过以下方式查看系统日志
 ```shell
 grep zerotier $(cat /var/log/ug_sys_log_flag)
 ```
 
-## Docker程序
+## 二.Docker程序
 
-### Zerotier异地组网
+### 1.Zerotier异地组网
 ```text
 1.提升tun权限
 chmod 0666 /dev/net/tun   (/dev/net/tun 每次重启权限都会复原，需要每次修改权限后启动容器)
