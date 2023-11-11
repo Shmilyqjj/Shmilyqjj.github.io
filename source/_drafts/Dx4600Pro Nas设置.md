@@ -54,7 +54,7 @@ docker create \
 --net host \
 --cap-add NET_ADMIN \
 --cap-add SYS_ADMIN \
--v /mnt/media_rw/70404831-2042-45cc-8a22-05ca4dfc95ba/.ugreen_nas/242136/docker_config/zerotier-aws-planet/zerotier-one:/var/lib/zerotier-one \
+-v /mnt/media_rw/70404831-2042-45cc-8a22-05ca4dfc95ba/.ugreen_nas/242136/.docker_data/zerotier-one:/var/lib/zerotier-one \
 --name zerotier-one \
 zerotier/zerotier
 注意：
