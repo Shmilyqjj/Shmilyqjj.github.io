@@ -32,6 +32,12 @@ chmod +x /etc/init.d/z_startup_script
 注意：START设为99，优先级最低，由于openwrt系统按文件字典序的顺序执行脚本，为了避免你的自定义脚本影响系统启动，需要降低你的脚本的优先级，所以z开头
 ```
 
+### 系统日志
+类似于/var/log/messages 抑或是journalctl
+在绿联nas中可以通过以下方式查看系统日志
+```shell
+grep zerotier $(cat /var/log/ug_sys_log_flag)
+```
 
 ## Docker程序
 
@@ -61,9 +67,8 @@ docker ps
 docker exec zerotier-one /bin/sh -c "zerotier-cli join xxx"
 docker exec zerotier-one /bin/sh -c "zerotier-cli peers list"
 6. 开机自启
-root@UGREEN-CFE3:~# ln -s /mnt/dm-0/.ugreen_nas/242136/ ssd1
-mkdir -p /root/ssd1/Tools/scripts/init
-cd /root/ssd1/Tools/scripts/init
+root@UGREEN-CFE3:~# mkdir .config/init
+cd /root/.config/init
 vim  init_zerotier 内容如下（容器不断重试启动）：
 #!/bin/bash
 max_retries=10
@@ -88,6 +93,6 @@ exit 1
 保存 并赋权 chmod +x init_zerotier
 vim /etc/init.d/z_startup_script 修改 在start()方法里增加如下内容
 chmod 0666 /dev/net/tun
-/root/ssd1/Tools/scripts/init/init_zerotier
+/root/.config/init/init_zerotier
 ```
 
