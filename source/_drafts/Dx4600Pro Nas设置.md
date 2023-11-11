@@ -8,6 +8,30 @@ acl allow execute always = yes
 保存，在页面重启SMB服务
 ```
 
+### 开机自启脚本
+```
+vim /etc/init.d/z_startup_script 内容固定如下
+#!/bin/bash /etc/rc.common
+START=99
+start(){
+        # your commands here 这里添加你要执行的命令
+        chmod 0666 /dev/net/tun
+        echo "z_startup_script started"
+}
+stop(){
+       echo "z_startup_script stopped"
+}
+restart(){
+        echo "z_startup_script is restart"
+}
+保存后
+chmod +x /etc/init.d/z_startup_script
+/etc/init.d/z_startup_script enable
+此时查看ll /etc/rc.d/  enable后成功建立软连接表示成功
+  S99z_startup_script -> ../init.d/z_startup_script*
+注意：START设为99，优先级最低，由于openwrt系统按文件字典序的顺序执行脚本，为了避免你的自定义脚本影响系统启动，需要降低你的脚本的优先级，所以z开头
+```
+
 
 ## Docker程序
 
