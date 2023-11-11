@@ -60,5 +60,34 @@ docker ps
 5.加入到网络并验证
 docker exec zerotier-one /bin/sh -c "zerotier-cli join xxx"
 docker exec zerotier-one /bin/sh -c "zerotier-cli peers list"
+6. 开机自启
+root@UGREEN-CFE3:~# ln -s /mnt/dm-0/.ugreen_nas/242136/ ssd1
+mkdir -p /root/ssd1/Tools/scripts/init
+cd /root/ssd1/Tools/scripts/init
+vim  init_zerotier 内容如下（容器不断重试启动）：
+#!/bin/bash
+max_retries=10
+retries=0
+interval_sec=5
+while [ $retries -lt $max_retries ]; do
+    docker start zerotier-one
+    container_status=$(docker inspect -f '{{.State.Status}}' zerotier-one)
+    if [ "$container_status" == "running" ]; then
+        sleep 2
+        docker exec zerotier-one /bin/sh -c "zerotier-cli join your_network_id"
+        echo "zerotier-one container started."
+        exit 0
+    else
+        echo "zerotier-one start failed,sleep $interval_sec seconds.(Retries: $((retries+1)))"
+        sleep $interval_sec
+        ((retries++))
+    fi
+done
+echo "Exceed limits of failed times,failed to start container zerotier-one."
+exit 1
+保存 并赋权 chmod +x init_zerotier
+vim /etc/init.d/z_startup_script 修改 在start()方法里增加如下内容
+chmod 0666 /dev/net/tun
+/root/ssd1/Tools/scripts/init/init_zerotier
 ```
 
