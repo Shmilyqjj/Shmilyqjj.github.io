@@ -96,3 +96,15 @@ chmod 0666 /dev/net/tun
 /root/.config/init/init_zerotier
 ```
 
+
+## 三. 使用
+### 1.Linux下挂载nas的smb
+sudo mkdir -p /nas/SSD1
+sudo mkdir -p /nas/SSD2
+sudo mkdir -p /nas/HeSpace
+sudo mkdir -p /nas/mt3000
+sudo chmod 1777 -R /nas
+//172.xx.xx.xx/shmily_SSD1 /nas/SSD1       cifs username=yourusername,password=yourpwd,iocharset=utf8 0 0
+//172.xx.xx.xx/shmily_SSD2 /nas/SSD2       cifs username=yourusername,password=yourpwd,iocharset=utf8 0 0
+//172.xx.xx.xx/shmily_HeSpace /nas/HeSpace cifs username=yourusername,password=yourpwd,iocharset=utf8 0 0
+//172.xx.xx.xx/disk1_part1 /nas/mt3000     cifs username=yourusername,password=yourpwd,iocharset=utf8 0 0
