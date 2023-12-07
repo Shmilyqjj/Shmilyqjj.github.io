@@ -94,6 +94,8 @@ exit 1
 vim /etc/init.d/z_startup_script 修改 在start()方法里增加如下内容
 chmod 0666 /dev/net/tun
 /root/.config/init/init_zerotier
+由于每次绿联nas固件更新后会初始化/etc/init.d目录导致我们的自定义脚本丢失，所以我们把启动脚本放入/etc/rc.d下，名为S99z_startup_script
+rm /etc/rc.d/S99z_startup_script ; cp /etc/init.d/z_startup_script /etc/rc.d/S99z_startup_script
 ```
 
 
