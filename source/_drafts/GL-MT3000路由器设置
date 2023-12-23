@@ -13,6 +13,9 @@ sudo systemctl enable zerotier-one --now
 sudo zerotier-cli join <ZeroTire Network ID>
 
 3. openclash设置
+opkg install luci luci-base luci-compat iptables dnsmasq-full coreutils coreutils-nohup bash curl ca-certificates ipset ip-full iptables-mod-tproxy iptables-mod-extra libcap libcap-bin ruby ruby-yaml kmod-tun ip6tables-mod-nat
+OpenWrt 21.02-SNAPSHOT 版本 需下载https://github.com/vernesong/OpenClash/releases/tag/v0.44.34-beta  （更高版本不兼容）
+
 服务->OpenClash ->
 插件设置->模式(勾选Fake-IP模式)->DNS设置->本地DNS劫持(使用Dnsmasq转发)->勾选(禁止 Dnsmasq 缓存 DNS)
 覆写设置->常规设置->DNS监听端口(7874) 
