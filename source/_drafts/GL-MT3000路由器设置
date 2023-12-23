@@ -15,8 +15,14 @@ sudo zerotier-cli join <ZeroTire Network ID>
 3. openclash设置
 opkg install luci luci-base luci-compat iptables dnsmasq-full coreutils coreutils-nohup bash curl ca-certificates ipset ip-full iptables-mod-tproxy iptables-mod-extra libcap libcap-bin ruby ruby-yaml kmod-tun ip6tables-mod-nat
 OpenWrt 21.02-SNAPSHOT 版本 需下载https://github.com/vernesong/OpenClash/releases/tag/v0.44.34-beta  （更高版本不兼容）
+下载armv8内核 放在/etc/openclash/core目录下
+普通内核为clash  tun内核为clash_tun 解压后得到
+
 
 服务->OpenClash ->
+Fake-IP模式： 速度快但兼容性一般
+Redir-Host模式：速度略慢但兼容性好，设置简单
+Fake-IP：
 插件设置->模式(勾选Fake-IP模式)->DNS设置->本地DNS劫持(使用Dnsmasq转发)->勾选(禁止 Dnsmasq 缓存 DNS)
 覆写设置->常规设置->DNS监听端口(7874) 
 不勾选ipv6相关设置
@@ -39,6 +45,13 @@ rules:
  - DOMAIN-SUFFIX,anydesk.com,AnyDesk
 保存配置->应用配置 
 在openclash web管理页面配置AnyDesk的代理规则即可
+
+Redir-Host：
+GEOIP数据库订阅
+大陆白名单订阅
+Config Manage 配置文件管理  上传订阅配置文件
+模式设置 实验性：绕过中国大陆IP
+其他不动
 
 4. ftp服务
 /etc/vsftpd.conf内容如下
