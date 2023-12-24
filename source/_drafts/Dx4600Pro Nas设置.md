@@ -30,6 +30,8 @@ chmod +x /etc/init.d/z_startup_script
 此时查看ll /etc/rc.d/  enable后成功建立软连接表示成功
   S99z_startup_script -> ../init.d/z_startup_script*
 注意：START设为99，优先级最低，由于openwrt系统按文件字典序的顺序执行脚本，为了避免你的自定义脚本影响系统启动，需要降低你的脚本的优先级，所以z开头
+由于每次绿联nas固件更新后会初始化/etc/init.d目录导致我们的自定义脚本丢失，所以我们把启动脚本放入/etc/rc.d下，名为S99z_startup_script
+rm /etc/rc.d/S99z_startup_script ; cp /etc/init.d/z_startup_script /etc/rc.d/S99z_startup_script
 ```
 
 ### 3.系统日志
@@ -38,6 +40,53 @@ chmod +x /etc/init.d/z_startup_script
 ```shell
 grep zerotier $(cat /var/log/ug_sys_log_flag)
 ```
+
+### 4.重新映射软连接
+需求：将别人的存储空间映射到自己目录下以便可以在别人的存储空间上传。每次重启nas后挂载点会变化，这个脚本用于在开机后立刻重新映射软连接
+vim /root/.scripts/remapping_soft_links.sh
+```shell
+#!/bin/bash
+# remapping soft links when server restart
+
+QJJ=242136
+ZCY=259944
+QG=264898
+
+IMPORTANT=$(lsblk | grep -A2 raid1 | grep lvm | grep -v corig | grep 7.3T | awk '{print $7}' | head -n 1)
+HE=$(lsblk | grep -A2 raid1 | grep lvm | grep -v corig | grep 16.4T | awk '{print $7}' | head -n 1)
+SSD=$(lsblk | grep -A2 nvme0 | grep -v 1.9T | awk '{print $1}')
+
+echo "[$(date +%Y%m%d_%H:%M:%S)]Mount points:" > /root/mount_info
+echo IMPORTANT: $IMPORTANT >> /root/mount_info
+echo HE: $HE >> /root/mount_info
+echo SSD: $SSD >> /root/mount_info
+
+# remount
+rm /root/qjj/important
+rm /root/qjj/he
+rm /root/qjj/ssd
+ln -s $IMPORTANT/.ugreen_nas/$QJJ/ /root/qjj/important
+ln -s $HE/.ugreen_nas/$QJJ/ /root/qjj/he
+ln -s $SSD/.ugreen_nas/$QJJ/ /root/qjj/ssd
+
+rm /root/zcy/important
+rm /root/zcy/he
+rm /root/zcy/ssd
+ln -s $IMPORTANT/.ugreen_nas/$ZCY/ /root/zcy/important
+ln -s $HE/.ugreen_nas/$ZCY/ /root/zcy/he
+ln -s $SSD/.ugreen_nas/$ZCY/ /root/zcy/ssd
+
+rm /root/qg/important
+rm /root/qg/he
+rm /root/qg/ssd
+ln -s $IMPORTANT/.ugreen_nas/$QG/ /root/qg/important
+ln -s $HE/.ugreen_nas/$QG/ /root/qg/he
+ln -s $SSD/.ugreen_nas/$QG/ /root/qg/ssd
+
+echo "All Done"
+```
+chmod +x /root/.scripts/remapping_soft_links.sh
+向/etc/rc.d/S99z_startup_script中start方法下加入 /root/.scripts/remapping_soft_links.sh
 
 ## 二.Docker程序
 
