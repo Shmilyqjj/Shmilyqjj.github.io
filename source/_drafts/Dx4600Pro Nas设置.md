@@ -147,6 +147,10 @@ chmod 0666 /dev/net/tun
 rm /etc/rc.d/S99z_startup_script ; cp /etc/init.d/z_startup_script /etc/rc.d/S99z_startup_script
 ```
 
+### Home Assistant
+```
+docker create --restart unless-stopped --net host --name="homeassistant" -v /mnt/media_rw/70404831-2042-45cc-8a22-05ca4dfc95ba/.ugreen_nas/242136/.docker_data/homeassistant:/config homeassistant/home-assistant:latest
+```
 
 ## 三. 使用
 ### 1.Linux下挂载nas的smb
