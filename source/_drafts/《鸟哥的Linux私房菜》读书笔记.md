@@ -599,6 +599,10 @@ zip xxx.zip /tmp/data/*.log
 zip xxx.zip file1 file2 ... fileN
 # zip压缩包解压
 unzip xxx.zip
+# tar.xz压缩包创建（xz压缩率极高，生成文件很小，但压缩速度慢）
+tar -Jcvf xxx.tar.xz /tmp/data
+# tar.xz解压缩
+tar -Jxvf xxx.tar.xz 
 ```
 
 19. 文件对比
