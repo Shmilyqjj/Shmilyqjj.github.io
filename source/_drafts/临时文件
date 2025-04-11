@@ -2376,6 +2376,10 @@ docker build -t shmily/dind .
 docker run --name dind --privileged -d shmily/dind:latest 
 docker exec dind /bin/bash -c "docker ps"
 
+修复容器中文乱码
+-e LANG=en_US.UTF-8 \
+-e LANGUAGE=en_US:en \
+-e LC_ALL=en_US.UTF-8 \
 
 示例:
 1.Docker创建MySql
