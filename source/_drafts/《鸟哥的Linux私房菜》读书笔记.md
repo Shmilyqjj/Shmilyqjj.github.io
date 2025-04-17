@@ -438,6 +438,7 @@ sed 's/$/ \necho $(date) /g' test > test1   test文件里每行下面加一行ec
 客户端(发送文件端)命令：nc ip地址 端口号 < 发送的文件名
 
 5. 目录下文件按大小\时间排序
+查看目录大小排序前10：du -sch * | sort -hr | head -n 10
 大文件GB级别以上的文件按大小排序du -sh /path/* | grep G | sort -rnk1
 按大小排序并显示ll | sort -rnk5
 
